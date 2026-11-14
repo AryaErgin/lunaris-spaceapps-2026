@@ -1,0 +1,43 @@
+name: Publish verified static app
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Stamp deployment identity
+        env:
+          RELEASE_SHA: ${{ github.sha }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          bundle = json.loads(Path('web/data/bundle.json').read_text())
+          release = {
+              'application_release_sha': os.environ['RELEASE_SHA'],
+              'data_generator_commit': bundle.get('manifest', {}).get('engineCommit'),
+              'public_url': 'https://aryaergin.github.io/lunaris-spaceapps-2026/',
+              'source_repository': 'https://github.com/AryaErgin/lunaris-spaceapps-2026'
+          }
+          Path('web/release.json').write_text(json.dumps(release, indent=2) + '\n')
+          PY
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web
+      - name: Publish
+        id: deployment
+        uses: actions/deploy-pages@v5
