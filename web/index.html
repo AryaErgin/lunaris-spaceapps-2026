@@ -94,8 +94,24 @@
           <div class="story-outcome"><span id="story-status" class="status"></span><button id="story-next" class="primary" type="button">Apply the landing delay →</button></div>
         </div>
         <div id="story-joint" class="story-joint" aria-label="Joint Sun and Earth visibility timeline"></div>
+        <a class="decision-jump" href="#decision-evidence">See all mission requirements and proof ↓</a>
         <div id="configuration-summary" class="configuration-summary" role="status" hidden></div>
         <div class="story-footer"><details><summary>Mission requirements</summary><p id="story-requirements"></p></details><button id="verified-demo" class="link-button" type="button">Restart joint demo ↗</button></div>
+      </section>
+      <section id="decision-evidence" class="decision-evidence" aria-labelledby="decision-title">
+        <div class="decision-heading"><div><h2 id="decision-title">Requirements for this selected plan</h2><p class="illustrative-requirements">Illustrative mission requirements — not real lander specifications.</p></div><p id="evidence-plan"></p></div>
+        <p id="evidence-summary"></p>
+        <p id="evidence-schedule" class="schedule-exclusion" hidden></p>
+        <p id="evidence-refinement" class="evidence-refinement"></p>
+        <details id="evidence-warnings"><summary>Coverage and numerical notes</summary><div></div></details>
+        <div id="decision-requirements" class="decision-requirements"></div>
+        <p class="evidence-margin-key">Signed margin: positive is room within a limit; negative is beyond it. A bound alone does not resolve an INDETERMINATE rule.</p>
+        <div id="decision-timeline" class="decision-timeline" aria-label="Selected mission sunlight, Earth and joint visibility timeline"></div>
+        <p id="evidence-focus-label" class="evidence-focus-label" role="status"></p>
+        <p id="evidence-physical-reason" class="evidence-physical-reason"></p>
+        <p id="recovery-choice" class="recovery-choice" hidden></p>
+        <div class="visibility-definitions"><p><strong>Sun-center visibility:</strong> the Sun’s center clears terrain and is outside Earth’s apparent disc.</p><p><strong>Earth-center LOS:</strong> an unobstructed geometric line to Earth’s center.</p><p><strong>Joint visibility:</strong> both conditions hold at the same time.</p></div>
+        <p class="evidence-limit">These conditions do not calculate generated electrical power, radio-link availability, thermal survival or landing safety.</p>
       </section>
       <details class="visual-disclosure"><summary>Model limits, NASA sources and visual approximations</summary><p>Visibility is geometry, not measured electrical power or a working radio link. The reduced NASA LOLA surface extends 32 km; more distant ridges use the calculated nominal skyline projected at an artificial 200 km distance. That curtain and local mesh are display geometry, not the uncertainty bounds used to decide a mission. Sun and Earth centers follow cached 30-minute azimuth/elevation samples. Bodies are hidden unless retained, coarse and fine intervals all confirm visibility; this does not model the complete solar or Earth disc. Fixed approximate diameters are 0.53° and 1.9°. Earth’s historical NASA texture, its orientation and phase, orbital illumination, display fill and local shadows are illustrative. Camera zoom changes field of view, not observer height or sky angles. Rocks, landing hazards, power, thermal safety and radio hardware are not modeled. Only three study points and November 2026 have validated cached calculations. NASA sources and hashes are available in Advanced.</p></details>
     </section>
