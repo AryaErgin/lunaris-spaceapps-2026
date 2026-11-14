@@ -250,24 +250,25 @@ tbody th { font-weight: 680; min-width: 125px; }
 .alternatives li button { text-align: left; color: var(--ink); background: #eeeee8; border: 1px solid var(--line); border-radius: 5px; font-size: .76rem; padding: .4rem .5rem; width: 100%; }
 .alternatives li button:hover, .alternatives li button[aria-pressed='true'] { border-color: #456581; }
 
-.height-panel { padding: .88rem 1.08rem; }
-.height-panel > summary { cursor: pointer; color: var(--ink); }
-.height-panel > summary span { font-size: 1.08rem; font-weight: 680; letter-spacing: -.025em; }
-.height-panel > summary small { margin-left: .45rem; color: var(--sub); font-size: .72rem; }
-.height-body { margin-top: .4rem; }
-.height-body > button { margin-top: .6rem; }
-.height-summary { display: flex; align-items: baseline; gap: .45rem; flex-wrap: wrap; margin-top: .7rem; font-size: .83rem; }
-.height-summary .status { align-self: center; }
-.height-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 175px), 1fr)); gap: .45rem; margin-top: .65rem; }
-.height-card { min-width: 0; padding: .55rem; border: 1px solid var(--line); border-radius: 6px; }
-.height-card header { display: flex; justify-content: space-between; align-items: center; gap: .3rem; }
-.height-card h3 { margin: 0; font-size: .91rem; }
-.height-limits { padding: 0; margin: .32rem 0 0; list-style: none; }
-.height-limits li { display: flex; justify-content: space-between; gap: .45rem; padding-top: .2rem; color: var(--sub); font-size: .72rem; }
-.height-limits .number { font-size: .69rem; }
-.height-card details { margin-top: .3rem; color: var(--sub); font-size: .7rem; }
-.height-card details summary { cursor: pointer; }
-.height-card details ul { margin: .25rem 0; padding-left: 1rem; }
+.study-panel { padding: .88rem 1.08rem; }
+.study-panel > summary { cursor: pointer; color: var(--ink); }
+.study-panel > summary span { font-size: 1.08rem; font-weight: 680; letter-spacing: -.025em; }
+.study-panel > summary small { margin-left: .45rem; color: var(--sub); font-size: .72rem; }
+.study-body { margin-top: .4rem; }
+.study-body > button { margin-top: .6rem; }
+.study-summary { display: flex; align-items: baseline; gap: .45rem; flex-wrap: wrap; margin-top: .7rem; font-size: .83rem; }
+.study-summary .status { align-self: center; }
+.study-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr)); gap: .45rem; margin-top: .65rem; }
+.study-card { min-width: 0; padding: .55rem; border: 1px solid var(--line); border-radius: 6px; }
+.study-card header { display: flex; justify-content: space-between; align-items: center; gap: .3rem; }
+.study-card h3 { margin: 0; font-size: .91rem; }
+.study-card .coordinates { color: var(--sub); margin: .2rem 0; font: .67rem/1.5 var(--mono); }
+.study-limits { padding: 0; margin: .32rem 0 0; list-style: none; }
+.study-limits li { display: flex; justify-content: space-between; gap: .45rem; padding-top: .2rem; color: var(--sub); font-size: .72rem; }
+.study-limits .number { font-size: .69rem; }
+.study-card details { margin-top: .3rem; color: var(--sub); font-size: .7rem; }
+.study-card details summary { cursor: pointer; }
+.study-card details ul { margin: .25rem 0; padding-left: 1rem; }
 
 .methods { padding: 1.7rem 0 2.2rem; margin-top: 1.65rem; border-top: 1px solid var(--line); scroll-margin-top: 1rem; }
 .methods-grid { margin-top: .85rem; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem 2rem; }
@@ -281,7 +282,7 @@ tbody th { font-weight: 680; min-width: 125px; }
 @media (max-width: 980px) {
   .container, .mast-inner { width: min(1260px, calc(100% - 48px)); }
   .workspace { grid-template-columns: minmax(220px, 251px) minmax(0, 1fr); gap: .9rem; }
-  .settings, .constraints, .figure, .alternatives, .height-panel { padding-inline: .8rem; }
+  .settings, .constraints, .figure, .alternatives, .study-panel { padding-inline: .8rem; }
   .intro { grid-template-columns: 1fr minmax(195px, 250px); gap: .8rem; }
   .intro-break { display: initial; }
 }

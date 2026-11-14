@@ -158,16 +158,29 @@
             <div id="alternatives-list"></div>
           </section>
 
-          <details id="height-panel" class="panel height-panel" hidden>
+          <details id="height-panel" class="panel study-panel" hidden>
             <summary>
               <span>Observer height sensitivity</span>
               <small>de Gerlache Rim 1</small>
             </summary>
-            <div class="height-body">
+            <div class="study-body">
               <p class="secondary">Compare fixed observer heights against the selected mission’s limits at the same coordinates. Each height is a design setting.</p>
-              <button id="run-heights" class="outline" type="button" disabled>Evaluate selected start</button>
+              <button id="run-heights" class="outline" type="button" disabled>Evaluate heights</button>
               <p id="height-status" class="secondary" role="status"></p>
               <div id="height-results" hidden></div>
+            </div>
+          </details>
+
+          <details id="position-panel" class="panel study-panel" hidden>
+            <summary>
+              <span>Landing position sensitivity</span>
+              <small>de Gerlache Rim 1</small>
+            </summary>
+            <div class="study-body">
+              <p class="secondary">Compare the nominal point and two illustrative 25 m map offsets at the selected start. The observer is 2 m above local ground at each point.</p>
+              <button id="run-positions" class="outline" type="button" disabled>Evaluate positions</button>
+              <p id="position-status" class="secondary" role="status"></p>
+              <div id="position-results" hidden></div>
             </div>
           </details>
         </div>

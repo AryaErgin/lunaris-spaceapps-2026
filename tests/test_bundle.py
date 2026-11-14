@@ -7,9 +7,11 @@ import pytest
 
 from science.build import _canonical
 from science.sources import SHA256
+from science.terrain import project
 
 BUNDLE = Path("web/data/bundle.json")
 HEIGHT_STUDY = Path("web/data/height-study.json")
+POSITION_STUDY = Path("web/data/position-study.json")
 
 
 def verify_payload_fingerprint(bundle):
@@ -53,3 +55,25 @@ def test_height_bundle_reuses_nominal_and_moves_only_observer_height():
     assert low["terrain"]["fine"]["observerRadiusM"] == nominal_radius - 1
     assert high["terrain"]["fine"]["observerRadiusM"] == nominal_radius + 3
     assert low["sun"] != site["sun"] and high["sun"] != site["sun"]
+
+
+@pytest.mark.skipif(not POSITION_STUDY.is_file(), reason="landing-position bundle not built")
+def test_position_bundle_moves_map_easting_and_keeps_height_above_local_ground():
+    baseline = json.loads(BUNDLE.read_bytes())
+    study = json.loads(POSITION_STUDY.read_bytes())
+    verify_payload_fingerprint(study)
+    assert study["coverage"] == baseline["coverage"]
+    assert study["manifest"]["baselineBundleSha256"] == baseline["manifest"]["bundleSha256"]
+    site = next(site for site in baseline["sites"] if site["id"] == study["siteId"])
+    x_origin, y_origin = project(site["lat"], site["lon"])
+    assert [item["offsetEastingM"] for item in study["scenarios"]] == [-25, 0, 25]
+    for scenario in study["scenarios"]:
+        x, y = project(scenario["lat"], scenario["lon"])
+        assert x - x_origin == pytest.approx(scenario["offsetEastingM"], abs=1e-7)
+        assert y == pytest.approx(y_origin, abs=1e-7)
+        assert scenario["heightM"] == 2
+        if scenario.get("baseline"):
+            assert "sun" not in scenario
+        else:
+            assert scenario["groundM"] != site["groundM"]
+            assert scenario["terrain"]["fine"]["observerRadiusM"] == site["referenceRadiusM"] + scenario["groundM"] + 2

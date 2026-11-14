@@ -18,6 +18,8 @@ Select a decision to see its timeline, hard-constraint margins and witness inter
 
 At de Gerlache Rim 1, **Observer-height sensitivity** re-evaluates the selected mission at 1 m, 2 m and 5 m above the same point. The three heights are illustrative design settings. An all-scenario pass applies only to those settings. The optional comparison leaves the Phase B recommendation intact and can be included in the downloaded certificate.
 
+**Landing-position sensitivity** evaluates the published point and two illustrative offsets along the lunar map’s easting axis, 25 m in either direction. It keeps the observer 2 m above the ground at each point. These settings do not represent a navigation error distribution or establish landing safety.
+
 ## Reproduce and verify
 
 ```sh
@@ -25,9 +27,10 @@ python -m pip install -r requirements-build.txt pytest
 python -m science.sources
 python -m science.build
 python -m science.height_study
+python -m science.position_study
 python -m pytest -q
-node --test tests/engine.test.mjs tests/height.test.mjs
-node tests/test_ui.mjs --require-recovery --height
+node --test tests/*.test.mjs
+node tests/test_ui.mjs --require-recovery --height --position
 ```
 
 The source download is about 358 MB. The browser test uses Node.js 24 and a local Chrome or Chromium installation. Set `LUNARIS_CHROME` to its executable if it is installed in a nonstandard location. [Bundled Horizons comparison](web/data/horizons-validation.json) records the exact reference queries, observer heights and numerical results. Run `python -m science.ephemerides --help` to repeat the reference comparison online. Build and raw-data dependencies are independent of the offline app.

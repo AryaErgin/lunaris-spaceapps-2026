@@ -3,8 +3,6 @@ import { makeCertificate, runMission } from './engine.mjs';
 const byId = (id) => document.getElementById(id);
 const form = byId('mission-form');
 const exportButton = byId('export');
-const heightPanel = byId('height-panel');
-const heightButton = byId('run-heights');
 const decisionList = byId('decision-list');
 const number = new Intl.NumberFormat('en', { maximumFractionDigits: 2 });
 const dateOnly = new Intl.DateTimeFormat('en-GB', {
@@ -39,10 +37,12 @@ let target = 'sun';
 let chart;
 let lastPlotWidth;
 let isEdited = false;
-let heightAssets;
-let heightReport;
-let heightRequest = 0;
-const HEIGHT_STUDY_SITE = 'de-gerlache-rim';
+const SENSITIVITY_STUDY_SITE = 'de-gerlache-rim';
+const studies = ['height', 'position'].map((id) => ({
+  id, panel: byId(`${id}-panel`), button: byId(`run-${id}s`),
+  status: byId(`${id}-status`), content: byId(`${id}-results`),
+  request: 0,
+}));
 
 function element(tag, className, value) {
   const node = document.createElement(tag);
@@ -586,41 +586,49 @@ function renderInspection() {
   renderConstraints(mission);
   renderPlot(mission);
   renderTimeline(mission);
-  resetHeightStudy(mission);
+  for (const study of studies) resetStudy(study, mission);
 }
 
-function resetHeightStudy(mission) {
-  heightRequest += 1;
-  heightReport = undefined;
-  byId('height-results').hidden = true;
-  byId('height-results').replaceChildren();
-  const matchesStudyPoint = mission?.siteId === HEIGHT_STUDY_SITE;
-  heightButton.disabled = !matchesStudyPoint || isEdited;
+function resetStudy(study, mission) {
+  study.request += 1;
+  study.report = undefined;
+  study.content.hidden = true;
+  study.content.replaceChildren();
+  const matchesStudyPoint = mission?.siteId === SENSITIVITY_STUDY_SITE;
+  study.button.disabled = !matchesStudyPoint || isEdited;
   let message = '';
-  if (isEdited) message = 'Evaluate the updated mission before comparing heights.';
+  if (isEdited) message = `Evaluate the updated mission before comparing ${study.id}s.`;
   else if (matchesStudyPoint) message = `Selected mission begins ${formatTime(mission.start)}.`;
   else message = 'Available for landing decisions at de Gerlache Rim 1.';
-  byId('height-status').textContent = message;
+  study.status.textContent = message;
 }
 
-function renderHeightReport(report) {
-  const content = byId('height-results');
-  const summary = element('div', 'height-summary');
+function renderStudyReport(study, report) {
+  const content = study.content;
+  const summary = element('div', 'study-summary');
   const total = report.scenario_results.length;
   const passes = report.scenario_results.filter(({ status }) => status === 'PASS').length;
-  summary.append(element('strong', '', `Passes ${passes} of ${total} evaluated heights`), statusChip(report.robust_status));
+  summary.append(element('strong', '', `Passes ${passes} of ${total} evaluated ${study.id}s`), statusChip(report.robust_status));
   const scope = element('p', 'secondary', report.scope);
-  const cards = element('div', 'height-cards');
+  const cards = element('div', 'study-cards');
   const nominalHeight = findSite(report.siteId)?.heightM;
   for (const scenario of report.scenario_results) {
-    const card = element('section', 'height-card');
+    const card = element('section', 'study-card');
     card.dataset.scenario = scenario.id;
     card.dataset.status = scenario.status;
     card.dataset.height = precise(scenario.heightM);
     const header = element('header');
     const suffix = scenario.heightM === nominalHeight ? ' · nominal' : '';
-    header.append(element('h3', '', `${number.format(scenario.heightM)} m${suffix}`), statusChip(scenario.status));
-    const limits = element('ul', 'height-limits');
+    header.append(element('h3', '', scenario.label ?? `${number.format(scenario.heightM)} m${suffix}`), statusChip(scenario.status));
+    card.append(header);
+    if (Number.isFinite(scenario.lat) && Number.isFinite(scenario.lon)) {
+      const coordinates = `${Math.abs(scenario.lat).toFixed(6)}° ${scenario.lat < 0 ? 'S' : 'N'}, ${scenario.lon.toFixed(6)}° E`;
+      const ground = Number.isFinite(scenario.groundM) ? ` · ground ${number.format(scenario.groundM)} m` : '';
+      card.dataset.latitude = precise(scenario.lat);
+      card.dataset.longitude = precise(scenario.lon);
+      card.append(element('p', 'coordinates', `${coordinates}${ground}`));
+    }
+    const limits = element('ul', 'study-limits');
     for (const constraint of scenario.constraints) {
       const line = element('li');
       const margin = element('span', `number ${constraint.margin < 0 ? 'margin-negative' : 'margin-positive'}`, hours(constraint.margin, true));
@@ -630,7 +638,7 @@ function renderHeightReport(report) {
       line.append(element('span', '', constraintName(constraint.id)), margin);
       limits.append(line);
     }
-    card.append(header, limits);
+    card.append(limits);
     const warnings = [...(scenario.scheduleWarnings ?? []), ...(scenario.coverageWarnings ?? [])];
     if (warnings.length || scenario.refinement) {
       const details = element('details');
@@ -651,57 +659,58 @@ function renderHeightReport(report) {
   content.hidden = false;
 }
 
-async function evaluateHeightStudy() {
+async function evaluateStudy(study) {
   const mission = selectedMission();
-  if (isEdited || mission?.siteId !== HEIGHT_STUDY_SITE) return;
-  const currentRequest = ++heightRequest;
+  if (isEdited || mission?.siteId !== SENSITIVITY_STUDY_SITE) return;
+  const currentRequest = ++study.request;
   const evaluatedInputs = inputs;
-  heightButton.disabled = true;
-  byId('height-status').textContent = 'Loading the offline height study…';
+  study.button.disabled = true;
+  study.status.textContent = `Loading the offline ${study.id} study…`;
   try {
-    heightAssets ??= Promise.all([
-      import('./height.mjs'),
-      fetch('./data/height-study.json').then((response) => {
-        if (!response.ok) throw new Error(`Offline height data returned HTTP ${response.status}.`);
+    const isHeight = study.id === 'height';
+    study.assets ??= Promise.all([
+      isHeight ? import('./height.mjs') : import('./scenarios.mjs'),
+      fetch(`./data/${study.id}-study.json`).then((response) => {
+        if (!response.ok) throw new Error(`Offline ${study.id} data returned HTTP ${response.status}.`);
         return response.json();
       }),
     ]).catch((error) => {
-      heightAssets = undefined;
+      study.assets = undefined;
       throw error;
     });
-    const [{ evaluateHeights }, heightBundle] = await heightAssets;
-    if (currentRequest !== heightRequest) return;
-    const study = evaluateHeights(bundle, heightBundle, evaluatedInputs, mission);
-    if (!study) throw new Error('The height study has no evidence for the selected mission.');
-    heightReport = { study, heightBundle, mission, inputs: evaluatedInputs, decision: selected };
-    byId('height-status').textContent = `${formatTime(study.mission_start)} to ${formatTime(study.mission_end)}`;
-    renderHeightReport(study);
+    const [module, evidence] = await study.assets;
+    if (currentRequest !== study.request) return;
+    const evaluator = isHeight ? module.evaluateHeights : module.evaluatePositions;
+    const report = evaluator(bundle, evidence, evaluatedInputs, mission);
+    if (!report) throw new Error(`The ${study.id} study has no evidence for the selected mission.`);
+    study.report = { report, evidence, mission, inputs: evaluatedInputs, decision: selected };
+    study.status.textContent = `${formatTime(report.mission_start)} to ${formatTime(report.mission_end)}`;
+    renderStudyReport(study, report);
   } catch (error) {
-    if (currentRequest !== heightRequest) return;
-    byId('height-status').textContent = error instanceof Error ? error.message : 'The height study could not be evaluated.';
+    if (currentRequest !== study.request) return;
+    study.status.textContent = error instanceof Error ? error.message : `The ${study.id} study could not be evaluated.`;
   } finally {
-    if (currentRequest === heightRequest) heightButton.disabled = false;
+    if (currentRequest === study.request) study.button.disabled = false;
   }
 }
 
-function attachHeightStudy(certificate, report) {
-  const { study, heightBundle, mission, decision } = report;
-  const site = findSite(study.siteId);
+function studyCertificate(record) {
+  const { report, evidence, mission, decision } = record;
+  const site = findSite(report.siteId);
   return {
-    ...certificate,
-    scenario_ids: study.scenario_ids,
-    scenario_results: study.scenario_results,
-    robustness_scope: study.scope,
-    robust_status: study.robust_status,
-    height_study_source_hash: study.source_hash,
-    height_study_mission_start: new Date(mission.start * 1000).toISOString(),
-    height_study_mission_end: new Date(mission.end * 1000).toISOString(),
-    height_study_inspected_decision: typeof decision === 'number' ? `alternative-${decision + 1}` : decision,
-    height_study_site: {
+    scenario_ids: report.scenario_ids,
+    scenario_results: report.scenario_results,
+    robustness_scope: report.scope,
+    robust_status: report.robust_status,
+    source_hash: report.source_hash,
+    mission_start: new Date(mission.start * 1000).toISOString(),
+    mission_end: new Date(mission.end * 1000).toISOString(),
+    inspected_decision: typeof decision === 'number' ? `alternative-${decision + 1}` : decision,
+    site: {
       site_id: site.id, name: site.name, latitude_deg: site.lat, longitude_east_deg: site.lon,
       coordinate_source: site.source, ground_elevation_m: site.groundM,
     },
-    height_study_manifest: heightBundle.manifest ?? null,
+    manifest: evidence.manifest ?? null,
   };
 }
 
@@ -734,11 +743,18 @@ function chooseTarget(value) {
 async function downloadCertificate() {
   exportButton.disabled = true;
   const requestedInputs = inputs;
-  const selectedHeightReport = heightPanel.open && heightReport?.inputs === requestedInputs && heightReport.mission === selectedMission()
-    ? heightReport : undefined;
+  const mission = selectedMission();
+  const evidence = Object.fromEntries(studies
+    .filter(({ panel, report }) => panel.open && report?.inputs === requestedInputs && report.mission === mission)
+    .map(({ id, report }) => [id, studyCertificate(report)]));
   try {
-    const decisionCertificate = await makeCertificate(bundle, requestedInputs, result);
-    const certificate = selectedHeightReport ? attachHeightStudy(decisionCertificate, selectedHeightReport) : decisionCertificate;
+    const certificate = await makeCertificate(bundle, requestedInputs, result);
+    if (evidence.position) certificate.position_study = evidence.position;
+    if (evidence.height) {
+      const { scenario_ids, scenario_results, robustness_scope, robust_status, ...metadata } = evidence.height;
+      Object.assign(certificate, { scenario_ids, scenario_results, robustness_scope, robust_status });
+      for (const [key, value] of Object.entries(metadata)) certificate[`height_study_${key}`] = value;
+    }
     const blob = new Blob([`${JSON.stringify(certificate, null, 2)}\n`], { type: 'application/json' });
     const resource = URL.createObjectURL(blob);
     const anchor = element('a');
@@ -764,7 +780,7 @@ form.addEventListener('input', () => {
   if (!result) return;
   isEdited = true;
   exportButton.disabled = true;
-  resetHeightStudy(selectedMission());
+  for (const study of studies) resetStudy(study, selectedMission());
   byId('form-status').textContent = 'Evaluate the updated inputs to refresh the decisions.';
 });
 byId('site').addEventListener('change', updateSiteDetail);
@@ -778,10 +794,12 @@ byId('view-earth').addEventListener('click', () => chooseTarget('earth'));
 byId('probe-slider').addEventListener('input', updateProbe);
 byId('interval-details').addEventListener('toggle', () => { if (result) renderIntervalList(); });
 byId('interval-channel').addEventListener('change', () => { if (result) renderIntervalList(); });
-heightButton.addEventListener('click', evaluateHeightStudy);
-heightPanel.addEventListener('toggle', () => {
-  if (!heightPanel.open && result) resetHeightStudy(selectedMission());
-});
+for (const study of studies) {
+  study.button.addEventListener('click', () => evaluateStudy(study));
+  study.panel.addEventListener('toggle', () => {
+    if (!study.panel.open && result) resetStudy(study, selectedMission());
+  });
+}
 exportButton.addEventListener('click', downloadCertificate);
 new ResizeObserver(() => {
   if (result && byId('plot').clientWidth !== lastPlotWidth) renderPlot(selectedMission());
@@ -808,7 +826,7 @@ async function initialize() {
     byId('site').disabled = false;
     byId('evaluate').disabled = false;
     byId('reset-demo').disabled = false;
-    heightPanel.hidden = !findSite(HEIGHT_STUDY_SITE);
+    for (const { panel } of studies) panel.hidden = !findSite(SENSITIVITY_STUDY_SITE);
     byId('prelaunch-option').hidden = bundle.sites.length < 2;
     const definitions = bundle.manifest?.visibilityDefinitions ?? bundle.manifest?.visibility_definitions;
     if (definitions && typeof definitions === 'object') {
