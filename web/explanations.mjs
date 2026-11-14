@@ -50,3 +50,19 @@ export function opportunityConclusion(report,siteName){
   }
   return `The largest confirmed overlap found is ${conciseDuration(best.metrics.joint.visibleRangeSeconds[0])} at ${siteName(best.siteId)}. Unresolved time may change the overall ordering.`;
 }
+
+/* The first screen needs one readable conclusion. Full precision remains in the
+   expandable measurements and exported evidence. Never round a lower bound up. */
+export function firstScreenConclusion(metrics,duration,{complete=true}={}){
+  if(!complete)return {headline:'Outside the available dates',reason:'Choose a covered arrival or a shorter viewing period.'};
+  const [lower,upper]=metrics.joint.visibleRangeSeconds;
+  if(lower>=duration)return {headline:conciseDuration(duration)+' together',reason:'Sun and Earth are visible together throughout your selected period.'};
+  if(lower>0){
+    const minutes=Math.floor(lower/60);
+    const short=minutes>=60?Math.floor(minutes/60)+' h '+(minutes%60?minutes%60+' min':''):minutes?minutes+' min':conciseDuration(lower);
+    return {headline:'At least '+short.trim(),reason:'Confirmed time when both Sun and Earth can be seen. More time may be possible.'};
+  }
+  if(upper>0)return {headline:'Visibility is uncertain',reason:'No simultaneous Sun and Earth time is confirmed. Some time may still be possible.'};
+  const detail=visibilityConclusion(metrics,duration,{complete:true});
+  return {headline:'No Sun + Earth overlap',reason:detail.reason};
+}
