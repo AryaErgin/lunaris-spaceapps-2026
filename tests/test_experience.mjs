@@ -10,6 +10,13 @@ import {communicationDemo} from '../web/overview.mjs';
 
 const root=process.cwd(),work=resolve(root,'progress',`experience-${Date.now()}`);
 const bundle=JSON.parse(await readFile(resolve(root,'web/data/bundle.json'),'utf8'));
+const requireExtended=process.argv.includes('--require-extended')||process.env.LUNARIS_REQUIRE_EXTENDED==='1';
+const plannedExtendedDates=['2026-12-31T18:00:00Z','2027-07-01T06:00:00Z','2027-12-31T06:00:00Z'].map(value=>Date.parse(value)/1000);
+if(requireExtended){
+  assert.deepEqual(bundle.coverage,[Date.parse('2026-11-01T00:00:00Z')/1000,Date.parse('2028-01-01T00:00:00Z')/1000],
+    '--require-extended needs the actual 426-day bundle; the November-only release cannot satisfy this browser gate.');
+  assert(plannedExtendedDates.every(time=>time>=bundle.coverage[0]&&time+43200<=bundle.coverage[1]));
+}
 const outsideArrival=bundle.coverage[1]+86400;
 const unsupportedDurationHours=(bundle.coverage[1]-bundle.coverage[0])/3600+24;
 const inputUtc=seconds=>new Date(seconds*1000).toISOString().slice(0,19);
@@ -380,8 +387,7 @@ try{
     }
   }
   // Additional dates use the real expanded cache, never shifted November fixtures.
-  const extendedDates=['2026-12-31T18:00:00Z','2027-07-01T06:00:00Z','2027-12-31T06:00:00Z']
-    .map(value=>Date.parse(value)/1000).filter(time=>time>=bundle.coverage[0]&&time+43200<=bundle.coverage[1]);
+  const extendedDates=plannedExtendedDates.filter(time=>time>=bundle.coverage[0]&&time+43200<=bundle.coverage[1]);
   for(const [index,time]of extendedDates.entries()){
     const site=bundle.sites[index%bundle.sites.length],started=await evaluate('performance.now()');
     await evaluate(`document.querySelector('#verified-demo').click();document.querySelector('#visual-site').value=${JSON.stringify(site.id)};document.querySelector('#visual-site').dispatchEvent(new Event('change'));document.querySelector('#visual-arrival').value=${JSON.stringify(inputUtc(time))};document.querySelector('#visual-date-go').click()`);
@@ -523,10 +529,15 @@ try{
   await until(()=>evaluate("!document.querySelector('#load-error').hidden"));
   assert(await evaluate("!document.querySelector('#top').hidden&&!document.querySelector('#workspace-notice').hidden"),'A missing science bundle must expose an actionable error instead of an endless hidden loading state.');
   await screenshot('missing-bundle-mobile');
+  if(requireExtended){
+    assert.equal(extendedBrowserEvidence.length,3,'All three actual extended dates must execute, not silently skip.');
+    assert.deepEqual(extendedBrowserEvidence.map(row=>Date.parse(row.startUtc)/1000),plannedExtendedDates);
+    assert.equal(extendedPlaybackEvidence?.sampleCount,426*48,'The actual annual full-cache playback check must execute.');
+  }
   await writeFile(resolve(work,'verification.json'),JSON.stringify({viewports:[[1024,768],[1366,768],[1440,900],[390,840]],
     defaultMode:'environment-without-requirements',optionalExampleInitialStatus:'PASS',delayedStatus:'FAIL',recoveredStatus:'PASS',certificateRoles:['nominal','delayed','recommended','cross-site alternative'],
     invalidArrivalRejected:true,exportSelectionRace:true,allSiteVisibilityGates:true,noExternalRequests:true,customOpportunitySearch:true,automaticAndExplicitSchedules:true,opportunityCertificateIdentity:true,ordinaryWheelZoomAndPageScrollOutsideCanvas:['orbital','surface'],keyboardZoom:['orbital','surface'],surfaceTouchPinch:true,
-    webglFallback:true,missingBundleError:true,physicalDevice:false,humanComprehension:false,extendedBrowserEvidence,extendedPlaybackEvidence,
+    webglFallback:true,missingBundleError:true,physicalDevice:false,humanComprehension:false,requireExtended,extendedBrowserEvidence,extendedPlaybackEvidence,
     dataBundlePayloadSha256:bundle.manifest.bundleSha256,coverageUtc:bundle.coverage.map(time=>new Date(time*1000).toISOString()),siteIds:bundle.sites.map(site=>site.id),
     browser:await command('Browser.getVersion'),performance:performanceEvidence},null,2));
   console.log(`3D experience passed: textured GPU Moon/Earth, real DEM meshes, camera controls, PASS/FAIL/PASS story, all-site obstruction gating, lazy/offline assets, mobile, reduced motion and lost/absent WebGL fallback. Evidence: ${work}`);

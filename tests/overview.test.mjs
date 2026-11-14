@@ -19,7 +19,7 @@ test('comparison evaluates every site at identical mission inputs using certifie
  assert.equal(typeof overview.compareSites,'function');
  const before=JSON.stringify(bundle.demo);
  const rows=overview.compareSites(bundle,bundle.demo);
- assert.equal(rows.length,3);
+ assert.equal(rows.length,bundle.sites.length);
  for(const row of rows){
   const expected=runMission(bundle,{...bundle.demo,siteId:row.siteId,mode:'same-site'});
   assert.deepEqual(row.nominal,expected.nominal); assert.deepEqual(row.delayed,expected.delayed);

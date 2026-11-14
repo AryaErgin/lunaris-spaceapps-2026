@@ -320,7 +320,14 @@ def epoch_date(value):
 
 def _validated_motion(path, start, end, sites, expected_kernel_hashes):
     report = json.loads(path.read_bytes())
-    if (report.get('status') != 'PASS' or not report.get('checks')
+    required_checks = {'earth_angular_envelope', 'sun_angular_envelope', 'earth_minimum_range',
+        'earth_radius_range_rate_assumption', 'earth_retarded_guard', 'sun_retarded_guard',
+        'angular_padding_covers_seams_and_declared_implementation_allowance',
+        'earth_disc_radius_rate', 'eclipse_padding_covers_centers_disc_radius_and_implementation_allowances',
+        'primitive_record_spans_exceed_solver_time_footprint',
+        'primitive_record_spans_exceed_retarded_window', 'newtonian_convergence_document_assumptions'}
+    if (report.get('status') != 'PASS' or not isinstance(report.get('checks'), dict)
+            or not required_checks <= report['checks'].keys()
             or not all(value is True for value in report['checks'].values())
             or report.get('polynomial_interval_enclosure') is not True
             or report.get('formal_verification') is not False
@@ -329,8 +336,10 @@ def _validated_motion(path, start, end, sites, expected_kernel_hashes):
     if epoch_date(report['start_utc']) > start or epoch_date(report['end_utc']) < end:
         raise ValueError('Motion enclosure does not span the requested date coverage')
     maximum_radius = max((site['referenceRadiusM'] + site['groundM'] + site['heightM']) / 1000 for site in sites)
-    if report['observer_radius_upper_km'] < maximum_radius:
+    if not isfinite(report['observer_radius_upper_km']) or report['observer_radius_upper_km'] < maximum_radius:
         raise ValueError('The motion enclosure does not include every observer radius')
+    if not isfinite(report.get('minimum_primitive_record_span_seconds', 0)) or report.get('minimum_primitive_record_span_seconds', 0) <= 600:
+        raise ValueError('Motion records must exceed the solver and retarded time footprints')
     code = Path(__file__).with_name('motion_envelope.py')
     if report.get('code_sha256') != sha256(code.read_bytes()).hexdigest():
         raise ValueError('Motion-enclosure code differs from the executed source')
@@ -344,7 +353,10 @@ def _validated_motion(path, start, end, sites, expected_kernel_hashes):
             and 0 <= bounds['earth_abs_range_rate_km_s'] < 2
             and 0 <= bounds['earth_light_time_max_s'] < 2
             and 0 <= bounds['sun_light_time_max_s'] < 600
-            and 0 <= bounds['angular_seam_and_implementation_allowance_deg'] < .00001):
+            and 0 <= bounds['angular_seam_and_implementation_allowance_deg'] < .00001
+            and 0 <= bounds.get('earth_disc_angular_radius_rate_deg_s', float('inf')) < .000006
+            and 0 <= bounds.get('earth_disc_radius_seam_allowance_deg', float('inf'))
+                <= bounds.get('eclipse_seam_and_implementation_allowance_deg', -1) < .00002):
         raise ValueError('The model enclosure does not establish the unchanged solver assumptions')
     return report
 

@@ -181,7 +181,13 @@ def test_motion_enclosure_requires_matching_period_observer_radius_and_current_c
     verify = getattr(module, '_validated_motion', None)
     assert callable(verify), 'Publish only after a matching kernel-model envelope is checked'
     start, end = epoch('2026-11-01'), epoch('2028-01-01')
-    report = {'status': 'PASS', 'checks': {'example': True}, 'polynomial_interval_enclosure': True,
+    required_checks = ['earth_angular_envelope', 'sun_angular_envelope', 'earth_minimum_range',
+        'earth_radius_range_rate_assumption', 'earth_retarded_guard', 'sun_retarded_guard',
+        'angular_padding_covers_seams_and_declared_implementation_allowance',
+        'earth_disc_radius_rate', 'eclipse_padding_covers_centers_disc_radius_and_implementation_allowances',
+        'primitive_record_spans_exceed_solver_time_footprint',
+        'primitive_record_spans_exceed_retarded_window', 'newtonian_convergence_document_assumptions']
+    report = {'status': 'PASS', 'checks': dict.fromkeys(required_checks, True), 'polynomial_interval_enclosure': True,
               'formal_verification': False, 'physical_model_error_bounded': False,
               'start_utc': '2026-11-01T00:00:00Z', 'end_utc': '2028-01-01T00:00:00Z',
               'observer_radius_upper_km': 1740., 'kernels': [],
@@ -189,7 +195,11 @@ def test_motion_enclosure_requires_matching_period_observer_radius_and_current_c
               'bounds': {'sun_angular_rate_deg_min': .01, 'earth_angular_rate_deg_min': .02,
                          'earth_range_min_km': 353000., 'earth_abs_range_rate_km_s': 1.2,
                          'earth_light_time_max_s': 1.4, 'sun_light_time_max_s': 510.,
-                         'angular_seam_and_implementation_allowance_deg': .000001}}
+                         'angular_seam_and_implementation_allowance_deg': .000001,
+                         'earth_disc_angular_radius_rate_deg_s': .0000033,
+                         'earth_disc_radius_seam_allowance_deg': .000000006,
+                         'eclipse_seam_and_implementation_allowance_deg': .0000011},
+              'minimum_primitive_record_span_seconds': 345600.}
     site = {'referenceRadiusM': 1737400., 'groundM': 1944., 'heightM': 2.}
     path = tmp_path / 'motion.json'
     path.write_text(json.dumps(report))
@@ -199,3 +209,18 @@ def test_motion_enclosure_requires_matching_period_observer_radius_and_current_c
         changed = deepcopy(report); changed[key] = value; path.write_text(json.dumps(changed))
         with pytest.raises(ValueError, match=expected):
             verify(path, start, end, [site], {})
+    changed = deepcopy(report); changed['checks'] = {'arbitrary_unrelated_check': True}
+    path.write_text(json.dumps(changed))
+    with pytest.raises(ValueError, match='scoped'):
+        verify(path, start, end, [site], {})
+    for key, value in [('earth_disc_angular_radius_rate_deg_s', 999.),
+                       ('earth_disc_radius_seam_allowance_deg', .01),
+                       ('eclipse_seam_and_implementation_allowance_deg', .01)]:
+        changed = deepcopy(report); changed['bounds'][key] = value
+        path.write_text(json.dumps(changed))
+        with pytest.raises(ValueError, match='assumptions'):
+            verify(path, start, end, [site], {})
+    changed = deepcopy(report); changed['minimum_primitive_record_span_seconds'] = 500.
+    path.write_text(json.dumps(changed))
+    with pytest.raises(ValueError, match='record'):
+        verify(path, start, end, [site], {})

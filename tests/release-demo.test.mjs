@@ -57,7 +57,8 @@ test('audited joint-window preset keeps the fixed site, duration, delay, grid an
     maxSunHours: 7, maxEarthHours: 2, minJointHours: 6, minContinuousJointHours: 2,
   });
   assert.equal(inputs.earliest, bundle.coverage[0]);
-  assert.equal(inputs.latest, bundle.coverage[1] - 12 * HOUR);
+  assert.equal(inputs.latest, (bundle.demonstrationCoverage ?? bundle.coverage)[1] - 12 * HOUR);
+  assert.equal(inputs.latest, utc('2026-11-30T12:00:00Z'), 'The release demonstration keeps its original November schedule.');
   for (const mission of [result.nominal, result.delayed, result.recommended]) {
     assert.equal(mission.siteId, inputs.siteId);
     assert.equal(mission.end - mission.start, 12 * HOUR);

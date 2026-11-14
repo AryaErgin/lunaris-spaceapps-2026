@@ -4,6 +4,7 @@ import { createServer } from 'node:http';
 import { once } from 'node:events';
 import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import { extname, resolve, sep } from 'node:path';
+import {utcMonthWindow} from '../web/coverage.mjs';
 
 // Run from the repository root with Node 24 and Chrome or Chromium.
 // Without --fixture, the browser reads the packaged real-data bundle.
@@ -163,7 +164,8 @@ try {
   assert(selectedRecord,'Export must identify the inspected decision.');
   assert.deepEqual(certificate.mission_visibility_metrics,
     missionMetrics(selectedRecord,exportedBundle.sites.find(s=>s.id===selectedRecord.siteId)));
-  assert.deepEqual(certificate.date_site_comparison,feasibilityMatrix(exportedBundle,certificate.inputs));
+  assert.deepEqual(certificate.date_site_comparison,feasibilityMatrix(exportedBundle,certificate.inputs,
+    {range:utcMonthWindow(exportedBundle.coverage,certificate.inputs.nominal).range}));
   const metricBounds=await browserEval(`[...document.querySelectorAll('#live-telemetry [data-lower]')].map(n=>[n.dataset.metric,Number(n.dataset.lower),Number(n.dataset.upper)])`);
   for(const [name,lo,hi] of metricBounds) {
     const [channel,key]=name.split('-');assert.deepEqual([lo,hi],certificate.mission_visibility_metrics[channel][key]);
@@ -341,6 +343,8 @@ try {
   assert(await browserEval("document.querySelector('#run-heights').disabled"),
     'Rejected input allowed a new sensitivity report for the previous result');
   if (!fixture) {
+    const coverageData=JSON.parse(await readFile(resolve(workspace,'web/data/bundle.json'),'utf8'));
+    const utcInput=seconds=>new Date(seconds*1000).toISOString().slice(0,19);
     await browserEval(`(() => {
       document.querySelector('#reset-demo').click();
       const duration = document.querySelector('#duration');
@@ -352,8 +356,8 @@ try {
     assert(await browserEval("document.querySelector('#export').disabled"));
     await browserEval(`(() => {
       document.querySelector('#reset-demo').click();
-      document.querySelector('#nominal').value = '2026-11-30T22:00:00';
-      document.querySelector('#latest').value = '2026-12-02T00:00:00';
+      document.querySelector('#nominal').value = ${JSON.stringify(utcInput(coverageData.coverage[1]-7200))};
+      document.querySelector('#latest').value = ${JSON.stringify(utcInput(coverageData.coverage[1]+86400))};
       document.querySelector('#delay').value = 0;
       document.querySelector('#evaluate').click();
       document.querySelector('[data-decision=nominal]').click();
@@ -383,7 +387,8 @@ try {
       earth:document.querySelector('#max-earth').value,joint:document.querySelector('#min-total').value,
       states:[...document.querySelectorAll('[data-decision] .decision-status')].map(n=>n.textContent),
       text:document.querySelector('#visibility-overview').textContent})`);
-    assert.equal(compared.cards.length,3); assert.equal(new Set(compared.cards).size,3);
+    const currentBundle=JSON.parse(await readFile(resolve(workspace,'web/data/bundle.json'),'utf8'));
+    assert.equal(compared.cards.length,currentBundle.sites.length); assert.equal(new Set(compared.cards).size,currentBundle.sites.length);
     assert.equal(compared.earth,'2'); assert.equal(compared.joint,'6');
     assert.deepEqual(compared.states,['PASS','FAIL','PASS']);
     assert.match(compared.text,/Next established loss/); assert.match(compared.text,/cache/);
@@ -413,13 +418,14 @@ try {
   }
   if(!fixture) {
     await browserEval("document.querySelector('#reset-demo').click();document.querySelector('[data-decision=nominal]').click()");
-    await until(()=>browserEval("document.querySelectorAll('.atlas-site-button').length===3"));
     const b=JSON.parse(await readFile(resolve(workspace,'web/data/bundle.json'),'utf8'));
+    await until(()=>browserEval(`document.querySelectorAll('.atlas-site-button').length===${b.sites.length}`));
     const {communicationDemo:defaultJointDemo}=await import('../web/overview.mjs');
-    const matrix=feasibilityMatrix(b,defaultJointDemo(b));
+    const matrixInputs=defaultJointDemo(b);
+    const matrix=feasibilityMatrix(b,matrixInputs,{range:utcMonthWindow(b.coverage,matrixInputs.nominal).range});
     const matrixCells=await browserEval(`[...document.querySelectorAll('.feasibility-cell')].map(n=>[n.dataset.site,Number(n.dataset.start),n.dataset.status])`);
     assert.deepEqual(matrixCells,matrix.rows.flatMap(row=>row.cells.map(m=>[row.siteId,m.start,m.status])));
-    assert.equal(matrixCells.length,90);
+    assert.equal(matrixCells.length,30*b.sites.length,'The November calendar retains all daily starts for every actual site.');
     const playheadStyle=await browserEval("(()=>{const s=getComputedStyle(document.querySelector('.timeline-playhead'));return {position:s.position,width:parseFloat(s.width)}})()");
     assert.equal(playheadStyle.position,'absolute');assert(playheadStyle.width>=1,'Timeline playhead must be visible.');
     const raceFolder=resolve(work,'export-race');await mkdir(raceFolder,{recursive:true});
@@ -453,7 +459,7 @@ try {
     const sampleTime=Date.parse('2026-11-20T10:00:00Z')/1000;
     assert.equal(await browserEval("Number(document.querySelector('#local-sky').dataset.time)"),sampleTime);
     assert(await browserEval("[...document.querySelectorAll('.timeline-playhead')].every(n=>n.hidden)"));
-    await browserEval("document.querySelector('#sky-jump').value='2026-12-01T00:00:00';document.querySelector('#sky-jump-go').click()");
+    await browserEval(`document.querySelector('#sky-jump').value=${JSON.stringify(new Date(b.coverage[1]*1000).toISOString().slice(0,19))};document.querySelector('#sky-jump-go').click()`);
     assert.match(await browserEval("document.querySelector('#playback-status').textContent"),/outside/);
     assert.equal(await browserEval("Number(document.querySelector('#local-sky').dataset.time)"),sampleTime);
     await browserEval("document.querySelector('#probe-slider').value=document.querySelector('#probe-slider').max;document.querySelector('#probe-slider').dispatchEvent(new Event('input'))");
@@ -467,7 +473,7 @@ try {
     await command('Emulation.setDeviceMetricsOverride',{width:390,height:840,deviceScaleFactor:1,mobile:false});
     await browserEval("document.querySelector('#console').scrollIntoView({block:'start'})");await screenshot('mission-control-mobile');
     assert(await browserEval('document.documentElement.scrollWidth<=innerWidth'));
-    console.log('Mission console playback/pause, UTC domain censoring, atlas selection/unsupported input, all 90 heatmap cells, metric/export parity and reduced motion passed.');
+    console.log(`Mission console playback/pause, UTC domain censoring, atlas selection/unsupported input, all ${30*b.sites.length} November heatmap cells, metric/export parity and reduced motion passed.`);
   }
   const appOrigin = new URL(url).origin;
   assert.deepEqual(requests.filter((resource) => /^https?:/.test(resource) && new URL(resource).origin !== appOrigin), []);
