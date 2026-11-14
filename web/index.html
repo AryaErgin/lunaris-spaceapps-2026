@@ -60,7 +60,7 @@
           <select id="visual-site" disabled aria-describedby="visual-site-detail"></select>
           <p id="visual-site-detail">Three supported south-pole study points.</p>
           <label for="visual-arrival">Arrival <span>UTC · November 2026 only</span></label>
-          <div class="visual-date-controls"><input id="visual-arrival" type="datetime-local" step="1"><label class="visual-duration-field" for="visual-duration">Hours<input id="visual-duration" type="number" min="0.001" step="any" value="12" aria-label="Mission duration in hours"></label><button id="visual-date-go" class="outline" type="button">Apply</button></div>
+          <div class="visual-date-controls"><input id="visual-arrival" type="datetime-local" step="1"><label class="visual-duration-field" for="visual-duration">Hours<input id="visual-duration" type="number" min="0.001" step="any" value="12" aria-label="Mission duration in hours"></label><button id="visual-date-go" class="outline" type="button" hidden tabindex="-1" aria-hidden="true">Apply</button></div>
           <button id="find-opportunities" class="primary find-opportunities" type="button" disabled>Find landing opportunities</button>
           <p class="opportunity-scope" id="opportunity-scope">Compare confirmed Sun + Earth time at three study points</p>
           <label class="assessment-toggle"><input id="apply-requirements" type="checkbox"> <span id="assessment-label">Evaluate illustrative mission requirements</span></label>

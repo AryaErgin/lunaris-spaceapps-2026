@@ -353,3 +353,6 @@ body[data-delay-story='true'] .story-outcome button{font:600 15px/1.4 system-ui,
 #story-witness{font:14px/1.5 system-ui,sans-serif}
 .requirement-values span,.compact-requirement-values,.compact-requirement-values span,.requirement-range,.compact-requirements .requirement-range,.evidence-time-label,.evidence-margin-key,.evidence-refinement,#evidence-warnings,.requirement-proof,.visibility-definitions,.evidence-timeline-row,.configuration-summary,.story-joint,.story-joint details,.option-rules,.compact-requirements .requirement-name,#evidence-plan{font-size:14px}
 .requirement-head .status,.compact-requirements .requirement-head .status{font-size:13px}
+/* Arrival and hours apply on change; the separate Apply control stays in the DOM for scripted use only. */
+#visual-date-go[hidden]{display:none!important}
+.visual-date-controls .visual-duration-field{flex:0 0 96px}
