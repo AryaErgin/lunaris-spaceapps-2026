@@ -71,6 +71,15 @@ try{
   assert(await evaluate("document.querySelector('#top').hidden"),'Opening experience must not show the engineering form wall.');
   assert(await evaluate("(()=>{const canvas=document.querySelector('#scene-mount').getBoundingClientRect();return document.querySelector('.experience-intro').getBoundingClientRect().right<=canvas.left&&document.querySelector('.scene-mode-switch').getBoundingClientRect().bottom<=canvas.top+1})()"),'Desktop orbital copy and controls must sit outside the canvas.');
   assert(!requests.some(r=>/earth-color|terrain-.*\.bin/.test(r)),'Earth and surface meshes must load lazily.');
+  for(const [width,height] of [[1024,768],[1440,900]]){
+    await command('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:false});
+    assert(await evaluate("(()=>{const n=document.querySelector('#story-next'),r=n.getBoundingClientRect();return r.bottom<=innerHeight&&document.elementFromPoint(r.left+r.width/2,r.top+r.height/2)?.closest('#story-next')===n&&document.documentElement.scrollWidth<=innerWidth})()"),`The mission action must remain usable at ${width}x${height}.`);
+    await screenshot('orbital-'+width);
+  }
+  await command('Emulation.setDeviceMetricsOverride',desktop);
+  await evaluate("document.querySelector('#moon-hd').click()");
+  await until(async()=>(await inspect()).moon.detail==='high');
+  assert((await inspect()).moon.textured,'The explicit 4K asset must become the live GPU Moon texture.');
   await screenshot('orbital-desktop');
   assert(await evaluate("(()=>{const result=document.querySelector('#story-status').getBoundingClientRect(),action=document.querySelector('#story-next').getBoundingClientRect();return result.top>=0&&result.bottom<=innerHeight&&action.bottom<=innerHeight})()"),'Mission outcome and primary action must be visible without scrolling at1366x768.');
   assert(await evaluate("(()=>{const n=document.querySelector('#story-next'),r=n.getBoundingClientRect();return document.elementFromPoint(r.left+r.width/2,r.top+r.height/2)?.closest('#story-next')===n})()"),'Primary action must not be overlapped by a site/date control.');
@@ -228,7 +237,7 @@ try{
   await until(()=>evaluate("!document.querySelector('#load-error').hidden"));
   assert(await evaluate("!document.querySelector('#top').hidden&&!document.querySelector('#workspace-notice').hidden"),'A missing science bundle must expose an actionable error instead of an endless hidden loading state.');
   await screenshot('missing-bundle-mobile');
-  await writeFile(resolve(work,'verification.json'),JSON.stringify({viewports:[[1366,768],[390,840]],
+  await writeFile(resolve(work,'verification.json'),JSON.stringify({viewports:[[1024,768],[1366,768],[1440,900],[390,840]],
     initialStatus:'PASS',delayedStatus:'FAIL',recoveredStatus:'PASS',certificateRoles:['nominal','delayed','recommended','cross-site alternative'],
     invalidArrivalRejected:true,exportSelectionRace:true,allSiteVisibilityGates:true,noExternalRequests:true,
     webglFallback:true,missingBundleError:true,physicalDevice:false,humanComprehension:false,
