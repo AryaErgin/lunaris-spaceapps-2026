@@ -349,7 +349,8 @@ try{
       info=await inspect();assert.equal(info[key].state,state);assert.equal(info[key].visible,state==='visible',`${site.id} ${key} ${state}`);
       if(key==='earth'&&state==='blocked'){
         const arrivalBefore=await evaluate("document.querySelector('#visual-arrival').value"),conclusionBefore=await evaluate("document.querySelector('#story-explanation').textContent");
-        await evaluate("document.querySelector('#focus-earth').click()");await sleep(100);
+        await evaluate("document.querySelector('#focus-earth').click()");
+        await until(()=>evaluate("!document.querySelector('.mission-terrain-obstruction').hidden"));
         assert.equal((await inspect()).earth.visible,false);
         assert(await evaluate("!document.querySelector('.mission-terrain-obstruction').hidden"),'Blocked Earth needs a directional annotation, not a rendered body.');
         assert.equal(await evaluate("document.querySelector('#visual-arrival').value"),arrivalBefore);
