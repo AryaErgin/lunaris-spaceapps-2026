@@ -1,0 +1,24 @@
+name: Validate judge-first UX
+on:
+  push:
+    branches: [feat/judge-first-walkthrough]
+  pull_request:
+    paths:
+      - 'web/**'
+      - 'tests/**'
+      - 'package*.json'
+      - '.github/workflows/judge-ux.yml'
+permissions:
+  contents: read
+jobs:
+  node-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm ci
+      - name: Verify scientific engine and UX unit suites
+        run: node --test tests/*.test.mjs
