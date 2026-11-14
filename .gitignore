@@ -1,0 +1,67 @@
+# Local autonomous-work instructions and precompetition planning — never publish
+AGENTS.md
+.operator/
+README_FIRST.md
+LUNARIS_Jarvis_Kickoff_*.zip
+.agents/
+*CODEX_KICKOFF*.md
+*ENGINEERING_HANDOFF*.md
+*JARVIS_START*.md
+*NIGHT_BEFORE*.md
+*PRELAUNCH*.md
+
+# Local run state, credentials and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.log
+*.tmp
+*.bak
+status_local.json
+session_notes/
+progress/
+scratch/
+
+# Python / JS dependencies and build products
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+venv/
+node_modules/
+dist/
+build/
+.next/
+.coverage
+coverage/
+*.pyc
+
+# Raw external lunar data, kernels and large caches (retain source manifests)
+data/raw/
+data/cache/
+kernels/
+*.fits
+*.fit
+*.tif
+*.tiff
+*.bsp
+*.bpc
+*.bc
+*.tsc
+*.tls
+*.pc
+*.pck
+*.nc
+*.hdf
+*.h5
+*.parquet
+
+# Media drafts; selectively override/track if explicitly used for deployed app
+presentation_drafts/
+video_drafts/
+
+# Private project execution permissions
+.codex/
