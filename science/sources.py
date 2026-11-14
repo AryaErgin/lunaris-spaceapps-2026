@@ -1,15 +1,15 @@
 """Pinned NASA source locations and reproducible, checked acquisition."""
 
 import argparse
-from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime, timezone
-from hashlib import file_digest
 import json
-from pathlib import Path
 import re
 import time
+from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime, timezone
+from functools import partial
+from hashlib import file_digest
+from pathlib import Path
 from urllib.request import Request, urlopen
-
 
 PGDA = "https://pgda.gsfc.nasa.gov"
 NAIF = "https://naif.jpl.nasa.gov/pub/naif/generic_kernels"
@@ -36,9 +36,25 @@ FILES = {
     "moon_de440_250416.tf": (f"{NAIF}/fk/satellites/moon_de440_250416.tf", 19478, f"{NAIF}/fk/satellites/"),
     "naif0012.tls": (f"{NAIF}/lsk/naif0012.tls", 5257, f"{NAIF}/lsk/"),
 }
+SHA256 = {
+    REGIONAL: "82030dcbdd7c4bb0c7d858e9b4b293b9f2cda5a543ba31ec0f42784bd6beee5a",
+    "Site01_final_adj_5mpp_surf.tif": "3ba7b97cb00a2bcf21189c3aeb535f65afc21207154ab9f0d43c5bdc1f7e747e",
+    "Site04_final_adj_5mpp_surf.tif": "38ff70dbdf2f066c2cfa94a646c3a59d653ce7f6b4528b15fc1b43ee397ce758",
+    "Site11_final_adj_5mpp_surf.tif": "58f3372c35bbd6baf38ffd5633c1c96b59bd89dbd252150581d12893a43136e5",
+    "de440s.bsp": "c1c7feeab882263fc493a9d5a5b2ddd71b54826cdf65d8d17a76126b260a49f2",
+    "moon_pa_de440_200625.bpc": "60cd55aa401ea2ea97360636f567554bfe4e37bb829f901b4460a455dfaf783f",
+    "moon_de440_250416.tf": "a47c71e9c9f33796bdafb2c9d69a7ee447b6016ecad80f71cd6f3e479f9cf768",
+    "naif0012.tls": "678e32bdb5a744117a467cd9601cd6b373f0e9bc9bbde1371d5eee39600a039b",
+}
 
 
-def _range(url, start, end, size):
+def _sha256(path):
+    with path.open("rb") as stream:
+        return file_digest(stream, "sha256").hexdigest()
+
+
+def _range(span, *, url, size):
+    start, end = span
     last_error = None
     for attempt in range(3):
         try:
@@ -64,7 +80,7 @@ def fetch(root, prefixes):
         if prefixes and not any(name.startswith(prefix) for prefix in prefixes):
             continue
         path = root / name
-        if path.is_file() and path.stat().st_size == size:
+        if path.is_file() and path.stat().st_size == size and _sha256(path) == SHA256[name]:
             print(f"Already present: {name}", flush=True)
             continue
         part = path.with_suffix(path.suffix + ".download")
@@ -78,13 +94,13 @@ def fetch(root, prefixes):
                 spans = [(start, min(size - 1, start + step - 1)) for start in range(0, size, step)]
                 # Bound memory even if an early range retries while later ones complete.
                 for i in range(0, len(spans), 6):
-                    for offset, body in workers.map(lambda span: _range(url, *span, size), spans[i:i + 6]):
+                    for offset, body in workers.map(partial(_range, url=url, size=size), spans[i:i + 6]):
                         stream.seek(offset)
                         stream.write(body)
-        if part.stat().st_size != size:
-            raise ValueError(f"{name}: expected {size} bytes")
+        if part.stat().st_size != size or _sha256(part) != SHA256[name]:
+            raise ValueError(f"{name}: bytes or SHA-256 mismatch with the pinned archive")
         part.replace(path)
-        print(f"Verified byte count: {name}", flush=True)
+        print(f"Verified bytes and SHA-256: {name}", flush=True)
 
 
 def source_manifest(root):
@@ -94,8 +110,9 @@ def source_manifest(root):
         stat = path.stat()
         if stat.st_size != size:
             raise ValueError(f"{name}: received {stat.st_size} bytes, expected {size}")
-        with path.open("rb") as stream:
-            checksum = file_digest(stream, "sha256").hexdigest()
+        checksum = _sha256(path)
+        if checksum != SHA256[name]:
+            raise ValueError(f"{name}: SHA-256 mismatch with the pinned archive")
         entries.append({
             "filename": name,
             "url": url,
