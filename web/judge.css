@@ -1,4 +1,7 @@
 /* Judge-first presentation layer. It changes visual hierarchy, not lunar calculations. */
+/* The optional landing-delay demonstration already explains itself; keep its
+   decision and action above the fold instead of stacking a second introduction. */
+body:not(.environment-only) .product-purpose {display:none;}
 :root {
   --judge-paper: #f0f5f8;
   --judge-muted: #c1d4e1;
