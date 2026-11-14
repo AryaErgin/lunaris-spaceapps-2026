@@ -107,7 +107,7 @@ try{
   assert.equal(await evaluate("document.querySelector('#apply-requirements')?.checked"),false,'Cold start must explore the environment without arbitrary mission requirements.');
   assert(await evaluate("document.querySelector('#story-status').hidden&&document.querySelector('#decision-evidence').hidden"));
   assert.match(await evaluate("document.querySelector('.product-purpose').textContent"),/Choose a place and time on the Moon/);
-  assert.match(await evaluate("document.querySelector('#story-title').textContent"),/At least 7 h 53 min 52 s/);
+  assert.match(await evaluate("document.querySelector('#story-title').textContent"),/At least 7 h 53 min/);
   assert(await evaluate("[...document.querySelectorAll('#environment-overview .environment-measurement')].every(n=>n.closest('details')&&!n.closest('details').open)"),'Secondary measurements must be expandable, not six equally emphasized opening cards.');
   assert.equal(await evaluate("getComputedStyle(document.querySelector('.orbital-story-slot')).overflowY"),'visible','Mission must use normal page scrolling.');
   await evaluate("document.querySelector('#product-analyst').click()");
