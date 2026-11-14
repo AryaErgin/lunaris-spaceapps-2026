@@ -12,7 +12,7 @@ test('first-visit guide covers the real lunar mission lifecycle and its limits',
   assert(GUIDE_STEPS.some(step=>/level horizon/i.test(step.description)));
   assert(GUIDE_STEPS.some(step=>/72-hour/.test(step.description)));
   assert(GUIDE_STEPS.some(step=>/uncertain/i.test(step.description)));
-  assert(GUIDE_STEPS.some(step=>/radio link/i.test(step.description));
+  assert(GUIDE_STEPS.some(step=>/radio link/i.test(step.description)));
   for(const step of GUIDE_STEPS){
     assert(step.title.length>7&&step.description.length>20);
     assert(step.description.length<260,'Do not turn a tour step into a text wall.');
