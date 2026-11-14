@@ -16,6 +16,7 @@ test('environment conclusions distinguish full, confirmed minimum, unresolved, a
 test('comparison separates confirmed differences, overlapping ranges, ties and incomplete options',()=>{
   const a={key:'A',metrics:metrics([36000,43200]),complete:true},b={key:'B',metrics:metrics([7200,40000]),complete:true};
   assert.match(comparisonConclusion([a,b],2),/8 h more confirmed/);
+  assert.match(comparisonConclusion([{...a,name:'de Gerlache Rim 1'},{...b,name:'Connecting Ridge'}],2),/de Gerlache Rim 1.*Connecting Ridge/);
   assert.match(comparisonConclusion([a,b],2),/overlap.*unresolved/i);
   assert.match(comparisonConclusion([a,{...b,metrics:metrics([7200,7200])}],2),/more confirmed/);
   assert.match(comparisonConclusion([a,{...a,key:'B'}],2),/same confirmed/);
