@@ -1,0 +1,22 @@
+{
+  "title": "LUNARIS actual deployed-app demonstration",
+  "recorded_application_release_sha": "ae9b1afe89b2092fa26aeff1d2b8299294071bdc",
+  "recorded_url": "https://aryaergin.github.io/lunaris-spaceapps-2026/",
+  "recorded_utc_date": "2026-11-14",
+  "duration_seconds": 29,
+  "width": 1366,
+  "height": 900,
+  "frames": 870,
+  "fps": 30,
+  "bytes": 908874,
+  "sha256": "ec6341c7bd203b15de6b6ca1ad5c44902be5b130f4e09d695d3ca999b65b047b",
+  "scientific_bundle_file_sha256": "67f898ff38f66c0feb8bff7196aa78ed060dd609801dce0aca7a8927d2cc05c6",
+  "method": "Actual Chrome screen capture, preserving observed screen-state durations; idle frames held; caption band and encoding only. No generated imagery or voice.",
+  "ai_assistance": "AI-assisted development and caption writing. Deterministic application decisions; no runtime AI.",
+  "human_teammates": [
+    "Arya Ergin",
+    "Aras"
+  ],
+  "sources": "visual-sources.json and ../data/bundle.json manifest",
+  "limits": "Illustrative mission requirements. Center visibility is not power, RF link performance, landing safety or reachable trajectory; seven separate cases are not universal robustness."
+}

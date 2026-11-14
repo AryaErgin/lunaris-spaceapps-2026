@@ -2,6 +2,8 @@
 
 What if a lunar landing is late? LUNARIS shows the sunlight and Earth-contact opportunities lost, which fixed requirements fail, and the next confirmed arrival at a verified south-pole study point.
 
+[Open the application](https://aryaergin.github.io/lunaris-spaceapps-2026/) · [Watch the actual 29-second demonstration](https://aryaergin.github.io/lunaris-spaceapps-2026/demo.html).
+
 ## Try it locally
 
 For automatic updates while editing (Node.js 20.19+ or 22.12+):

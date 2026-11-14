@@ -27,7 +27,7 @@ try{
   let id=0;const callbacks=new Map(),errors=[];
   socket.addEventListener('message',({data})=>{const m=JSON.parse(data);if(m.method==='Runtime.exceptionThrown')errors.push(m.params.exceptionDetails.text);if(callbacks.has(m.id)){callbacks.get(m.id)(m);callbacks.delete(m.id);}});
   const command=(method,params={})=>new Promise((ok,no)=>{const key=++id;callbacks.set(key,m=>m.error?no(Error(JSON.stringify(m.error))):ok(m.result));socket.send(JSON.stringify({id:key,method,params}));});
-  const evaluate=async expression=>{const r=await command('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true});if(r.exceptionDetails)throw Error(r.exceptionDetails.exception?.description??r.exceptionDetails.text);return r.result.value;};
+  const evaluate=async(expression,userGesture=false)=>{const r=await command('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true,userGesture});if(r.exceptionDetails)throw Error(r.exceptionDetails.exception?.description??r.exceptionDetails.text);return r.result.value;};
   const screenshot=async name=>{const r=await command('Page.captureScreenshot',{format:'png'});await writeFile(resolve(work,name+'.png'),Buffer.from(r.data,'base64'));};
   await command('Page.enable');await command('Runtime.enable');await command('Network.enable');
   await command('Emulation.setDeviceMetricsOverride',{width:1366,height:768,deviceScaleFactor:1,mobile:false});
@@ -63,7 +63,17 @@ try{
   await command('Page.navigate',{url});await until(()=>evaluate("!!document.querySelector('#export:not([disabled])')"));
   if(guided)await until(()=>evaluate("document.querySelector('#scene-status').textContent.includes('3D graphics unavailable')"));
   await screenshot('anonymous-no-webgl');assert.deepEqual(errors,[]);
+  await command('Page.navigate',{url:new URL('demo.html',url).href});
+  await until(()=>evaluate("document.querySelector('video')?.readyState>=1"));
+  const video=await evaluate("(()=>{const v=document.querySelector('video');return {duration:v.duration,width:v.videoWidth,height:v.videoHeight}})()");
+  assert.equal(video.duration,29);assert.deepEqual([video.width,video.height],[1366,900]);
+  await evaluate("document.querySelector('video').play()",true);
+  await until(()=>evaluate("document.querySelector('video').currentTime>0.15"));
+  await evaluate("document.querySelector('video').pause();document.querySelector('video').currentTime=27");
+  await until(()=>evaluate("!document.querySelector('video').seeking&&document.querySelector('video').readyState>=2"));
+  assert(await evaluate('document.documentElement.scrollWidth<=innerWidth'));
+  await screenshot('anonymous-demo-mobile');assert.deepEqual(errors,[]);
   const version=await command('Browser.getVersion');
-  await writeFile(resolve(work,'verification.json'),JSON.stringify({url,release,states,anonymous:true,viewports:[[1366,768],[390,840]],browser:version,physicalSecondDevice:false},null,2));
+  await writeFile(resolve(work,'verification.json'),JSON.stringify({url,release,states,anonymous:true,demo:video,viewports:[[1366,768],[390,840]],browser:version,physicalSecondDevice:false},null,2));
   console.log(`Public anonymous deployment verified: ${url} SHA ${release.application_release_sha}; JSON/PNG, refresh, PASS/FAIL/PASS, downloaded certificates, mobile emulation and JavaScript-without-WebGL passed. Evidence: ${work}`);
 }finally{socket?.close();browser.kill();}
