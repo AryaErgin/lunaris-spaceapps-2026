@@ -9,6 +9,8 @@ import {constraintEvidence,constraintSegments,evidenceTime} from './decision-evi
 import {resolveAutomaticSchedule,findLandingOpportunities,findVisibilityOpportunities,makeEnvironmentRecord,environmentInputs} from './opportunities.mjs';
 import {visibilityConclusion,comparisonConclusion,opportunityConclusion,conciseDuration,firstScreenConclusion} from './explanations.mjs';
 
+import {NOTABLE_SITES,referenceDirections,skyAt,elevationSeries,nextLevelCrossing,levelSummary,validCoordinate} from './anysite.mjs';
+
 const byId = (id) => document.getElementById(id);
 const form = byId('mission-form');
 const exportButton = byId('export');
@@ -1152,6 +1154,9 @@ byId('hero-play').addEventListener('click',async()=>{
 byId('hero-pause').addEventListener('click',()=>pausePlayback());
 byId('guide-open').addEventListener('click',()=>{pausePlayback();byId('mission-story').scrollIntoView({block:'start'});});
 byId('hero-reset').addEventListener('click',()=>{pausePlayback('Reset to the first cached sample in this domain.');byId('probe-slider').value=0;updateProbe();});
+byId('hero-scope').addEventListener('change',()=>{
+  byId('time-scope').value=byId('hero-scope').value;byId('time-scope').dispatchEvent(new Event('change'));
+});
 byId('hero-speed').addEventListener('change',()=>{
   byId('sky-speed').value=byId('hero-speed').value;
   if(playing){pausePlayback();startPlayback();}
@@ -1232,6 +1237,7 @@ async function initialize() {
       comparison.hidden = false;
     }
     loadDemo(true,true);
+    setupAnySite();
     initializeExperience();
     void fetch('./data/rendering-notes.json').then(r=>r.ok?r.json():null).then(notes=>{
       if(notes?.bundlePayloadSha256!==bundle.manifest?.bundleSha256)return;
@@ -1442,6 +1448,82 @@ function jumpPlayback() {
   }
   byId('probe-slider').value=index;updateProbe();
   byId('playback-status').textContent=`Jumped to nearest actual cached sample: ${formatTime(currentTime)}. Ties choose the earlier sample; geometry cadence is 30 minutes.`;
+}
+
+// Level-horizon sky for curated and custom lunar coordinates. No terrain, so no visibility claim.
+let anySiteSeries=null;
+const compass=azimuth=>['north','north-east','east','south-east','south','south-west','west','north-west'][Math.round(azimuth/45)%8];
+function spanText(seconds){
+  const s=Math.max(0,seconds),d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60);
+  return [d?`${d} d`:'',h?`${h} h`:'',!d&&m?`${m} min`:''].filter(Boolean).join(' ')||'under a minute';
+}
+function anySiteTarget(){
+  const latField=byId('any-site-lat'),lonField=byId('any-site-lon'),lat=Number(latField.value),lon=Number(lonField.value);
+  if(latField.value===''||lonField.value===''||!validCoordinate(lat,lon))return null;
+  const known=[...NOTABLE_SITES,...bundle.sites].find(site=>site.id===byId('any-site-select').value);
+  return {lat,lon,name:known?known.name:`${Math.abs(lat)}° ${lat<0?'S':'N'}, ${lon}° E`,source:known?.source,study:Boolean(known)&&bundle.sites.includes(known)};
+}
+function setupAnySite(){
+  const select=byId('any-site-select'),groups=new Map();
+  const group=label=>{if(!groups.has(label)){const node=document.createElement('optgroup');node.label=label;groups.set(label,node);select.append(node);}return groups.get(label);};
+  for(const site of NOTABLE_SITES){const option=element('option','',`${site.name} · ${site.year}`);option.value=site.id;group(site.group).append(option);}
+  for(const site of bundle.sites){const option=element('option','',`${site.name} · level horizon only`);option.value=site.id;group('South-pole study points').append(option);}
+  const custom=element('option','','Custom coordinate');custom.value='custom';select.append(custom);
+  const choose=()=>{
+    const site=[...NOTABLE_SITES,...bundle.sites].find(entry=>entry.id===select.value);
+    if(site){byId('any-site-lat').value=site.lat;byId('any-site-lon').value=site.lon;}
+    renderAnySite(true);
+  };
+  select.addEventListener('change',choose);
+  for(const id of ['any-site-lat','any-site-lon'])byId(id).addEventListener('input',()=>{select.value='custom';renderAnySite(true);});
+  byId('any-site').addEventListener('toggle',()=>renderAnySite(true));
+  select.value=NOTABLE_SITES[0].id;choose();
+}
+function drawAnySiteChart(){
+  const svg=byId('any-site-chart'),[start,end]=bundle.coverage;svg.replaceChildren();
+  const x=time=>1000*(time-start)/(end-start),y=elevation=>100-elevation/90*100;
+  svg.append(svgElement('line',{x1:0,x2:1000,y1:100,y2:100,class:'any-site-zero'}));
+  for(const key of ['earth','sun']){
+    const path=anySiteSeries.map((point,index)=>`${index?'L':'M'}${x(point.time).toFixed(1)} ${y(point[key]).toFixed(1)}`).join('');
+    svg.append(svgElement('path',{d:path,class:`any-site-line ${key}`}));
+  }
+  svg.append(svgElement('line',{x1:0,x2:0,y1:0,y2:200,class:'any-site-playhead'}));
+}
+function renderAnySite(rebuild=false){
+  if(!bundle||!byId('any-site').open)return;
+  const target=anySiteTarget(),root=byId('any-site-result');
+  if(!target){
+    anySiteSeries=null;byId('any-site-chart').replaceChildren();byId('any-site-contrast').textContent='';byId('any-site-source').hidden=true;
+    root.replaceChildren(element('p','any-site-empty','Enter a latitude from −90 to 90 and a longitude from −180 to 360 degrees east.'));return;
+  }
+  const {rows}=referenceDirections(bundle);
+  if(rebuild||!anySiteSeries){
+    anySiteSeries=elevationSeries(bundle,target.lat,target.lon);drawAnySiteChart();
+    const sun=levelSummary(anySiteSeries,'sun'),earth=levelSummary(anySiteSeries,'earth'),percent=value=>`${Math.round(value*100)}%`;
+    byId('any-site-contrast').textContent=`Through November the Sun is above the level horizon ${percent(sun.aboveFraction)} of the time here and climbs to ${sun.max.toFixed(0)}°. `
+      +(earth.aboveFraction===1?`Earth never leaves the sky: it stays between ${earth.min.toFixed(0)}° and ${earth.max.toFixed(0)}°.`
+        :earth.aboveFraction===0?'Earth never rises here: this site faces away from Earth, so a relay would be needed.'
+          :`Earth hovers near the horizon, between ${earth.min.toFixed(1)}° and ${earth.max.toFixed(1)}°, and is above the level horizon ${percent(earth.aboveFraction)} of the time.`)
+      +(target.study?' Terrain-aware results for this study point are in the planner above.':'');
+    const link=byId('any-site-source');link.hidden=!target.source?.startsWith('https://');if(!link.hidden)link.href=target.source;
+  }
+  const time=currentTime??inputs?.nominal??bundle.coverage[0],cadence=rows[1].time-rows[0].time;
+  const sky=skyAt(rows[Math.max(0,Math.min(rows.length-1,Math.round((time-rows[0].time)/cadence)))],target.lat,target.lon);
+  root.replaceChildren();root.dataset.time=sky?.time??'';
+  if(!sky){root.append(element('p','any-site-empty','No cached direction exists at this time.'));return;}
+  root.append(element('p','any-site-when',`${target.name} · ${shortTime(sky.time)}`));
+  for(const [key,title] of [['sun','Sun'],['earth','Earth']]){
+    const {azimuth,elevation}=sky[key],card=element('div',`any-site-body ${key}`),crossing=nextLevelCrossing(anySiteSeries,key,sky.time);
+    Object.assign(card.dataset,{body:key,elevation:elevation.toFixed(4),azimuth:azimuth.toFixed(4)});
+    card.append(element('span','any-site-label',title),
+      element('strong','',`${Math.abs(elevation).toFixed(1)}° ${elevation<0?'below':'above'} the level horizon`),
+      element('span','',`Toward the ${compass(azimuth)} · bearing ${azimuth.toFixed(0)}°`),
+      element('span','any-site-next',crossing?`${crossing.kind==='sets'?'Drops below':'Rises above'} the level horizon in ${spanText(crossing.time-sky.time)}`
+        :`Stays ${elevation>0?'above':'below'} the level horizon for the rest of November`));
+    root.append(card);
+  }
+  const head=byId('any-site-chart').querySelector('.any-site-playhead');
+  if(head){const position=1000*(sky.time-bundle.coverage[0])/(bundle.coverage[1]-bundle.coverage[0]);head.setAttribute('x1',position);head.setAttribute('x2',position);}
 }
 
 function arrivalOffset(seconds) {
@@ -1714,7 +1796,8 @@ function updateExperienceFrame(site,sample,mission) {
   byId('hero-time-label').title='The scene moves in 30-minute steps. Your arrival and stay do not change.';
   byId('hero-time-start').textContent=wholeMonth&&chart?.domain?shortTime(chart.domain[0]):`Arrival · ${shortTime(mission.start)}`;
   byId('hero-time-end').textContent=wholeMonth&&chart?.domain?shortTime(chart.domain[1]):`End of stay · ${shortTime(mission.end)}`;
-  byId('hero-speed').value=byId('sky-speed').value;
+  byId('hero-speed').value=byId('sky-speed').value;byId('hero-scope').value=byId('time-scope').value;
+  renderAnySite();
   byId('hero-play').disabled=isEdited||!chart||chart.samples.length<2;
   const visibility=byId('hero-visibility'),eventNotes={};visibility.replaceChildren();
   for(const [key,title] of [['sun','Sun'],['earth','Earth']]) {
@@ -1727,9 +1810,15 @@ function updateExperienceFrame(site,sample,mission) {
       const countdown=transitionCountdown(refinedEvents(site,key,sample[0],bundle.coverage),wanted,sample[0]);
       const name=wanted==='loss'?(key==='sun'?'sunset':'Earthset'):(key==='sun'?'sunrise':'Earthrise');
       // Only a bounded time is shown as a countdown; unresolved timing stays in the tooltip with its bracket.
+      // A bounded time reads as a countdown; an unresolved one shows its bracket, rounded outward to the minute.
+      const minute=seconds=>compactTime.format(seconds*1000).replace(',','');
       if(countdown.kind==='bounded')next=`${name} in ${durationRange(countdown.remaining)}`;
+      else if(countdown.kind==='unresolved'){
+        const from=minute(Math.floor(countdown.interval[0]/60)*60),to=minute(Math.ceil(countdown.interval[1]/60)*60);
+        next=`${name} ${from}–${from.slice(0,6)===to.slice(0,6)?to.slice(7):to} UTC`;
+      }
       eventNotes[key]=countdown.kind==='bounded'?''
-        :countdown.kind==='unresolved'?` The ${name} time cannot be pinned down: between ${shortTime(countdown.interval[0])} and ${shortTime(countdown.interval[1])}.`
+        :countdown.kind==='unresolved'?` The ${name} time cannot be pinned down more closely than ${shortTime(countdown.interval[0])} to ${shortTime(countdown.interval[1])}.`
           :` No ${name} is established in the November data.`;
     }
     const item=element('span','hero-body');item.append(element('strong','',`${title} ${label}`));
