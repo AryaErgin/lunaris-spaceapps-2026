@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#101923">
+    <meta name="description" content="Compare lunar south-pole surface conditions and replan a delayed landing using terrain-aware visibility.">
+    <title>LUNARIS · Lunar Landing Site Navigator</title>
+    <link rel="stylesheet" href="./styles.css">
+    <script type="module" src="./app.mjs"></script>
+  </head>
+  <body>
+    <a class="skip" href="#mission">Skip to mission planner</a>
+    <header class="masthead">
+      <div class="mast-inner">
+        <a class="brand" href="#top" aria-label="LUNARIS home">
+          <svg aria-hidden="true" viewBox="0 0 40 40" width="36" height="36" fill="none">
+            <circle cx="20" cy="20" r="14.75" stroke="currentColor" stroke-width="1.2"/>
+            <path d="M20 5.25c-5.5 3.2-8 8-8 14.75s2.5 11.55 8 14.75M5.5 20H34.5m-24-8h19m-19 16h19" stroke="currentColor" stroke-width=".75"/>
+            <path d="M19.5 25.5 24 14l.5 8.5 5 4.5z" fill="#f7ca6a" stroke="#101923"/>
+          </svg>
+          <span>LUNARIS</span>
+        </a>
+        <a class="nav-link" href="#methods">Data &amp; methods <span aria-hidden="true">↘</span></a>
+      </div>
+    </header>
+
+    <main id="top" class="container">
+      <div class="intro">
+        <div>
+          <p class="eyebrow">Lunar Landing Site Navigator</p>
+          <h1>Plan for a<br class="intro-break"> shifted landing.</h1>
+          <p class="lede">Compare sunlight and Earth visibility at lunar south-pole study points. Set mission limits, impose a delay, and find the earliest sampled start that meets them.</p>
+          <a class="jump-results" href="#results-title">View landing decisions <span aria-hidden="true">↓</span></a>
+        </div>
+        <aside class="data-card" aria-labelledby="data-title">
+          <p class="eyebrow" id="data-title">Offline data coverage</p>
+          <p class="data-range" id="bundle-range">Loading data…</p>
+          <p class="data-note" id="bundle-note">NASA LOLA terrain · JPL ephemerides</p>
+        </aside>
+      </div>
+
+      <div id="load-error" class="notice" role="alert" hidden></div>
+      <noscript><p class="notice">Enable JavaScript to evaluate landing windows and export a decision certificate.</p></noscript>
+
+      <div id="mission" class="workspace">
+        <form id="mission-form" class="panel settings">
+          <div class="settings-title">
+            <h2>Mission setup</h2>
+            <button id="reset-demo" class="link-button" type="button" disabled>Reset demo</button>
+          </div>
+
+          <label for="site">Study point</label>
+          <select id="site" name="site" required disabled></select>
+          <p class="field-hint" id="site-detail">Coordinates and instrument height load with the terrain bundle.</p>
+
+          <label for="nominal">Nominal landing <span>UTC</span></label>
+          <input id="nominal" name="nominal" type="datetime-local" step="1" required>
+
+          <div class="field-pair">
+            <div>
+              <label for="duration">Mission length <span>h</span></label>
+              <input id="duration" name="duration" type="number" min="0" step="any" required>
+            </div>
+            <div>
+              <label for="delay">Landing delay <span>h</span></label>
+              <input id="delay" name="delay" type="number" min="0" step="any" required>
+            </div>
+          </div>
+
+          <fieldset>
+            <legend>Hard limits</legend>
+            <label for="max-sun">Max continuous unqualified sunlight <span>h</span></label>
+            <input id="max-sun" name="max-sun" type="number" min="0" step="any" required>
+
+            <label for="max-earth">Max continuous Earth-center blockage <span>h</span></label>
+            <input id="max-earth" name="max-earth" type="number" min="0" step="any" required>
+
+            <details class="advanced">
+              <summary>Joint windows and search</summary>
+              <div class="advanced-fields">
+                <label for="min-total">Min total joint visibility <span>h</span></label>
+                <input id="min-total" name="min-total" type="number" min="0" step="any" placeholder="Optional">
+                <label for="min-continuous">Min continuous joint visibility <span>h</span></label>
+                <input id="min-continuous" name="min-continuous" type="number" min="0" step="any" placeholder="Optional">
+                <label for="earliest">Earliest allowable start <span>UTC</span></label>
+                <input id="earliest" name="earliest" type="datetime-local" step="1">
+                <label for="latest">Latest allowable start <span>UTC</span></label>
+                <input id="latest" name="latest" type="datetime-local" step="1">
+                <label for="grid">Alternative start grid <span>min</span></label>
+                <input id="grid" name="grid" type="number" min="1" step="1" required>
+                <label id="prelaunch-option" class="checkbox" hidden><input id="prelaunch" type="checkbox"> Compare other sites in prelaunch concept study</label>
+              </div>
+            </details>
+          </fieldset>
+
+          <button id="evaluate" class="primary" type="submit" disabled>Evaluate mission <span aria-hidden="true">→</span></button>
+          <p id="form-status" class="form-status" role="status"></p>
+        </form>
+
+        <div id="results" aria-busy="true" class="results">
+          <section aria-labelledby="results-title">
+            <div class="section-head">
+              <h2 id="results-title">Landing decisions</h2>
+              <button id="export" class="outline" type="button" disabled><span aria-hidden="true">↓</span> Decision certificate</button>
+            </div>
+            <section id="decision-list" class="decisions" aria-label="Select a landing decision to inspect">
+              <p class="loading panel" role="status">Preparing the offline mission sample…</p>
+            </section>
+            <div id="decision-summary" class="decision-summary" hidden></div>
+          </section>
+
+          <section class="panel figure" aria-labelledby="plot-title">
+            <div class="panel-head">
+              <div>
+                <h2 id="plot-title">Terrain &amp; visibility</h2>
+                <p id="plot-subtitle" class="secondary">Target elevations and terrain horizon during the selected mission.</p>
+              </div>
+              <div class="segmented" aria-label="Target to display">
+                <button id="view-sun" type="button" aria-pressed="true">Sun</button>
+                <button id="view-earth" type="button" aria-pressed="false">Earth</button>
+              </div>
+            </div>
+            <div id="plot" class="plot"></div>
+            <div id="time-probe" class="time-probe" hidden>
+              <label for="probe-slider">Inspect mission time</label>
+              <input type="range" id="probe-slider" min="0" max="1" step="1" value="0">
+              <output id="probe-output" for="probe-slider"></output>
+            </div>
+            <div id="timeline" class="timeline"></div>
+            <details id="interval-details" class="interval-details" hidden>
+              <summary>UTC visibility intervals</summary>
+              <label for="interval-channel">Visibility condition</label>
+              <select id="interval-channel">
+                <option value="sun">Sunlight</option>
+                <option value="earth">Earth center</option>
+                <option value="joint">Joint visibility</option>
+              </select>
+              <div id="interval-table" class="interval-table"></div>
+            </details>
+          </section>
+
+          <section class="panel constraints" aria-labelledby="constraints-title">
+            <div class="panel-head">
+              <div>
+                <h2 id="constraints-title">Constraint evidence</h2>
+                <p id="constraint-summary" class="secondary">Select a landing decision to inspect its limits, signed margins, and witness intervals.</p>
+              </div>
+            </div>
+            <div id="constraint-table" class="constraint-table"></div>
+            <div id="refinement-evidence" class="refinement-evidence" hidden></div>
+            <div id="warnings" class="warning-list" hidden></div>
+          </section>
+
+          <section id="alternatives" class="panel alternatives" aria-labelledby="alternatives-title" hidden>
+            <h2 id="alternatives-title">Feasible alternatives</h2>
+            <p id="search-detail" class="secondary"></p>
+            <div id="alternatives-list"></div>
+          </section>
+        </div>
+      </div>
+
+      <section id="methods" class="methods" aria-labelledby="methods-title">
+        <h2 id="methods-title">Data &amp; methods</h2>
+        <div class="methods-grid">
+          <div>
+            <h3>Visibility definitions</h3>
+            <div id="visibility-definitions">
+              <p>The solar and Earth targets are evaluated against the local curved terrain skyline. Joint visibility requires both conditions at the same time.</p>
+            </div>
+          </div>
+          <div>
+            <h3>Decision scope</h3>
+            <p>Results concern surface geometry over a bounded time range. Array power, radio link closure, terrain hazards, and reachable trajectories require separate analyses.</p>
+            <p>Points are study coordinates. PASS means the modeled environment satisfies the selected limits.</p>
+          </div>
+          <div>
+            <h3>Source provenance</h3>
+            <p id="terrain-provenance">NASA LRO/LOLA topography and JPL lunar and planetary ephemerides. The certificate carries bundle identity and source hashes.</p>
+            <p id="geometry-check" hidden></p>
+            <ul class="sources">
+              <li><a href="https://pgda.gsfc.nasa.gov/products/78">NASA PGDA local terrain ↗</a></li>
+              <li><a href="https://pgda.gsfc.nasa.gov/products/90">NASA PGDA regional terrain ↗</a></li>
+              <li><a href="https://doi.org/10.1016/j.pss.2020.105119">Barker et al. on LOLA terrain uncertainty ↗</a></li>
+              <li><a href="https://ssd.jpl.nasa.gov/horizons/">NASA JPL Horizons ↗</a></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer-inner"><span>LUNARIS</span><span>Independent Space Apps project · AI-assisted development</span></div>
+    </footer>
+  </body>
+</html>
