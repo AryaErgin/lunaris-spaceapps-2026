@@ -1345,7 +1345,7 @@ function renderOptionComparison(focus){
     catch(error){card.append(element('p','notice',`${error.message} No result is claimed.`));root.append(card);continue;}
     const bounded=missionMetrics(mission,findSite(option.siteId));
     const complete=mission.start>=bundle.coverage[0]&&mission.end<=bundle.coverage[1];
-    evaluations.push({key:option.key,mission,metrics:bounded,complete});Object.assign(card.dataset,{site:option.siteId,start:option.start,end:mission.end,status:mission.status,cause:mission.startAllowed===false?'schedule':'environment'});
+    evaluations.push({key:option.key,name:findSite(option.siteId)?.name,mission,metrics:bounded,complete});Object.assign(card.dataset,{site:option.siteId,start:option.start,end:mission.end,status:mission.status,cause:mission.startAllowed===false?'schedule':'environment'});
     const status=element('p','option-status');if(requirementsEnabled){status.append(statusChip(mission.status));card.append(status);}else card.dataset.status='ENVIRONMENT';
     if(mission.startAllowed===false)card.append(element('p','schedule-exclusion','Outside allowed schedule — environmental results are separate.'));
     if(siteCaution(option.siteId))card.append(element('p','comparison-caution',siteCaution(option.siteId)));
