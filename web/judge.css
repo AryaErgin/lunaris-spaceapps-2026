@@ -445,3 +445,21 @@ body[data-delay-story='true'] #delay-shortcut{display:none}
 @media(max-width:700px){.moon-site-legend{font-size:12px;bottom:8px;left:8px;padding:5px 7px}}
 
 .mission-scene[data-mode='surface'] .moon-site-legend{display:none}
+
+/* Laptop-height first view: keep the mission, conclusion and primary actions above the fold
+   without shrinking the essential type below 14 px or hiding scientific results. */
+@media(min-width:701px) and (max-height:820px){
+  .experience-intro{padding:11px 28px 4px}
+  .experience-intro h1{font-size:28px;line-height:1.09;margin:2px 0 5px}
+  .experience-intro .eyebrow{margin-bottom:3px}
+  .hero-support{font-size:15px;line-height:1.38}
+  .scene-site-picker{padding:0 28px 4px}
+  .scene-site-picker label{margin-bottom:2px}
+  .scene-site-picker select{min-height:42px;margin-bottom:5px}
+  .visual-date-controls input,.visual-date-controls .visual-duration-field input{min-height:42px}
+  .orbital-story-slot{padding:5px 28px 12px}
+  .story-evidence h2,.environment-only .story-evidence h2{font-size:27px;line-height:1.12;margin:4px 0}
+  .story-evidence p{line-height:1.4}
+  .mission-actions{margin:7px 0 5px}
+  .mission-actions .find-opportunities,.mission-actions .explore-site{min-height:44px}
+}
