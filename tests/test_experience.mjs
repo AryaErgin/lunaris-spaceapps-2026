@@ -161,6 +161,7 @@ try{
   assert.match(await evaluate("document.querySelector('#quick-tour-title').textContent"),/result means/);
   await clickVisible('.quick-tour-next');
   assert(await evaluate("document.querySelector('#quick-tour').hidden&&!document.querySelector('.quick-tour-target')&&document.activeElement.id==='tour-start'"));
+  if(process.argv.includes('--tour-only')){console.log('First-visit Moon walkthrough passed: mission, Sun/Earth, terrain, playback, other sites, Compare, opportunities, delay, failure, recovery and model limits.');socket?.close();browser.kill();server.close();process.exit(0);}
   await clickVisible('#tour-start');await command('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});
   assert(await evaluate("document.querySelector('#quick-tour').hidden&&document.activeElement.id==='tour-start'"));
   await command('Emulation.setDeviceMetricsOverride',{width:390,height:640,deviceScaleFactor:1,mobile:false});
