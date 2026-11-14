@@ -1,0 +1,5 @@
+# Preserve reproducible source and generated-data byte fingerprints on Windows.
+science/*.py text eol=lf
+web/data/*.json text eol=lf
+tests/fixtures/*.json text eol=lf
+web/data/*.mesh binary
