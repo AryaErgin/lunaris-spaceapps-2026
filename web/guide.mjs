@@ -85,7 +85,9 @@ export function initQuickTour(doc=document){
   function show(index){
     if(index<0||index>=GUIDE_STEPS.length)return finish();
     clear();current=index;pendingPhase=null;
-    const step=GUIDE_STEPS[index];doc.getElementById('product-'+step.workspace)?.click();
+    const step=GUIDE_STEPS[index],tab=doc.getElementById('product-'+step.workspace);
+    // Avoid resetting the currently active workspace as a side effect of first-visit onboarding.
+    if(tab&&tab.getAttribute('aria-pressed')!=='true')tab.click();
     if(index===4){const sites=doc.getElementById('any-site');if(sites)sites.open=true;}
     setText(progress,'STEP '+(index+1)+' OF '+GUIDE_STEPS.length);
     setText(title,step.title);setText(description,step.description);
