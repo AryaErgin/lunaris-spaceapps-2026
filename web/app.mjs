@@ -1758,7 +1758,15 @@ async function initializeExperience() {
   showGuidedPhase('nominal');
   setExperienceMode('orbital');
   sceneLoading=import('./scene3d.mjs').then(module=>module.createMissionScene({container:byId('scene-mount'),bundle,
-    onSiteSelect:siteId=>selectVisualSite(siteId),onModeChange:setExperienceMode,onStatus:setSceneStatus}));
+    onSiteSelect:siteId=>selectVisualSite(siteId),
+    onNotableSelect:id=>{
+      const control=byId('any-site-select');
+      if(!NOTABLE_SITES.some(site=>site.id===id)||!control)return;
+      control.value=id;control.dispatchEvent(new Event('change'));
+      // A notable point has no terrain bundle. Open its explicitly level-horizon-only explorer.
+      showOtherSites();
+      byId('scene-status').textContent='Blue map marker: level-horizon Sun and Earth angles only. No terrain-aware mission verdict exists for this location.';
+    },onModeChange:setExperienceMode,onStatus:setSceneStatus}));
   try {
     sceneController=await sceneLoading;
     if(sceneDisabled){sceneController.dispose();return;}
