@@ -108,3 +108,43 @@ test('unknown position-specific terrain prevents a robust pass despite a passing
   assert.equal(result.robust_status, 'INDETERMINATE');
   assert.deepEqual(result.scenario_results.map(({ status }) => status), ['INDETERMINATE', 'PASS', 'PASS']);
 });
+
+test('correlated local terrain realizations preserve the observation point and use per-realization ground', async () => {
+  const { evaluateTerrainRealizations } = await moduleUnderTest();
+  assert.equal(typeof evaluateTerrainRealizations, 'function');
+  const { phaseB, positions, inputs } = fixture();
+  const { nominal } = runMission(phaseB, inputs);
+  const [first, center, last] = positions.scenarios;
+  const terrain = {
+    ...positions,
+    scenarios: [
+      { ...first, id: 'clone1', label: 'Clone 001', lat: -88, lon: 292, groundM: 1789.8 },
+      { ...center, label: 'Nominal DEM' },
+      { ...last, id: 'clone2', label: 'Clone 002', lat: -88, lon: 292, groundM: 1790.2 },
+    ],
+  };
+  const result = evaluateTerrainRealizations(phaseB, terrain, inputs, nominal);
+  assert.equal(result.robust_status, 'FAIL');
+  assert.deepEqual(result.scenario_results.map(({ id, label, lat, lon, groundM, heightM, status }) =>
+    [id, label, lat, lon, groundM, heightM, status]), [
+    ['clone1', 'Clone 001', -88, 292, 1789.8, 2, 'FAIL'],
+    ['center', 'Nominal DEM', -88, 292, 1790, 2, 'PASS'],
+    ['clone2', 'Clone 002', -88, 292, 1790.2, 2, 'PASS'],
+  ]);
+  assert.ok(result.scope.includes('shared regional terrain'));
+  assert.deepEqual(result.scenario_results[1].constraints, nominal.constraints);
+  assert.ok(!('recommended' in result));
+});
+
+test('terrain realizations reject displaced coordinates, changed heights or duplicate labels', async () => {
+  const { evaluateTerrainRealizations } = await moduleUnderTest();
+  assert.equal(typeof evaluateTerrainRealizations, 'function');
+  const { phaseB, positions, inputs } = fixture();
+  const { nominal } = runMission(phaseB, inputs);
+  const [, center] = positions.scenarios;
+  const clone = { id: 'clone-one', label: 'Clone 001', lat: -88, lon: 292, groundM: 1790, heightM: 2, ...timeline() };
+  const evaluate = (scenarios) => evaluateTerrainRealizations(phaseB, { ...positions, scenarios }, inputs, nominal);
+  assert.throws(() => evaluate([center, { ...clone, lat: -88.001 }]), /fixed observation point/);
+  assert.throws(() => evaluate([center, { ...clone, heightM: 5 }]), /fixed observer height/);
+  assert.throws(() => evaluate([center, clone, { ...clone, id: 'clone-other' }]), /distinct labels/);
+});

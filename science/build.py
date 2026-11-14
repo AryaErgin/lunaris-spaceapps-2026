@@ -99,12 +99,13 @@ def _bounds_report(coarse, fine, merged):
     }
 
 
-def _site(raw, ephemeris, row, *, height_m=HEIGHT_M, include_plot=True):
+def _site(raw, ephemeris, row, *, height_m=HEIGHT_M, include_plot=True, local_path=None):
     site_id, name, region, lat, lon, tile = row
     begin = perf_counter()
-    coarse = build_skyline(raw, tile, lat, lon, height_m, count=1800, radius_m=200_000)
-    fine = build_skyline(raw, tile, lat, lon, height_m, count=3600, radius_m=240_000)
-    print(f"{site_id} ({height_m:g} m): both terrain scans in {perf_counter() - begin:.1f}s", flush=True)
+    coarse = build_skyline(raw, tile, lat, lon, height_m, count=1800, radius_m=200_000, local_path=local_path)
+    fine = build_skyline(raw, tile, lat, lon, height_m, count=3600, radius_m=240_000, local_path=local_path)
+    label = f"{site_id} / {local_path.name}" if local_path else site_id
+    print(f"{label} ({height_m:g} m): both terrain scans in {perf_counter() - begin:.1f}s", flush=True)
     visibility = Visibility(ephemeris, lat, lon, fine.info["observerRadiusM"])
     visibility.cache(range(START, END + 1, 60), measure=True)
     intervals = {}
@@ -126,7 +127,7 @@ def _site(raw, ephemeris, row, *, height_m=HEIGHT_M, include_plot=True):
             warnings.append(f"{target.title()} intervals contain potentially blocking DEM gaps.")
     if fine.info["farBoundBins"]:
         warnings.append("The far-field search limit affects the terrain envelope in some bearings.")
-    print(f"{site_id}: interval refinement {json.dumps(refinement)}", flush=True)
+    print(f"{label}: interval refinement {json.dumps(refinement)}", flush=True)
     return {
         "id": site_id, "name": name, "region": region, "lat": lat, "lon": lon,
         "source": SITE_SOURCE, "coordinateReference": "NASA Lunar Surface Data Book M2M-30044, table A2.1-1, p. 75",

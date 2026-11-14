@@ -38,9 +38,13 @@ let chart;
 let lastPlotWidth;
 let isEdited = false;
 const SENSITIVITY_STUDY_SITE = 'de-gerlache-rim';
-const studies = ['height', 'position'].map((id) => ({
-  id, panel: byId(`${id}-panel`), button: byId(`run-${id}s`),
-  status: byId(`${id}-status`), content: byId(`${id}-results`),
+const studies = [
+  { id: 'height', cases: 'heights', evaluator: 'evaluateHeights' },
+  { id: 'position', cases: 'positions', evaluator: 'evaluatePositions' },
+  { id: 'terrain', cases: 'terrain realizations', evaluator: 'evaluateTerrainRealizations' },
+].map((study) => ({
+  ...study, panel: byId(`${study.id}-panel`), button: byId(`run-${study.id}s`),
+  status: byId(`${study.id}-status`), content: byId(`${study.id}-results`),
   request: 0,
 }));
 
@@ -597,7 +601,7 @@ function resetStudy(study, mission) {
   const matchesStudyPoint = mission?.siteId === SENSITIVITY_STUDY_SITE;
   study.button.disabled = !matchesStudyPoint || isEdited;
   let message = '';
-  if (isEdited) message = `Evaluate the updated mission before comparing ${study.id}s.`;
+  if (isEdited) message = `Evaluate the updated mission before comparing ${study.cases}.`;
   else if (matchesStudyPoint) message = `Selected mission begins ${formatTime(mission.start)}.`;
   else message = 'Available for landing decisions at de Gerlache Rim 1.';
   study.status.textContent = message;
@@ -608,7 +612,7 @@ function renderStudyReport(study, report) {
   const summary = element('div', 'study-summary');
   const total = report.scenario_results.length;
   const passes = report.scenario_results.filter(({ status }) => status === 'PASS').length;
-  summary.append(element('strong', '', `Passes ${passes} of ${total} evaluated ${study.id}s`), statusChip(report.robust_status));
+  summary.append(element('strong', '', `Passes ${passes} of ${total} evaluated ${study.cases}`), statusChip(report.robust_status));
   const scope = element('p', 'secondary', report.scope);
   const cards = element('div', 'study-cards');
   const nominalHeight = findSite(report.siteId)?.heightM;
@@ -626,6 +630,7 @@ function renderStudyReport(study, report) {
       const ground = Number.isFinite(scenario.groundM) ? ` · ground ${number.format(scenario.groundM)} m` : '';
       card.dataset.latitude = precise(scenario.lat);
       card.dataset.longitude = precise(scenario.lon);
+      card.dataset.ground = precise(scenario.groundM);
       card.append(element('p', 'coordinates', `${coordinates}${ground}`));
     }
     const limits = element('ul', 'study-limits');
@@ -680,7 +685,7 @@ async function evaluateStudy(study) {
     });
     const [module, evidence] = await study.assets;
     if (currentRequest !== study.request) return;
-    const evaluator = isHeight ? module.evaluateHeights : module.evaluatePositions;
+    const evaluator = module[study.evaluator];
     const report = evaluator(bundle, evidence, evaluatedInputs, mission);
     if (!report) throw new Error(`The ${study.id} study has no evidence for the selected mission.`);
     study.report = { report, evidence, mission, inputs: evaluatedInputs, decision: selected };
@@ -750,6 +755,7 @@ async function downloadCertificate() {
   try {
     const certificate = await makeCertificate(bundle, requestedInputs, result);
     if (evidence.position) certificate.position_study = evidence.position;
+    if (evidence.terrain) certificate.terrain_study = evidence.terrain;
     if (evidence.height) {
       const { scenario_ids, scenario_results, robustness_scope, robust_status, ...metadata } = evidence.height;
       Object.assign(certificate, { scenario_ids, scenario_results, robustness_scope, robust_status });

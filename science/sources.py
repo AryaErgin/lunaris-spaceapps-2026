@@ -57,6 +57,12 @@ ACQUIRED_UTC = {
     "moon_de440_250416.tf": "2026-11-14T06:12:28.191050+00:00",
     "naif0012.tls": "2026-11-14T06:12:27.991396+00:00",
 }
+CLONES = {
+    "0001": (40987163, "251b610f015194c625439a84edf07c14ea9f8112238a38e90173319546118637",
+             "2026-11-14T06:47:35Z"),
+    "0002": (40987159, "3c2cf20ec6e594ecb2802ed253a65a299a5476e23829f3feec08ee7c9d44427b",
+             "2026-11-14T06:48:17Z"),
+}
 
 
 def _sha256(path):
@@ -86,12 +92,16 @@ def _range(span, *, url, size):
 
 
 def fetch(root, prefixes):
+    entries = [(name, url, size, SHA256[name]) for name, (url, size, _) in FILES.items()
+               if not prefixes or any(name.startswith(prefix) for prefix in prefixes)]
+    _fetch(root, entries)
+
+
+def _fetch(root, entries):
     root.mkdir(parents=True, exist_ok=True)
-    for name, (url, size, _) in FILES.items():
-        if prefixes and not any(name.startswith(prefix) for prefix in prefixes):
-            continue
+    for name, url, size, digest in entries:
         path = root / name
-        if path.is_file() and path.stat().st_size == size and _sha256(path) == SHA256[name]:
+        if path.is_file() and path.stat().st_size == size and _sha256(path) == digest:
             print(f"Already present: {name}", flush=True)
             continue
         part = path.with_suffix(path.suffix + ".download")
@@ -108,10 +118,30 @@ def fetch(root, prefixes):
                     for offset, body in workers.map(partial(_range, url=url, size=size), spans[i:i + 6]):
                         stream.seek(offset)
                         stream.write(body)
-        if part.stat().st_size != size or _sha256(part) != SHA256[name]:
+        if part.stat().st_size != size or _sha256(part) != digest:
             raise ValueError(f"{name}: bytes or SHA-256 mismatch with the pinned archive")
         part.replace(path)
         print(f"Verified bytes and SHA-256: {name}", flush=True)
+
+
+def clone_manifest(root, *, download=False):
+    products = []
+    for clone, (size, digest, acquired) in CLONES.items():
+        name = f"Site11_final_adj_5mpp_{clone}_err.tif"
+        url = f"{PGDA}/data/LOLA_5mpp/Site11/Clones/{name}"
+        if download:
+            _fetch(root, [(name, url, size, digest)])
+        path = root / name
+        if path.stat().st_size != size or _sha256(path) != digest:
+            raise ValueError(f"{name}: bytes or SHA-256 mismatch with the pinned archive")
+        products.append({
+            "clone": clone, "filename": name, "url": url, "bytes": size, "sha256": digest,
+            "local_file_acquired_utc": acquired, "product_version": f"PGDA Site11 clone {clone}",
+            "citation": "https://doi.org/10.1016/j.pss.2020.105119",
+            "use": "Local 5 m absolute radial elevation realization in metres",
+            "access": "NASA public archive. Cite the publisher and linked product.",
+        })
+    return products
 
 
 def source_manifest(root):
@@ -143,8 +173,14 @@ if __name__ == "__main__":
     parser.add_argument("--raw", type=Path, default=Path("data/raw"))
     parser.add_argument("--prefix", action="append")
     parser.add_argument("--manifest", action="store_true")
+    parser.add_argument("--clones", action="store_true", help="Include two pinned regional-study local DEM realizations")
     args = parser.parse_args()
     if args.manifest:
-        print(json.dumps(source_manifest(args.raw), indent=2))
+        records = source_manifest(args.raw)
+        if args.clones:
+            records.extend(clone_manifest(args.raw / "clones"))
+        print(json.dumps(records, indent=2))
     else:
         fetch(args.raw, args.prefix)
+        if args.clones:
+            clone_manifest(args.raw / "clones", download=True)

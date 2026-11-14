@@ -194,10 +194,11 @@ def _scan(dataset, lat, lon, observer, inner, outer, count, horizon):
     return {"sampledValidCells": valid_count, "sampledMaskedCells": invalid_count}
 
 
-def build_skyline(raw, tile, lat, lon, height_m, *, count=3600, radius_m=240_000):
+def build_skyline(raw, tile, lat, lon, height_m, *, count=3600, radius_m=240_000, local_path=None):
     x, y = project(lat, lon)
+    local_path = local_path or raw / f"{tile}_final_adj_5mpp_surf.tif"
     with (
-        rasterio.open(raw / f"{tile}_final_adj_5mpp_surf.tif") as local,
+        rasterio.open(local_path) as local,
         rasterio.open(raw / REGIONAL) as regional,
     ):
         local_info, regional_info = _raster_description(local), _raster_description(regional)

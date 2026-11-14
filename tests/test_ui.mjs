@@ -10,9 +10,9 @@ import { extname, resolve, sep } from 'node:path';
 
 const fixture = process.argv.includes('--fixture');
 const requireRecovery = process.argv.includes('--require-recovery');
-const testHeight = process.argv.includes('--height');
-const testPosition = process.argv.includes('--position');
-assert(!(fixture && (testHeight || testPosition)), 'Sensitivity studies require packaged real data.');
+const evaluators = { height: 'evaluateHeights', position: 'evaluatePositions', terrain: 'evaluateTerrainRealizations' };
+const requestedStudies = Object.keys(evaluators).filter((study) => process.argv.includes(`--${study}`));
+assert(!(fixture && requestedStudies.length), 'Sensitivity studies require packaged real data.');
 const workspace = process.cwd();
 const browserExecutable = process.env.LUNARIS_CHROME || (process.platform === 'win32'
   ? 'C:/Program Files/Google/Chrome/Application/chrome.exe' : 'chromium');
@@ -93,8 +93,8 @@ try {
   await new Promise((open) => socket.addEventListener('open', open, { once: true }));
   const callbacks = new Map();
   const requests = [];
-  const heightRequests = () => requests.filter((request) => /\/(height\.mjs|height-study\.json)$/.test(new URL(request).pathname));
-  const positionRequests = () => requests.filter((request) => /\/(scenarios\.mjs|position-study\.json)$/.test(new URL(request).pathname));
+  const studyRequests = () => requests.filter((request) => /\/(height\.mjs|scenarios\.mjs|(?:height|position|terrain)-study\.json)$/.test(new URL(request).pathname));
+  const requestedStudyData = () => studyRequests().filter((request) => request.endsWith('-study.json'));
   let messageId = 0;
   socket.addEventListener('message', ({ data }) => {
     const message = JSON.parse(data);
@@ -210,38 +210,35 @@ try {
 
   await browserEval("document.querySelector('#interval-details').open = false; document.querySelector('#reset-demo').click()");
   await screenshot('desktop');
-  assert.deepEqual(heightRequests(), [], 'Phase B triggered an unrequested optional height fetch');
-  assert.deepEqual(positionRequests(), [], 'Phase B triggered an unrequested optional position fetch');
-  if (testHeight || testPosition) {
+  assert.deepEqual(studyRequests(), [], 'Phase B triggered an unrequested optional study fetch');
+  if (requestedStudies.length) {
     const realBundle = JSON.parse(await readFile(resolve(workspace, 'web/data/bundle.json'), 'utf8'));
     const selectedMission = certificate.recommended_result;
     const verified = {};
     await browserEval("document.querySelector('[data-decision=recommended]').click()");
-    for (const [study, requestLog] of [['height', heightRequests], ['position', positionRequests]]) {
-      if (study === 'height' ? !testHeight : !testPosition) continue;
-      const requestsBeforeOpen = requestLog();
+    for (const study of requestedStudies) {
+      const requestsBeforeOpen = studyRequests();
       await browserEval(`document.querySelector('#${study}-panel > summary').click()`);
-      assert.deepEqual(requestLog(), requestsBeforeOpen, `Opening the optional ${study} panel triggered a data fetch`);
+      assert.deepEqual(studyRequests(), requestsBeforeOpen, `Opening the optional ${study} panel triggered a data fetch`);
       await browserEval(`document.querySelector('#run-${study}s').click()`);
       await until(() => browserEval(`Boolean(document.querySelector('#${study}-results:not([hidden])'))`));
       const displayed = await browserEval(`(() => {
         const report = document.querySelector('#${study}-results');
         return { status: report.dataset.robustStatus, scenarios: [...report.querySelectorAll('[data-scenario]')].map((card) => ({
           id: card.dataset.scenario, heightM: Number(card.dataset.height), status: card.dataset.status,
-          coordinates: card.dataset.latitude ? [Number(card.dataset.latitude), Number(card.dataset.longitude)] : null,
+          terrain: card.dataset.latitude ? [Number(card.dataset.latitude), Number(card.dataset.longitude), Number(card.dataset.ground)] : null,
           margins: [...card.querySelectorAll('[data-constraint]')].map(({ dataset }) => [dataset.constraint, Number(dataset.margin)]),
         })) };
       })()`);
-      // The position module can share code with height.mjs. Only the selected study's data should load.
-      assert(requestLog().some((request) => request.endsWith(`/${study}-study.json`)), 'Expected lazy-load of optional data');
-      const evaluator = study === 'height' ? (await import('../web/height.mjs')).evaluateHeights
-        : (await import('../web/scenarios.mjs')).evaluatePositions;
+      assert(requestedStudyData().some((request) => request.endsWith(`/${study}-study.json`)), 'Expected lazy-load of optional data');
+      const module = study === 'height' ? await import('../web/height.mjs') : await import('../web/scenarios.mjs');
+      const evaluator = module[evaluators[study]];
       const evidence = JSON.parse(await readFile(resolve(workspace, `web/data/${study}-study.json`), 'utf8'));
       const expected = evaluator(realBundle, evidence, certificate.inputs, selectedMission);
       assert.equal(displayed.status, expected.robust_status);
       assert.deepEqual(displayed.scenarios, expected.scenario_results.map((scenario) => ({
         id: scenario.id, heightM: scenario.heightM, status: scenario.status,
-        coordinates: Number.isFinite(scenario.lat) ? [scenario.lat, scenario.lon] : null,
+        terrain: Number.isFinite(scenario.lat) ? [scenario.lat, scenario.lon, scenario.groundM] : null,
         margins: scenario.constraints.map(({ id, margin }) => [id, margin]),
       })));
       await browserEval(`document.querySelector('#${study}-panel').scrollIntoView({ block: 'center' })`);
@@ -249,8 +246,8 @@ try {
       verified[study] = expected;
       console.log(`${study} study browser parity passed: ${displayed.scenarios.map((scenario) => `${scenario.id} ${scenario.status}`).join(', ')}`);
     }
-    if (!testHeight) assert.equal(heightRequests().filter((request) => request.endsWith('/height-study.json')).length, 0);
-    if (!testPosition) assert.equal(positionRequests().filter((request) => request.endsWith('/position-study.json')).length, 0);
+    assert.deepEqual(requestedStudyData().map((request) => new URL(request).pathname.split('/').at(-1)),
+      requestedStudies.map((study) => `${study}-study.json`));
 
     const nextCertificate = async (label) => {
       const folder = resolve(work, `download-${label}`);
@@ -273,17 +270,19 @@ try {
       assert.equal(Date.parse(enriched.height_study_mission_end) / 1000, expected.mission_end);
       assert.equal(enriched.height_study_inspected_decision, 'recommended');
     } else assert.equal(enriched.height_study_source_hash, undefined);
-    if (verified.position) {
-      const expected = verified.position;
-      const position = enriched.position_study;
-      assert.deepEqual(position.scenario_results, expected.scenario_results);
-      assert.deepEqual(position.scenario_ids, expected.scenario_ids);
-      assert.equal(position.robust_status, expected.robust_status);
-      assert.equal(position.source_hash, expected.source_hash);
-      assert.equal(Date.parse(position.mission_start) / 1000, expected.mission_start);
-      assert.equal(Date.parse(position.mission_end) / 1000, expected.mission_end);
-      assert.equal(position.inspected_decision, 'recommended');
-    } else assert.equal(enriched.position_study, undefined);
+    for (const study of ['position', 'terrain']) {
+      const expected = verified[study];
+      const report = enriched[`${study}_study`];
+      if (expected) {
+        assert.deepEqual(report.scenario_results, expected.scenario_results);
+        assert.deepEqual(report.scenario_ids, expected.scenario_ids);
+        assert.equal(report.robust_status, expected.robust_status);
+        assert.equal(report.source_hash, expected.source_hash);
+        assert.equal(Date.parse(report.mission_start) / 1000, expected.mission_start);
+        assert.equal(Date.parse(report.mission_end) / 1000, expected.mission_end);
+        assert.equal(report.inspected_decision, 'recommended');
+      } else assert.equal(report, undefined);
+    }
     for (const phase of phases) assert.deepEqual(enriched[`${phase}_result`], certificate[`${phase}_result`]);
     await browserEval("document.querySelector('[data-decision=delayed]').click()");
     for (const study of Object.keys(verified)) {
@@ -293,6 +292,7 @@ try {
     assert.deepEqual(cleared.scenario_results, certificate.scenario_results);
     assert.equal(cleared.height_study_source_hash, undefined);
     assert.equal(cleared.position_study, undefined);
+    assert.equal(cleared.terrain_study, undefined);
     await command('Emulation.setDeviceMetricsOverride', { width: 390, height: 840, deviceScaleFactor: 1, mobile: false });
     await browserEval("document.querySelector('[data-decision=recommended]').click()");
     for (const study of Object.keys(verified)) {

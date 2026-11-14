@@ -8,10 +8,12 @@ import pytest
 from science.build import _canonical
 from science.sources import SHA256
 from science.terrain import project
+from science.terrain_study import check_product
 
 BUNDLE = Path("web/data/bundle.json")
 HEIGHT_STUDY = Path("web/data/height-study.json")
 POSITION_STUDY = Path("web/data/position-study.json")
+TERRAIN_STUDY = Path("web/data/terrain-study.json")
 
 
 def verify_payload_fingerprint(bundle):
@@ -77,3 +79,38 @@ def test_position_bundle_moves_map_easting_and_keeps_height_above_local_ground()
         else:
             assert scenario["groundM"] != site["groundM"]
             assert scenario["terrain"]["fine"]["observerRadiusM"] == site["referenceRadiusM"] + scenario["groundM"] + 2
+
+
+@pytest.mark.skipif(not TERRAIN_STUDY.is_file(), reason="terrain realization bundle not built")
+def test_terrain_bundle_changes_local_surface_only_at_fixed_point():
+    baseline = json.loads(BUNDLE.read_bytes())
+    study = json.loads(TERRAIN_STUDY.read_bytes())
+    verify_payload_fingerprint(study)
+    assert study["coverage"] == baseline["coverage"]
+    assert study["manifest"]["baselineBundleSha256"] == baseline["manifest"]["bundleSha256"]
+    site = next(site for site in baseline["sites"] if site["id"] == study["siteId"])
+    nominal, first, second = study["scenarios"]
+    assert nominal["baseline"] is True
+    for clone, actual in zip((first, second), (1794.544677734375, 1793.816650390625), strict=True):
+        assert (clone["lat"], clone["lon"], clone["heightM"]) == (site["lat"], site["lon"], site["heightM"])
+        assert clone["groundM"] == actual
+        assert clone["encodingCheck"]["deltaGroundM"] == actual - site["groundM"]
+        nominal_terrain = site["terrain"]["fine"]
+        cloned_terrain = clone["terrain"]["fine"]
+        assert cloned_terrain["regional"] == nominal_terrain["regional"]
+        assert cloned_terrain["local"]["filename"] != nominal_terrain["local"]["filename"]
+        assert clone["sun"] != site["sun"]
+
+
+def test_actual_terrain_clone_sample_matches_absolute_raster():
+    raw = Path("data/raw")
+    nominal = raw / "Site11_final_adj_5mpp_surf.tif"
+    clone = raw / "clones/Site11_final_adj_5mpp_0001_err.tif"
+    if not nominal.is_file() or not clone.is_file():
+        pytest.skip("download NASA terrain realizations to run native raster verification")
+    result = check_product(nominal, clone, -88.6834, 292.0679)
+    assert result == {
+        "nominalGroundM": 1793.7939453125,
+        "realizedGroundM": 1794.544677734375,
+        "deltaGroundM": 0.750732421875,
+    }

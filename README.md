@@ -20,20 +20,23 @@ At de Gerlache Rim 1, **Observer-height sensitivity** re-evaluates the selected 
 
 **Landing-position sensitivity** evaluates the published point and two illustrative offsets along the lunar map’s easting axis, 25 m in either direction. It keeps the observer 2 m above the ground at each point. These settings do not represent a navigation error distribution or establish landing safety.
 
+**Terrain realization sensitivity** repeats the selected mission with the nominal 5 m local terrain and two correlated elevation realizations from NASA PGDA. The regional terrain and geographic coordinates are held fixed. Results describe the three evaluated surfaces. [NASA PGDA clone archive](https://pgda.gsfc.nasa.gov/products/78)
+
 ## Reproduce and verify
 
 ```sh
 python -m pip install -r requirements-build.txt pytest
-python -m science.sources
+python -m science.sources --clones
 python -m science.build
 python -m science.height_study
 python -m science.position_study
+python -m science.terrain_study
 python -m pytest -q
 node --test tests/*.test.mjs
-node tests/test_ui.mjs --require-recovery --height --position
+node tests/test_ui.mjs --require-recovery --height --position --terrain
 ```
 
-The source download is about 358 MB. The browser test uses Node.js 24 and a local Chrome or Chromium installation. Set `LUNARIS_CHROME` to its executable if it is installed in a nonstandard location. [Bundled Horizons comparison](web/data/horizons-validation.json) records the exact reference queries, observer heights and numerical results. Run `python -m science.ephemerides --help` to repeat the reference comparison online. Build and raw-data dependencies are independent of the offline app.
+The source download is about 439 MB including both optional terrain realizations. The browser test uses Node.js 24 and a local Chrome or Chromium installation. Set `LUNARIS_CHROME` to its executable if it is installed in a nonstandard location. [Bundled Horizons comparison](web/data/horizons-validation.json) records the exact reference queries, observer heights and numerical results. Run `python -m science.ephemerides --help` to repeat the reference comparison online. Build and raw-data dependencies are independent of the offline app.
 
 ## Model and limits
 

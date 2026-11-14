@@ -3,6 +3,7 @@ import { runMission } from './engine.mjs';
 const HOUR = 3600;
 const HEIGHT_SCOPE = 'Observer-height sensitivity at one fixed study point across the listed design settings.';
 const POSITION_SCOPE = 'Illustrative offsets in the lunar south-polar stereographic map at a fixed instrument height above each point’s local ground.';
+const TERRAIN_SCOPE = 'Finite sensitivity to publisher-provided correlated local elevation realizations and the nominal model, with shared regional terrain.';
 const SHA256 = /^[0-9a-f]{64}$/i;
 
 function checkEvidence(bundle, overlay, site) {
@@ -58,6 +59,21 @@ function positionPoints(scenarios, site) {
     if (coordinates.has(key)) throw new Error('Position scenarios require distinct point coordinates.');
     coordinates.add(key);
     return { lat, lon, groundM, label: scenario.label ?? scenario.id };
+  });
+}
+
+function terrainPoints(scenarios, site) {
+  const labels = new Set();
+  return scenarios.map((scenario) => {
+    if (scenario.heightM !== site.heightM) throw new Error('Terrain realizations require a fixed observer height.');
+    const baseline = scenario.baseline === true;
+    const { lat, lon, groundM } = baseline ? site : scenario;
+    if (lat !== site.lat || lon !== site.lon) throw new Error('Terrain realizations require a fixed observation point.');
+    if (!Number.isFinite(groundM)) throw new Error('Each terrain realization requires a finite ground elevation.');
+    const label = typeof scenario.label === 'string' ? scenario.label.trim() : '';
+    if (!label || labels.has(label)) throw new Error('Terrain realizations require distinct labels.');
+    labels.add(label);
+    return { lat, lon, groundM, label };
   });
 }
 
@@ -130,4 +146,8 @@ export function evaluateHeights(bundle, overlay, inputs, mission) {
 
 export function evaluatePositions(bundle, overlay, inputs, mission) {
   return evaluateScenarios(bundle, overlay, inputs, mission, positionPoints, POSITION_SCOPE);
+}
+
+export function evaluateTerrainRealizations(bundle, overlay, inputs, mission) {
+  return evaluateScenarios(bundle, overlay, inputs, mission, terrainPoints, TERRAIN_SCOPE);
 }
