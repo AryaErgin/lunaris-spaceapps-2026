@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {visibilityConclusion,comparisonConclusion,opportunityConclusion} from '../web/explanations.mjs';
+import {visibilityConclusion,comparisonConclusion,opportunityConclusion,firstScreenConclusion} from '../web/explanations.mjs';
 
 const metrics=(joint,sunGap=[0,0],earthGap=[0,0])=>({joint:{visibleRangeSeconds:joint},sun:{longestBlockedRangeSeconds:sunGap},earth:{longestBlockedRangeSeconds:earthGap}});
 test('environment conclusions distinguish full, confirmed minimum, unresolved, absent and incomplete evidence',()=>{
@@ -32,4 +32,14 @@ test('opportunity headline counts sites with confirmed full-duration overlap rat
   assert.match(opportunityConclusion({...report,kind:'UNRESOLVED'},x=>x),/not confirmed|not establish/);
   assert.match(opportunityConclusion({...report,kind:'NO_DATA'},x=>x),/data|coverage/);
   assert.match(opportunityConclusion({...report,kind:'SCHEDULE_EMPTY'},x=>x),/schedule/);
+});
+
+test('first-screen evidence is readable and never rounds up confirmed time',()=>{
+  const partial=firstScreenConclusion(metrics([28432,43200]),43200);
+  assert.equal(partial.headline,'At least 7 h 53 min');
+  assert.match(partial.reason,/Sun and Earth/i);
+  assert.equal(firstScreenConclusion(metrics([43200,43200]),43200).headline,'12 h together');
+  assert.equal(firstScreenConclusion(metrics([0,43200]),43200).headline,'Visibility is uncertain');
+  assert.equal(firstScreenConclusion(metrics([0,0],[0,0],[43200,43200]),43200).headline,'No Sun + Earth overlap');
+  assert.equal(firstScreenConclusion(metrics([0,0]),43200,{complete:false}).headline,'Outside the available dates');
 });
