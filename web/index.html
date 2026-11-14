@@ -33,7 +33,7 @@
         <button id="expert-toggle" class="outline expert-toggle" type="button" aria-expanded="false" aria-controls="top" hidden>Analyst mode</button>
       </div>
     </header>
-    <div class="product-purpose"><div class="purpose-copy"><p>Choose a place and time on the Moon. See when Sun and Earth are visible.</p></div><button id="tour-start" type="button">Show me how <span aria-hidden="true">→</span></button></div>
+    <div class="product-purpose"><div class="purpose-copy"><p class="geometry-note">Visibility geometry does not prove power, radio-link performance or landing safety.</p></div><button id="tour-start" type="button">Show me how <span aria-hidden="true">→</span></button></div>
 
     <p id="workspace-notice" class="workspace-notice" role="status" hidden></p>
     <section id="experience" class="experience" aria-labelledby="experience-title">
@@ -44,7 +44,8 @@
         <div class="scene-vignette" aria-hidden="true"></div>
         <div class="experience-intro">
           <p class="eyebrow">A 12-HOUR MISSION AT THE LUNAR SOUTH POLE</p>
-          <h1 id="experience-title">Plan your lunar arrival</h1>
+          <h1 id="experience-title">Explore the Moon. Find a landing window.</h1>
+          <p class="hero-support">Choose a location and date. Discover when sunlight and Earth are visible.</p>
           <button id="explore-site" class="link-button explore-site" type="button" disabled>Explore this surface →</button>
         </div>
         <div id="orbital-story-slot" class="orbital-story-slot"></div>
@@ -55,7 +56,7 @@
           <button id="reset-orbit" type="button" title="Restore the familiar near-side Moon view">Reset view ↺</button>
         </div>
         <div class="scene-site-picker">
-          <label for="visual-site">Landing study point</label>
+          <label for="visual-site">Landing site <span>Study coordinates</span></label>
           <select id="visual-site" disabled aria-describedby="visual-site-detail"></select>
           <p id="visual-site-detail">Three supported south-pole study points.</p>
           <label for="visual-arrival">Arrival <span>UTC · November 2026 only</span></label>
@@ -88,7 +89,7 @@
       </div>
       <div id="scene-transport" class="scene-transport" hidden>
         <div class="scene-play-buttons">
-          <button id="hero-play" class="primary" type="button">▶ Play time</button>
+          <button id="hero-play" class="outline" type="button">▶ Play time</button>
           <button id="hero-pause" class="outline" type="button">Pause</button>
           <button id="hero-reset" class="outline" type="button">Reset</button>
           <button id="guide-open" class="outline" type="button" hidden>Landing-delay story</button>
@@ -109,6 +110,8 @@
           <div><p class="eyebrow" id="story-date"></p><h2 id="story-title">Your planned landing</h2><p id="story-explanation"></p><p id="story-witness"></p></div>
           <div class="story-outcome"><span id="story-status" class="status"></span><button id="story-next" class="outline" type="button">Apply the landing delay →</button></div>
         </div>
+        <div id="mission-actions" class="mission-actions"></div>
+        <details id="mission-options" class="mission-options"><summary>Mission requirements &amp; delay example</summary><div id="mission-options-content"></div></details>
         <div id="environment-overview" class="environment-overview" aria-label="Modeled environmental measurements"></div>
         <div id="story-joint" class="story-joint" aria-label="Joint Sun and Earth visibility timeline"></div>
         <a class="decision-jump" href="#decision-evidence">See all mission requirements and proof ↓</a>

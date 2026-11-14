@@ -136,7 +136,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   // Orbital bodies are drawn at fixed approximate angular sizes, so small labels make them findable.
   const bodyLabels={};
   const obstruction=document.createElement('div');obstruction.className='mission-terrain-obstruction';obstruction.hidden=true;
-  obstruction.textContent='Earth is behind the terrain horizon in this direction ↓';obstruction.dataset.body='earth';
+  obstruction.textContent='Earth’s center is behind the terrain horizon in this direction ↓';obstruction.dataset.body='earth';
   container.append(obstruction);
   for(const [key,text] of [['earth','EARTH'],['sun','SUN']]) {
     const label=document.createElement('div');label.className='mission-scene-body-label';label.dataset.body=key;label.textContent=text;label.hidden=true;

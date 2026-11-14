@@ -154,6 +154,10 @@ function statusChip(status, className = '') {
 }
 
 function syncAssessment(){
+  document.body.dataset.delayStory=String(delayStoryEnabled);
+  const actions=byId('mission-actions');
+  const actionAnchor=delayStoryEnabled?byId('story-joint'):document.querySelector('.story-evidence');
+  if(actionAnchor.nextElementSibling!==actions)actionAnchor.after(actions);
   document.body.classList.toggle('environment-only',!requirementsEnabled);
   byId('apply-requirements').checked=requirementsEnabled;
   byId('assessment-label').textContent=requirementsSource==='custom'?'Evaluate my mission requirements':'Evaluate illustrative mission requirements';
@@ -1080,7 +1084,7 @@ byId('solar-demo').addEventListener('click',()=>{setExpert(true);loadDemo(false)
 byId('expert-toggle').addEventListener('click',()=>setExpert(byId('top').hidden));
 for(const button of document.querySelectorAll('[data-workspace]'))button.addEventListener('click',()=>setProductMode(button.dataset.workspace));
 byId('compare-return').addEventListener('click',()=>setProductMode('explore'));
-byId('comparison-edit-limits').addEventListener('click',()=>{setProductMode('explore');byId('mission-requirements-editor').open=true;byId('quick-max-sun').focus();});
+byId('comparison-edit-limits').addEventListener('click',()=>{setProductMode('explore');byId('mission-options').open=true;byId('mission-requirements-editor').open=true;byId('quick-max-sun').focus();});
 byId('apply-quick-requirements').addEventListener('click',()=>{
   const keys=['max-sun','max-earth','min-total','min-continuous'];
   for(const key of keys){const field=byId(`quick-${key}`);field.required=key.startsWith('max-');if(!field.reportValidity())return;}
@@ -1298,7 +1302,7 @@ function renderComparison() {
   card.append(details);
   root.append(card);
  }
- renderOptionComparison();
+ if(productMode==='compare'||comparisonOptions)renderOptionComparison();
 }
 
 function optionDecisionText(mission){
@@ -1351,7 +1355,7 @@ function renderOptionComparison(focus){
     if(siteCaution(option.siteId))card.append(element('p','comparison-caution',siteCaution(option.siteId)));
     const joint=requirementsEnabled?mission.constraints.find(c=>c.id==='min_joint_total'):null;
     const jointSeconds=joint?joint.range[0]*3600:bounded.joint.visibleRangeSeconds[0];
-    card.append(element('p','option-joint',`${durationClock(jointSeconds)} confirmed Sun + Earth`));
+    card.append(element('p','option-joint',firstScreenConclusion(bounded,mission.end-mission.start,{complete}).headline));
     const explanation=visibilityConclusion(bounded,mission.end-mission.start,{complete});
     card.append(element('p','option-reason',requirementsEnabled?optionDecisionBrief(mission):explanation.reason));
     const measurementRoot=element('div','');environmentalMeasurements(measurementRoot,mission);card.append(measurementRoot);
@@ -1603,7 +1607,7 @@ function setExperienceMode(mode) {
   byId('mission-story').hidden=false;
   byId('night-visibility').hidden=mode!=='surface'||sceneDisabled;
   updateSceneCaption();
-  byId('explore-site').textContent=mode==='surface'?'Drag to look around · scroll to zoom':'Explore this surface →';
+  byId('explore-site').textContent=mode==='surface'?'Explore terrain around you':'Explore the surface';
   if(sceneController&&!sceneDisabled)byId('scene-status').textContent=mode==='orbital'?'Drag to orbit; scroll or pinch to zoom. Scroll outside the scene to move the page. Select a study point to approach the surface.':'Surface view · actual LOLA relief at the recorded observer height. Drag to look; scroll or pinch to zoom. Scroll outside the scene to move the page.';
 }
 
@@ -1622,7 +1626,8 @@ function setSceneStatus(event) {
 
 async function initializeExperience() {
   byId('option-comparison').before(document.querySelector('.comparison-difference'));
-  document.querySelector('.story-footer').prepend(byId('mission-requirements-editor'));
+  byId('mission-actions').append(byId('find-opportunities'),byId('explore-site'));
+  byId('mission-options-content').append(byId('apply-requirements').closest('label'),byId('mission-requirements-editor'),byId('start-delay-demo'));
   byId('orbital-story-slot').append(byId('mission-story'));
   byId('experience').insertBefore(byId('decision-evidence'),document.querySelector('.experience-status'));
   byId('comparison-panels').append(byId('feasibility'));
@@ -1739,7 +1744,7 @@ function invalidateExperience() {
   if(latestSceneFrame){latestSceneFrame={...latestSceneFrame,states:{sun:'unknown',earth:'unknown'}};sceneController?.setFrame(latestSceneFrame);}
   byId('story-explanation').textContent='Mission inputs changed. Evaluate them in Expert mode to refresh this story.';
   byId('hero-visibility').textContent='Inputs changed · displayed bodies withheld until re-evaluation.';
-  if(inputs)renderOptionComparison();
+  if(inputs&&(productMode==='compare'||comparisonOptions))renderOptionComparison();
   evidenceMission=null;highlightedConstraintId=null;
   byId('evidence-summary').textContent='Inputs changed. No current mission decision is established until re-evaluation.';
   byId('decision-requirements').replaceChildren();byId('decision-timeline').replaceChildren();

@@ -1,7 +1,5 @@
 /* Judge-first presentation layer. It changes visual hierarchy, not lunar calculations. */
-/* The optional landing-delay demonstration already explains itself; keep its
-   decision and action above the fold instead of stacking a second introduction. */
-body:not(.environment-only) .product-purpose {display:none;}
+/* The tour remains reachable in every assessment mode. */
 :root {
   --judge-paper: #f0f5f8;
   --judge-muted: #c1d4e1;
@@ -224,4 +222,96 @@ body:not(.environment-only) .product-purpose {display:none;}
 }
 @media(prefers-reduced-motion:reduce){
   .quick-tour *,#tour-start{transition:none !important;animation:none !important;}
+}
+
+/* Essential inputs, one conclusion, then one action. Evidence expands below. */
+.experience{--rail:420px}
+.product-purpose{padding:6px 24px;background:#0b151e;gap:18px}
+.product-purpose .purpose-copy>.geometry-note:first-child{font:400 14px/1.5 system-ui,sans-serif;color:#c2d2de;max-width:none;margin:0}
+#tour-start{font-size:14px;min-height:40px;padding:8px 14px;border-radius:5px;background:transparent;box-shadow:none}
+.experience-intro{padding:22px 28px 12px}
+.experience-intro h1{font-size:32px;line-height:1.09;font-weight:730;margin:4px 0 12px;max-width:none}
+.experience-intro .eyebrow{font:12px/1.5 system-ui,sans-serif;letter-spacing:.04em;color:#b3c7d6;margin:0 0 6px}
+.hero-support{font:16px/1.5 system-ui,sans-serif;color:#cbdbe6;margin:0;max-width:35ch}
+.scene-site-picker{padding:4px 28px 12px}
+.scene-site-picker label{font:600 14px/1.5 system-ui,sans-serif;margin:0 0 5px}
+.scene-site-picker label span{font:400 14px/1.5 system-ui,sans-serif;color:#abc1d2}
+.scene-site-picker select,.visual-date-controls input{font-size:16px!important;min-height:44px}
+.scene-site-picker select{margin-bottom:14px}
+.visual-date-controls{align-items:end;gap:8px}
+.visual-date-controls>input{flex:1 1 0;width:0}
+.visual-date-controls>#visual-arrival{font-size:14px!important}
+.visual-duration-field{flex:0 0 62px;margin:0!important;font-size:14px!important;line-height:1.4}
+.visual-date-controls .visual-duration-field input{font-size:16px!important;min-height:44px;padding:8px;width:100%}
+.visual-date-controls button{min-height:44px;padding:8px;font-size:14px}
+.scene-site-picker .opportunity-scope{display:none}
+.orbital-story-slot{padding:10px 28px 24px;overflow:visible}
+.story-evidence h2,.environment-only .story-evidence h2{font:750 30px/1.2 system-ui,sans-serif;margin:8px 0;max-width:24ch;letter-spacing:-.025em}
+#story-date{font:14px/1.5 system-ui,sans-serif;color:#b9cedc;text-transform:none}
+.story-evidence p{font-size:16px;line-height:1.5;color:#d4e1eb}
+.environment-only .story-outcome{display:none}
+.mission-actions{display:grid;gap:8px;margin:18px 0 12px}
+.mission-actions .find-opportunities{margin:0;width:100%;min-height:50px;font-size:17px!important;justify-content:center}
+.mission-actions .explore-site{display:block;min-height:40px;font:600 16px/1.4 system-ui,sans-serif;border:1px solid #6a8193;border-radius:6px;background:#0c1b28;color:#dceaf3;margin:0;padding:8px 12px;text-align:center;cursor:pointer}
+.mission-options{margin-top:14px;border-top:1px solid #3d5365;padding-top:10px;font:14px/1.6 system-ui,sans-serif;color:#c7d9e6}
+.mission-options>summary{cursor:pointer;padding:5px 0;color:#c3dbe9}
+.mission-options .assessment-toggle{font:14px/1.5 system-ui,sans-serif!important;margin:12px 0}
+.mission-options #start-delay-demo{display:block;font-size:14px!important;min-height:40px;text-align:left}
+.measurement-details>summary{font:600 14px/1.6 system-ui,sans-serif}
+.environment-line{font:14px/1.4 system-ui,sans-serif;grid-template-columns:40px minmax(0,1fr)}
+.environment-measurement span{font:14px/1.4 system-ui,sans-serif}
+.environment-note{font:14px/1.6 system-ui,sans-serif}
+body[data-delay-story='true'] .experience-intro h1{font-size:25px;max-width:none;margin-bottom:4px}
+body[data-delay-story='true'] .hero-support{display:none}
+body[data-delay-story='true'] .experience-intro{padding-top:14px;padding-bottom:6px}
+body[data-delay-story='true'] .story-evidence h2{font-size:26px}
+body[data-delay-story='true'] .story-progress button{font-size:14px;min-height:36px}
+body[data-delay-story='true'] .story-outcome button{font:600 15px/1.4 system-ui,sans-serif}
+.scene-transport{height:180px;padding:12px 18px}
+.scene-play-buttons button{font:600 14px/1.4 system-ui,sans-serif;min-height:38px}
+.scene-play-buttons label,.scene-play-buttons select,.scene-time-label{font-size:14px}
+.view-clock-help{font-size:14px;color:#bccfdd;line-height:1.4}
+.hero-visibility{font-size:14px;line-height:1.5}
+.hero-visibility span{cursor:help}
+.experience .mission-scene-location{font-size:14px}
+.experience .mission-scene-direction-note{display:none!important}
+.scene-mode-switch button{font-size:14px!important}
+.scene-mount>.surface-focus button{font-size:14px;min-height:40px}
+.science-guide>details>summary{font-size:20px}
+.science-guide p{font-size:16px;line-height:1.65}
+.option-card select,.option-card input{font-size:16px;min-height:44px}
+.option-reason,.opportunity-rule,.comparison-shared p,#opportunities-basis{font-size:16px!important;line-height:1.55}
+.option-joint,.opportunity-card .opportunity-joint{font-size:26px}
+.option-card>.primary,.opportunity-card button{font-size:16px;min-height:46px}
+.comparison-difference p{font-size:18px}
+.comparison-context{font-size:14px}
+.quick-tour{width:min(350px,calc(100vw - 24px));padding:16px 18px;max-height:65svh;border-radius:10px}
+.quick-tour h2{font-size:23px;margin:10px 0 8px}
+.quick-tour p{font-size:16px;line-height:1.45;margin:0 0 14px}
+.quick-tour-actions{flex-wrap:wrap}.quick-tour-actions button{min-width:0;white-space:normal}
+.quick-tour-target{scroll-margin-top:105px}
+@media(min-width:701px) and (max-width:1100px){.experience{--rail:400px}.experience-intro,.scene-site-picker,.orbital-story-slot{padding-left:22px;padding-right:22px}.experience-intro h1{font-size:30px}}
+@media(max-width:700px){
+ .experience{--rail:0px}.product-purpose{padding:8px 16px;flex-wrap:nowrap;align-items:center;gap:12px}
+ .product-purpose .purpose-copy>.geometry-note:first-child{font-size:13px}
+ #tour-start{min-height:42px;padding:8px 10px;font-size:14px}#tour-start span{display:none}
+ .experience-intro{padding:18px 20px 14px}.experience-intro h1{font-size:31px;max-width:18ch;margin:5px 0 10px}
+ .hero-support{font-size:16px;line-height:1.45;max-width:none}
+ .scene-site-picker{padding:14px 20px 6px}.scene-site-picker select{min-height:46px}
+ .scene-mode-switch button{font-size:13px!important;min-height:42px;padding:6px 8px}
+ .experience .mission-scene-caption{max-width:46%;width:46%;top:10px;left:12px}
+ .experience .mission-scene-location{font-size:13px}
+ .experience .mission-scene-body-status{font-size:13px;max-width:46%;right:8px;top:10px;bottom:auto;padding:5px 7px}
+ .orbital-story-slot{padding:14px 20px 24px}
+ .story-evidence h2,.environment-only .story-evidence h2{font-size:28px}
+ .mission-actions{margin:14px 0 10px}
+ .mission-actions .find-opportunities{position:fixed;z-index:30;left:16px;right:16px;bottom:12px;width:calc(100% - 32px);box-shadow:0 3px 18px #0008;border:1px solid #f3cc87}
+ body{padding-bottom:82px}
+ .scene-transport{height:auto;min-height:185px;padding:12px 16px}
+ .scene-time-label{gap:8px;flex-wrap:wrap}
+ .scene-play-buttons button{font-size:14px;min-height:40px}
+ .scene-caption{font-size:12px}.scene-caption span:first-child{max-width:58%}
+ .option-joint,.opportunity-card .opportunity-joint{font-size:25px}
+ .comparison-difference{padding:16px}.comparison-difference p{font-size:17px}
+ .quick-tour{max-height:55svh;padding:14px 16px}.quick-tour h2{font-size:22px}.quick-tour p{font-size:16px}
 }

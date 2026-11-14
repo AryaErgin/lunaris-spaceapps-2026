@@ -14,10 +14,11 @@ test('optional walkthrough uses four real, discoverable application actions',()=
     assert(step.selectors.length>=1);
     for(const selector of step.selectors){
       assert(selector.startsWith('#'),'Tour step must refer to an actual identified control.');
-      assert(html.includes('id="'+selector.slice(1)+'"'),selector+' does not exist on the page.');
+      assert(html.includes('id="'+selector.slice(1)+'"')||/^#comparison-(site|arrival)-[AB]$/.test(selector)&&html.includes('id="option-comparison"'),selector+' does not exist on the page or the generated comparison controls.');
     }
   }
-  assert.deepEqual(GUIDE_STEPS.at(-1).selectors,['#product-compare']);
+  assert.deepEqual(GUIDE_STEPS.map(s=>s.workspace),['explore','explore','compare','explore']);
+  assert.deepEqual(GUIDE_STEPS.at(-1).selectors,['#find-opportunities']);
   assert(!GUIDE_STEPS.some(step=>/PASS|FAIL|NASA-certified/i.test(step.description)));
 });
 
@@ -32,5 +33,5 @@ test('tour is explicitly optional and its presentation supports closing and keyb
 
 test('important comparison result precedes the individual option cards',()=>{
   assert(html.indexOf('id="comparison-difference"')<html.indexOf('id="option-comparison"'));
-  assert.match(html,/Choose a place and time on the Moon/);
+  assert.match(html,/Explore the Moon\. Find a landing window\./);
 });

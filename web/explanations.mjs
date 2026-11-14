@@ -32,9 +32,13 @@ export function comparisonConclusion(options,expectedCount=options.length){
   const tied=others.filter(o=>o.metrics.joint.visibleRangeSeconds[0]===lo);
   if(tied.length===others.length)return `These options have the same confirmed simultaneous time: ${conciseDuration(lo)}. ${options.some(o=>o.metrics.joint.visibleRangeSeconds[1]>lo)?'Unresolved time may change their actual totals.':'Their timing and interruptions may still differ.'}`;
   const leaders=[best,...tied].map(label).join(' and '),less=others.filter(o=>o.metrics.joint.visibleRangeSeconds[0]<lo);
-  const difference=less.map(o=>`${conciseDuration(lo-o.metrics.joint.visibleRangeSeconds[0])} more confirmed simultaneous visibility than ${label(o)}`).join('; ');
   const overlap=less.some(o=>lo<=o.metrics.joint.visibleRangeSeconds[1]);
-  return `${leaders} ${tied.length?'provide':'provides'} ${difference}. ${overlap?'The ranges overlap, so the actual total ordering remains unresolved.':'This difference is resolved within the modeled bounds.'}`;
+  if(overlap){
+    const difference=less.map(o=>`${conciseDuration(lo-o.metrics.joint.visibleRangeSeconds[0])} greater than ${label(o)}`).join('; ');
+    return `${leaders} ${tied.length?'have':'has'} a confirmed minimum ${difference}. The ranges overlap, so the actual total ordering remains unresolved.`;
+  }
+  const difference=less.map(o=>`at least ${conciseDuration(lo-o.metrics.joint.visibleRangeSeconds[1])} more simultaneous visibility than ${label(o)}`).join('; ');
+  return `${leaders} ${tied.length?'provide':'provides'} ${difference} within the modeled bounds.`;
 }
 
 export function opportunityConclusion(report,siteName){
@@ -60,7 +64,7 @@ export function firstScreenConclusion(metrics,duration,{complete=true}={}){
   if(lower>0){
     const minutes=Math.floor(lower/60);
     const short=minutes>=60?Math.floor(minutes/60)+' h '+(minutes%60?minutes%60+' min':''):minutes?minutes+' min':conciseDuration(lower);
-    return {headline:'At least '+short.trim(),reason:'Confirmed time when both Sun and Earth can be seen. More time may be possible.'};
+    return {headline:'At least '+short.trim(),reason:'Confirmed time when both Sun and Earth can be seen.'+(upper>lower?' More time may be possible.':'')};
   }
   if(upper>0)return {headline:'Visibility is uncertain',reason:'No simultaneous Sun and Earth time is confirmed. Some time may still be possible.'};
   const detail=visibilityConclusion(metrics,duration,{complete:true});

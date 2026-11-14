@@ -15,10 +15,13 @@ test('environment conclusions distinguish full, confirmed minimum, unresolved, a
 });
 test('comparison separates confirmed differences, overlapping ranges, ties and incomplete options',()=>{
   const a={key:'A',metrics:metrics([36000,43200]),complete:true},b={key:'B',metrics:metrics([7200,40000]),complete:true};
-  assert.match(comparisonConclusion([a,b],2),/8 h more confirmed/);
+  assert.match(comparisonConclusion([a,b],2),/confirmed minimum.*8 h/i);
   assert.match(comparisonConclusion([{...a,name:'de Gerlache Rim 1'},{...b,name:'Connecting Ridge'}],2),/de Gerlache Rim 1.*Connecting Ridge/);
   assert.match(comparisonConclusion([a,b],2),/overlap.*unresolved/i);
-  assert.match(comparisonConclusion([a,{...b,metrics:metrics([7200,7200])}],2),/more confirmed/);
+  assert.match(comparisonConclusion([a,{...b,metrics:metrics([7200,7200])}],2),/at least 8 h more/);
+  const separated=comparisonConclusion([a,{...b,metrics:metrics([7200,14400])}],2);
+  assert.match(separated,/at least 6 h more/,'Only the lower-minus-upper difference is proven for uncertain totals.');
+  assert.doesNotMatch(separated,/8 h more/);
   assert.match(comparisonConclusion([a,{...a,key:'B'}],2),/same confirmed/);
   assert.match(comparisonConclusion([a],2),/incomplete/i);
   assert.match(comparisonConclusion([a,{...b,complete:false}],2),/incomplete/i);
@@ -42,4 +45,5 @@ test('first-screen evidence is readable and never rounds up confirmed time',()=>
   assert.equal(firstScreenConclusion(metrics([0,43200]),43200).headline,'Visibility is uncertain');
   assert.equal(firstScreenConclusion(metrics([0,0],[0,0],[43200,43200]),43200).headline,'No Sun + Earth overlap');
   assert.equal(firstScreenConclusion(metrics([0,0]),43200,{complete:false}).headline,'Outside the available dates');
+  assert.doesNotMatch(firstScreenConclusion(metrics([7200,7200]),43200).reason,/More time may be possible/);
 });
