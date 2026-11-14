@@ -1,0 +1,109 @@
+{
+  "aiUse": "OpenAI Codex assisted derivative implementation, tests and interface text under sole human entrant Arya Ergin. Image pixels are a deterministic NASA DEM transformation, not generative artwork.",
+  "display": {
+    "boundsM": [
+      -64000.0,
+      -64000.0,
+      64000.0,
+      64000.0
+    ],
+    "colorStretchPercentiles": [
+      2,
+      98
+    ],
+    "elevationRangeM": [
+      -4374.82275390625,
+      1955.648681640625
+    ],
+    "height": 640,
+    "image": "terrain-atlas.png",
+    "missingEncoding": "[startIndex,length], row-major, zero-based; transparent PNG pixels",
+    "missingPixels": 0,
+    "nativePixelsPerDisplayPixel": [
+      2.5,
+      2.5
+    ],
+    "nativeWindow": [
+      3000,
+      3000,
+      1600,
+      1600
+    ],
+    "noDataRuns": [],
+    "reduction": "GDAL area-weighted average; any contributing masked native pixel masks the output pixel",
+    "sha256": "2fc3338e89550c814984c8c423e971e31ccdcce6412a8c58d599eb57d138b35c",
+    "spacingM": [
+      200.0,
+      200.0
+    ],
+    "syntheticLight": {
+      "elevationDeg": 45,
+      "mapAzimuthDegClockwiseFromUp": 315
+    },
+    "validPixels": 409600,
+    "width": 640
+  },
+  "kind": "NASA LOLA DEM display derivative; independent of mission calculations",
+  "limits": [
+    "Relief shading uses an artificial fixed map light, not Sun geometry or actual lunar illumination.",
+    "This reduced 200 m display is not used to compute any horizon, visibility interval or mission decision.",
+    "A valid display cell establishes only valid source pixels in this reduced map; it is not a terrain-aware calculation at that coordinate.",
+    "Only the three exact cached study points have mission calculations; any other entered or clicked point is unsupported.",
+    "This regional crop omits the rest of the source raster. Transparent cells would indicate missing terrain, never flat terrain.",
+    "Nominal raster spacing is not effective spatial resolution. Interpolation and unresolved small terrain remain limitations.",
+    "Study-point labels are published region centers, not approved landing locations. No landing safety or trajectory claim is made."
+  ],
+  "projection": {
+    "falseEastingM": 0,
+    "falseNorthingM": 0,
+    "frame": "DE421 mean Earth / polar axis (ME)",
+    "latitudeConvention": "planetocentric degrees north",
+    "latitudeOriginDeg": -90,
+    "longitudeConvention": "east-positive; normalized to [0,360)",
+    "longitudeOriginDegE": 0,
+    "mapOrientation": "0 E up; 90 E right; 180 E down; 270 E left",
+    "name": "Lunar south polar stereographic",
+    "radiusM": 1737400.0,
+    "scaleAtPole": 1,
+    "verticalDatum": "radial metres above the 1,737,400 m reference sphere"
+  },
+  "reproduce": "python -m science.atlas --raw data/raw --output web/data",
+  "source": {
+    "acquiredUtc": "2026-11-14T06:12:13.494318+00:00",
+    "bytes": 189158392,
+    "citation": "https://pgda.gsfc.nasa.gov/products/90",
+    "expectedBytes": 189158392,
+    "filename": "LDEM_80S_80MPP_ADJ.TIF",
+    "raster": {
+      "affine": [
+        80.0,
+        0.0,
+        -304000.0,
+        0.0,
+        -80.0,
+        304000.0
+      ],
+      "areaOrPoint": "Area",
+      "boundsM": [
+        -304000.0,
+        -304000.0,
+        304000.0,
+        304000.0
+      ],
+      "dimensions": [
+        7600,
+        7600
+      ],
+      "filename": "LDEM_80S_80MPP_ADJ.TIF",
+      "maskFlags": [
+        "nodata"
+      ],
+      "noData": "NaN",
+      "spacingM": 80.0,
+      "wkt": "PROJCRS[\"Moon (2015) - Sphere / Ocentric / South Polar\",BASEGEOGCRS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",ELLIPSOID[\"Moon (2015) - Sphere\",1737400,0,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]]]],PRIMEM[\"Reference Meridian\",0,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9122]]]],CONVERSION[\"unnamed\",METHOD[\"Polar Stereographic (variant B)\",ID[\"EPSG\",9829]],PARAMETER[\"Latitude of standard parallel\",-90,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8832]],PARAMETER[\"Longitude of origin\",0,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8833]],PARAMETER[\"False easting\",0,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8806]],PARAMETER[\"False northing\",0,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8807]]],CS[Cartesian,2],AXIS[\"easting\",north,ORDER[1],LENGTHUNIT[\"metre\",1]],AXIS[\"northing\",north,ORDER[2],LENGTHUNIT[\"metre\",1]]]"
+    },
+    "sha256": "82030dcbdd7c4bb0c7d858e9b4b293b9f2cda5a543ba31ec0f42784bd6beee5a",
+    "url": "https://pgda.gsfc.nasa.gov/data/LOLA_20mpp/LDEM_80S_80MPP_ADJ.TIF"
+  },
+  "version": "1.0.0"
+}

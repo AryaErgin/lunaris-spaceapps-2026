@@ -464,29 +464,44 @@ function paretoFrontier(passes, originalSite) {
   return alternatives;
 }
 
-export function runMission(bundle, inputs) {
-  validateInputs(inputs);
+function evidenceCoverage(bundle) {
   const coverage = bundle.coverage;
   if (!Array.isArray(coverage) || coverage.length !== 2 || !coverage.every(Number.isFinite) ||
       coverage[0] >= coverage[1]) {
     throw new Error('The evidence bundle must specify a finite, positive visibility coverage period.');
   }
+  return coverage;
+}
+
+function prepareSite(site, coverage) {
+  const sun = normalize(site.sun, ...coverage);
+  const earth = normalize(site.earth, ...coverage);
+  const prepared = { ...site, sun, earth, joint: intersectTimelines(sun, earth) };
+  if (site.refinementIntervals) {
+    prepared.refinements = Object.fromEntries(['coarse', 'fine'].map(level => [level, prepareSite({
+      id: site.id, sun: site.refinementIntervals.sun?.[level], earth: site.refinementIntervals.earth?.[level],
+    }, coverage)]));
+  }
+  return prepared;
+}
+
+// Evaluate one start with the same interval and refinement rules as recovery search.
+// The supplied allowable start range and all mission requirements remain unchanged.
+export function evaluateStart(bundle, inputs, siteId = inputs.siteId, start = inputs.nominal) {
+  validateInputs(inputs);
+  validateInputs({ ...inputs, nominal: start });
+  const coverage = evidenceCoverage(bundle);
+  const site = bundle.sites.find(({ id }) => id === siteId);
+  if (!site) throw new Error('The selected study point has no evidence in this bundle.');
+  return evaluateMission(prepareSite(site, coverage), start, inputs, coverage);
+}
+
+export function runMission(bundle, inputs) {
+  validateInputs(inputs);
+  const coverage = evidenceCoverage(bundle);
   const selected = bundle.sites.find(({ id }) => id === inputs.siteId);
   if (!selected) throw new Error('The selected study point has no evidence in this bundle.');
-  const prepareSite = (site) => {
-    const sun = normalize(site.sun, ...coverage);
-    const earth = normalize(site.earth, ...coverage);
-    return { ...site, sun, earth, joint: intersectTimelines(sun, earth) };
-  };
-  const sites = (inputs.mode === 'prelaunch' ? bundle.sites : [selected]).map((site) => {
-    const prepared = prepareSite(site);
-    if (site.refinementIntervals) {
-      prepared.refinements = Object.fromEntries(['coarse', 'fine'].map((level) => [level, prepareSite({
-        id: site.id, sun: site.refinementIntervals.sun?.[level], earth: site.refinementIntervals.earth?.[level],
-      })]));
-    }
-    return prepared;
-  });
+  const sites = (inputs.mode === 'prelaunch' ? bundle.sites : [selected]).map(site => prepareSite(site, coverage));
   const original = sites.find(({ id }) => id === selected.id);
   const delayedStart = inputs.nominal + inputs.delayHours * HOUR;
   const from = Math.max(delayedStart, inputs.earliest);
