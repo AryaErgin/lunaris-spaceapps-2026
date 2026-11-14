@@ -63,15 +63,16 @@ export function nextVisibilityEvents(timeline, instant, coverage) {
   return {loss,reacquisition,censored:!loss||!reacquisition,coverageEnd:coverage[1]};
 }
 import {runMission} from './engine.mjs';
-export function compareSites(bundle, inputs) {
+export function compareSites(bundle, inputs, options={}) {
  return bundle.sites.map(site=>{
-  const result=runMission(bundle,{...inputs,siteId:site.id,mode:'same-site'});
+  const result=runMission(bundle,{...inputs,siteId:site.id,mode:'same-site'},options);
   return {siteId:site.id,name:site.name,nominal:result.nominal,delayed:result.delayed};
  });
 }
 export function communicationDemo(bundle) {
+ const coverage=bundle.demonstrationCoverage??bundle.coverage;
  return {...bundle.demo,maxEarthHours:2,minJointHours:6,minContinuousJointHours:2,
-  earliest:bundle.coverage[0],latest:bundle.coverage[1]-bundle.demo.durationHours*3600,mode:'same-site'};
+  earliest:Math.max(bundle.coverage[0],coverage[0]),latest:Math.min(bundle.coverage[1],coverage[1])-bundle.demo.durationHours*3600,mode:'same-site'};
 }
 
 // Enclose matching first transitions from retained, coarse and fine caches.

@@ -3,7 +3,7 @@
 import argparse
 import csv
 import json
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from hashlib import sha256
 from math import isfinite
 from pathlib import Path
@@ -60,7 +60,12 @@ def angular_distance_deg(left, right):
 
 
 def _utc(timestamp):
-    return datetime.fromtimestamp(float(timestamp), tz=timezone.utc)
+    try:
+        return datetime.fromtimestamp(float(timestamp), tz=timezone.utc)
+    except OSError:
+        # Windows' C runtime rejects some valid pre-1970 timestamps. Kernel
+        # coverage checks still need to express their actual 19th-century edge.
+        return datetime(1970, 1, 1, tzinfo=timezone.utc) + timedelta(seconds=float(timestamp))
 
 
 class Ephemeris:
@@ -134,8 +139,56 @@ class Ephemeris:
             "note": "Raw kernel intervals. Reception calculations also require target coverage at retarded epochs.",
         }
 
-    def vectors(self, site_lat_deg, lon_deg_east, observer_radius_m, times_unix_s):
-        """Return Sun and Earth-center N×3 ENU vectors in km for Unix UTC times."""
+    def assert_coverage(self, start_unix_s, end_unix_s, *, light_time_margin_s=600.0):
+        """Require kernel coverage for an inclusive reception interval and guard.
+
+        The guard must also exceed the actual target light times in a domain
+        audit; raw kernel coverage alone is not a bound on target motion.
+        """
+        self._require_open()
+        if not all(isfinite(value) for value in (start_unix_s, end_unix_s)) or end_unix_s <= start_unix_s:
+            raise ValueError("A positive, finite reception coverage interval is required")
+        if not isfinite(light_time_margin_s) or light_time_margin_s <= 0:
+            raise ValueError("A positive, finite light-time coverage margin is required")
+        start_et, end_et = spice.str2et([
+            _utc(value).strftime("%Y-%m-%d %H:%M:%S.%f UTC") for value in (start_unix_s, end_unix_s)
+        ])
+        guarded_start = start_et - light_time_margin_s
+        coverage = self.coverage()
+
+        def contains(intervals, begin, final):
+            cursor = begin
+            for interval in sorted(intervals, key=lambda row: row["start_tdb_s_past_j2000"]):
+                left, right = interval["start_tdb_s_past_j2000"], interval["end_tdb_s_past_j2000"]
+                if right < cursor:
+                    continue
+                if left > cursor:
+                    return False
+                cursor = max(cursor, right)
+                if cursor >= final:
+                    return True
+            return False
+
+        for body, intervals in coverage["spk"].items():
+            if not contains(intervals, guarded_start, end_et):
+                raise ValueError(f"SPK coverage for body {body} does not enclose reception and retarded epochs")
+        if not contains(coverage["orientation"], start_et, end_et):
+            raise ValueError("Lunar orientation coverage does not enclose the reception interval")
+        return {
+            "status": "PASS", "start_utc": _utc(start_unix_s).isoformat().replace("+00:00", "Z"),
+            "end_utc": _utc(end_unix_s).isoformat().replace("+00:00", "Z"),
+            "light_time_margin_s": float(light_time_margin_s),
+            "guarded_spk_start_utc": spice.et2utc(guarded_start, "ISOC", 6) + "Z",
+            "kernel_intervals": coverage,
+            "scope": "Raw SPK and orientation coverage; actual sampled light times must fit the declared guard.",
+        }
+
+    def states(self, site_lat_deg, lon_deg_east, observer_radius_m, times_unix_s):
+        """Return Sun and Earth-center N×6 apparent ENU states, km and km/s.
+
+        SPKCPO includes the time-dependent observer/output frame in its state
+        derivative. The local ENU basis is fixed relative to that lunar frame.
+        """
         self._require_open()
         basis = enu_basis(site_lat_deg, lon_deg_east)
         if not isfinite(observer_radius_m) or observer_radius_m <= 0:
@@ -145,18 +198,27 @@ class Ephemeris:
         if seconds.ndim != 1 or not np.all(np.isfinite(seconds)):
             raise ValueError("Expected a one-dimensional list of finite Unix UTC times")
         if not seconds.size:
-            return np.empty((0, 3)), np.empty((0, 3))
+            return np.empty((0, 6)), np.empty((0, 6))
         utc_strings = [_utc(second).strftime("%Y-%m-%d %H:%M:%S.%f UTC") for second in seconds]
         epochs = spice.str2et(utc_strings)
 
-        def directions(target):
-            states = np.array([
-                spice.spkcpo(target, et, FRAME, "OBSERVER", CORRECTION, position_km, OBSERVER_CENTER, FRAME)[0][:3]
+        def target_states(target):
+            raw = np.array([
+                spice.spkcpo(target, et, FRAME, "OBSERVER", CORRECTION, position_km, OBSERVER_CENTER, FRAME)[0]
                 for et in epochs
             ])
-            return states @ basis.T
+            # Keep the original contiguous N×3 position transform bit-for-bit.
+            position = np.ascontiguousarray(raw[:, :3]) @ basis.T
+            velocity = np.ascontiguousarray(raw[:, 3:]) @ basis.T
+            return np.concatenate((position, velocity), axis=1)
 
-        return directions(TARGETS["sun"]), directions(TARGETS["earth"])
+        return target_states(TARGETS["sun"]), target_states(TARGETS["earth"])
+
+    def vectors(self, site_lat_deg, lon_deg_east, observer_radius_m, times_unix_s):
+        """Return Sun and Earth-center N×3 ENU vectors in km for Unix UTC times."""
+        return tuple(state[:, :3] for state in self.states(
+            site_lat_deg, lon_deg_east, observer_radius_m, times_unix_s
+        ))
 
 
 def parse_horizons(output):

@@ -6,13 +6,16 @@ const MAX_MATRIX_CELLS = 10000;
 const CHANNELS = ['sun', 'earth', 'joint'];
 const STATES = new Set(['visible', 'blocked', 'uncertain', 'unknown']);
 
-export function feasibilityMatrix(bundle, inputs, { stepHours = 24 } = {}) {
+export function feasibilityMatrix(bundle, inputs, { stepHours = 24, range = bundle.coverage } = {}) {
   if (!Number.isFinite(stepHours) || stepHours <= 0 || !Number.isFinite(stepHours * HOUR)) {
     throw new Error('The feasibility matrix requires a finite positive step in hours.');
   }
   // Validate through the authoritative evaluator, including zero-row date ranges.
   evaluateStart(bundle, inputs);
-  const [from, to] = bundle.coverage;
+  if(!Array.isArray(range)||range.length!==2||!range.every(Number.isFinite)||range[0]>=range[1]) {
+    throw new Error('The calendar display range must have a finite increasing start and end.');
+  }
+  const from=Math.max(bundle.coverage[0],range[0]),to=Math.min(bundle.coverage[1],range[1]);
   const step = stepHours * HOUR;
   const timeOfDay = ((inputs.nominal % DAY) + DAY) % DAY;
   const anchor = Math.floor(from / DAY) * DAY + timeOfDay;
@@ -23,7 +26,7 @@ export function feasibilityMatrix(bundle, inputs, { stepHours = 24 } = {}) {
   }
   const starts = Array.from({ length: count }, (_, index) => first + index * step).filter(start => start < to);
   return {
-    starts, stepHours,
+    starts, stepHours, displayRange:from<=to?[from,to]:null, requestedDisplayRange:[...range],
     rows: bundle.sites.map(site => ({
       siteId: site.id, name: site.name,
       cells: starts.map(start => evaluateStart(bundle, inputs, site.id, start)),

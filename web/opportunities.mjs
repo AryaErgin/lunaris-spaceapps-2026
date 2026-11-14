@@ -12,7 +12,8 @@ export function resolveAutomaticSchedule(coverage,next,anchor,explicit={}) {
   };
 }
 
-export async function findLandingOpportunities(bundle,inputs,{yieldControl=async()=>{},cancelled=()=>false,environmentOnly=false}={}) {
+export async function findLandingOpportunities(bundle,inputs,{yieldControl=async()=>{},cancelled=()=>false,environmentOnly=false,searchWindowDays}={}) {
+  if(searchWindowDays!==undefined&&(!Number.isFinite(searchWindowDays)||searchWindowDays<=0))throw Error('The candidate search window must be positive finite days.');
   // Use the engine's existing input/data validation, including unsupported sites.
   evaluateStart(bundle,inputs);
   const requested={...inputs},step=inputs.gridMinutes*60,lastFull=bundle.coverage[1]-inputs.durationHours*3600;
@@ -28,7 +29,8 @@ export async function findLandingOpportunities(bundle,inputs,{yieldControl=async
   const planningInputs={...inputs,nominal:from,delayHours:0,latest:to,mode:'prelaunch'};
   if(cancelled())throw new DOMException('Search inputs changed.','AbortError');
   await yieldControl(0,null);
-  const result=runMission(bundle,planningInputs),options=new Map(),nearMisses=new Map(),unresolved=new Map();
+  const searchOptions=searchWindowDays===undefined?{}:{searchEnd:Math.min(to,from+searchWindowDays*86400)};
+  const result=runMission(bundle,planningInputs,searchOptions),options=new Map(),nearMisses=new Map(),unresolved=new Map();
   const environmentCounts={WITH_JOINT:0,UNRESOLVED:0,NO_JOINT:0};
   let checked=0;
   const slots=result.search.candidateCount/bundle.sites.length;

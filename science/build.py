@@ -99,22 +99,28 @@ def _bounds_report(coarse, fine, merged):
     }
 
 
-def _site(raw, ephemeris, row, *, height_m=HEIGHT_M, include_plot=True, local_path=None):
+def _site(raw, ephemeris, row, *, height_m=HEIGHT_M, include_plot=True, local_path=None,
+          start=START, end=END, skylines=None):
     site_id, name, region, lat, lon, tile = row
+    if not isinstance(start, int) or not isinstance(end, int) or start >= end:
+        raise ValueError("Site calculations require increasing integer UTC epoch seconds")
     begin = perf_counter()
-    coarse = build_skyline(raw, tile, lat, lon, height_m, count=1800, radius_m=200_000, local_path=local_path)
-    fine = build_skyline(raw, tile, lat, lon, height_m, count=3600, radius_m=240_000, local_path=local_path)
+    if skylines is None:
+        coarse = build_skyline(raw, tile, lat, lon, height_m, count=1800, radius_m=200_000, local_path=local_path)
+        fine = build_skyline(raw, tile, lat, lon, height_m, count=3600, radius_m=240_000, local_path=local_path)
+    else:
+        coarse, fine = skylines
     label = f"{site_id} / {local_path.name}" if local_path else site_id
     print(f"{label} ({height_m:g} m): both terrain scans in {perf_counter() - begin:.1f}s", flush=True)
     visibility = Visibility(ephemeris, lat, lon, fine.info["observerRadiusM"])
-    visibility.cache(range(START, END + 1, 60), measure=True)
+    visibility.cache(range(start, end + 1, 60), measure=True)
     intervals = {}
     refinement_intervals = {}
     refinement = {}
     warnings = []
     for target in ("sun", "earth"):
-        first = visibility.intervals(target, coarse, START, END, step=256, terminal=16)
-        second = visibility.intervals(target, fine, START, END, step=128, terminal=8)
+        first = visibility.intervals(target, coarse, start, end, step=256, terminal=16)
+        second = visibility.intervals(target, fine, start, end, step=128, terminal=8)
         intervals[target] = combine_refinements(first, second)
         refinement_intervals[target] = {"coarse": first, "fine": second}
         refinement[target] = _bounds_report(first, second, intervals[target])
@@ -148,7 +154,7 @@ def _site(raw, ephemeris, row, *, height_m=HEIGHT_M, include_plot=True, local_pa
         "refinementIntervals": refinement_intervals,
         "refinement": refinement,
         "maxSampledAngularRateDegMin": visibility.max_sampled_rate,
-        **({"geometry": visibility.plot_samples(fine, START, END)} if include_plot else {}),
+        **({"geometry": visibility.plot_samples(fine, start, end)} if include_plot else {}),
     }
 
 
@@ -216,6 +222,9 @@ def build(raw, horizons, output, demo_path, engine_commit):
 
 def _write_bundle(bundle, output):
     manifest = bundle["manifest"]
+    # Canonical fingerprint excludes its own fields, including on resumed/staged writes.
+    manifest.pop("bundleSha256", None)
+    manifest.pop("bundleHashConvention", None)
     manifest["bundleSha256"] = sha256(_canonical(bundle)).hexdigest()
     manifest["bundleHashConvention"] = (
         "SHA-256 of UTF-8 minified JSON with ASCII escapes and recursively sorted keys, "

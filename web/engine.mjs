@@ -1,5 +1,5 @@
 const HOUR = 3600;
-const ENGINE_VERSION = '1.0.1';
+const ENGINE_VERSION = '1.1.0';
 const EPSILON_SECONDS = 0.000001;
 const REFINEMENT_LIMIT_SECONDS = 120;
 const MAX_CANDIDATES = 10_000;
@@ -496,7 +496,7 @@ export function evaluateStart(bundle, inputs, siteId = inputs.siteId, start = in
   return evaluateMission(prepareSite(site, coverage), start, inputs, coverage);
 }
 
-export function runMission(bundle, inputs) {
+export function runMission(bundle, inputs, {searchEnd} = {}) {
   validateInputs(inputs);
   const coverage = evidenceCoverage(bundle);
   const selected = bundle.sites.find(({ id }) => id === inputs.siteId);
@@ -505,7 +505,12 @@ export function runMission(bundle, inputs) {
   const original = sites.find(({ id }) => id === selected.id);
   const delayedStart = inputs.nominal + inputs.delayHours * HOUR;
   const from = Math.max(delayedStart, inputs.earliest);
-  const to = inputs.latest;
+  if(searchEnd!==undefined&&(!Number.isFinite(searchEnd)||!Number.isFinite(new Date(searchEnd*1000).getTime()))) {
+    throw new Error('The candidate search end must be a finite supported UTC time.');
+  }
+  // This is an enumeration policy, not a changed hard scheduling constraint.
+  // Every evaluated start still receives the original, unmodified inputs.
+  const to = Math.min(inputs.latest,searchEnd??inputs.latest);
   const step = inputs.gridMinutes * 60;
   const slots = from <= to ? Math.floor((to - from) / step + 1e-12) + 1 : 0;
   if (slots * sites.length > MAX_CANDIDATES) {
@@ -530,6 +535,8 @@ export function runMission(bundle, inputs) {
     sites: sites.map(({ id }) => id), candidateCount: slots * sites.length,
     tieBreak: TIE_BREAK, paretoObjectives: PARETO,
     evaluation: 'Every sampled start uses the full-resolution cached interval bounds.',
+    ...(to<inputs.latest?{requestedTo:inputs.latest,windowLimited:true,
+      scope:'Candidate enumeration stops at the displayed search end. Later allowed dates were not searched.'}:{}),
   };
   return {
     nominal, delayed, recommended: passes[0] ?? null, alternatives: paretoFrontier(passes, selected.id),
@@ -585,8 +592,10 @@ export async function makeCertificate(bundle, inputs, result, options = {}) {
   const comparedSites = bundle.sites.filter(({ id }) =>
     [inputs.siteId, decision.siteId, ...result.search.sites].includes(id));
   const missionInputs = Object.fromEntries(INPUT_KEYS.map((key) => [key, inputs[key]]));
+  const searchIdentity=result.search.windowLimited?{inputs:missionInputs,
+    enumeration:{from:result.search.from,to:result.search.to,gridMinutes:result.search.gridMinutes,sites:result.search.sites}}:missionInputs;
   const [searchInputHash, dataHash] = await Promise.all([
-    sha256(missionInputs), manifest.bundleSha256 ?? sha256(bundle),
+    sha256(searchIdentity), manifest.bundleSha256 ?? sha256(bundle),
   ]);
   const selectedPlanFingerprint = await sha256({ data_bundle_hash: dataHash, selected_plan: decision });
   const inputHash = await sha256({ search_input_hash: searchInputHash, selected_role: role,
@@ -604,7 +613,7 @@ export async function makeCertificate(bundle, inputs, result, options = {}) {
     input_hash: inputHash,
     search_input_hash: searchInputHash,
     selected_plan_fingerprint: selectedPlanFingerprint,
-    input_hash_semantics: 'SHA-256 of canonical JSON containing search_input_hash, selected_role, selected_alternative_index and selected_plan_fingerprint. The selected role is part of export identity. search_input_hash hashes the original search inputs; selected_plan_fingerprint hashes the complete selected computed plan and data_bundle_hash independently of its display role. Application release identity is recorded separately.',
+    input_hash_semantics: 'SHA-256 of canonical JSON containing search_input_hash, selected_role, selected_alternative_index and selected_plan_fingerprint. The selected role is part of export identity. search_input_hash hashes the original search inputs and, when windowLimited, the separate enumerated date bounds, grid and sites. selected_plan_fingerprint hashes the complete selected computed plan and data_bundle_hash independently of its display role. Application release identity is recorded separately.',
     data_bundle_hash: dataHash,
     data_bundle_version: bundle.version,
     selected_role: role,
