@@ -104,22 +104,24 @@ try{
   await writeFile(resolve(work,'cold-layout.json'),JSON.stringify({coldLayout,sectionLayout},null,2));
   assert(await evaluate("(()=>{for(const id of ['visual-site','visual-arrival','visual-duration','story-title','find-opportunities','explore-site']){const n=document.querySelector('#'+id),r=n.getBoundingClientRect();if(r.top<0||r.bottom>innerHeight)return false;}const n=document.querySelector('#find-opportunities'),r=n.getBoundingClientRect();return n.contains(document.elementFromPoint(r.left+r.width/2,r.top+r.height/2));})()"),'The default environment inputs, main conclusion, Find and Explore actions must be visible and clickable without scrolling at1366x768. Layout: '+JSON.stringify(coldLayout)+' sections='+JSON.stringify(sectionLayout)+' scrollY='+await evaluate('scrollY'));
   const clickVisible=async selector=>{
+    console.log('GUIDE click started: '+selector);
     await evaluate(`document.querySelector(${JSON.stringify(selector)}).scrollIntoView({behavior:'instant',block:'nearest'})`);await sleep(60);
     const point=await evaluate(`(()=>{const n=document.querySelector(${JSON.stringify(selector)}),r=n.getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height/2,clear:!n.disabled&&r.width>0&&r.top>=0&&r.bottom<=innerHeight&&r.left>=0&&r.right<=document.documentElement.clientWidth+1&&n.contains(document.elementFromPoint(r.left+r.width/2,r.top+r.height/2))};})()`);
     assert(point.clear,selector+' must be visible and unobscured.');
     await command('Input.dispatchMouseEvent',{type:'mousePressed',x:point.x,y:point.y,button:'left',clickCount:1});
     await command('Input.dispatchMouseEvent',{type:'mouseReleased',x:point.x,y:point.y,button:'left',clickCount:1});
+    console.log('GUIDE click completed: '+selector);
   };
   await clickVisible('#tour-start');
   assert.equal(await evaluate('document.activeElement.id'),'visual-site','The guide must focus the real Mission site selector.');
   await evaluate("document.querySelector('#visual-arrival').value='2026-11-17T03:00:00';document.querySelector('#visual-duration').value=24;document.querySelector('#visual-date-go').click()");
   const chosenInputs=await evaluate("document.querySelector('#visual-site').value+'|'+document.querySelector('#visual-arrival').value+'|'+document.querySelector('#visual-duration').value");
-  await screenshot('tour-choose');await clickVisible('.quick-tour-next');
+  await screenshot('tour-choose');console.log('GUIDE chosen mission, advancing to environment');await clickVisible('.quick-tour-next');
   assert.match(await evaluate("document.querySelector('#quick-tour-title').textContent"),/Read the Sun and Earth/);
   assert(await evaluate("document.querySelector('#story-durations').textContent.includes('Sun')"));
   await clickVisible('.quick-tour-next');
   assert.match(await evaluate("document.querySelector('#quick-tour-title').textContent"),/terrain matters/);
-  await clickVisible('.quick-tour-next');await until(async()=>(await inspect()).mode==='surface');
+  console.log('GUIDE opening surface');await clickVisible('.quick-tour-next');await until(async()=>(await inspect()).mode==='surface');console.log('GUIDE surface ready');
   await until(()=>evaluate("document.querySelector('.quick-tour-next').textContent==='Show time playback'"));
   await screenshot('tour-explore');await clickVisible('.quick-tour-next');
   assert.match(await evaluate("document.querySelector('#quick-tour-title').textContent"),/lunar clock/);
@@ -147,8 +149,8 @@ try{
   await screenshot('tour-found');await clickVisible('.quick-tour-next');
   assert.match(await evaluate("document.querySelector('#quick-tour-title').textContent"),/delay scenario/);
   assert.equal(await evaluate("document.querySelector('#visual-site').value+'|'+document.querySelector('#visual-arrival').value+'|'+document.querySelector('#visual-duration').value"),chosenInputs,'The guided comparison and opportunity search must not overwrite the chosen mission.');
-  await clickVisible('.quick-tour-next');
-  await until(()=>evaluate("document.querySelector('#quick-tour-title').textContent.includes('Inspect the failure')"),100);
+  console.log('GUIDE starting delayed example');await clickVisible('.quick-tour-next');
+  await until(()=>evaluate("document.querySelector('#quick-tour-title').textContent.includes('Inspect the failure')"),100);console.log('GUIDE failure reached');
   assert.equal(await evaluate("document.querySelector('#story-delayed').getAttribute('aria-pressed')"),'true');
   assert.equal(await evaluate("document.querySelector('#story-status').textContent"),'FAIL');
   await screenshot('tour-delayed');
