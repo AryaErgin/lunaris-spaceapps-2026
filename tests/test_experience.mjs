@@ -127,6 +127,7 @@ try{
   await evaluate("document.querySelector('#reset-orbit').click()");
   await until(async()=>{const c=(await inspect()).camera;return c.position.every((v,i)=>Math.abs(v-c.overviewPosition[i])<1e-5);});
   await evaluate("document.querySelector('#focus-terrain').click()");await sleep(1500);await screenshot('orbital-study-points-desktop');
+  assert(Math.hypot(...(await inspect()).camera.position)>=3,'Study-point focus should retain a recognizable Moon silhouette, not a magnified global-texture patch.');
   await evaluate("document.querySelector('#reset-orbit').click()");
   await until(async()=>{const c=(await inspect()).camera;return c.position.every((v,i)=>Math.abs(v-c.overviewPosition[i])<1e-5);});
   for(const [width,height] of [[1024,768],[1440,900]]){
@@ -159,6 +160,14 @@ try{
   performanceEvidence.surface=await inspect();
   performanceEvidence.browserMetrics=(await command('Performance.getMetrics')).metrics;
   await sleep(500);await screenshot('delayed-desktop');
+  const darkFrame=await inspect();assert(darkFrame.displayLighting.ambientIntensity<.01);assert.equal(darkFrame.displayLighting.fill.intensity,0);
+  await evaluate("document.querySelector('#night-visibility').click()");
+  const assistFrame=await inspect();assert.equal(assistFrame.sun.visible,false);assert.equal(assistFrame.sun.directLightIntensity,0);
+  assert(assistFrame.displayLighting.ambientIntensity>darkFrame.displayLighting.ambientIntensity);
+  assert.equal(assistFrame.time,darkFrame.time);assert.deepEqual(assistFrame.sun.direction,darkFrame.sun.direction);
+  assert.match(await evaluate("document.querySelector('#scene-mode-label').textContent"),/ARTIFICIAL/);
+  await screenshot('delayed-enhanced-display');
+  await evaluate("document.querySelector('#night-visibility').click()");await screenshot('delayed-dark-display');
   assert.match(await evaluate("document.querySelector('#story-explanation').textContent"),/12 hours.*7 hours.*5 hours too long/);
   await checkEvidence(evidenceExpected.delayed);
   assert.deepEqual(await evaluate("[...document.querySelectorAll('#decision-timeline .constraint-highlight')].map(n=>[n.dataset.channel,Number(n.dataset.start),Number(n.dataset.end)])"),[['sun',evidenceExpected.delayed.start,evidenceExpected.delayed.end]]);
@@ -223,6 +232,7 @@ try{
   assert.match(await evaluate("document.querySelector('#workspace-notice').textContent"),/Arrival not changed/);
   await evaluate("document.querySelector('#visual-arrival').value='2026-11-20T06:00:00';document.querySelector('#visual-date-go').click()");
   await evaluate("document.querySelector('#verified-demo').click();document.querySelector('#mode-orbital').click()");
+  assert.equal(await evaluate("Date.parse(document.querySelector('#visual-arrival').value+'Z')/1000"),expected.nominal.start,'Resetting the example must synchronize the arrival even if validation left the field focused.');
   await evaluate("document.querySelector('#hero-play').click()");
   await until(async()=>(await inspect()).mode==='surface');
   await until(async()=>(await inspect()).time>expected.nominal.start);

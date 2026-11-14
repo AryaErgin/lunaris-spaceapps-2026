@@ -37,6 +37,11 @@ try{
   if(await evaluate("document.querySelector('#apply-requirements')?.checked===false")){
     assert(await evaluate("document.querySelector('#story-status').hidden&&document.querySelector('#environment-overview').childElementCount>0"));
     await screenshot('anonymous-environment-desktop');
+    await evaluate("document.querySelector('#find-opportunities').click()");
+    await until(()=>evaluate("document.querySelector('#landing-opportunities').dataset.kind==='VISIBILITY_FOUND'"));
+    assert(await evaluate("!document.querySelector('#opportunity-options .status')&&document.querySelectorAll('#opportunity-options article').length===3"));
+    await evaluate("document.querySelector('#landing-opportunities').scrollIntoView({block:'start',behavior:'instant'})");
+    await screenshot('anonymous-environment-opportunities');
     await evaluate("document.querySelector('#start-delay-demo').click()");
   }
   if(!guided)await evaluate("document.querySelector('#communication-demo').click()");

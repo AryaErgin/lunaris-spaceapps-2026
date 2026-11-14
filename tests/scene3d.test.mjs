@@ -7,6 +7,18 @@ async function sceneModule() {
   return import('../web/scene3d.mjs');
 }
 
+test('surface illumination follows confirmed Sun-center visibility and enhanced fill cannot create sunlight',async()=>{
+  const {surfaceLightState}=await sceneModule();
+  const day=surfaceLightState('visible',true,false),blocked=surfaceLightState('blocked',true,false);
+  assert(day.direct>0);assert.equal(blocked.direct,0);assert(blocked.ambient<day.ambient/20);assert.equal(blocked.fill,0);
+  for(const state of ['blocked','uncertain','unknown']){
+    assert.equal(surfaceLightState(state,true,true).direct,0);
+    assert.equal(surfaceLightState(state,true,false).direct,0);
+  }
+  const assist=surfaceLightState('blocked',true,true);assert(assist.ambient>blocked.ambient);assert(assist.fill>blocked.fill);assert.equal(assist.enhanced,true);
+  assert.equal(surfaceLightState('visible',false,true).direct,0,'Missing direction cannot create a sunlight direction.');
+});
+
 test('body visibility is withheld for every unresolved state and invalid geometry', async () => {
   const { renderedBodies } = await sceneModule();
   const sample = [100,350,3,2,72,2.9,1.8];

@@ -871,6 +871,10 @@ function evaluate() {
     isEdited = false;
     inputs = nextInputs;
     result = nextResult;
+    // Committed inputs win even when validation left a compact field focused.
+    // Playback updates still avoid interrupting a draft until it is applied.
+    byId('visual-arrival').value=inputTime(inputs.nominal);
+    byId('visual-duration').value=inputs.durationHours;
     if(typeof selected==='number'?!result.alternatives[selected]:!result[selected])selected='nominal';
     guidedPhase=selected;
     renderDecisions();
@@ -1111,6 +1115,14 @@ for(const link of document.querySelectorAll('.main-nav a'))link.addEventListener
 byId('scene-fallback').addEventListener('click',()=>{setExpert(true);byId('console').scrollIntoView({block:'start'});});
 byId('explore-site').addEventListener('click',enterSurface);
 byId('mode-surface').addEventListener('click',enterSurface);
+byId('night-visibility').addEventListener('click',()=>{
+  const enabled=byId('night-visibility').getAttribute('aria-pressed')!=='true';
+  if(!sceneController||sceneDisabled||!sceneController.setEnhancedNight(enabled))return;
+  byId('night-visibility').setAttribute('aria-pressed',String(enabled));
+  byId('night-visibility').textContent=enabled?'Night assist: ON':'Night assist';
+  updateSceneCaption();
+  byId('scene-status').textContent=enabled?'Artificial night fill is on so you can inspect dark terrain. This is not sunlight, Earthshine or a shadow calculation.':'Night assist off. Direct light is withheld unless Sun-center visibility is confirmed. A faint artificial fill preserves the terrain silhouette.';
+});
 byId('reset-orbit').addEventListener('click',()=>sceneController?.focus('overview'));
 byId('mode-orbital').addEventListener('click',()=>{++sceneIntent;requestedExperienceMode='orbital';pausePlayback();sceneController?.setMode('orbital');setExperienceMode('orbital');});
 byId('visual-site').addEventListener('change',()=>selectVisualSite(byId('visual-site').value));
@@ -1550,6 +1562,13 @@ function setProductMode(mode,scroll=true){
   if(scroll)scrollTo({top:0,behavior:'instant'});
 }
 
+function updateSceneCaption(){
+  const enhanced=byId('night-visibility').getAttribute('aria-pressed')==='true';
+  byId('scene-mode-label').textContent=experienceMode==='surface'
+    ?(enhanced?'NASA LOLA · ARTIFICIAL NIGHT FILL':'NASA LOLA · CENTER-GATED DISPLAY LIGHTING')
+    :'NASA LRO / ORBITAL EXPLORATION';
+}
+
 function setExperienceMode(mode) {
   experienceMode=mode;
   byId('experience').dataset.mode=mode;
@@ -1558,7 +1577,8 @@ function setExperienceMode(mode) {
   byId('focus-terrain').textContent=mode==='surface'?'Explore terrain':'Focus study points';
   byId('scene-transport').hidden=false;
   byId('mission-story').hidden=false;
-  byId('scene-mode-label').textContent=mode==='surface'?'NASA LOLA RELIEF · ILLUSTRATIVE GRAIN + LIGHTING':'NASA LRO / ORBITAL EXPLORATION';
+  byId('night-visibility').hidden=mode!=='surface'||sceneDisabled;
+  updateSceneCaption();
   byId('explore-site').textContent=mode==='surface'?'Drag to look around · scroll to zoom':'Explore this surface →';
   if(sceneController&&!sceneDisabled)byId('scene-status').textContent=mode==='orbital'?'Drag to orbit; scroll or pinch to zoom. Scroll outside the scene to move the page. Select a study point to approach the surface.':'Surface view · actual LOLA relief at the recorded observer height. Drag to look; scroll or pinch to zoom. Scroll outside the scene to move the page.';
 }
@@ -1568,6 +1588,7 @@ function setSceneStatus(event) {
   if(event.kind==='ready')byId('experience').dataset.ready='true';
   if(event.kind==='error') {
     sceneDisabled=true;
+    byId('night-visibility').hidden=true;
     byId('experience').dataset.ready='false';
     byId('scene-status').textContent=`3D graphics unavailable. ${event.message??''} The accessible 2D planner remains fully functional.`;
     byId('workspace-notice').hidden=false;byId('workspace-notice').textContent=byId('scene-status').textContent;

@@ -7,6 +7,11 @@ const terrainUrl=new URL('./data/terrain-scenes.json',import.meta.url);
 const clamp=(value,lo,hi)=>Math.max(lo,Math.min(hi,value));
 
 export const moonFixedPosition=moonPoint;
+export function surfaceLightState(sunState,hasDirection,enhanced=false){
+  const lit=hasDirection&&sunState==='visible';
+  return {direct:lit?2.3:0,ambient:(lit||enhanced)? .18:.002,fill:(lit||enhanced)? .3:0,
+    skylineLevel:lit?1:(enhanced? .5:0),skylineFloor:(lit||enhanced)? .02:.001,enhanced:Boolean(enhanced)};
+}
 export function orbitalOverviewDistance(width,height) {
   if(width>900)return 3.3;
   const horizontalHalfFov=Math.atan(Math.tan(39*RAD/2)*Math.max(1,width)/Math.max(1,height));
@@ -91,6 +96,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   let moonDetail='loading',moonHighDetailPromise=null,farHorizonMesh=null,farHorizonRecord=null,farHorizonSiteId=null;
   let terrainBearingDeg=terrainFocusBearing(site);
   let yaw=0,pitch=-5*RAD,surfaceFov=65,surfaceFocus='terrain',orbitalFocus='Moon',needsRender=true,captionSignature='';
+  let enhancedNight=false;
   const mobileQuality=window.matchMedia('(max-width:700px)').matches||navigator.connection?.saveData===true;
   const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const resources=new Set(),listeners=[],terrainCache=new Map(),farHorizonCache=new Map();
@@ -254,19 +260,19 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
 
   // Display-only tone for the projected skyline: faces turned toward the Sun bearing read brighter.
   const farHorizonMaterial=track(new THREE.ShaderMaterial({side:THREE.DoubleSide,toneMapped:false,
-    uniforms:{sunAzimuth:{value:0},sunLevel:{value:0}},
+    uniforms:{sunAzimuth:{value:0},sunLevel:{value:0},baseTone:{value:.001}},
     vertexShader:`varying vec3 vCurtain;
     #include <common>
     #include <logdepthbuf_pars_vertex>
     void main(){vCurtain=position;vec4 mv=modelViewMatrix*vec4(position,1.0);gl_Position=projectionMatrix*mv;
     #include <logdepthbuf_vertex>
     }`,
-    fragmentShader:`uniform float sunAzimuth;uniform float sunLevel;varying vec3 vCurtain;
+    fragmentShader:`uniform float sunAzimuth;uniform float sunLevel;uniform float baseTone;varying vec3 vCurtain;
     #include <logdepthbuf_pars_fragment>
     void main(){
     #include <logdepthbuf_fragment>
     float azimuth=atan(vCurtain.x,-vCurtain.z);float facing=0.5-0.5*cos(azimuth-sunAzimuth);
-    float tone=0.02+sunLevel*(0.02+0.1*facing*facing);
+    float tone=baseTone+sunLevel*(0.02+0.1*facing*facing);
     gl_FragColor=vec4(vec3(tone*1.02,tone,tone*0.97),1.0);
     #include <colorspace_fragment>
     }`}));
@@ -403,9 +409,13 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     if(worldSun)orbitalEarth.material.uniforms.sunDirection.value.fromArray(worldSun);
     earthMaterial.uniforms.phaseLit.value=sunDirection?1:0;orbitalEarth.material.uniforms.phaseLit.value=worldSun?1:0;
     if(Number.isFinite(sample?.[1]))farHorizonMaterial.uniforms.sunAzimuth.value=sample[1]*RAD;
-    farHorizonMaterial.uniforms.sunLevel.value=!sunDirection?0:states.sun==='visible'?1:.5;
+    const illumination=surfaceLightState(states.sun,!lost&&!disposed&&Boolean(sunDirection),enhancedNight);
+    floorLight.intensity=illumination.ambient;displayFill.intensity=illumination.fill;
+    farHorizonMaterial.uniforms.sunLevel.value=illumination.skylineLevel;
+    farHorizonMaterial.uniforms.baseTone.value=illumination.skylineFloor;
     if(worldSun)globeLight.position.fromArray(worldSun).multiplyScalar(10);
-    sunlight.intensity=!lost&&!disposed&&sunDirection&&states.sun==='visible'?2.3:0;
+    sunlight.intensity=illumination.direct;
+    container.dataset.enhancedNight=String(enhancedNight);
     if(sunDirection)sunlight.position.fromArray(sunDirection).multiplyScalar(700);
     sunlight.target.position.set(0,0,0);
     displayFill.position.fromArray(bodyDirection(terrainBearingDeg-55,35)).multiplyScalar(700);
@@ -537,7 +547,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     if(!onComplete&&pendingMode==='surface')onComplete=()=>{if(pendingMode==='surface'&&!disposed)commitMode('surface');};
     const selected=new THREE.Vector3(...moonPoint(site.lat,site.lon));
     orbitalFocus='site';controls.target.set(0,0,0);controls.minDistance=1.06;
-    const to=selected.clone().multiplyScalar(1.25);
+    const to=selected.clone().multiplyScalar(onComplete?1.25:orbitalOverviewDistance(container.clientWidth,container.clientHeight));
     if(reducedMotion){orbitalCamera.position.copy(to);orbitalCamera.lookAt(0,0,0);onComplete?.();}
     else{const from=orbitalCamera.position.clone();flight={from,to,start:performance.now(),duration,onComplete,fromDirection:from.clone().normalize(),fromRadius:from.length(),toRadius:to.length(),rotation:new THREE.Quaternion().setFromUnitVectors(from.clone().normalize(),to.clone().normalize())};}
     invalidate();
@@ -677,7 +687,8 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
         limbIllustrative:true,
         material:earthMaterial.type,unlit:false,geographicFaceRegistered:false,approximateSunDirectionPhase:true,phaseBasis:'Approximate lit hemisphere follows the cached apparent Sun direction; geographic face and weather are unregistered.',
         disclosure:'Historical cloud-free Blue Marble composite. The phase follows the cached Sun direction; the geographic face and weather are not registered to the selected UTC.'},
-      displayLighting:{ambientIntensity:floorLight.intensity,shadowsLocalHalfExtentM:0,castShadowsRendered:false,proceduralMaterialGrain:regolithShading==='lommel-seeliger',proceduralNormalGrain:regolithShading==='lommel-seeliger'&&!mobileQuality,regolithShading,
+      displayLighting:{ambientIntensity:floorLight.intensity,enhancedNight,shadowsLocalHalfExtentM:0,castShadowsRendered:false,proceduralMaterialGrain:regolithShading==='lommel-seeliger',proceduralNormalGrain:regolithShading==='lommel-seeliger'&&!mobileQuality,regolithShading,
+        lightScope:'Direct display illumination follows confirmed Sun-center visibility. Dim ambient or enhanced fill is artificial; full-disc shadow, Earthshine and photometric brightness are not calculated.',
         materialNote:'Lommel-Seeliger regolith reflectance with procedural display grain. Grain adds no relief; all slopes and ridges are LOLA data.',
         fill:{intensity:displayFill.intensity,direction:displayFill.position.clone().normalize().toArray(),castsShadows:displayFill.castShadow,basis:'Illustrative display fill; actual DEM normals, independent of Sun visibility.'}},
       renderedFrames:renderer.info.render.frame,triangles:renderer.info.render.triangles,
@@ -775,5 +786,6 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   report('ready','Interactive Moon ready. Select a cached study point or enter its surface view.');
   earthTexturePromise??=texture('earth-color.jpg',earthMapTarget,'map','earth');
   if(!mobileQuality)requestAnimationFrame(()=>{if(!disposed&&!lost)void loadHighDetail();});
-  return {selectSite,setMode,setFrame,focus,resize,dispose,inspect,loadHighDetail};
+  return {selectSite,setMode,setFrame,focus,resize,dispose,inspect,loadHighDetail,
+    setEnhancedNight(enabled){if(lost||disposed)return false;enhancedNight=Boolean(enabled);updateFrame();return true;}};
 }

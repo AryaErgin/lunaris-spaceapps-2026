@@ -48,6 +48,7 @@
         <div class="scene-mode-switch" role="group" aria-label="Scene view">
           <button id="mode-orbital" type="button" aria-pressed="true">Orbital view</button>
           <button id="mode-surface" type="button" aria-pressed="false" disabled>Surface view</button>
+          <button id="night-visibility" type="button" aria-pressed="false" title="Artificial illumination to inspect dark terrain. No sunlight, Earthshine or cast-shadow model is implied." hidden>Night assist</button>
           <button id="reset-orbit" type="button" title="Restore the familiar near-side Moon view">Reset view ↺</button>
         </div>
         <div class="scene-site-picker">
@@ -116,7 +117,7 @@
         <div class="visibility-definitions"><p><strong>Sun-center visibility:</strong> the Sun’s center clears terrain and is outside Earth’s apparent disc.</p><p><strong>Earth-center LOS:</strong> an unobstructed geometric line to Earth’s center.</p><p><strong>Joint visibility:</strong> both conditions hold at the same time.</p></div>
         <p class="evidence-limit">These conditions do not calculate generated electrical power, radio-link availability, thermal survival or landing safety.</p>
       </section>
-      <details class="visual-disclosure"><summary>Model limits, NASA sources and visual approximations</summary><p>Visibility is geometry, not measured electrical power or a working radio link. The reduced NASA LOLA surface extends 32 km; more distant ridges use the calculated nominal skyline projected at an artificial 200 km distance. That curtain and local mesh are display geometry, not the uncertainty bounds used to decide a mission. Sun and Earth centers follow cached 30-minute azimuth/elevation samples. In surface view, bodies are hidden unless retained, coarse and fine intervals all confirm visibility; this does not model the complete solar or Earth disc. Fixed approximate diameters are 0.53° and 1.9°. Earth’s approximate lit phase follows the cached Sun direction; its historical cloud-free NASA texture and geographic face are not registered to the simulated time. Surface brightness uses a Lommel–Seeliger regolith approximation with restrained procedural display grain: the grain adds no relief, and cast shadows are not rendered, so only slopes turned away from the Sun darken. In orbital view the Sun and Earth sit in their computed directions at fixed approximate angular sizes with schematic distances. Sun focus uses optical zoom, preserving its 0.53-degree disc. Camera zoom changes field of view, not observer height or sky angles. Rocks, landing hazards, power, thermal safety and radio hardware are not modeled. Only three study points and November 2026 have validated cached calculations. NASA sources and hashes are available in Advanced.</p></details>
+      <details class="visual-disclosure"><summary>Model limits, NASA sources and visual approximations</summary><p>Visibility is geometry, not measured electrical power or a working radio link. The reduced NASA LOLA surface extends 32 km; more distant ridges use the calculated nominal skyline projected at an artificial 200 km distance. That curtain and local mesh are display geometry, not the uncertainty bounds used to decide a mission. Sun and Earth centers follow cached 30-minute azimuth/elevation samples. In surface view, bodies are hidden unless retained, coarse and fine intervals all confirm visibility; this does not model the complete solar or Earth disc. Fixed approximate diameters are 0.53° and 1.9°. Earth’s approximate lit phase follows the cached Sun direction; its historical cloud-free NASA texture and geographic face are not registered to the simulated time. Surface brightness uses a Lommel–Seeliger regolith approximation with restrained procedural display grain that adds no relief. Direct light is withheld when Sun-center visibility is blocked or unresolved at the observer; otherwise it shades slopes by orientation. This display gate is not a full-disc illumination or terrain-cast-shadow calculation. A faint artificial fill preserves silhouettes. Optional Night assist adds labeled artificial light for inspection; neither models Earthshine or calibrated night brightness. In orbital view the Sun and Earth sit in their computed directions at fixed approximate angular sizes with schematic distances. Sun focus uses optical zoom, preserving its 0.53-degree disc. Camera zoom changes field of view, not observer height or sky angles. Rocks, landing hazards, power, thermal safety and radio hardware are not modeled. Only three study points and November 2026 have validated cached calculations. NASA sources and hashes are available in Advanced.</p></details>
     </section>
 
     <section id="landing-opportunities" class="container landing-opportunities" aria-labelledby="opportunities-title" hidden>
@@ -159,7 +160,7 @@
       <div id="mission" class="workspace">
         <form id="mission-form" class="panel settings">
           <div class="settings-title">
-            <h2>Mission setup</h2>
+            <h2>What does your mission require?</h2>
             <button id="reset-demo" class="link-button" type="button" disabled>Reset demo</button>
           </div>
 
@@ -220,7 +221,7 @@
             <div class="panel-head">
               <div>
                 <p class="eyebrow">01 / Surface environment</p>
-                <h2 id="plot-title">Terrain &amp; visibility</h2>
+                <h2 id="plot-title">What blocks the Sun or Earth?</h2>
                 <p id="plot-subtitle" class="secondary">Target elevations and terrain horizon during the selected mission.</p>
               </div>
               <div class="segmented" aria-label="Target to display">
@@ -290,7 +291,7 @@
             <div id="site-comparison" class="comparison-grid"></div>
           </section>
           <section class="panel comparison" aria-labelledby="visibility-title">
-            <h2 id="visibility-title">Visibility at a glance</h2>
+              <h2 id="visibility-title">When are Sun and Earth available?</h2>
             <div id="visibility-overview"></div>
           </section>
 
@@ -326,7 +327,7 @@
           <section class="panel constraints" aria-labelledby="constraints-title">
             <div class="panel-head">
               <div>
-                <h2 id="constraints-title">Constraint evidence</h2>
+                <h2 id="constraints-title">Which requirements are met?</h2>
                 <p id="constraint-summary" class="secondary">Select a landing decision to inspect its limits, signed margins, and witness intervals.</p>
               </div>
             </div>

@@ -62,4 +62,15 @@ test('environment opportunities require no mission limits and contain no PASS/FA
   assert.equal(record.record_type,'environment-evidence');assert.equal(record.requirements_applied,false);
   assert(!('status' in record));assert(!('constraints' in record));assert.equal(record.site.id,demo.siteId);
   assert.equal(record.measurements.earth.visibleRangeSeconds[0],43200);assert.equal(record.application_release_sha,'fixture-release');
+  const synthetic={coverage:[0,7200],sites:[{id:'x',sun:[[0,7200,'uncertain']],earth:[[0,7200,'visible']]}]};
+  const pending={siteId:'x',nominal:0,durationHours:1,earliest:0,latest:0,gridMinutes:60};
+  const unresolved=await findVisibilityOpportunities(synthetic,pending);
+  assert.equal(unresolved.kind,'UNRESOLVED');assert.equal(unresolved.recommended,null);
+  assert.deepEqual(unresolved.options[0].metrics.joint.visibleRangeSeconds,[0,3600]);
+  assert.deepEqual(unresolved.counts,{WITH_JOINT:0,UNRESOLVED:1,NO_JOINT:0});
+  const blocked={...synthetic,sites:[{...synthetic.sites[0],sun:[[0,7200,'blocked']]}]};
+  const noJoint=await findVisibilityOpportunities(blocked,pending);
+  assert.equal(noJoint.kind,'NO_JOINT');assert.equal(noJoint.recommended,null);
+  assert.deepEqual(noJoint.options[0].metrics.joint.visibleRangeSeconds,[0,0]);
+  assert.deepEqual(noJoint.counts,{WITH_JOINT:0,UNRESOLVED:0,NO_JOINT:1});
 });
