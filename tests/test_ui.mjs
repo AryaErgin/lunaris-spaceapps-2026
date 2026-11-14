@@ -363,6 +363,29 @@ try {
     assert(summary.includes(`Feasible through ${endpoint}`), summary);
     assert.doesNotMatch(summary, /At least \d+(\.\d+)? h/, 'A rounded duration can overstate the lower bound');
   }
+  if (!fixture) {
+    await browserEval("document.querySelector('#communication-demo').click()");
+    const compared = await browserEval(`({cards: [...document.querySelectorAll('#site-comparison article')].map(n=>n.dataset.site),
+      earth:document.querySelector('#max-earth').value,joint:document.querySelector('#min-total').value,
+      states:[...document.querySelectorAll('[data-decision] .decision-status')].map(n=>n.textContent),
+      text:document.querySelector('#visibility-overview').textContent})`);
+    assert.equal(compared.cards.length,3); assert.equal(new Set(compared.cards).size,3);
+    assert.equal(compared.earth,'2'); assert.equal(compared.joint,'6');
+    assert.deepEqual(compared.states,['PASS','FAIL','PASS']);
+    assert.match(compared.text,/Next loss/); assert.match(compared.text,/cache/);
+    const {compareSites,visibilitySummary}=await import('../web/overview.mjs');
+    const {communicationDemo}=await import('../web/overview.mjs');
+    const b=JSON.parse(await readFile(resolve(workspace,'web/data/bundle.json'),'utf8'));
+    const rows=compareSites(b,communicationDemo(b));
+    const visible=await browserEval(`[...document.querySelectorAll('#site-comparison [data-visible-seconds]')].map(n=>[n.closest('article').dataset.site,n.dataset.phase,n.dataset.channel,Number(n.dataset.visibleSeconds)])`);
+    for(const [site,phase,channel,seconds] of visible) {
+      const m=rows.find(r=>r.siteId===site)[phase];
+      assert.equal(seconds,visibilitySummary(m.timeline[channel],m.start,m.end).seconds.visible);
+    }
+    await screenshot('communications-comparison-mobile');
+    assert(await browserEval('document.documentElement.scrollWidth <= innerWidth'));
+    console.log('Comparison parity and binding communication/joint-window demo passed.');
+  }
   const appOrigin = new URL(url).origin;
   assert.deepEqual(requests.filter((resource) => /^https?:/.test(resource) && new URL(resource).origin !== appOrigin), []);
   console.log(`T14 ${fixture ? 'synthetic UI fixture' : 'real-data dashboard'} passed in headless Chrome. Results: ${phases.map((phase) => actual[phase]?.status ?? 'no recommendation').join(' / ')}. Evidence: ${work}`);

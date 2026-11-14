@@ -312,3 +312,9 @@ tbody th { font-weight: 680; min-width: 125px; }
   .section-head { align-items: stretch; flex-direction: column; }
   .section-head button { align-self: start; }
 }
+
+.comparison { padding: 22px; }
+.comparison-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+.comparison-card { border:1px solid #405062; border-radius:8px; padding:14px; margin:10px 0; min-width:0; }
+.comparison-metric, .event-time { font-size:.85rem; overflow-wrap:anywhere; }
+@media(max-width:900px) { .comparison-grid { grid-template-columns:1fr; } }

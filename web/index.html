@@ -50,6 +50,8 @@
             <button id="reset-demo" class="link-button" type="button" disabled>Reset demo</button>
           </div>
 
+          <button id="communication-demo" type="button" class="outline" disabled>Try Sun + communication constraints</button>
+          <p class="field-hint">12 h mission: at most 2 h without Earth-center visibility, at least 6 h joint visibility including a 2 h continuous window. This is geometry, not a radio-link budget.</p>
           <label for="site">Study point</label>
           <select id="site" name="site" required disabled></select>
           <p class="field-hint" id="site-detail">Coordinates and instrument height load with the terrain bundle.</p>
@@ -110,6 +112,15 @@
             <div id="decision-summary" class="decision-summary" hidden></div>
           </section>
 
+          <section class="panel comparison" aria-labelledby="comparison-title">
+            <h2 id="comparison-title">Three sites. Identical mission requirements.</h2>
+            <p class="secondary">Concept-study comparison only. Same planned start, delay, duration and constraints at every site. This does not authorize changing a launched mission's landing site.</p>
+            <div id="site-comparison" class="comparison-grid"></div>
+          </section>
+          <section class="panel comparison" aria-labelledby="visibility-title">
+            <h2 id="visibility-title">Visibility at a glance</h2>
+            <div id="visibility-overview"></div>
+          </section>
           <section class="panel figure" aria-labelledby="plot-title">
             <div class="panel-head">
               <div>

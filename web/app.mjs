@@ -1,3 +1,4 @@
+import { compareSites, communicationDemo, visibilitySummary, nextVisibilityEvents } from './overview.mjs';
 import { makeCertificate, runMission } from './engine.mjs';
 
 const byId = (id) => document.getElementById(id);
@@ -121,10 +122,10 @@ function updateSiteDetail() {
   }
 }
 
-function loadDemo() {
+function loadDemo(communications = false) {
   const [start, end] = bundle.coverage;
   const fallbackDuration = Math.min(24, (end - start) / 3600);
-  const demo = bundle.demo ?? {
+  const demo = (communications ? communicationDemo(bundle) : bundle.demo) ?? {
     siteId: bundle.sites[0].id, nominal: start, delayHours: 6, durationHours: fallbackDuration,
     maxSunHours: 8, maxEarthHours: 8, minJointHours: null, minContinuousJointHours: null,
     earliest: start, latest: end - fallbackDuration * 3600, gridMinutes: 60, mode: 'same-site',
@@ -577,6 +578,7 @@ function renderPlot(mission) {
 }
 
 function renderInspection() {
+  renderVisibilityOverview();
   const mission = selectedMission();
   if (!mission) return;
   const site = findSite(mission.siteId);
@@ -729,6 +731,7 @@ function evaluate() {
     result = nextResult;
     selected = result.delayed?.status === 'FAIL' ? 'delayed' : 'nominal';
     renderDecisions();
+    renderComparison();
     renderAlternatives();
     renderInspection();
     byId('form-status').textContent = '';
@@ -757,6 +760,8 @@ async function downloadCertificate() {
     .map(({ id, report }) => [id, studyCertificate(report)]));
   try {
     const certificate = await makeCertificate(bundle, requestedInputs, result);
+    certificate.same_input_site_comparison = compareSites(bundle, requestedInputs);
+    certificate.visibility_summary = missionOverview(mission);
     if (evidence.position) certificate.position_study = evidence.position;
     if (evidence.terrain) certificate.terrain_study = evidence.terrain;
     if (evidence.height) {
@@ -789,8 +794,11 @@ form.addEventListener('input', () => {
   isEdited = true;
   exportButton.disabled = true;
   for (const study of studies) resetStudy(study, selectedMission());
+  byId('site-comparison').replaceChildren(element('p', '', 'Inputs changed. Evaluate to refresh the comparison.'));
+  byId('visibility-overview').replaceChildren(element('p', '', 'Inputs changed. Evaluate to refresh visibility metrics.'));
   byId('form-status').textContent = 'Evaluate the updated inputs to refresh the decisions.';
 });
+byId('communication-demo').addEventListener('click', () => loadDemo(true));
 byId('site').addEventListener('change', updateSiteDetail);
 byId('reset-demo').addEventListener('click', () => {
   isEdited = false;
@@ -834,6 +842,7 @@ async function initialize() {
     byId('site').disabled = false;
     byId('evaluate').disabled = false;
     byId('reset-demo').disabled = false;
+    byId('communication-demo').disabled = false;
     for (const { panel } of studies) panel.hidden = !findSite(SENSITIVITY_STUDY_SITE);
     byId('prelaunch-option').hidden = bundle.sites.length < 2;
     const definitions = bundle.manifest?.visibilityDefinitions ?? bundle.manifest?.visibility_definitions;
@@ -859,3 +868,43 @@ async function initialize() {
 }
 
 initialize();
+
+function missionOverview(mission) {
+ const site=findSite(mission.siteId);
+ return Object.fromEntries(['sun','earth','joint'].map(channel=>[channel,{
+  ...visibilitySummary(mission.timeline[channel],mission.start,mission.end),
+  events:channel==='joint' ? null : nextVisibilityEvents(site[channel],mission.start,bundle.coverage)
+ }]));
+}
+function renderComparison() {
+ const root=byId('site-comparison'); root.replaceChildren();
+ for(const row of compareSites(bundle,inputs)) {
+  const card=element('article','comparison-card'); card.dataset.site=row.siteId;
+  card.append(element('h3','',row.name));
+  for(const [key,label] of [['nominal','Planned start'],['delayed','Same delay']]) {
+   const mission=row[key]; const line=element('p',''); line.append(`${label}: `,statusChip(mission.status));card.append(line);
+   for(const [channel,title] of timelineChannels) {
+    const m=visibilitySummary(mission.timeline[channel],mission.start,mission.end).seconds;
+    const line=element('p','comparison-metric',`${title}: ${hours(m.visible/3600)} confirmed; ${hours((m.uncertain+m.unknown)/3600)} unresolved`);
+    line.dataset.phase=key;line.dataset.channel=channel;line.dataset.visibleSeconds=m.visible;card.append(line);
+   }
+  }
+  root.append(card);
+ }
+}
+function renderVisibilityOverview() {
+ if(!result || isEdited) return;
+ const mission=selectedMission(), overview=missionOverview(mission),root=byId('visibility-overview');root.replaceChildren();
+ root.append(element('p','secondary',`Selected decision: ${formatTime(mission.start)} to ${formatTime(mission.end)}. Confirmed geometric visibility is not electrical power or a working radio link.`));
+ for(const [channel,title] of timelineChannels) {
+  const summary=overview[channel],m=summary.seconds,card=element('article','comparison-card');card.dataset.channel=channel;
+  card.append(element('h3','',title));
+  card.append(element('p','',`${hours(m.visible/3600)} confirmed visible / ${hours(m.blocked/3600)} blocked / ${hours((m.unknown+m.uncertain)/3600)} unresolved within this mission.`));
+  if(summary.events) for(const [key,label] of [['loss','Next loss'],['reacquisition','Next reacquisition']]) {
+   const interval=summary.events[key];
+   card.append(element('p','event-time',`${label}: ${interval ? interval[0]===interval[1] ? formatTime(interval[0])+' (cached transition)' : formatTime(interval[0])+' to '+formatTime(interval[1])+' (uncertainty bracket)' : 'not established in remaining contiguous cache; not a guarantee of continuous visibility'}`));
+  }
+  root.append(card);
+ }
+ root.append(element('p','secondary',`Events are measured from the selected mission start, may lie after its end, and stop at missing data or ${formatTime(bundle.coverage[1])}. Brackets retain crossing uncertainty; DEM resolution and refinement limitations still apply.`));
+}
