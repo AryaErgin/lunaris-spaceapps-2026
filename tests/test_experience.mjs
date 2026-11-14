@@ -93,12 +93,15 @@ try{
   assert.match(await evaluate("document.querySelector('#quick-tour-title').textContent"),/Set the mission/);
   assert.equal(await evaluate("localStorage.getItem('lunaris:first-visit-tour:v2')"),'seen');
   await screenshot('first-visit-guide');
-  await evaluate("document.querySelector('.quick-tour-close').click()");
+  await evaluate("document.querySelector('.quick-tour-close').click();scrollTo({top:0,behavior:'instant'})");
+  await sleep(150);
+  assert.equal((await inspect()).notableSites.count,9,'The orbital Moon must include the nine notable level-horizon locations.');
+  assert(await evaluate("document.querySelector('#scene-mount .moon-site-legend').textContent.includes('locations only')"),'The Moon marker legend must distinguish non-terrain sites.');
   assert.match(await evaluate("document.querySelector('#experience-title').textContent"),/Explore the Moon. Find a landing window/);
   await screenshot('cold-mission-desktop');
   const coldLayout=await evaluate("Object.fromEntries(['visual-site','visual-arrival','visual-duration','story-title','find-opportunities','explore-site'].map(id=>{const r=document.querySelector('#'+id).getBoundingClientRect();return [id,{top:r.top,bottom:r.bottom,left:r.left,right:r.right}]}))");
   await writeFile(resolve(work,'cold-layout.json'),JSON.stringify(coldLayout,null,2));
-  assert(await evaluate("(()=>{for(const id of ['visual-site','visual-arrival','visual-duration','story-title','find-opportunities','explore-site']){const n=document.querySelector('#'+id),r=n.getBoundingClientRect();if(r.top<0||r.bottom>innerHeight)return false;}const n=document.querySelector('#find-opportunities'),r=n.getBoundingClientRect();return n.contains(document.elementFromPoint(r.left+r.width/2,r.top+r.height/2));})()"),'The default environment inputs, main conclusion, Find and Explore actions must be visible and clickable without scrolling at1366x768.');
+  assert(await evaluate("(()=>{for(const id of ['visual-site','visual-arrival','visual-duration','story-title','find-opportunities','explore-site']){const n=document.querySelector('#'+id),r=n.getBoundingClientRect();if(r.top<0||r.bottom>innerHeight)return false;}const n=document.querySelector('#find-opportunities'),r=n.getBoundingClientRect();return n.contains(document.elementFromPoint(r.left+r.width/2,r.top+r.height/2));})()"),'The default environment inputs, main conclusion, Find and Explore actions must be visible and clickable without scrolling at1366x768. Layout: '+JSON.stringify(coldLayout)+' scrollY='+await evaluate('scrollY'));
   const clickVisible=async selector=>{
     await evaluate(`document.querySelector(${JSON.stringify(selector)}).scrollIntoView({behavior:'instant',block:'nearest'})`);await sleep(60);
     const point=await evaluate(`(()=>{const n=document.querySelector(${JSON.stringify(selector)}),r=n.getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height/2,clear:!n.disabled&&r.width>0&&r.top>=0&&r.bottom<=innerHeight&&r.left>=0&&r.right<=document.documentElement.clientWidth+1&&n.contains(document.elementFromPoint(r.left+r.width/2,r.top+r.height/2))};})()`);
