@@ -133,8 +133,11 @@ def test_extended_reports_require_same_observer_targets_and_full_date_domain(tmp
               'sites': [{'site_id': 'x', 'latitude_deg': -89., 'longitude_deg_east': 20., 'observer_radius_m': 1737502., 'status': 'PASS'}]}
     horizons = {'status': 'PASS', 'references': [
         {'site_id': 'x', 'target': target, 'latitude_deg': -89., 'longitude_deg_east': 20., 'observer_radius_m': 1737502.,
-         'samples': [{'utc': '2026-11-01T00:00:00Z'}, {'utc': '2028-01-01T00:00:00Z'}]}
+         'samples': [{'utc': '2026-11-01T00:00:00Z', 'separation_deg': 0.}, {'utc': '2028-01-01T00:00:00Z', 'separation_deg': 0.}]}
         for target in ('sun', 'earth')]}
+    horizons['comparison_conventions'] = {'lunar_spice_frame': 'MOON_ME_DE440_ME421', 'spice_correction': 'CN+S',
+        'lunar_horizons_frame': 'MEAN_ME', 'horizons_correction': 'Airless apparent'}
+    horizons.update(angular_tolerance_deg=.01, max_angular_separation_deg=0.)
     a, b = tmp_path / 'domain.json', tmp_path / 'horizons.json'
 
     def write(d, h):
@@ -155,3 +158,17 @@ def test_extended_reports_require_same_observer_targets_and_full_date_domain(tmp
     write(domain, changed)
     with pytest.raises(ValueError, match='date|epoch'):
         module._validated_reports(a, b, start, end, [site])
+    changed = deepcopy(horizons); changed['comparison_conventions']['lunar_spice_frame'] = 'IAU_MOON'
+    write(domain, changed)
+    with pytest.raises(ValueError, match='frame|convention'):
+        module._validated_reports(a, b, start, end, [site])
+
+
+def test_reference_cannot_be_a_modified_or_empty_bundle_claiming_the_stable_fingerprint(tmp_path):
+    module = extended()
+    path = tmp_path / 'bad.json'
+    path.write_text(json.dumps({'coverage': [build.START, build.END], 'sites': [],
+        'manifest': {'bundleSha256': 'original'}}))
+    assert callable(getattr(module, 'load_reference', None)), 'The immutable baseline requires a source identity gate'
+    with pytest.raises(ValueError, match='reference|stable|fingerprint'):
+        module.load_reference(path)

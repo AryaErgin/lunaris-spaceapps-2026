@@ -8,6 +8,8 @@ import { sceneFrame, missionStory } from './scene-model.mjs';
 import {constraintEvidence,constraintSegments,evidenceTime} from './decision-evidence.mjs';
 import {resolveAutomaticSchedule,findLandingOpportunities,findVisibilityOpportunities,makeEnvironmentRecord,environmentInputs} from './opportunities.mjs';
 import {visibilityConclusion,comparisonConclusion,opportunityConclusion,conciseDuration,firstScreenConclusion} from './explanations.mjs';
+import {coverageLabel,coverageTicks,utcMonthWindow,searchQualification,isCachedTime} from './coverage.mjs';
+import {automaticSearchOptions} from './search-scope.mjs';
 
 import {NOTABLE_SITES,referenceDirections,skyAt,elevationSeries,nextLevelCrossing,levelSummary,validCoordinate} from './anysite.mjs';
 
@@ -20,7 +22,7 @@ const dateOnly = new Intl.DateTimeFormat('en-GB', {
   day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC',
 });
 const compactTime = new Intl.DateTimeFormat('en-GB', {
-  day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: 'UTC',
+  day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: 'UTC',
 });
 const phases = [
   ['nominal', 'Nominal landing'], ['delayed', 'After delay'], ['recommended', 'Recommended start'],
@@ -50,6 +52,7 @@ let lastPlotWidth;
 let isEdited = false;
 let atlas;
 let matrix;
+let calendarMonth=null,calendarArrival=null;
 let currentTime = null;
 let inspectedMission;
 let playbackTimer;
@@ -164,7 +167,7 @@ function syncAssessment(){
   byId('apply-requirements').checked=requirementsEnabled;
   byId('assessment-label').textContent=requirementsSource==='custom'?'Evaluate my mission requirements':'Evaluate illustrative mission requirements';
   document.querySelector('.illustrative-requirements').textContent=requirementsSource==='custom'?'User-defined requirements; no flight or hardware certification implied.':'Illustrative mission requirements — not real lander specifications.';
-  byId('opportunity-scope').textContent=requirementsEnabled?'Before launch · three study points · unchanged selected limits':'Compare confirmed Sun + Earth time · no mission limits applied';
+  byId('opportunity-scope').textContent=requirementsEnabled?`Before launch · ${bundle?.sites?.length??'supported'} study points · unchanged selected limits`:'Compare confirmed Sun + Earth time · no mission limits applied';
   byId('decision-evidence').hidden=!requirementsEnabled;
   byId('environment-overview').hidden=requirementsEnabled;
   document.querySelector('.story-progress').hidden=!requirementsEnabled||!delayStoryEnabled;
@@ -247,6 +250,7 @@ function loadDemo(communications = true,environmentOnly=false) {
   requirementsEnabled=!environmentOnly;requirementsSource='example';comparisonOptions=null;delayStoryEnabled=!environmentOnly;
   syncAssessment();
   selected='nominal';
+  calendarMonth=demo.nominal;calendarArrival=demo.nominal;
   updateSiteDetail();
   loadingPreset=true;try{evaluate();}finally{loadingPreset=false;}
   sceneController?.selectSite(demo.siteId,{focus:false});
@@ -477,7 +481,7 @@ function renderAlternatives() {
   const scope = inputs.mode === 'prelaunch' ? 'Prelaunch concept comparison' : 'Same-site search';
   const count = search.candidateCount;
   const range = search.from <= search.to ? ` · ${formatTime(search.from)} to ${formatTime(search.to)}` : '';
-  summary.textContent = `${scope} · ${search.gridMinutes ?? inputs.gridMinutes}-minute grid${Number.isFinite(count) ? ` · ${count} evaluated` : ''}${range}`;
+  summary.textContent = `${scope} · ${search.gridMinutes ?? inputs.gridMinutes}-minute grid${Number.isFinite(count) ? ` · ${count} evaluated` : ''}${range}. ${searchQualification(search)}`.trim();
   const counts = result.counts;
   if (counts) {
     list.append(element('p', 'secondary', `${counts.PASS} pass · ${counts.FAIL} fail · ${counts.INDETERMINATE} indeterminate`));
@@ -665,6 +669,7 @@ function renderPlot(mission) {
     byId('hero-time').disabled=true;
     byId('hero-visibility').textContent='No cached geometry in the selected mission. Bodies are withheld; no position is extrapolated.';
     byId('scene-clock').textContent='GEOMETRY UNAVAILABLE IN THIS MISSION';
+    renderAnySite();
     return;
   }
 
@@ -875,7 +880,8 @@ function evaluate() {
   try {
     const nextInputs = readInputs();
     if(!loadingPreset&&inputs&&(inputs.nominal!==nextInputs.nominal||inputs.siteId!==nextInputs.siteId||inputs.durationHours!==nextInputs.durationHours))delayStoryEnabled=false;
-    const nextResult = runMission(bundle,requirementsEnabled?nextInputs:environmentInputs(nextInputs));
+    const evaluationInputs=requirementsEnabled?nextInputs:environmentInputs(nextInputs);
+    const nextResult = runMission(bundle,evaluationInputs,automaticSearchOptions(bundle,evaluationInputs));
     clearOpportunities();
     cancelSceneEntry();
     isEdited = false;
@@ -920,7 +926,7 @@ async function searchOpportunities(){
   if(!applyVisualArrival())return;
   pausePlayback();const requestedInputs=inputs,request=++opportunityRequest,root=byId('landing-opportunities');
   root.hidden=productMode!=='explore';root.setAttribute('aria-busy','true');root.dataset.kind='SEARCHING';
-  byId('opportunities-eyebrow').textContent=requirementsEnabled?'YOUR REQUIREMENTS · THREE STUDY SITES · BEFORE LAUNCH':'THREE STUDY SITES · NOVEMBER 2026';
+  byId('opportunities-eyebrow').textContent=requirementsEnabled?`YOUR REQUIREMENTS · ${bundle.sites.length} STUDY SITES · BEFORE LAUNCH`:`${bundle.sites.length} STUDY SITES · ${coverageLabel(bundle.coverage)}`;
   byId('opportunities-status').textContent=requirementsEnabled?'Checking sites against your selected requirements…':'Finding confirmed Sun and Earth visibility…';
   byId('opportunities-counts').textContent='Search in progress.';byId('opportunities-ranking').textContent='';
   byId('opportunities-basis').textContent='This is a new-arrival search before launch; the landing delay is not added.';
@@ -928,7 +934,7 @@ async function searchOpportunities(){
   byId('find-opportunities').disabled=true;byId('find-opportunities').textContent='Checking landing opportunities…';
   try{
     const finder=requirementsEnabled?findLandingOpportunities:findVisibilityOpportunities;
-    const report=await finder(bundle,requestedInputs,{cancelled:()=>request!==opportunityRequest||inputs!==requestedInputs,
+    const report=await finder(bundle,requestedInputs,{searchWindowDays:30,cancelled:()=>request!==opportunityRequest||inputs!==requestedInputs,
       yieldControl:()=>new Promise(resolve=>setTimeout(resolve,0))});
     if(request!==opportunityRequest||inputs!==requestedInputs)return;
     opportunityReport=report;renderOpportunities(report);
@@ -951,7 +957,7 @@ function renderOpportunities(report){
   if(!report.requirementsApplied){
     byId('opportunities-title').textContent={VISIBILITY_FOUND:'Explore visibility opportunities',UNRESOLVED:'Joint visibility remains unresolved',NO_JOINT:'No joint visibility established on this grid',NO_DATA:'Outside complete cached coverage',SCHEDULE_EMPTY:'No eligible date in your schedule'}[report.kind];
     byId('opportunities-status').textContent=opportunityConclusion(report,id=>findSite(id).name);
-    byId('opportunities-basis').textContent=`${rangeLabel} ${siteLabel}`;
+    byId('opportunities-basis').textContent=`${rangeLabel} ${siteLabel} ${searchQualification(report.search)}`.trim();
     const cards=byId('opportunity-options');cards.replaceChildren();
     for(const view of report.options){
       const card=element('article','opportunity-card');Object.assign(card.dataset,{site:view.siteId,start:view.start,status:'ENVIRONMENT'});
@@ -973,9 +979,9 @@ function renderOpportunities(report){
     ?`Confirmed passing arrivals were found at ${report.options.length} ${report.options.length===1?'site':'sites'}, with every selected requirement unchanged.`
     :report.kind==='NO_PASS'?'No checked arrival meets all selected requirements. Near misses below explain which rules fail.'
       :report.kind==='UNRESOLVED'?'No passing arrival is proven. Unresolved intervals prevent ruling out earlier opportunities.'
-        :report.kind==='NO_DATA'?'No complete mission fits the available November data. Choose a covered arrival or a shorter mission.'
+        :report.kind==='NO_DATA'?'No complete mission fits the available cached data. Choose a covered arrival or a shorter mission.'
           :'No eligible start fits your allowed schedule. This is a scheduling exclusion, not adverse lunar conditions.';
-  byId('opportunities-basis').textContent=`${rangeLabel} ${siteLabel}`;
+  byId('opportunities-basis').textContent=`${rangeLabel} ${siteLabel} ${searchQualification(report.search)}`.trim();
   const cards=byId('opportunity-options');cards.replaceChildren();
   const passingIds=new Set(report.options.map(m=>m.siteId));
   const rows=[...report.options.map(mission=>({mission,label:'First confirmed pass at this site'})),
@@ -1036,7 +1042,7 @@ async function downloadCertificate() {
     const certificate = await makeCertificate(bundle, requestedInputs, requestedResult,{
       role:requestedRole,alternativeIndex:requestedAlternativeIndex,
       releaseSha:requestedRelease.application_release_sha,publicUrl:requestedRelease.public_url});
-    certificate.same_input_site_comparison = compareSites(bundle, requestedInputs);
+    certificate.same_input_site_comparison = compareSites(bundle, requestedInputs,automaticSearchOptions(bundle,requestedInputs));
     certificate.requirements_origin=requestedRequirementsSource==='custom'?'user-defined':'illustrative-example';
     certificate.visibility_summary = missionOverview(mission);
     certificate.inspected_mission = {role:requestedRole,alternativeIndex:requestedAlternativeIndex,siteId:mission.siteId,start:mission.start,end:mission.end,status:mission.status};
@@ -1103,6 +1109,12 @@ byId('comparison-duration').addEventListener('change',()=>{
 });
 byId('add-comparison-option').addEventListener('click',()=>{if(comparisonOptions?.length===2){comparisonOptions.push({...comparisonOptions[1],key:'C'});renderOptionComparison();}});
 byId('remove-comparison-option').addEventListener('click',()=>{comparisonOptions=comparisonOptions?.slice(0,2);renderOptionComparison();});
+for(const [id,direction] of [['calendar-previous','previous'],['calendar-next','next']])byId(id).addEventListener('click',()=>{
+  if(!bundle||!inputs)return;
+  const destination=utcMonthWindow(bundle.coverage,calendarMonth??inputs.nominal)[direction];
+  if(destination===null)return;
+  calendarMonth=destination;renderFeasibility();
+});
 function applyVisualArrival(){
   const field=byId('visual-arrival');
   if(!field.value||!Number.isFinite(Date.parse(`${field.value}Z`))){
@@ -1155,7 +1167,7 @@ byId('hero-play').addEventListener('click',async()=>{
 byId('hero-pause').addEventListener('click',()=>pausePlayback());
 byId('guide-open').addEventListener('click',()=>{pausePlayback();byId('mission-story').scrollIntoView({block:'start'});});
 byId('hero-reset').addEventListener('click',()=>{pausePlayback('Reset to the first cached sample in this domain.');byId('probe-slider').value=0;updateProbe();});
-// Whole-month playback runs at 24 h/s so one lunar day takes about half a minute.
+// Full-cache playback uses the visible 24 h/s speed; it never changes the evaluated arrival.
 let autoMonthSpeed=false;
 function setHeroScope(scope){
   if(byId('time-scope').value===scope||isEdited)return;
@@ -1224,9 +1236,15 @@ async function initialize() {
       throw new Error('The offline bundle is incomplete.');
     }
     const [start, end] = bundle.coverage;
-    byId('bundle-range').textContent = dateOnly.formatRange(start * 1000, end * 1000);
+    byId('bundle-range').textContent = dateOnly.formatRange(start * 1000, (end-1) * 1000);
     byId('bundle-range').title = `${formatTime(start)} to ${formatTime(end)}`;
     byId('bundle-note').textContent = `${bundle.sites.length} study point${bundle.sites.length === 1 ? '' : 's'} · NASA LOLA terrain · JPL ephemerides`;
+    byId('visual-coverage').textContent=`UTC · ${coverageLabel(bundle.coverage)}`;
+    byId('visual-coverage').title=`${formatTime(start)} to ${formatTime(end)}, exclusive end.`;
+    byId('visual-supported-scope').textContent=`${bundle.sites.length} listed study points and ${coverageLabel(bundle.coverage)} have evaluated cached terrain-aware calculations.`;
+    byId('hero-scope-note').textContent=`Playback spans ${coverageLabel(bundle.coverage)} at the selected speed. It changes the view clock, not your arrival or duration.`;
+    document.querySelector('#any-site-chart').setAttribute('aria-label',`Level-horizon Sun and Earth elevation across ${coverageLabel(bundle.coverage)}`);
+    byId('any-site-range-note').textContent=`Height above the level horizon across ${coverageLabel(bundle.coverage)}. The vertical line is the view clock; the final axis tick is the exclusive cache end.`;
     const siteOptions = bundle.sites.map((site) => {
       const option = element('option', '', site.name);
       option.value = site.id;
@@ -1295,7 +1313,7 @@ function missionOverview(mission) {
 }
 function renderComparison() {
  const root=byId('site-comparison'); root.replaceChildren();
- for(const row of compareSites(bundle,inputs)) {
+ for(const row of compareSites(bundle,inputs,automaticSearchOptions(bundle,inputs))) {
   const card=element('article','comparison-card'); card.dataset.site=row.siteId;
   card.append(element('h3','',row.name));
   if(siteCaution(row.siteId))card.append(element('p','comparison-caution',siteCaution(row.siteId)));
@@ -1499,6 +1517,9 @@ function setupAnySite(){
 }
 function drawAnySiteChart(){
   const svg=byId('any-site-chart'),[start,end]=bundle.coverage;svg.replaceChildren();
+  byId('any-site-days').replaceChildren(...coverageTicks(bundle.coverage).map(tick=>{
+    const label=element('span','',tick.label);label.title=formatTime(tick.time)+(tick.time===end?' (exclusive cache end)':'');return label;
+  }));
   const x=time=>1000*(time-start)/(end-start),y=elevation=>100-elevation/90*100;
   svg.append(svgElement('line',{x1:0,x2:1000,y1:100,y2:100,class:'any-site-zero'}));
   for(const [series,style] of [[anySiteStudy,' study'],[anySiteSeries,'']])if(series)for(const key of ['earth','sun']){
@@ -1521,7 +1542,7 @@ function renderAnySite(rebuild=false){
     anySiteStudy=sameAsStudy?null:elevationSeries(bundle,study.lat,study.lon);drawAnySiteChart();
     const legend=byId('any-site-study-key');legend.hidden=sameAsStudy;legend.textContent=sameAsStudy?'':`Dashed: ${study.name}, same level-horizon model`;
     const sun=levelSummary(anySiteSeries,'sun'),earth=levelSummary(anySiteSeries,'earth'),percent=value=>`${Math.round(value*100)}%`;
-    byId('any-site-contrast').textContent=`Through November the Sun is above the level horizon ${percent(sun.aboveFraction)} of the time here and climbs to ${sun.max.toFixed(0)}°. `
+    byId('any-site-contrast').textContent=`Across ${coverageLabel(bundle.coverage)}, the Sun is above the level horizon ${percent(sun.aboveFraction)} of sampled times here and climbs to ${sun.max.toFixed(0)}°. `
       +(earth.aboveFraction===1?`Earth never leaves the sky: it stays between ${earth.min.toFixed(0)}° and ${earth.max.toFixed(0)}°.`
         :earth.aboveFraction===0?'Earth never rises here: this site faces away from Earth, so a relay would be needed.'
           :`Earth hovers near the horizon, between ${earth.min.toFixed(1)}° and ${earth.max.toFixed(1)}°, and is above the level horizon ${percent(earth.aboveFraction)} of the time.`)
@@ -1529,9 +1550,14 @@ function renderAnySite(rebuild=false){
     const link=byId('any-site-source');link.hidden=!target.source?.startsWith('https://');if(!link.hidden)link.href=target.source;
   }
   const time=currentTime??inputs?.nominal??bundle.coverage[0],cadence=rows[1].time-rows[0].time;
+  const head=byId('any-site-chart').querySelector('.any-site-playhead');
+  if(!isCachedTime(bundle.coverage,time)){
+    root.replaceChildren(element('p','any-site-empty','The view clock is outside the cached date range. No Sun or Earth direction is calculated for this time.'));
+    root.dataset.time='';if(head)head.style.display='none';return;
+  }
   const sampleIndex=Math.max(0,Math.min(rows.length-1,Math.round((time-rows[0].time)/cadence))),sky=skyAt(rows[sampleIndex],target.lat,target.lon);
   root.replaceChildren();root.dataset.time=sky?.time??'';
-  if(!sky){root.append(element('p','any-site-empty','No cached direction exists at this time.'));return;}
+  if(!sky){root.append(element('p','any-site-empty','No cached direction exists at this time.'));if(head)head.style.display='none';return;}
   root.append(element('p','any-site-when',`${target.name} · ${shortTime(sky.time)}`));
   for(const [key,title] of [['sun','Sun'],['earth','Earth']]){
     const {azimuth,elevation}=sky[key],card=element('div',`any-site-body ${key}`),crossing=nextLevelCrossing(anySiteSeries,key,sky.time);
@@ -1539,16 +1565,15 @@ function renderAnySite(rebuild=false){
     card.append(element('span','any-site-label',title),
       element('strong','',`${Math.abs(elevation).toFixed(1)}° ${elevation<0?'below':'above'} the level horizon`),
       element('span','',`Toward the ${compass(azimuth)} · bearing ${azimuth.toFixed(0)}°`),
-      element('span','any-site-next',crossing?`${crossing.kind==='sets'?'Drops below':'Rises above'} the level horizon in ${spanText(crossing.time-sky.time)}`
-        :`Stays ${elevation>0?'above':'below'} the level horizon for the rest of November`));
+      element('span','any-site-next',crossing?`Estimated ${crossing.kind==='sets'?'drop below':'rise above'} the level horizon in ${spanText(crossing.time-sky.time)}`
+        :`Stays ${elevation>0?'above':'below'} the level horizon in the remaining cached samples`));
     if(!sameAsStudy){
       const there=skyAt(rows[sampleIndex],study.lat,study.lon)[key].elevation;
       card.append(element('span','any-site-versus',`${study.name} at this moment: ${Math.abs(there).toFixed(1)}° ${there<0?'below':'above'}`));
     }
     root.append(card);
   }
-  const head=byId('any-site-chart').querySelector('.any-site-playhead');
-  if(head){const position=1000*(sky.time-bundle.coverage[0])/(bundle.coverage[1]-bundle.coverage[0]);head.setAttribute('x1',position);head.setAttribute('x2',position);}
+  if(head){head.style.display='';const position=1000*(sky.time-bundle.coverage[0])/(bundle.coverage[1]-bundle.coverage[0]);head.setAttribute('x1',position);head.setAttribute('x2',position);}
 }
 
 function arrivalOffset(seconds) {
@@ -1632,8 +1657,12 @@ function renderTelemetry(site,sample,mission) {
 
 function renderFeasibility() {
   const root=byId('feasibility-grid');root.replaceChildren();
-  matrix=feasibilityMatrix(bundle,requirementsEnabled?inputs:environmentInputs(inputs));
-  const scroll=element('div','heatmap-scroll');scroll.tabIndex=0;scroll.setAttribute('role','region');scroll.setAttribute('aria-label','Scrollable daily site feasibility table');
+  if(calendarArrival!==inputs.nominal){calendarArrival=inputs.nominal;calendarMonth=inputs.nominal;}
+  const month=utcMonthWindow(bundle.coverage,calendarMonth??inputs.nominal);
+  byId('calendar-month').textContent=month.label;
+  byId('calendar-previous').disabled=month.previous===null;byId('calendar-next').disabled=month.next===null;
+  matrix=feasibilityMatrix(bundle,requirementsEnabled?inputs:environmentInputs(inputs),{range:month.range});
+  const scroll=element('div','heatmap-scroll');scroll.tabIndex=0;scroll.setAttribute('role','region');scroll.setAttribute('aria-label',`Scrollable daily site feasibility table for ${month.label}`);
   const table=element('table','feasibility-table'),head=element('thead'),header=element('tr');
   const corner=element('th','','Study point / UTC day');corner.scope='col';header.append(corner);
   for(const start of matrix.starts) {
@@ -1677,8 +1706,8 @@ function renderFeasibility() {
     body.append(tr);
   }
   table.append(body);scroll.append(table);root.append(scroll,detail);
-  byId('feasibility-note').textContent=`${matrix.starts.length} dates × ${matrix.rows.length} sites · starts every ${matrix.stepHours} h at ${new Date(inputs.nominal*1000).toISOString().slice(11,19)} UTC · ${inputs.durationHours} h fixed mission. P = PASS, F = FAIL, ? = INDETERMINATE, S = outside allowed schedule (not an environmental verdict). All hard limits and the allowed start range remain unchanged. The last date may be censored by the cache end. ${matrix.basis}`;
-  if(!requirementsEnabled)byId('feasibility-note').textContent=`${matrix.starts.length} dates × ${matrix.rows.length} sites · daily starts at ${new Date(inputs.nominal*1000).toISOString().slice(11,19)} UTC · ${inputs.durationHours} h views. Numbers = confirmed Sun + Earth hours; ? = unresolved possible overlap; S = outside your schedule. No mission requirements applied. The last view may cross the cache end.`;
+  byId('feasibility-note').textContent=`${month.label} · ${matrix.starts.length} dates × ${matrix.rows.length} sites · starts every ${matrix.stepHours} h at ${new Date(inputs.nominal*1000).toISOString().slice(11,19)} UTC · ${inputs.durationHours} h fixed mission. P = PASS, F = FAIL, ? = INDETERMINATE, S = outside allowed schedule (not an environmental verdict). All hard limits and the allowed start range remain unchanged. The last date may be censored by the cache end. ${matrix.basis}`;
+  if(!requirementsEnabled)byId('feasibility-note').textContent=`${month.label} · ${matrix.starts.length} dates × ${matrix.rows.length} sites · daily starts at ${new Date(inputs.nominal*1000).toISOString().slice(11,19)} UTC · ${inputs.durationHours} h views. Numbers = confirmed Sun + Earth hours; ? = unresolved possible overlap; S = outside your schedule. No mission requirements applied. The last view may cross the cache end.`;
 }
 
 function setExpert(enabled) {
@@ -1747,7 +1776,7 @@ async function initializeExperience() {
   byId('orbital-story-slot').append(byId('mission-story'));
   byId('experience').insertBefore(byId('decision-evidence'),document.querySelector('.experience-status'));
   byId('comparison-panels').append(byId('feasibility'));
-  const audit=element('details','site-audit');audit.append(element('summary','','Three-site original/delayed audit'),byId('compare'));byId('top').append(audit);
+  const audit=element('details','site-audit');audit.append(element('summary','',`${bundle.sites.length}-site original/delayed audit`),byId('compare'));byId('top').append(audit);
   byId('scene-mount').append(byId('scene-poster'));
   byId('scene-mount').append(byId('earth-inset'));
   byId('scene-mount').append(byId('surface-focus'),byId('rescue-transition'));
@@ -1851,7 +1880,7 @@ function updateExperienceFrame(site,sample,mission) {
       }
       eventNotes[key]=countdown.kind==='bounded'?''
         :countdown.kind==='unresolved'?` The ${name} time cannot be pinned down more closely than ${shortTime(countdown.interval[0])} to ${shortTime(countdown.interval[1])}.`
-          :` No ${name} is established in the November data.`;
+          :` No ${name} is established in the remaining cached data.`;
     }
     const item=element('span','hero-body');item.append(element('strong','',`${title} ${label}`));
     if(Number.isFinite(elevation))item.append(element('small','',`${Math.abs(elevation).toFixed(1)}° ${elevation<0?'below':'above'} the level horizon`));
@@ -1940,7 +1969,7 @@ function renderMissionStory() {
     const joint=mission.constraints.find(c=>c.id==='min_joint_total');
     if(joint)byId('story-explanation').textContent=`Proven Sun + Earth: ${constraintEvidence(joint).metricText}. All ${mission.constraints.length} rules are proven below.`;
   }
-  if(mission.start<bundle.coverage[0]||mission.end>bundle.coverage[1])byId('story-explanation').textContent='The full mission extends outside the November cache. Complete visibility is not known; choose a covered arrival or duration.';
+  if(mission.start<bundle.coverage[0]||mission.end>bundle.coverage[1])byId('story-explanation').textContent='The full mission extends outside the displayed cached coverage. Complete visibility is not known; choose a covered arrival or duration.';
   else if(mission.startAllowed===false)byId('story-explanation').textContent='This arrival is outside your allowed start schedule. Scheduling exclusion is separate from the environmental results below.';
   byId('story-date').textContent=story.start!==undefined?`${shortTime(story.start)} · ${inputs.durationHours} h mission`:'No confirmed start inside the search range';
   const status=byId('story-status');status.textContent=story.status;status.className=`status status-${{PASS:'pass',FAIL:'fail',INDETERMINATE:'indeterminate'}[story.status]??'unavailable'}`;
@@ -1953,6 +1982,7 @@ function renderMissionStory() {
       :empty?'Your allowed schedule contains no eligible start after the delay. Edit the allowed dates; this is not an environmental failure.'
         :result.counts.INDETERMINATE?`${result.counts.INDETERMINATE} starts remain unresolved; ${result.counts.FAIL} failed the selected limits. No passing recovery is proven on this grid.`
           :`All ${result.counts.FAIL} checked options fail the selected limits. Change the allowed dates or requirements; no passing start was manufactured.`;
+    if(result.search.windowLimited)byId('story-explanation').textContent+=' '+searchQualification(result.search);
   }
   byId('story-witness').textContent=story.witness?`From ${shortTime(story.witness[0])} to ${shortTime(story.witness[1])}.` : '';
   byId('story-next').textContent=guidedPhase==='nominal'?`Simulate ${inputs.delayHours}-hour delay`:guidedPhase==='delayed'?'Find next confirmed window':'Replay planned landing';
@@ -2022,7 +2052,7 @@ function renderDecisionEvidence(mission){
     let counts=prefixCountCache.get(result);
     if(!counts){counts={FAIL:0,INDETERMINATE:0,PASS:0};for(let t=result.search.from;t<mission.start;t+=inputs.gridMinutes*60)for(const id of result.search.sites)counts[evaluateStart(bundle,inputs,id,t).status]++;prefixCountCache.set(result,counts);}
     const wait=(mission.start-result.delayed.start)/3600;
-    choice.textContent=`Why this date: first confirmed start on the ${inputs.gridMinutes}-minute grid${inputs.gridMinutes===60?' (hourly)':''}. Wait ${Math.floor(wait/24)} d ${number.format(wait%24)} h after the delayed arrival. Earlier sampled site/starts: ${counts.FAIL} FAIL, ${counts.INDETERMINATE} INDETERMINATE, ${counts.PASS} PASS. Uncertain earlier starts do not prove an earlier window is impossible. The mission requirements were not relaxed.`;
+    choice.textContent=`Why this date: first confirmed start on the ${inputs.gridMinutes}-minute grid${inputs.gridMinutes===60?' (hourly)':''}. Wait ${Math.floor(wait/24)} d ${number.format(wait%24)} h after the delayed arrival. Earlier sampled site/starts: ${counts.FAIL} FAIL, ${counts.INDETERMINATE} INDETERMINATE, ${counts.PASS} PASS. Uncertain earlier starts do not prove an earlier window is impossible. The mission requirements were not relaxed. ${searchQualification(result.search)}`.trim();
   }
 }
 

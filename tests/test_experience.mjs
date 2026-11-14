@@ -5,11 +5,16 @@ import {once} from 'node:events';
 import {mkdir,readFile,readdir,writeFile} from 'node:fs/promises';
 import {resolve,sep,extname} from 'node:path';
 import {bodyDirection,sceneFrame,localToMoonDirection} from '../web/scene-model.mjs';
-import {runMission} from '../web/engine.mjs';
+import {runMission,evaluateStart} from '../web/engine.mjs';
 import {communicationDemo} from '../web/overview.mjs';
 
 const root=process.cwd(),work=resolve(root,'progress',`experience-${Date.now()}`);
 const bundle=JSON.parse(await readFile(resolve(root,'web/data/bundle.json'),'utf8'));
+const outsideArrival=bundle.coverage[1]+86400;
+const unsupportedDurationHours=(bundle.coverage[1]-bundle.coverage[0])/3600+24;
+const inputUtc=seconds=>new Date(seconds*1000).toISOString().slice(0,19);
+const extendedBrowserEvidence=[];
+let extendedPlaybackEvidence=null;
 await mkdir(work,{recursive:true});
 const types={'.html':'text/html','.mjs':'text/javascript','.css':'text/css','.json':'application/json','.jpg':'image/jpeg','.png':'image/png'};
 const server=createServer(async(req,res)=>{
@@ -148,7 +153,8 @@ try{
   await screenshot('environment-compare-desktop');
   await evaluate("document.querySelector('#product-explore').click();document.querySelector('#find-opportunities').click()");
   await until(()=>evaluate("document.querySelector('#landing-opportunities').dataset.kind==='VISIBILITY_FOUND'"));
-  assert(await evaluate("!document.querySelector('#opportunity-options .status')&&document.querySelectorAll('#opportunity-options [data-status=ENVIRONMENT]').length===3"));
+  assert.equal(await evaluate("document.querySelectorAll('#opportunity-options [data-status=ENVIRONMENT]').length"),bundle.sites.length);
+  assert(await evaluate("!document.querySelector('#opportunity-options .status')"));
   assert.match(await evaluate("document.querySelector('#opportunities-status').textContent"),/sites offer 12 h.*earliest/);
   assert(await evaluate("!document.querySelector('.search-evidence').open&&document.querySelector('#opportunities-counts').closest('details')"),'Search statistics must remain secondary to its conclusion.');
   await evaluate("document.querySelector('#landing-opportunities').scrollIntoView({block:'start',behavior:'instant'})");await screenshot('environment-opportunities-desktop');
@@ -261,9 +267,12 @@ try{
   assert.equal(await evaluate("document.querySelectorAll('#option-comparison [data-option]').length"),3);
   await evaluate("document.querySelector('#remove-comparison-option').click()");
   assert.equal(await evaluate("document.querySelectorAll('#option-comparison [data-option]').length"),2);
-  assert.equal(await evaluate("document.querySelectorAll('#site-comparison article').length"),3);
-  assert.equal(await evaluate("document.querySelectorAll('.feasibility-cell').length"),90);
-  assert.equal(await evaluate("document.querySelectorAll('#site-comparison .compact-requirements [data-constraint]').length"),24,'Every original/delayed compared site must show the same four rules.');
+  assert.equal(await evaluate("document.querySelectorAll('#site-comparison article').length"),bundle.sites.length);
+  const visibleCalendar=await evaluate("({month:document.querySelector('#calendar-month').textContent,starts:[...new Set([...document.querySelectorAll('.feasibility-cell')].map(n=>n.dataset.start))]})");
+  assert.match(visibleCalendar.month,/November 2026/);
+  assert.equal(await evaluate("document.querySelectorAll('.feasibility-cell').length"),visibleCalendar.starts.length*bundle.sites.length);
+  assert(visibleCalendar.starts.every(value=>new Date(Number(value)*1000).getUTCMonth()===10),'Calendar rows must represent the displayed month.');
+  assert.equal(await evaluate("document.querySelectorAll('#site-comparison .compact-requirements [data-constraint]').length"),bundle.sites.length*8,'Every original/delayed compared site must show the same four rules.');
   assert(await evaluate("[...document.querySelectorAll('#option-comparison>article')].every(n=>{const r=n.getBoundingClientRect();return r.width>0&&r.left>=0&&r.right<=innerWidth})"),'Independent comparison cards must be visible without horizontal clipping.');
   await screenshot('compare-desktop');
   await evaluate("document.querySelector('#comparison-view-B').click()");
@@ -370,14 +379,66 @@ try{
       }
     }
   }
+  // Additional dates use the real expanded cache, never shifted November fixtures.
+  const extendedDates=['2026-12-31T18:00:00Z','2027-07-01T06:00:00Z','2027-12-31T06:00:00Z']
+    .map(value=>Date.parse(value)/1000).filter(time=>time>=bundle.coverage[0]&&time+43200<=bundle.coverage[1]);
+  for(const [index,time]of extendedDates.entries()){
+    const site=bundle.sites[index%bundle.sites.length],started=await evaluate('performance.now()');
+    await evaluate(`document.querySelector('#verified-demo').click();document.querySelector('#visual-site').value=${JSON.stringify(site.id)};document.querySelector('#visual-site').dispatchEvent(new Event('change'));document.querySelector('#visual-arrival').value=${JSON.stringify(inputUtc(time))};document.querySelector('#visual-date-go').click()`);
+    await until(async()=>{const frame=await inspect();return frame.siteId===site.id&&frame.time===time;});
+    const elapsed=await evaluate('performance.now()')-started;
+    const expectedInputs={...communicationDemo(bundle),siteId:site.id,nominal:time,earliest:bundle.coverage[0],latest:bundle.coverage[1]-43200};
+    const expectedPlan=evaluateStart(bundle,expectedInputs,site.id,time);
+    assert.equal(await evaluate("document.querySelector('#story-status').textContent"),expectedPlan.status);
+    assert.match(await evaluate("document.querySelector('#story-date').textContent"),new RegExp(String(new Date(time*1000).getUTCFullYear())));
+    const record=await download('extended-'+index);checkCertificate(record,expectedPlan,'nominal');
+    assert.equal(record.data_bundle_hash,bundle.manifest.bundleSha256);
+    assert.equal(record.inputs.earliest,expectedInputs.earliest);assert.equal(record.inputs.latest,expectedInputs.latest,'Candidate bounds must not rewrite the allowed schedule.');
+    const arrival=await evaluate("document.querySelector('#visual-arrival').value");
+    await evaluate("document.querySelector('#hero-time').value=1;document.querySelector('#hero-time').dispatchEvent(new Event('input'))");
+    assert.equal((await inspect()).time,time+1800);
+    assert.equal(await evaluate("document.querySelector('#visual-arrival').value"),arrival,'Extended-date scrubbing must not change the evaluated arrival.');
+    await screenshot('extended-date-'+index);
+    extendedBrowserEvidence.push({siteId:site.id,startUtc:new Date(time*1000).toISOString(),status:expectedPlan.status,inputToSceneStateMs:elapsed});
+  }
+  if(extendedDates.length){
+    const first=extendedDates[0],second=extendedDates.at(-1),beforeCompare=(await inspect()).time;
+    await evaluate("document.querySelector('#product-compare').click()");
+    await evaluate(`document.querySelector('#comparison-arrival-A').value=${JSON.stringify(inputUtc(first))};document.querySelector('#comparison-arrival-A').dispatchEvent(new Event('change'));document.querySelector('#comparison-arrival-B').value=${JSON.stringify(inputUtc(second))};document.querySelector('#comparison-arrival-B').dispatchEvent(new Event('change'))`);
+    assert.equal(await evaluate("Number(document.querySelector('#option-comparison [data-option=A]').dataset.start)"),first);
+    assert.equal(await evaluate("Number(document.querySelector('#option-comparison [data-option=B]').dataset.start)"),second);
+    assert.equal((await inspect()).time,beforeCompare,'Editing extended-date comparisons must leave the active scene unchanged.');
+    await screenshot('extended-compare');
+    await evaluate("document.querySelector('#comparison-view-A').click();document.querySelector('#product-compare').click();document.querySelector('#month-explorer').open=true");
+    const planBeforeMonth=await evaluate("document.querySelector('#visual-arrival').value+'|'+document.querySelector('#visual-site').value"),monthBefore=await evaluate("document.querySelector('#calendar-month').textContent");
+    await evaluate("document.querySelector('#calendar-next').click()");
+    assert.notEqual(await evaluate("document.querySelector('#calendar-month').textContent"),monthBefore);
+    assert.equal(await evaluate("document.querySelector('#visual-arrival').value+'|'+document.querySelector('#visual-site').value"),planBeforeMonth,'Calendar browsing must not change mission inputs.');
+    assert((await evaluate("[...document.querySelectorAll('.feasibility-cell')].map(n=>Number(n.dataset.start))")).every(time=>new Date(time*1000).getUTCFullYear()===2027),'Calendar navigation must cross the year boundary with correct dates.');
+    await screenshot('extended-calendar');
+    const allCacheStarted=await evaluate('performance.now()');
+    await evaluate("document.querySelector('#product-explore').click();document.querySelector('#hero-scope-month').click()");
+    const fullScene=await inspect(),fullSite=bundle.sites.find(site=>site.id===fullScene.siteId);
+    const fullSampleCount=fullSite.geometry.filter(row=>row[0]>=bundle.coverage[0]&&row[0]<bundle.coverage[1]).length;
+    extendedPlaybackEvidence={sampleCount:fullSampleCount,fullCacheInteractionMs:await evaluate('performance.now()')-allCacheStarted};
+    assert.equal(Number(await evaluate("document.querySelector('#hero-time').max")),fullSampleCount-1,'The full-cache scrubber must expose every actual cached sample in the half-open range.');
+    await evaluate("document.querySelector('#hero-time').value=document.querySelector('#hero-time').max;document.querySelector('#hero-time').dispatchEvent(new Event('input'))");
+    assert((await inspect()).time<bundle.coverage[1],'Full-cache playback must retain the exclusive end.');
+    assert.equal(await evaluate("document.querySelector('#visual-arrival').value+'|'+document.querySelector('#visual-site').value"),planBeforeMonth);
+    await evaluate("document.querySelector('#hero-scope-stay').click();document.querySelector('#find-opportunities').click()");
+    await until(()=>evaluate("document.querySelector('#landing-opportunities').getAttribute('aria-busy')==='false'&&!document.querySelector('#landing-opportunities').hidden"));
+    assert(['PASS_FOUND','NO_PASS','UNRESOLVED'].includes(await evaluate("document.querySelector('#landing-opportunities').dataset.kind")),'A fully covered extended request must distinguish actual failed/unresolved candidates from missing data.');
+    if(bundle.coverage[1]-43200-first>30*86400)assert.match(await evaluate("document.querySelector('#opportunities-basis').textContent"),/later dates remain unsearched/i);
+    await screenshot('extended-opportunities');
+  }
   // Custom planning is separate from a delayed same-site recovery.
   await evaluate("document.querySelector('#solar-demo').click();document.querySelector('#product-explore').click();document.querySelector('#visual-arrival').value='2026-11-17T03:00:00';document.querySelector('#visual-date-go').click()");
-  assert.equal(await evaluate("Date.parse(document.querySelector('#latest').value+'Z')"),Date.parse('2026-11-30T12:00:00Z'),'A custom arrival must not inherit the solar teaching preset\'s Nov7 cap.');
+  assert.equal(await evaluate("Date.parse(document.querySelector('#latest').value+'Z')"),(bundle.coverage[1]-12*3600)*1000,'A custom arrival must not inherit the solar teaching preset\'s Nov7 cap.');
   await evaluate("document.querySelector('#verified-demo').click();document.querySelector('#visual-arrival').value='2026-11-17T03:00:00';document.querySelector('#visual-date-go').click();document.querySelector('#find-opportunities').click()");
   await until(()=>evaluate("document.querySelector('#landing-opportunities').dataset.kind==='PASS_FOUND'"));
   assert.equal(await evaluate("document.querySelector('#delay').value"),'72','The new-arrival search must not alter the original delay demo.');
   assert.equal(await evaluate("Number(document.querySelector('#opportunity-options [data-status=PASS]').dataset.start)"),Date.parse('2026-11-17T03:00Z')/1000);
-  assert.equal(await evaluate("document.querySelectorAll('#opportunity-options article').length"),3);
+  assert.equal(await evaluate("document.querySelectorAll('#opportunity-options article').length"),bundle.sites.length);
   await evaluate("document.querySelector('#landing-opportunities').scrollIntoView({block:'start',behavior:'instant'})");await screenshot('opportunities-pass-desktop');
   const viewed=await evaluate("(()=>{const c=document.querySelector('#opportunity-options [data-status=PASS]');return {site:c.dataset.site,start:Number(c.dataset.start)}})()");
   await evaluate("document.querySelector('#opportunity-options [data-status=PASS] button').click()");
@@ -391,14 +452,17 @@ try{
   await until(()=>evaluate("document.querySelector('#landing-opportunities').dataset.kind==='SCHEDULE_EMPTY'"));
   assert.equal(await evaluate("Date.parse(document.querySelector('#latest').value+'Z')"),Date.parse('2026-11-04T06:00:00Z'),'Explicitly edited schedule limits must remain fixed.');await screenshot('opportunities-schedule-excluded-desktop');
   await evaluate("document.querySelector('#verified-demo').click();document.querySelector('#visual-duration').value=6;document.querySelector('#visual-arrival').value='2026-11-30T18:00:00';document.querySelector('#visual-date-go').click()");
-  assert.equal(await evaluate("Date.parse(document.querySelector('#latest').value+'Z')"),Date.parse('2026-11-30T18:00:00Z'));
-  await evaluate("document.querySelector('#verified-demo').click();document.querySelector('#visual-arrival').value='2026-12-02T00:00:00';document.querySelector('#visual-date-go').click();document.querySelector('#find-opportunities').click()");
+  assert.equal(await evaluate("Date.parse(document.querySelector('#latest').value+'Z')"),(bundle.coverage[1]-6*3600)*1000);
+  await evaluate(`document.querySelector('#verified-demo').click();document.querySelector('#visual-arrival').value=${JSON.stringify(inputUtc(outsideArrival))};document.querySelector('#visual-date-go').click();document.querySelector('#find-opportunities').click()`);
   await until(()=>evaluate("document.querySelector('#landing-opportunities').dataset.kind==='NO_DATA'"));
   assert.equal(await evaluate("document.querySelectorAll('#opportunity-options article').length"),0);await screenshot('opportunities-no-data-desktop');
-  await evaluate("document.querySelector('#verified-demo').click();document.querySelector('#visual-duration').value=800;document.querySelector('#visual-date-go').click();document.querySelector('#find-opportunities').click()");
+  assert.match(await evaluate("document.querySelector('#any-site-result').textContent"),/outside the cached date range/);
+  assert.equal(await evaluate("document.querySelectorAll('#any-site-result .any-site-body').length"),0,'Other-location angles must not clamp an unsupported time to the last cached direction.');
+  assert.equal(await evaluate("getComputedStyle(document.querySelector('.any-site-playhead')).display"),'none','The level-horizon chart must not retain a stale playhead outside coverage.');
+  await evaluate(`document.querySelector('#verified-demo').click();document.querySelector('#visual-duration').value=${unsupportedDurationHours};document.querySelector('#visual-date-go').click();document.querySelector('#find-opportunities').click()`);
   await until(()=>evaluate("document.querySelector('#landing-opportunities').dataset.kind==='NO_DATA'"));
-  assert.equal(await evaluate("document.querySelector('#duration').value"),'800','An unsupported long duration must remain unchanged and receive a coverage explanation.');
-  await evaluate("document.querySelector('#nominal').value='2026-12-02T00:00:00';document.querySelector('#latest').value='2026-12-10T00:00:00';document.querySelector('#time-scope').value='mission';document.querySelector('#evaluate').click()");
+  assert.equal(await evaluate("Number(document.querySelector('#duration').value)"),unsupportedDurationHours,'An unsupported long duration must remain unchanged and receive a coverage explanation.');
+  await evaluate(`document.querySelector('#nominal').value=${JSON.stringify(inputUtc(outsideArrival))};document.querySelector('#latest').value=${JSON.stringify(inputUtc(outsideArrival+8*86400))};document.querySelector('#time-scope').value='mission';document.querySelector('#evaluate').click()`);
   info=await inspect();assert.equal(info.sun.visible,false);assert.equal(info.earth.visible,false);
   assert(await evaluate("document.querySelector('#hero-play').disabled"));
   await evaluate("document.querySelector('#verified-demo').click()");
@@ -462,7 +526,8 @@ try{
   await writeFile(resolve(work,'verification.json'),JSON.stringify({viewports:[[1024,768],[1366,768],[1440,900],[390,840]],
     defaultMode:'environment-without-requirements',optionalExampleInitialStatus:'PASS',delayedStatus:'FAIL',recoveredStatus:'PASS',certificateRoles:['nominal','delayed','recommended','cross-site alternative'],
     invalidArrivalRejected:true,exportSelectionRace:true,allSiteVisibilityGates:true,noExternalRequests:true,customOpportunitySearch:true,automaticAndExplicitSchedules:true,opportunityCertificateIdentity:true,ordinaryWheelZoomAndPageScrollOutsideCanvas:['orbital','surface'],keyboardZoom:['orbital','surface'],surfaceTouchPinch:true,
-    webglFallback:true,missingBundleError:true,physicalDevice:false,humanComprehension:false,
+    webglFallback:true,missingBundleError:true,physicalDevice:false,humanComprehension:false,extendedBrowserEvidence,extendedPlaybackEvidence,
+    dataBundlePayloadSha256:bundle.manifest.bundleSha256,coverageUtc:bundle.coverage.map(time=>new Date(time*1000).toISOString()),siteIds:bundle.sites.map(site=>site.id),
     browser:await command('Browser.getVersion'),performance:performanceEvidence},null,2));
   console.log(`3D experience passed: textured GPU Moon/Earth, real DEM meshes, camera controls, PASS/FAIL/PASS story, all-site obstruction gating, lazy/offline assets, mobile, reduced motion and lost/absent WebGL fallback. Evidence: ${work}`);
 }finally{socket?.close();browser.kill();server.close();}

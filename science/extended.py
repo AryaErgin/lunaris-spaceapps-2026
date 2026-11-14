@@ -7,6 +7,7 @@ never replaced by a level horizon or derived by decimating one another.
 
 import argparse
 import json
+import platform
 from copy import deepcopy
 from datetime import date, datetime, timezone
 from hashlib import sha256
@@ -14,11 +15,47 @@ from math import isfinite
 from pathlib import Path
 
 import numpy as np
+import pyproj
+import rasterio
+import spiceypy
 
 from science.build import END, START, _bounds_report, _canonical, _site, _write_bundle
-from science.ephemerides import CORRECTION, FRAME, Ephemeris
+from science.ephemerides import CORRECTION, FILES, FRAME, HORIZONS_LIMIT_DEG, Ephemeris
 from science.sources import SITES, clone_manifest, source_manifest
 from science.terrain import Skyline, build_skyline
+
+STABLE_RELEASE_COMMIT = '0d369047320ad3d3570f70bf2eeaf9249565a59c'
+REFERENCE_FILES = {
+    'bundle.json': '67f898ff38f66c0feb8bff7196aa78ed060dd609801dce0aca7a8927d2cc05c6',
+    'height-study.json': 'fe3483b709815469f2443f679613b74507c0b360ccc3c76c4238dfe14a2edfcf',
+    'position-study.json': '2fea836eae76cae441d316d1eac426b1a2c97f273d2e29def4e3690ba0dac133',
+    'terrain-study.json': 'bcaddff0bc500c1288376bf354bdf5d059f440c3ddf58c97f944fce7417019e0',
+}
+
+
+def load_reference(path):
+    """Accept only the preserved stable release, not a self-declared baseline."""
+    path = Path(path)
+    content = path.read_bytes()
+    if path.name not in REFERENCE_FILES or sha256(content).hexdigest() != REFERENCE_FILES[path.name]:
+        raise ValueError('The preserved reference differs from the immutable stable release fingerprint')
+    value = json.loads(content)
+    manifest = deepcopy(value['manifest'])
+    expected = manifest.pop('bundleSha256')
+    manifest.pop('bundleHashConvention')
+    if sha256(_canonical(value | {'manifest': manifest})).hexdigest() != expected:
+        raise ValueError('The stable reference payload fingerprint does not match')
+    return value
+
+
+def runtime_versions():
+    return {'engine': '1.1.0', 'python': platform.python_version(), 'numpy': np.__version__,
+            'rasterio': rasterio.__version__, 'gdal': rasterio.__gdal_version__,
+            'pyproj': pyproj.__version__, 'spiceypy': spiceypy.__version__}
+
+
+def scenario_audit_id(kind, scenario):
+    return 'de-gerlache-rim-' + kind + '-' + scenario['id'].replace('+', 'plus').replace('-', 'minus')
 
 
 def calendar_periods(start, end):
@@ -107,7 +144,8 @@ def cached_skylines(raw, row, height, local_path, cache_dir, source_hashes):
     identity = {'row': row, 'heightM': height, 'localFile': local_name,
                 'localSha256': source_hashes[local_name],
                 'regionalSha256': source_hashes['LDEM_80S_80MPP_ADJ.TIF'],
-                'terrainCode': code_hashes()['terrain.py'], 'settings': [[1800, 200000], [3600, 240000]]}
+                'terrainCode': code_hashes()['terrain.py'], 'settings': [[1800, 200000], [3600, 240000]],
+                'runtimeVersions': runtime_versions()}
     signature = _signature(identity)
     path = cache_dir / f'sky-{row[0]}-{signature[:20]}.npz'
     if path.is_file():
@@ -150,6 +188,7 @@ def build_site_period(raw, ephemeris, row, start, end, cache_dir, sources, *, he
     for left, right in calendar_periods(start, end):
         signature = _signature({'terrain': terrain_signature, 'range': [left, right],
                                 'plot': include_plot, 'code': numerical_code,
+                                'runtimeVersions': runtime_versions(),
                                 'kernels': {name: value for name, value in sources.items()
                                             if name.endswith(('.bsp', '.bpc', '.tf', '.tls'))}})
         label = datetime.fromtimestamp(left, timezone.utc).strftime('%Y-%m')
@@ -222,7 +261,7 @@ def assert_reference_parity(reference, sites):
                         'coarse/fine Sun/Earth intervals', 'all 30-minute geometry rows']}
 
 
-def _validated_reports(domain_path, horizons_path, start, end, sites):
+def _validated_reports(domain_path, horizons_path, start, end, sites, *, expected_kernel_hashes=None):
     domain, horizons = (json.loads(path.read_bytes()) for path in (domain_path, horizons_path))
     if domain.get('status') != 'PASS' or horizons.get('status') != 'PASS':
         raise ValueError('Extended data require executed passing domain and Horizons checks')
@@ -230,6 +269,24 @@ def _validated_reports(domain_path, horizons_path, start, end, sites):
         raise ValueError('The sampled domain audit does not enclose the requested new dates')
     if domain.get('frame') != FRAME or domain.get('correction') != CORRECTION:
         raise ValueError('The domain audit uses a different observer frame or correction convention')
+    conventions = horizons.get('comparison_conventions', {})
+    if (conventions.get('lunar_spice_frame') != FRAME or conventions.get('spice_correction') != CORRECTION
+            or 'MEAN_ME' not in conventions.get('lunar_horizons_frame', '')
+            or 'AIRLESS' not in conventions.get('horizons_correction', '').upper()):
+        raise ValueError('Horizons frame or correction conventions differ from the calculation')
+    if horizons.get('angular_tolerance_deg') != HORIZONS_LIMIT_DEG:
+        raise ValueError('Horizons validation cannot relax the fixed angular tolerance')
+    maximum = horizons.get('max_angular_separation_deg', float('inf'))
+    if not isfinite(maximum) or maximum >= HORIZONS_LIMIT_DEG:
+        raise ValueError('Horizons maximum separation exceeds the fixed validation limit')
+    if expected_kernel_hashes is not None:
+        actual = {row['filename']: row['sha256'] for row in domain['kernels']}
+        if any(actual.get(name) != digest for name, digest in expected_kernel_hashes.items()):
+            raise ValueError('Domain validation kernel source hashes differ from the build')
+        for name in ('ephemerides.py', 'domain_validation.py'):
+            expected = sha256(Path(__file__).with_name(name).read_bytes()).hexdigest()
+            if domain.get('code_sha256', {}).get(name) != expected:
+                raise ValueError('Domain validation code source hashes differ from the executed build')
     horizon_ids = {entry['site_id'] for entry in horizons['references']}
     domain_ids = {entry['site_id'] for entry in domain['sites']}
     if not {site['id'] for site in sites} <= horizon_ids & domain_ids:
@@ -249,6 +306,8 @@ def _validated_reports(domain_path, horizons_path, start, end, sites):
             epochs = [epoch_date(sample['utc']) for sample in record['samples']]
             if not epochs or min(epochs) > start or max(epochs) < end:
                 raise ValueError(f'Horizons comparison epochs do not span the extended dates: {site["id"]}')
+            if any(not isfinite(sample['separation_deg']) or sample['separation_deg'] >= HORIZONS_LIMIT_DEG for sample in record['samples']):
+                raise ValueError(f'A Horizons direction fails the fixed angular validation limit: {site["id"]}')
     return domain, horizons
 
 
@@ -260,7 +319,7 @@ def epoch_date(value):
 
 
 def build_extended(args):
-    reference = json.loads(args.reference.read_bytes())
+    reference = load_reference(args.reference)
     if reference['coverage'] != [START, END]:
         raise ValueError('The reference must be the exact November release, not a previous expansion')
     start, end = epoch_date(args.start), epoch_date(args.end)
@@ -276,10 +335,25 @@ def build_extended(args):
             validate_extended_site,
         )
         from science.extended_sites import source_manifest as extra_sources
-        validate_extended_site(args.raw)
+        extra_descriptor = validate_extended_site(args.raw)
         rows.extend(EXTENDED_SITES)
         sources.extend(extra_sources(args.raw))
     hashes = {source['filename']: source['sha256'] for source in sources + clone_sources}
+    overlays = {kind: load_reference(args.reference.parent / f'{kind}-study.json')
+                for kind in ('height', 'position', 'terrain')}
+    descriptors = deepcopy(reference['sites'])
+    if args.additional_site:
+        descriptors.append({**extra_descriptor, 'id': extra_descriptor['siteId'], 'referenceRadiusM': 1737400.})
+    nominal = next(site for site in descriptors if site['id'] == 'de-gerlache-rim')
+    for kind, overlay in overlays.items():
+        for scenario in overlay['scenarios']:
+            if not scenario.get('baseline'):
+                descriptors.append({'id': scenario_audit_id(kind, scenario),
+                    'lat': scenario.get('lat', nominal['lat']), 'lon': scenario.get('lon', nominal['lon']),
+                    'heightM': scenario['heightM'], 'groundM': scenario.get('groundM', nominal['groundM']),
+                    'referenceRadiusM': nominal['referenceRadiusM']})
+    domain, horizons = _validated_reports(args.domain_validation, args.horizons_validation, start, end, descriptors,
+                                          expected_kernel_hashes={name: hashes[name] for name in FILES})
     args.cache.mkdir(parents=True, exist_ok=True)
     with Ephemeris(args.raw) as ephemeris:
         coverage = ephemeris.assert_coverage(start, end)
@@ -289,13 +363,13 @@ def build_extended(args):
                 if site['id'] in SITE_METADATA:
                     site.update(SITE_METADATA[site['id']])
         parity = assert_reference_parity(reference, sites)
-        domain, horizons = _validated_reports(args.domain_validation, args.horizons_validation, start, end, sites)
         manifest = deepcopy(reference['manifest'])
         for key in ('bundleSha256', 'bundleHashConvention'):
             manifest.pop(key, None)
-        manifest.update(engineCommit=args.engine_commit, version='1.1.0', files=sources,
+        manifest.update(engineCommit=args.engine_commit, version='1.1.0', files=sources, versions=runtime_versions(),
                         aiUse='OpenAI Codex and Anthropic Claude assisted research, implementation, verification and writing under human team members Arya Ergin and Aras. Deterministic calculations; no runtime AI.')
-        manifest['frame']['ephemeris'] = coverage['kernel_coverage'] if 'kernel_coverage' in coverage else ephemeris.coverage()
+        manifest['frame']['ephemeris'] = coverage['kernel_intervals']
+        manifest['validation']['kernelReceptionCoverage'] = coverage
         manifest['validation']['horizons'] = horizons
         manifest['validation']['motionDomain'] = domain
         manifest['validation']['extendedCoverage'] = {'coverage': [start, end], 'partitions': calendar_periods(start, end),
@@ -317,7 +391,7 @@ def build_extended(args):
         studies = {}
         base_row = next(row for row in rows if row[0] == 'de-gerlache-rim')
         for kind in ('height', 'position', 'terrain'):
-            old = json.loads((args.reference.parent / f'{kind}-study.json').read_bytes())
+            old = overlays[kind]
             study = deepcopy(old)
             study['coverage'] = [start, end]
             for scenario, old_scenario in zip(study['scenarios'], old['scenarios'], strict=True):
@@ -335,9 +409,13 @@ def build_extended(args):
                 for target in ('sun', 'earth'):
                     if _clip(scenario[target], START, END) != old_scenario[target]:
                         raise ValueError(f'November finite-configuration parity changed: {kind}/{scenario["id"]}/{target}')
+                    for level in ('coarse', 'fine'):
+                        if _clip(scenario['refinementIntervals'][target][level], START, END) != old_scenario['refinementIntervals'][target][level]:
+                            raise ValueError(f'November finite-refinement parity changed: {kind}/{scenario["id"]}/{target}/{level}')
             study['manifest'].update(baselineBundleSha256=bundle['manifest']['bundleSha256'],
                                       generatorCommit=args.engine_commit, extendedDomainAudit=args.domain_validation.name,
                                       aiUse=manifest['aiUse'], frame=manifest['frame'],
+                                      versions=runtime_versions(),
                                       extendedCodeSha256=code_hashes())
             for key in ('bundleSha256', 'bundleHashConvention'):
                 study['manifest'].pop(key, None)

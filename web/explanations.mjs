@@ -6,7 +6,7 @@ export function conciseDuration(seconds){
 }
 
 export function visibilityConclusion(metrics,duration,{complete=true}={}){
-  if(!complete)return {headline:'This view extends beyond the available data',reason:'Choose an arrival and duration inside the November coverage. Missing time is not evidence of favorable or unfavorable conditions.'};
+  if(!complete)return {headline:'This view extends beyond the available data',reason:'Choose an arrival and duration inside the displayed cached coverage. Missing time is not evidence of favorable or unfavorable conditions.'};
   const [lo,hi]=metrics.joint.visibleRangeSeconds;
   const earth=metrics.earth.longestBlockedRangeSeconds[0],sun=metrics.sun.longestBlockedRangeSeconds[0];
   const reason=earth>=duration?'Earth is blocked by terrain for the full view.'
@@ -42,7 +42,7 @@ export function comparisonConclusion(options,expectedCount=options.length){
 }
 
 export function opportunityConclusion(report,siteName){
-  if(report.kind==='NO_DATA')return 'No complete view fits the available November data. Choose a covered arrival or a shorter duration.';
+  if(report.kind==='NO_DATA')return 'No complete view fits the available cached data. Choose a covered arrival or a shorter duration.';
   if(report.kind==='SCHEDULE_EMPTY')return 'No eligible start fits your allowed schedule. Edit the allowed dates to search further.';
   if(report.kind==='UNRESOLVED')return 'The data do not establish simultaneous visibility on this grid. Possible opportunities remain unresolved.';
   if(report.kind==='NO_JOINT')return 'No simultaneous Sun and Earth visibility occurs in the checked views.';

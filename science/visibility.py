@@ -6,8 +6,10 @@ import numpy as np
 
 from science.ephemerides import azimuth_elevation
 
-# Model domain is restricted to November 2026. Bounds allow for lunar
-# rotation plus target inertial motion, parallax and reception corrections.
+# The frozen release establishes November 2026. Extended builders must supply
+# explicit domain/rate evidence before accepting additional dates. This ceiling
+# allows for lunar rotation, inertial motion, parallax and reception corrections;
+# checking sampled rates alone is not a continuous between-sample proof.
 RATE_DEG_PER_S = 0.03 / 60
 EARTH_RADIUS_MIN_KM = 6356.75
 EARTH_RADIUS_MAX_KM = 6378.137

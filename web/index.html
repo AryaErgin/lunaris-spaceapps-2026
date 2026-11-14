@@ -58,11 +58,11 @@
         <div class="scene-site-picker">
           <div class="site-label-row"><label for="visual-site">Landing site <span>Study coordinates</span></label><button id="more-sites" class="link-button" type="button">Apollo, CLPS, custom ↓</button></div>
           <select id="visual-site" disabled aria-describedby="visual-site-detail"></select>
-          <p id="visual-site-detail">Three supported south-pole study points.</p>
-          <label for="visual-arrival">Arrival <span>UTC · November 2026 only</span></label>
+          <p id="visual-site-detail">Supported south-pole study points.</p>
+          <label for="visual-arrival">Arrival <span id="visual-coverage">UTC · cached dates loading</span></label>
           <div class="visual-date-controls"><input id="visual-arrival" type="datetime-local" step="1"><label class="visual-duration-field" for="visual-duration">Hours<input id="visual-duration" type="number" min="0.001" step="any" value="12" aria-label="Mission duration in hours"></label><button id="visual-date-go" class="outline" type="button" hidden tabindex="-1" aria-hidden="true">Apply</button></div>
           <button id="find-opportunities" class="primary find-opportunities" type="button" disabled>Find landing opportunities</button>
-          <p class="opportunity-scope" id="opportunity-scope">Compare confirmed Sun + Earth time at three study points</p>
+          <p class="opportunity-scope" id="opportunity-scope">Compare confirmed Sun + Earth time at the supported study points</p>
           <label class="assessment-toggle"><input id="apply-requirements" type="checkbox"> <span id="assessment-label">Evaluate illustrative mission requirements</span></label>
           <details id="mission-requirements-editor" class="mission-requirements-editor"><summary>Edit optional mission requirements</summary>
             <p>These are user-editable assumptions, not NASA specifications. All values are hours.</p>
@@ -81,7 +81,7 @@
           <button id="focus-terrain" type="button">Explore terrain</button>
         </div>
         <figure id="earth-inset" class="earth-inset" hidden><img src="./assets/earth-inset.jpg" loading="lazy" alt="Historical NASA Blue Marble globe composite; the geographic face is not registered to the simulated time."><figcaption>Historical Blue Marble composite.<br>Face unregistered; not current weather.</figcaption><button id="close-earth-inset" type="button" aria-label="Close Earth image inset">×</button></figure>
-        <div class="scene-caption"><span id="scene-mode-label">NASA LRO / ORBITAL EXPLORATION</span><span id="scene-clock">NOVEMBER 2026 · OFFLINE EVIDENCE</span></div>
+        <div class="scene-caption"><span id="scene-mode-label">NASA LRO / ORBITAL EXPLORATION</span><span id="scene-clock">OFFLINE EVIDENCE</span></div>
       </div>
       <div class="experience-status">
         <p id="scene-status" role="status">Loading the locally bundled NASA Moon model…</p>
@@ -93,12 +93,12 @@
           <button id="hero-pause" class="outline" type="button">Pause</button>
           <button id="hero-reset" class="outline" type="button">Reset</button>
           <button id="guide-open" class="outline" type="button" hidden>Landing-delay story</button>
-          <div class="hero-scope" role="group" aria-label="Playback range"><button id="hero-scope-stay" type="button" aria-pressed="true">This stay</button><button id="hero-scope-month" type="button" aria-pressed="false">Whole month</button></div>
+          <div class="hero-scope" role="group" aria-label="Playback range"><button id="hero-scope-stay" type="button" aria-pressed="true">This stay</button><button id="hero-scope-month" type="button" aria-pressed="false">All cached dates</button></div>
           <label for="hero-speed">Speed <select id="hero-speed"><option value="1">30 min/s</option><option value="4" selected>2 h/s</option><option value="12">6 h/s</option><option value="48">24 h/s</option></select></label>
         </div>
         <input id="hero-time" type="range" min="0" max="1" step="1" value="0" aria-label="Move through the selected stay. This does not change your arrival.">
         <div class="hero-time-ends"><span id="hero-time-start">Arrival</span><output id="hero-time-label" for="hero-time"></output><span id="hero-time-end">End of stay</span></div>
-        <p id="hero-scope-note" class="hero-scope-note" hidden>One lunar day in about 30 seconds. At the pole the Sun circles low around the horizon, while Earth stays in one part of the sky.</p>
+        <p id="hero-scope-note" class="hero-scope-note" hidden>Playback covers the cached date range at the selected speed. At the pole the Sun circles low around the horizon.</p>
         <div id="hero-visibility" class="hero-visibility" aria-label="Sun and Earth at the time shown"></div>
       </div>
       <section id="mission-story" class="mission-story" aria-labelledby="story-title" hidden>
@@ -144,18 +144,18 @@
         <div id="any-site-result" class="any-site-result" role="status"></div>
         <figure class="any-site-figure">
           <div class="any-site-plot"><span class="any-site-axis top">90° overhead</span><span class="any-site-axis middle">0° level horizon</span><span class="any-site-axis bottom">−90°</span>
-            <svg id="any-site-chart" viewBox="0 0 1000 200" preserveAspectRatio="none" role="img" aria-label="Elevation of the Sun and Earth across November 2026 at the chosen site"></svg></div>
-          <div class="any-site-days" aria-hidden="true"><span>1 Nov</span><span>8 Nov</span><span>15 Nov</span><span>22 Nov</span><span>1 Dec</span></div>
-          <figcaption><span class="any-site-key sun">Sun</span><span class="any-site-key earth">Earth</span><span id="any-site-study-key" class="any-site-key dashed" hidden></span>Height above the level horizon through November 2026, about one lunar day. The vertical line is the time shown above.</figcaption>
+            <svg id="any-site-chart" viewBox="0 0 1000 200" preserveAspectRatio="none" role="img" aria-label="Elevation of the Sun and Earth across the cached dates at the chosen site"></svg></div>
+          <div id="any-site-days" class="any-site-days" aria-hidden="true"></div>
+          <figcaption><span class="any-site-key sun">Sun</span><span class="any-site-key earth">Earth</span><span id="any-site-study-key" class="any-site-key dashed" hidden></span><span id="any-site-range-note">Height above the level horizon across the cached dates. The vertical line is the time shown above.</span></figcaption>
         </figure>
         <p id="any-site-contrast" class="any-site-contrast"></p>
-        <p class="any-site-note">Level-horizon geometry only. Hills and crater rims can hide a low Sun or Earth sooner, so this is not a visibility result. Terrain-aware visibility is calculated only for the three south-pole study points. Earth’s direction is accurate to about 0.05°. <a id="any-site-source" href="#" target="_blank" rel="noopener">Coordinate source ↗</a></p>
+        <p class="any-site-note">Level-horizon geometry only. Hills and crater rims can hide a low Sun or Earth sooner, so this is not a visibility result. Terrain-aware visibility is calculated only for the listed south-pole study points. Earth’s direction is accurate to about 0.05°. <a id="any-site-source" href="#" target="_blank" rel="noopener">Coordinate source ↗</a></p>
       </details>
-      <details class="visual-disclosure"><summary>Model limits, NASA sources and visual approximations</summary><p>Visibility is geometry, not measured electrical power or a working radio link. The reduced NASA LOLA surface extends 32 km; more distant ridges use the calculated nominal skyline projected at an artificial 200 km distance. That curtain and local mesh are display geometry, not the uncertainty bounds used to decide a mission. Sun and Earth centers follow cached 30-minute azimuth/elevation samples. In surface view, bodies are hidden unless retained, coarse and fine intervals all confirm visibility; this does not model the complete solar or Earth disc. Fixed approximate diameters are 0.53° and 1.9°. Earth’s approximate lit phase follows the cached Sun direction; its historical cloud-free NASA texture and geographic face are not registered to the simulated time. Surface brightness uses a Lommel–Seeliger regolith approximation with restrained procedural display grain that adds no relief. Direct light is withheld when Sun-center visibility is blocked or unresolved at the observer; otherwise it shades slopes by orientation. This display gate is not a full-disc illumination or terrain-cast-shadow calculation. A faint artificial fill preserves silhouettes. Optional Night assist adds labeled artificial light for inspection; neither models Earthshine or calibrated night brightness. In orbital view the Sun and Earth sit in their computed directions at fixed approximate angular sizes with schematic distances. Sun focus uses optical zoom, preserving its 0.53-degree disc. Camera zoom changes field of view, not observer height or sky angles. Rocks, landing hazards, power, thermal safety and radio hardware are not modeled. Only three study points and November 2026 have validated cached calculations. NASA sources and hashes are available in Advanced.</p></details>
+      <details class="visual-disclosure"><summary>Model limits, NASA sources and visual approximations</summary><p>Visibility is geometry, not measured electrical power or a working radio link. The reduced NASA LOLA surface extends 32 km; more distant ridges use the calculated nominal skyline projected at an artificial 200 km distance. That curtain and local mesh are display geometry, not the uncertainty bounds used to decide a mission. Sun and Earth centers follow cached 30-minute azimuth/elevation samples. In surface view, bodies are hidden unless retained, coarse and fine intervals all confirm visibility; this does not model the complete solar or Earth disc. Fixed approximate diameters are 0.53° and 1.9°. Earth’s approximate lit phase follows the cached Sun direction; its historical cloud-free NASA texture and geographic face are not registered to the simulated time. Surface brightness uses a Lommel–Seeliger regolith approximation with restrained procedural display grain that adds no relief. Direct light is withheld when Sun-center visibility is blocked or unresolved at the observer; otherwise it shades slopes by orientation. This display gate is not a full-disc illumination or terrain-cast-shadow calculation. A faint artificial fill preserves silhouettes. Optional Night assist adds labeled artificial light for inspection; neither models Earthshine or calibrated night brightness. In orbital view the Sun and Earth sit in their computed directions at fixed approximate angular sizes with schematic distances. Sun focus uses optical zoom, preserving its 0.53-degree disc. Camera zoom changes field of view, not observer height or sky angles. Rocks, landing hazards, power, thermal safety and radio hardware are not modeled. <span id="visual-supported-scope">Only the listed study points and cached dates have evaluated terrain-aware calculations.</span> NASA sources and hashes are available in Advanced.</p></details>
     </section>
 
     <section id="landing-opportunities" class="container landing-opportunities" aria-labelledby="opportunities-title" hidden>
-      <div class="section-head"><div><p class="eyebrow" id="opportunities-eyebrow">THREE STUDY SITES · NOVEMBER 2026</p><h2 id="opportunities-title">Landing opportunities</h2></div><button id="opportunity-limits" class="outline" type="button">Edit allowed dates and requirements</button></div>
+      <div class="section-head"><div><p class="eyebrow" id="opportunities-eyebrow">SUPPORTED STUDY SITES · CACHED DATES</p><h2 id="opportunities-title">Landing opportunities</h2></div><button id="opportunity-limits" class="outline" type="button">Edit allowed dates and requirements</button></div>
       <p id="opportunities-status" role="status"></p><p id="opportunities-basis" class="secondary"></p>
       <details class="search-evidence"><summary>How this search was evaluated</summary><p id="opportunities-counts"></p><p id="opportunities-ranking"></p></details>
       <div id="opportunity-options" class="opportunity-options"></div>
@@ -169,7 +169,7 @@
       <div id="option-comparison" class="option-comparison"></div>
       <div class="comparison-actions"><button id="add-comparison-option" class="outline" type="button">Add a third option</button><button id="remove-comparison-option" class="link-button" type="button" hidden>Remove third option</button><button id="compare-more-sites" class="link-button" type="button">Apollo, CLPS or a custom coordinate: Sun and Earth angles without terrain →</button></div>
 
-      <details id="month-explorer" class="month-explorer"><summary>Explore the month · daily start samples</summary><div id="comparison-panels"></div></details>
+      <details id="month-explorer" class="month-explorer"><summary>Explore the month · daily start samples</summary><div class="comparison-actions" role="group" aria-label="Calendar month"><button id="calendar-previous" class="outline" type="button" disabled>← Previous month</button><output id="calendar-month" aria-live="polite"></output><button id="calendar-next" class="outline" type="button" disabled>Next month →</button></div><div id="comparison-panels"></div></details>
     </section>
 
     <main id="top" class="container engineering" hidden>
@@ -248,7 +248,7 @@
                 <input id="earliest" name="earliest" type="datetime-local" step="1">
                 <label for="latest">Latest allowable start <span>UTC</span></label>
                 <input id="latest" name="latest" type="datetime-local" step="1">
-                <p id="schedule-origin" class="field-hint">Preset dates adjust to cached coverage when arrival or duration changes. Dates you edit here remain fixed.</p>
+                <p id="schedule-origin" class="field-hint">Preset dates adjust to cached coverage when arrival or duration changes. Dates you edit here remain fixed.</p><p id="automatic-search-note" class="field-hint">Interactive searches check at most 30 days at a time. Change arrival to search later dates; your allowed schedule and mission limits stay unchanged.</p>
                 <label for="grid">Alternative start grid <span>min</span></label>
                 <input id="grid" name="grid" type="number" min="1" step="1" required>
                 <label id="prelaunch-option" class="checkbox" hidden><input id="prelaunch" type="checkbox"> Compare other sites in prelaunch concept study</label>
@@ -330,7 +330,7 @@
           </section>
 
           <section id="compare" class="panel comparison" aria-labelledby="comparison-title">
-            <h2 id="comparison-title">Three sites. Identical mission requirements.</h2>
+            <h2 id="comparison-title">Supported sites. Identical mission requirements.</h2>
             <p class="secondary">Concept-study comparison only. Same planned start, delay, duration and constraints at every site. This does not authorize changing a launched mission's landing site.</p>
             <div id="site-comparison" class="comparison-grid"></div>
           </section>
