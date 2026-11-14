@@ -31,6 +31,7 @@
         <button id="expert-toggle" class="outline expert-toggle" type="button" aria-expanded="false" aria-controls="top" hidden>Analyst mode</button>
       </div>
     </header>
+    <div class="product-purpose"><p>Choose a place and time on the Moon. See when sunlight and Earth are visible, compare locations, and find better landing opportunities.</p><p class="geometry-note">Geometric visibility does not prove electrical power, radio-link performance or landing safety.</p></div>
 
     <p id="workspace-notice" class="workspace-notice" role="status" hidden></p>
     <section id="experience" class="experience" aria-labelledby="experience-title">
@@ -55,11 +56,20 @@
           <label for="visual-site">Landing study point</label>
           <select id="visual-site" disabled aria-describedby="visual-site-detail"></select>
           <p id="visual-site-detail">Three supported south-pole study points.</p>
-          <label for="visual-arrival">Original arrival <span>UTC · November 2026 only</span></label>
+          <label for="visual-arrival">Arrival <span>UTC · November 2026 only</span></label>
           <div class="visual-date-controls"><input id="visual-arrival" type="datetime-local" step="1"><label class="visual-duration-field" for="visual-duration">Hours<input id="visual-duration" type="number" min="0.001" step="any" value="12" aria-label="Mission duration in hours"></label><button id="visual-date-go" class="outline" type="button">Apply</button></div>
           <button id="find-opportunities" class="primary find-opportunities" type="button" disabled>Find landing opportunities</button>
           <p class="opportunity-scope" id="opportunity-scope">Compare confirmed Sun + Earth time at three study points</p>
           <label class="assessment-toggle"><input id="apply-requirements" type="checkbox"> <span id="assessment-label">Evaluate illustrative mission requirements</span></label>
+          <details id="mission-requirements-editor" class="mission-requirements-editor"><summary>Edit optional mission requirements</summary>
+            <p>These are user-editable assumptions, not NASA specifications. All values are hours.</p>
+            <div class="requirement-edit-fields">
+              <label for="quick-max-sun">Maximum Sun outage<input id="quick-max-sun" type="number" min="0" step="any"></label>
+              <label for="quick-max-earth">Maximum Earth blockage<input id="quick-max-earth" type="number" min="0" step="any"></label>
+              <label for="quick-min-total">Minimum total overlap<input id="quick-min-total" type="number" min="0" step="any" placeholder="Optional"></label>
+              <label for="quick-min-continuous">Minimum continuous overlap<input id="quick-min-continuous" type="number" min="0" step="any" placeholder="Optional"></label>
+            </div><button id="apply-quick-requirements" class="outline" type="button">Apply these requirements</button><p id="quick-requirements-status" role="status"></p>
+          </details>
           <button id="start-delay-demo" class="link-button" type="button">Try the landing-delay example →</button>
         </div>
         <div id="surface-focus" class="surface-focus" role="group" aria-label="Surface camera direction" hidden>
@@ -82,7 +92,8 @@
           <button id="guide-open" class="outline" type="button" hidden>Landing-delay story</button>
           <label for="hero-speed">Speed <select id="hero-speed"><option value="1">30 min/s</option><option value="4" selected>2 h/s</option><option value="12">6 h/s</option><option value="48">24 h/s</option></select></label>
         </div>
-        <label class="scene-time-label" for="hero-time">Explore this mission <output id="hero-time-label" for="hero-time"></output></label>
+        <label class="scene-time-label" for="hero-time">View clock <output id="hero-time-label" for="hero-time"></output></label>
+        <p class="view-clock-help">Scrubbing changes the displayed instant, not your arrival or duration.</p>
         <input id="hero-time" type="range" min="0" max="1" step="1" value="0" aria-label="Explore cached mission time">
         <div id="hero-visibility" class="hero-visibility" aria-label="Authoritative visibility states"></div>
       </div>
@@ -115,7 +126,6 @@
         <p id="evidence-physical-reason" class="evidence-physical-reason"></p>
         <p id="recovery-choice" class="recovery-choice" hidden></p>
         <div class="visibility-definitions"><p><strong>Sun-center visibility:</strong> the Sun’s center clears terrain and is outside Earth’s apparent disc.</p><p><strong>Earth-center LOS:</strong> an unobstructed geometric line to Earth’s center.</p><p><strong>Joint visibility:</strong> both conditions hold at the same time.</p></div>
-        <p class="evidence-limit">These conditions do not calculate generated electrical power, radio-link availability, thermal survival or landing safety.</p>
       </section>
       <details class="visual-disclosure"><summary>Model limits, NASA sources and visual approximations</summary><p>Visibility is geometry, not measured electrical power or a working radio link. The reduced NASA LOLA surface extends 32 km; more distant ridges use the calculated nominal skyline projected at an artificial 200 km distance. That curtain and local mesh are display geometry, not the uncertainty bounds used to decide a mission. Sun and Earth centers follow cached 30-minute azimuth/elevation samples. In surface view, bodies are hidden unless retained, coarse and fine intervals all confirm visibility; this does not model the complete solar or Earth disc. Fixed approximate diameters are 0.53° and 1.9°. Earth’s approximate lit phase follows the cached Sun direction; its historical cloud-free NASA texture and geographic face are not registered to the simulated time. Surface brightness uses a Lommel–Seeliger regolith approximation with restrained procedural display grain that adds no relief. Direct light is withheld when Sun-center visibility is blocked or unresolved at the observer; otherwise it shades slopes by orientation. This display gate is not a full-disc illumination or terrain-cast-shadow calculation. A faint artificial fill preserves silhouettes. Optional Night assist adds labeled artificial light for inspection; neither models Earthshine or calibrated night brightness. In orbital view the Sun and Earth sit in their computed directions at fixed approximate angular sizes with schematic distances. Sun focus uses optical zoom, preserving its 0.53-degree disc. Camera zoom changes field of view, not observer height or sky angles. Rocks, landing hazards, power, thermal safety and radio hardware are not modeled. Only three study points and November 2026 have validated cached calculations. NASA sources and hashes are available in Advanced.</p></details>
     </section>
@@ -123,16 +133,17 @@
     <section id="landing-opportunities" class="container landing-opportunities" aria-labelledby="opportunities-title" hidden>
       <div class="section-head"><div><p class="eyebrow">SAME REQUIREMENTS · BEFORE LAUNCH</p><h2 id="opportunities-title">Landing opportunities</h2></div><button id="opportunity-limits" class="outline" type="button">Edit allowed dates and requirements</button></div>
       <p id="opportunities-status" role="status"></p><p id="opportunities-basis" class="secondary"></p>
+      <details class="search-evidence"><summary>How this search was evaluated</summary><p id="opportunities-counts"></p><p id="opportunities-ranking"></p></details>
       <div id="opportunity-options" class="opportunity-options"></div>
       <details id="opportunity-other" hidden><summary>Near misses and unresolved starts</summary><div id="opportunity-near-misses"></div></details>
-      <p class="opportunity-limit">Visibility windows do not establish a safe landing, spacecraft reachability, electrical power or a working radio link.</p>
+      <p class="opportunity-limit">Site changes are prelaunch concepts. A later surface window does not establish spacecraft reachability.</p>
     </section>
     <section id="compare-workspace" class="container compare-workspace" aria-labelledby="compare-workspace-title" hidden>
       <div class="section-head"><div><p class="eyebrow">Same requirements · independent arrivals</p><h1 id="compare-workspace-title">Which arrival works for this mission?</h1><p id="compare-input-summary" class="secondary"></p></div><button id="compare-return" class="outline" type="button">Return to Mission ↗</button></div>
       <div class="comparison-shared"><label for="comparison-duration">Shared mission duration <span>hours</span><input id="comparison-duration" type="number" min="0.001" step="any" value="12"></label><p id="comparison-shared-limits"></p><button id="comparison-edit-limits" class="link-button" type="button">Edit these requirements in Advanced ↗</button></div>
       <div id="option-comparison" class="option-comparison"></div>
       <div class="comparison-actions"><button id="add-comparison-option" class="outline" type="button">Add a third option</button><button id="remove-comparison-option" class="link-button" type="button" hidden>Remove third option</button></div>
-      <section class="comparison-difference" aria-labelledby="comparison-difference-title"><h2 id="comparison-difference-title">What is the difference?</h2><p id="comparison-difference"></p><p>Joint = both visibility conditions at once. Geometric center visibility does not establish electrical power or a working radio link. Cross-site options are prelaunch concepts.</p></section>
+      <section class="comparison-difference" aria-labelledby="comparison-difference-title"><h2 id="comparison-difference-title">What is the difference?</h2><p id="comparison-difference"></p><details class="comparison-context"><summary>What is being compared?</summary><p>Joint means both center-visibility conditions at once. Site changes are prelaunch concepts. The duration and any enabled requirements stay the same.</p></details></section>
       <details id="month-explorer" class="month-explorer"><summary>Explore the month · daily start samples</summary><div id="comparison-panels"></div></details>
     </section>
 
@@ -156,7 +167,15 @@
 
       <div id="load-error" class="notice" role="alert" hidden></div>
       <noscript><p class="notice">Enable JavaScript to evaluate landing windows and export a decision certificate.</p></noscript>
-
+      <section class="science-guide" aria-labelledby="science-guide-title">
+        <p class="eyebrow">Understand the science</p><h1 id="science-guide-title">How does LUNARIS know?</h1>
+        <details open><summary>1. How do we know where Sun and Earth are?</summary><p>NASA/JPL SPICE is a toolkit that uses published files of celestial positions and orientations, called kernels. It calculates the apparent directions of the Sun and Earth from the selected lunar surface observer. A lunar reference frame is the Moon-fixed coordinate system used to keep that observer and the terrain aligned.</p><p>We use MOON_ME_DE440_ME421 and record the kernel versions and hashes. A 24-direction comparison with JPL Horizons checks the direction calculation. Both use related JPL models, so their agreement does not independently validate the terrain.</p></details>
+        <details><summary>2. How does lunar terrain block visibility?</summary><p>NASA LRO/LOLA elevation grids describe the surrounding ground. We follow the curved Moon to estimate the highest terrain in each direction: the local horizon. Near the pole, the Sun grazes that horizon, so a ridge can hide its center even above a level horizon.</p><p>Terrain bounds are lower and upper skyline estimates under the adopted data model. The 5 m local and 80 m regional grids contain interpolation; their spacing is not physical accuracy. Missing terrain stays unknown. If a body lies between the bounds, we keep its visibility unresolved rather than assuming it is clear. The 3D display mesh does not decide visibility.</p></details>
+        <details><summary>3. What do the visibility durations mean?</summary><p>Sun-center visibility means the Sun’s center clears the terrain and Earth’s apparent disc. Earth-center line of sight means the modeled terrain does not block the direction to Earth’s center. Joint visibility means both conditions hold at once.</p><p>We add those intervals inside your arrival-to-end window. Total overlap may contain separate periods; continuous overlap is the longest uninterrupted one. A duration range retains unresolved time and differences between numerical refinements. It is not a statistical confidence interval. The view clock inspects an instant without changing the evaluated arrival or duration.</p></details>
+        <details><summary>4. How does the opportunity search choose dates?</summary><p>Every eligible start on the displayed UTC grid is evaluated at each supported study point, with the same duration and scheduling bounds. Without mission requirements, each site shows its largest confirmed joint-time minimum; an earlier sampled start breaks ties. Unresolved time may change the actual ordering.</p><p>With explicit requirements enabled, the engine seeks confirmed passing starts without relaxing any limit. A failed start breaks a selected rule; an indeterminate one lacks enough evidence. Schedule exclusion is separate from adverse terrain conditions. The hourly grid is a sampled search, not an exact continuous optimum, trajectory or guarantee that a spacecraft can reach a later opportunity.</p></details>
+        <details><summary>5. How reliable are the calculations?</summary><p>Numerical refinement repeats a calculation with different sampling settings. CONVERGED means the configured checks agree, not that every physical error is known. Terrain reconstruction, interpolation, small features, missing data and center-versus-full-disc geometry remain limitations. Sunrise or Earthset timing stays unresolved when the bounds cannot establish it.</p><p>Sensitivity asks what changes when observer height, position or terrain is varied. Seven separate configurations are available at de Gerlache; they are not combined uncertainties, probabilities or universal robustness. Tests include analytic geometry, interval logic, source checks and actual browser workflows. There is no independent observational validation of the full terrain skyline. The apparent Earth texture orientation and displayed lighting are illustrative as disclosed.</p></details>
+      </section>
+      <details id="analysis-tools" class="analysis-tools"><summary>Open calculation tools, plots, sources and exports</summary>
       <div id="mission" class="workspace">
         <form id="mission-form" class="panel settings">
           <div class="settings-title">
@@ -420,6 +439,7 @@
           </div>
         </div>
       </section>
+      </details>
     </main>
 
     <footer class="footer">

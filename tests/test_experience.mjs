@@ -90,18 +90,40 @@ try{
   assert(await evaluate("!!document.querySelector('#find-opportunities')"),'Mission needs a direct landing-opportunity action.');
   assert.equal(await evaluate("document.querySelector('#apply-requirements')?.checked"),false,'Cold start must explore the environment without arbitrary mission requirements.');
   assert(await evaluate("document.querySelector('#story-status').hidden&&document.querySelector('#decision-evidence').hidden"));
+  assert.match(await evaluate("document.querySelector('.product-purpose').textContent"),/Choose a place and time on the Moon/);
+  assert.match(await evaluate("document.querySelector('#story-title').textContent"),/At least 7 h 53 min 52 s/);
+  assert(await evaluate("[...document.querySelectorAll('#environment-overview .environment-measurement')].every(n=>n.closest('details')&&!n.closest('details').open)"),'Secondary measurements must be expandable, not six equally emphasized opening cards.');
+  assert.equal(await evaluate("getComputedStyle(document.querySelector('.orbital-story-slot')).overflowY"),'visible','Mission must use normal page scrolling.');
+  await evaluate("document.querySelector('#product-analyst').click()");
+  assert(await evaluate("document.querySelectorAll('.science-guide>details').length===5&&!document.querySelector('#analysis-tools').open"),'Advanced explains five method questions before raw tools.');
+  await screenshot('advanced-methods-desktop');
+  await evaluate("document.querySelector('#product-explore').click()");
   const environmentRecord=await download('environment-record');
   assert.equal(environmentRecord.record_type,'environment-evidence');assert.equal(environmentRecord.requirements_applied,false);assert(!('status' in environmentRecord));
   await screenshot('environment-mission-desktop');
+  await command('Emulation.setDeviceMetricsOverride',{width:683,height:384,deviceScaleFactor:2,mobile:false});
+  assert(await evaluate('document.documentElement.scrollWidth<=innerWidth'),'A 200%-equivalent CSS viewport must not overflow horizontally; this is not a native browser-zoom conformance test.');
+  await screenshot('narrow-css-viewport');await command('Emulation.setDeviceMetricsOverride',desktop);
   await evaluate("document.querySelector('#apply-requirements').checked=true;document.querySelector('#apply-requirements').dispatchEvent(new Event('change'))");
   assert(await evaluate("!document.querySelector('#story-status').hidden&&document.querySelector('.story-progress').hidden"),'Enabling requirements alone must not force the three-stage delay story.');
+  await evaluate("document.querySelector('#mission-requirements-editor').open=true;document.querySelector('#quick-max-sun').value=6;document.querySelector('#apply-quick-requirements').click()");
+  assert.equal(await evaluate("Number(document.querySelector('#decision-requirements [data-constraint=max_sun_block]').dataset.threshold)"),6);
+  assert(await evaluate("document.querySelector('#top').hidden&&document.querySelector('#assessment-label').textContent.includes('my mission')"),'Optional requirements must be editable without entering the engineering form.');
+  await evaluate("document.querySelector('#mission-requirements-editor').open=false");
   await evaluate("document.querySelector('#apply-requirements').checked=false;document.querySelector('#apply-requirements').dispatchEvent(new Event('change'))");
   await evaluate("document.querySelector('#product-compare').click()");
   assert(await evaluate("!document.querySelector('#option-comparison .status')&&document.querySelector('#option-comparison').textContent.includes('Sun')"));
+  const originalB=await evaluate("document.querySelector('#comparison-arrival-B').value");
+  await evaluate("document.querySelector('#comparison-arrival-B').value='';document.querySelector('#comparison-arrival-B').dispatchEvent(new Event('change'))");
+  assert.match(await evaluate("document.querySelector('#comparison-difference').textContent"),/Comparison incomplete/);
+  await evaluate(`document.querySelector('#comparison-arrival-B').value=${JSON.stringify(originalB)};document.querySelector('#comparison-arrival-B').dispatchEvent(new Event('change'))`);
+  assert(await evaluate("document.querySelector('.comparison-difference').getBoundingClientRect().bottom<=document.querySelector('#option-comparison').getBoundingClientRect().top"));
   await screenshot('environment-compare-desktop');
   await evaluate("document.querySelector('#product-explore').click();document.querySelector('#find-opportunities').click()");
   await until(()=>evaluate("document.querySelector('#landing-opportunities').dataset.kind==='VISIBILITY_FOUND'"));
   assert(await evaluate("!document.querySelector('#opportunity-options .status')&&document.querySelectorAll('#opportunity-options [data-status=ENVIRONMENT]').length===3"));
+  assert.match(await evaluate("document.querySelector('#opportunities-status').textContent"),/sites offer 12 h.*earliest/);
+  assert(await evaluate("!document.querySelector('.search-evidence').open&&document.querySelector('#opportunities-counts').closest('details')"),'Search statistics must remain secondary to its conclusion.');
   await evaluate("document.querySelector('#landing-opportunities').scrollIntoView({block:'start',behavior:'instant'})");await screenshot('environment-opportunities-desktop');
   await evaluate("document.querySelector('#product-explore').click();document.querySelector('#start-delay-demo').click()");
   assert.deepEqual(await evaluate("[...document.querySelectorAll('.main-nav button')].map(n=>n.textContent)"),['Mission','Compare','Advanced']);
@@ -305,8 +327,19 @@ try{
     for(const key of ['sun','earth'])for(const state of ['visible','blocked','uncertain']){
       const index=site.geometry.findIndex(row=>row[0]<bundle.coverage[1]&&sceneFrame(site,row,bundle.coverage).states[key]===state);
       if(index<0)continue;
+      const plannedArrival=await evaluate("document.querySelector('#visual-arrival').value");
       await evaluate(`document.querySelector('#hero-time').value=${index};document.querySelector('#hero-time').dispatchEvent(new Event('input'))`);
+      assert.equal(await evaluate("document.querySelector('#visual-arrival').value"),plannedArrival,'View clock scrubbing must not change the evaluated arrival.');
       info=await inspect();assert.equal(info[key].state,state);assert.equal(info[key].visible,state==='visible',`${site.id} ${key} ${state}`);
+      if(key==='earth'&&state==='blocked'){
+        const arrivalBefore=await evaluate("document.querySelector('#visual-arrival').value"),conclusionBefore=await evaluate("document.querySelector('#story-explanation').textContent");
+        await evaluate("document.querySelector('#focus-earth').click()");await sleep(100);
+        assert.equal((await inspect()).earth.visible,false);
+        assert(await evaluate("!document.querySelector('.mission-terrain-obstruction').hidden"),'Blocked Earth needs a directional annotation, not a rendered body.');
+        assert.equal(await evaluate("document.querySelector('#visual-arrival').value"),arrivalBefore);
+        assert.equal(await evaluate("document.querySelector('#story-explanation').textContent"),conclusionBefore);
+        await screenshot(`earth-blocked-${site.id}`);
+      }
     }
   }
   // Custom planning is separate from a delayed same-site recovery.
@@ -392,7 +425,7 @@ try{
   assert(await evaluate("!document.querySelector('#top').hidden&&!document.querySelector('#workspace-notice').hidden"),'A missing science bundle must expose an actionable error instead of an endless hidden loading state.');
   await screenshot('missing-bundle-mobile');
   await writeFile(resolve(work,'verification.json'),JSON.stringify({viewports:[[1024,768],[1366,768],[1440,900],[390,840]],
-    initialStatus:'PASS',delayedStatus:'FAIL',recoveredStatus:'PASS',certificateRoles:['nominal','delayed','recommended','cross-site alternative'],
+    defaultMode:'environment-without-requirements',optionalExampleInitialStatus:'PASS',delayedStatus:'FAIL',recoveredStatus:'PASS',certificateRoles:['nominal','delayed','recommended','cross-site alternative'],
     invalidArrivalRejected:true,exportSelectionRace:true,allSiteVisibilityGates:true,noExternalRequests:true,customOpportunitySearch:true,automaticAndExplicitSchedules:true,opportunityCertificateIdentity:true,ordinaryWheelZoomAndPageScrollOutsideCanvas:['orbital','surface'],keyboardZoom:['orbital','surface'],surfaceTouchPinch:true,
     webglFallback:true,missingBundleError:true,physicalDevice:false,humanComprehension:false,
     browser:await command('Browser.getVersion'),performance:performanceEvidence},null,2));

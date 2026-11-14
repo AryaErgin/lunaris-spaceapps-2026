@@ -135,6 +135,9 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   const markerLabel=document.createElement('div');markerLabel.className='mission-scene-marker-label';container.append(markerLabel);
   // Orbital bodies are drawn at fixed approximate angular sizes, so small labels make them findable.
   const bodyLabels={};
+  const obstruction=document.createElement('div');obstruction.className='mission-terrain-obstruction';obstruction.hidden=true;
+  obstruction.textContent='Earth is behind the terrain horizon in this direction ↓';obstruction.dataset.body='earth';
+  container.append(obstruction);
   for(const [key,text] of [['earth','EARTH'],['sun','SUN']]) {
     const label=document.createElement('div');label.className='mission-scene-body-label';label.dataset.body=key;label.textContent=text;label.hidden=true;
     container.append(label);bodyLabels[key]=label;
@@ -445,6 +448,13 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     }
     const controlsMoving=mode==='orbital'&&controls.update();
     if(mode==='orbital'&&controlsMoving)captionUpdate();
+    const earthDirection=bodyDirection(sample?.[4],sample?.[5]),earthFraming=viewInfo(earthDirection);
+    obstruction.hidden=mode!=='surface'||states.earth!=='blocked'||!earthDirection||!earthFraming.inFrustum;
+    if(!obstruction.hidden){
+      obstruction.style.left=`${clamp(earthFraming.projectedPosition[0]*100,18,82)}%`;
+      obstruction.style.top=`${clamp(earthFraming.projectedPosition[1]*100,30,72)}%`;
+      obstruction.title=`Earth-center direction: bearing ${sample[4].toFixed(1)} degrees, elevation ${sample[5].toFixed(1)} degrees. The calculated horizon blocks its center; no Earth body is drawn.`;
+    }
     if(needsRender||flight) {
       renderer.toneMappingExposure=mode==='orbital'?1.15:1.3;
       renderer.render(mode==='orbital'?orbitalScene:surfaceScene,mode==='orbital'?orbitalCamera:surfaceCamera);
@@ -770,7 +780,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     if(disposed)return;disposed=true;++terrainRequest;cancelAnimationFrame(raf);raf=0;
     observer?.disconnect();resizeObserver?.disconnect();listeners.forEach(remove=>remove());controls.dispose();
     resources.forEach(resource=>resource.dispose());renderer.dispose();
-    canvas.remove();caption.remove();bodyStatus.remove();markerLabel.remove();bodyLabels.earth.remove();bodyLabels.sun.remove();
+    canvas.remove();caption.remove();bodyStatus.remove();markerLabel.remove();obstruction.remove();bodyLabels.earth.remove();bodyLabels.sun.remove();
     container.dataset.webgl=container.dataset.webglStatus='disposed';
     container.dataset.sunRendered=container.dataset.earthRendered='false';
     sun.visible=earth.visible=orbitalSun.visible=orbitalEarth.visible=false;

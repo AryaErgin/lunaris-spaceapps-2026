@@ -7,6 +7,7 @@ import { createAtlas } from './atlas.mjs';
 import { sceneFrame, missionStory } from './scene-model.mjs';
 import {constraintEvidence,constraintSegments,evidenceTime} from './decision-evidence.mjs';
 import {resolveAutomaticSchedule,findLandingOpportunities,findVisibilityOpportunities,makeEnvironmentRecord,environmentInputs} from './opportunities.mjs';
+import {visibilityConclusion,comparisonConclusion,opportunityConclusion,conciseDuration} from './explanations.mjs';
 
 const byId = (id) => document.getElementById(id);
 const form = byId('mission-form');
@@ -166,7 +167,7 @@ function syncAssessment(){
   exportButton.textContent=requirementsEnabled?'↓ Decision certificate':'↓ Environment record';
   byId('results-title').textContent=requirementsEnabled?'Mission decisions':'Environmental evidence';
   byId('decision-list').hidden=!requirementsEnabled;
-  byId('comparison-edit-limits').textContent=requirementsEnabled?'Edit these requirements in Advanced ↗':'Add mission requirements in Advanced ↗';
+  byId('comparison-edit-limits').textContent=requirementsEnabled?'Edit shared requirements':'Add optional requirements';
   document.querySelector('label[for="comparison-duration"]').firstChild.textContent=requirementsEnabled?'Shared mission duration ':'Shared view duration ';
   document.querySelector('label[for="visual-arrival"]').firstChild.textContent=requirementsEnabled&&delayStoryEnabled?'Original arrival ':'Arrival ';
   byId('visual-duration').setAttribute('aria-label',requirementsEnabled?'Mission duration in hours':'Environment view duration in hours; blank uses 12 hours');
@@ -180,7 +181,9 @@ function environmentalMeasurements(root,mission,{timelines=false}={}){
     const range=measurements[channel][key],card=element('div',`environment-measurement ${channel}`);card.dataset.metric=`${channel}-${key}`;card.dataset.lower=range[0];card.dataset.upper=range[1];
     card.append(element('span','',label),element('strong','',durationRange(range)));card.title=range.map(durationClock).join(' to ');grid.append(card);
   }
-  root.append(grid);
+  const details=element('details','measurement-details');details.append(element('summary','','Visibility durations and bounds'),grid);
+  details.append(element('p','environment-note','Bounds retain unresolved time and both numerical refinements. Total overlap can include separate periods; continuous overlap is uninterrupted.'));
+  root.append(details);
   if(timelines){
     const lines=element('div','environment-lines');
     for(const [key,title]of [['sun','Sun'],['earth','Earth'],['joint','Both']]){
@@ -189,7 +192,7 @@ function environmentalMeasurements(root,mission,{timelines=false}={}){
       const head=element('span','timeline-playhead story-joint-playhead');head.dataset.start=mission.start;head.dataset.end=mission.end;track.append(head);line.append(track);lines.append(line);
     }root.append(lines);
   }
-  root.append(element('p','environment-note',`${timelines?'Timelines show retained interval labels; ranges also enclose both refinements. ':''}Center visibility is not electrical power or a working radio link.`));
+  if(timelines)details.append(element('p','environment-note','Timelines show retained interval labels; duration ranges also enclose both refinements.'));
   return measurements;
 }
 
@@ -875,6 +878,8 @@ function evaluate() {
     // Playback updates still avoid interrupting a draft until it is applied.
     byId('visual-arrival').value=inputTime(inputs.nominal);
     byId('visual-duration').value=inputs.durationHours;
+    for(const key of ['max-sun','max-earth','min-total','min-continuous'])byId(`quick-${key}`).value=byId(key).value;
+    byId('quick-requirements-status').textContent='';
     if(typeof selected==='number'?!result.alternatives[selected]:!result[selected])selected='nominal';
     guidedPhase=selected;
     renderDecisions();
@@ -908,7 +913,8 @@ async function searchOpportunities(){
   if(!applyVisualArrival())return;
   pausePlayback();const requestedInputs=inputs,request=++opportunityRequest,root=byId('landing-opportunities');
   root.hidden=productMode!=='explore';root.setAttribute('aria-busy','true');root.dataset.kind='SEARCHING';
-  byId('opportunities-status').textContent='Checking supported sites with your unchanged requirements…';
+  byId('opportunities-status').textContent=requirementsEnabled?'Checking sites against your selected requirements…':'Finding confirmed Sun and Earth visibility…';
+  byId('opportunities-counts').textContent='Search in progress.';byId('opportunities-ranking').textContent='';
   byId('opportunities-basis').textContent='This is a new-arrival search before launch; the landing delay is not added.';
   byId('opportunity-options').replaceChildren();byId('opportunity-other').hidden=true;
   byId('find-opportunities').disabled=true;byId('find-opportunities').textContent='Checking landing opportunities…';
@@ -930,19 +936,20 @@ async function searchOpportunities(){
 function renderOpportunities(report){
   const root=byId('landing-opportunities');root.hidden=productMode!=='explore';root.dataset.kind=report.kind;
   root.dataset.candidates=report.search.candidateCount;root.dataset.requestedArrival=report.requested.nominal;
+  byId('opportunities-counts').textContent=report.search.candidateCount?`${report.search.candidateCount} site/start combinations evaluated. ${Object.entries(report.counts).map(([key,count])=>`${key.replaceAll('_',' ').toLowerCase()}: ${count}`).join(' · ')}.`:'No eligible site/start combination was evaluated.';
+  byId('opportunities-ranking').textContent=report.basis??'Search only within complete cached coverage and the selected allowed schedule.';
+  const rangeLabel=report.search.candidateCount?`Searched UTC starts: ${formatTime(report.search.firstStart)} to ${formatTime(report.search.lastStart)} · ${report.requested.durationHours} h views · ${report.search.gridMinutes}-minute grid.`:`Cached UTC evidence: ${formatTime(bundle.coverage[0])} to ${formatTime(bundle.coverage[1])}, exclusive end.`;
+  const siteLabel=`${report.search.sites.length} study points: ${report.search.sites.map(id=>findSite(id).name).join(', ')}.`;
   if(!report.requirementsApplied){
     byId('opportunities-title').textContent={VISIBILITY_FOUND:'Explore visibility opportunities',UNRESOLVED:'Joint visibility remains unresolved',NO_JOINT:'No joint visibility established on this grid',NO_DATA:'Outside complete cached coverage',SCHEDULE_EMPTY:'No eligible date in your schedule'}[report.kind];
-    byId('opportunities-status').textContent=report.search.candidateCount
-      ?`${report.counts.WITH_JOINT} options have confirmed overlap · ${report.counts.UNRESOLVED} have unresolved overlap · ${report.counts.NO_JOINT} have none in the model. No mission requirements applied.`
-      :report.kind==='NO_DATA'?'No complete observation window fits the cached November data. Choose a covered date or a shorter view; no mission verdict is implied.'
-        :'No sampled start at or after this arrival fits your allowed schedule. Edit the allowed dates to explore further.';
-    byId('opportunities-basis').textContent=report.search.candidateCount
-      ?`${report.requested.durationHours} h views · ${report.search.gridMinutes}-minute start grid. Each site shows the most confirmed Sun + Earth time; earlier UTC breaks ties. Unresolved time can change the physical ranking.`
-      :`Available evidence: ${formatTime(bundle.coverage[0])} to ${formatTime(bundle.coverage[1])}, exclusive end. Requested duration: ${report.requested.durationHours} h.`;
+    byId('opportunities-status').textContent=opportunityConclusion(report,id=>findSite(id).name);
+    byId('opportunities-basis').textContent=`${rangeLabel} ${siteLabel}`;
     const cards=byId('opportunity-options');cards.replaceChildren();
     for(const view of report.options){
       const card=element('article','opportunity-card');Object.assign(card.dataset,{site:view.siteId,start:view.start,status:'ENVIRONMENT'});
       card.append(element('p','eyebrow',view.metrics.joint.visibleRangeSeconds[0]>0?'Confirmed Sun + Earth overlap':view.metrics.joint.visibleRangeSeconds[1]>0?'Unresolved possible overlap':'No joint visibility at this sample'),element('h3','',findSite(view.siteId).name),element('p','opportunity-date',shortTime(view.start)));
+      const conclusion=visibilityConclusion(view.metrics,view.end-view.start);
+      card.append(element('p','opportunity-joint',conclusion.headline),element('p','opportunity-rule',conclusion.reason));
       const measurements=element('div','');environmentalMeasurements(measurements,view);card.append(measurements);
       const warning=siteCaution(view.siteId);if(warning)card.append(element('p','comparison-caution',warning));
       const button=element('button','outline','Explore this arrival →');button.type='button';button.addEventListener('click',()=>{
@@ -954,13 +961,13 @@ function renderOpportunities(report){
   }
   const titles={PASS_FOUND:'Passing arrivals found',NO_PASS:'No checked arrival passes',UNRESOLVED:'No passing arrival proven',NO_DATA:'No complete mission in cached data',SCHEDULE_EMPTY:'No eligible start inside your allowed schedule'};
   byId('opportunities-title').textContent=titles[report.kind];
-  byId('opportunities-status').textContent=report.search.candidateCount
-    ?`${report.counts.PASS} passing · ${report.counts.FAIL} failed · ${report.counts.INDETERMINATE} unresolved site-and-time options. ${report.kind==='UNRESOLVED'?'Uncertainty prevents ruling out a passing window.':report.kind==='NO_PASS'?'This applies only to the checked grid, sites and requirements.':''}`
-    :report.kind==='NO_DATA'?'The chosen arrival, allowed dates or mission duration leave no complete mission inside the November cache. No environmental PASS or FAIL has been invented.'
-      :'Your schedule contains no eligible starts at or after this arrival. This is a scheduling exclusion, not a lunar-environment failure.';
-  byId('opportunities-basis').textContent=report.search.candidateCount
-    ?`${report.requested.durationHours} h mission · ${report.search.sites.length} supported study points · starts every ${report.search.gridMinutes} min, ${shortTime(report.search.firstStart)} to ${shortTime(report.search.lastStart)}. All selected limits retained. ${report.coverageClipped?'Only fully covered missions were searched; the grid phase is unchanged.':''}`
-    :`Available evidence: ${formatTime(bundle.coverage[0])} to ${formatTime(bundle.coverage[1])} (exclusive end). Allowed starts: ${formatTime(report.requested.earliest)} to ${formatTime(report.requested.latest)}.`;
+  byId('opportunities-status').textContent=report.kind==='PASS_FOUND'
+    ?`Confirmed passing arrivals were found at ${report.options.length} ${report.options.length===1?'site':'sites'}, with every selected requirement unchanged.`
+    :report.kind==='NO_PASS'?'No checked arrival meets all selected requirements. Near misses below explain which rules fail.'
+      :report.kind==='UNRESOLVED'?'No passing arrival is proven. Unresolved intervals prevent ruling out earlier opportunities.'
+        :report.kind==='NO_DATA'?'No complete mission fits the available November data. Choose a covered arrival or a shorter mission.'
+          :'No eligible start fits your allowed schedule. This is a scheduling exclusion, not adverse lunar conditions.';
+  byId('opportunities-basis').textContent=`${rangeLabel} ${siteLabel}`;
   const cards=byId('opportunity-options');cards.replaceChildren();
   const passingIds=new Set(report.options.map(m=>m.siteId));
   const rows=[...report.options.map(mission=>({mission,label:'First confirmed pass at this site'})),
@@ -1073,7 +1080,14 @@ byId('solar-demo').addEventListener('click',()=>{setExpert(true);loadDemo(false)
 byId('expert-toggle').addEventListener('click',()=>setExpert(byId('top').hidden));
 for(const button of document.querySelectorAll('[data-workspace]'))button.addEventListener('click',()=>setProductMode(button.dataset.workspace));
 byId('compare-return').addEventListener('click',()=>setProductMode('explore'));
-byId('comparison-edit-limits').addEventListener('click',()=>{setExpert(true);byId('max-sun').focus();});
+byId('comparison-edit-limits').addEventListener('click',()=>{setProductMode('explore');byId('mission-requirements-editor').open=true;byId('quick-max-sun').focus();});
+byId('apply-quick-requirements').addEventListener('click',()=>{
+  const keys=['max-sun','max-earth','min-total','min-continuous'];
+  for(const key of keys){const field=byId(`quick-${key}`);field.required=key.startsWith('max-');if(!field.reportValidity())return;}
+  for(const key of keys)byId(key).value=byId(`quick-${key}`).value;
+  requirementsEnabled=true;requirementsSource='custom';
+  if(evaluate())byId('quick-requirements-status').textContent='Your requirements are applied to Mission, Compare and the next search.';
+});
 byId('comparison-duration').addEventListener('change',()=>{
   const hours=Number(byId('comparison-duration').value);
   if(!Number.isFinite(hours)||hours<=0){byId('comparison-duration').value=inputs.durationHours;byId('comparison-difference').textContent='Duration not changed. Choose a positive shared mission duration.';return;}
@@ -1162,6 +1176,7 @@ byId('sky-jump-go').addEventListener('click',jumpPlayback);
 byId('sky-jump').addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();jumpPlayback();}});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)pausePlayback();});
 byId('interval-details').addEventListener('toggle', () => { if (result) renderIntervalList(); });
+byId('analysis-tools').addEventListener('toggle',()=>{if(byId('analysis-tools').open&&result)renderPlot(selectedMission());});
 byId('interval-channel').addEventListener('change', () => { if (result) renderIntervalList(); });
 for (const study of studies) {
   study.button.addEventListener('click', () => evaluateStudy(study));
@@ -1294,18 +1309,27 @@ function optionDecisionText(mission){
   return `${mission.status==='PASS'?'Closest passing limit':rule.status==='FAIL'?'Broken rule':'Unresolved rule'}: ${v.title.toLowerCase()} ${v.metricText}; required ${v.requirementText}. Signed margin ${v.marginText}.`;
 }
 
+function optionDecisionBrief(mission){
+  if(mission.startAllowed===false)return 'This arrival is outside your allowed schedule. Its environmental conditions are shown separately.';
+  if(mission.status==='PASS')return `All ${mission.constraints.length} selected requirements are proven for this view.`;
+  const rule=mission.constraints.find(c=>c.status==='FAIL')??mission.constraints.find(c=>c.status==='INDETERMINATE');
+  if(!rule)return 'The available evidence cannot establish this mission.';
+  const view=constraintEvidence(rule);
+  return `${view.title}: ${view.metricText}; your selected limit is ${view.requirementText}.${rule.status==='INDETERMINATE'?' Unresolved time prevents a definite answer.':''}`;
+}
+
 function renderOptionComparison(focus){
   if(!inputs)return;
-  byId('compare-workspace-title').textContent=requirementsEnabled?'Which arrival works for this mission?':'How do these lunar arrivals differ?';
+  byId('compare-workspace-title').textContent=requirementsEnabled?'Which arrival meets your requirements?':'Compare lunar arrivals';
   document.querySelector('#compare-workspace .eyebrow').textContent=requirementsEnabled?'Same requirements · independent arrivals':'Measured conditions · independent arrivals';
-  byId('compare-input-summary').textContent=requirementsEnabled?`Independent sites and UTC arrivals · one shared ${inputs.durationHours} h mission. Requirements and allowed start bounds stay the same for every option.`:`Compare Sun, Earth and joint visibility over the same ${inputs.durationHours} h interval. No mission requirements applied.`;
+  byId('compare-input-summary').textContent=`${inputs.durationHours} h views · independent sites and UTC arrivals · shared ${requirementsEnabled?'requirements and schedule':'duration'}.`;
   comparisonOptions??=[{key:'A',siteId:inputs.siteId,start:inputs.nominal},{key:'B',siteId:requirementsEnabled?inputs.siteId:(bundle.sites.find(s=>s.id!==inputs.siteId)??bundle.sites[0]).id,start:inputs.nominal+(requirementsEnabled?inputs.delayHours*3600:0)}];
   const root=byId('option-comparison');root.replaceChildren();root.dataset.count=comparisonOptions.length;
   if(isEdited){root.append(element('p','notice','Shared settings have unevaluated changes. Evaluate them in Advanced before comparing options.'));byId('comparison-difference').textContent='No updated comparison is established.';return;}
   byId('comparison-duration').value=inputs.durationHours;
   const reference=evaluateStart(bundle,requirementsEnabled?inputs:environmentInputs(inputs),inputs.siteId,inputs.nominal);
   const shortRuleNames={max_sun_block:'Sun gap',max_earth_block:'Earth gap',min_joint_total:'Together',min_joint_continuous:'Uninterrupted'};
-  byId('comparison-shared-limits').textContent=requirementsEnabled?`${requirementsSource==='custom'?'Your selected requirements':'Illustrative, not lander specifications'}: ${reference.constraints.map(c=>`${shortRuleNames[c.id]??c.id} ${constraintEvidence(c).requirementText}`).join(' · ')}.`:'Environmental measurements only. Enable requirements in Mission, or evaluate your own limits in Advanced, for a mission verdict.';
+  byId('comparison-shared-limits').textContent=requirementsEnabled?`${requirementsSource==='custom'?'Your selected requirements':'Illustrative, not NASA specifications'}: ${reference.constraints.map(c=>`${shortRuleNames[c.id]??c.id} ${constraintEvidence(c).requirementText}`).join(' · ')}.`:'Visibility comparison. No mission requirements applied.';
   const evaluations=[];
   for(const option of comparisonOptions){
     const card=element('article','option-card');card.dataset.option=option.key;
@@ -1319,41 +1343,39 @@ function renderOptionComparison(focus){
     let mission;
     try{if(!Number.isFinite(option.start))throw Error('Choose a valid UTC arrival.');mission=evaluateStart(bundle,requirementsEnabled?inputs:environmentInputs(inputs),option.siteId,option.start);}
     catch(error){card.append(element('p','notice',`${error.message} No result is claimed.`));root.append(card);continue;}
-    evaluations.push({key:option.key,mission});Object.assign(card.dataset,{site:option.siteId,start:option.start,end:mission.end,status:mission.status,cause:mission.startAllowed===false?'schedule':'environment'});
-    const status=element('p','option-status');if(requirementsEnabled)status.append(statusChip(mission.status));else {card.dataset.status='ENVIRONMENT';status.append(element('span','measurement-label','Visibility measurements'));}card.append(status);
+    const bounded=missionMetrics(mission,findSite(option.siteId));
+    const complete=mission.start>=bundle.coverage[0]&&mission.end<=bundle.coverage[1];
+    evaluations.push({key:option.key,mission,metrics:bounded,complete});Object.assign(card.dataset,{site:option.siteId,start:option.start,end:mission.end,status:mission.status,cause:mission.startAllowed===false?'schedule':'environment'});
+    const status=element('p','option-status');if(requirementsEnabled){status.append(statusChip(mission.status));card.append(status);}else card.dataset.status='ENVIRONMENT';
     if(mission.startAllowed===false)card.append(element('p','schedule-exclusion','Outside allowed schedule — environmental results are separate.'));
     if(siteCaution(option.siteId))card.append(element('p','comparison-caution',siteCaution(option.siteId)));
-    const bounded=missionMetrics(mission,findSite(option.siteId));
     const joint=requirementsEnabled?mission.constraints.find(c=>c.id==='min_joint_total'):null;
     const jointSeconds=joint?joint.range[0]*3600:bounded.joint.visibleRangeSeconds[0];
     card.append(element('p','option-joint',`${durationClock(jointSeconds)} confirmed Sun + Earth`));
-    if(!requirementsEnabled){
-      card.append(element('p','option-outage',`Sun-center visibility: ${durationRange(bounded.sun.visibleRangeSeconds)}. Earth-center visibility: ${durationRange(bounded.earth.visibleRangeSeconds)}.`));
-      card.append(element('p','option-outage',`Longest Sun unavailability: ${durationRange(bounded.sun.longestBlockedRangeSeconds)}. Earth obstruction: ${durationRange(bounded.earth.longestBlockedRangeSeconds)}.`));
-      card.append(element('p','option-reason',`Continuous Sun + Earth overlap: ${durationRange(bounded.joint.longestVisibleRangeSeconds)}. Bounds retain unresolved time; geometry does not establish power or radio performance.`));
-    }
+    const explanation=visibilityConclusion(bounded,mission.end-mission.start,{complete});
+    card.append(element('p','option-reason',requirementsEnabled?optionDecisionBrief(mission):explanation.reason));
+    const measurementRoot=element('div','');environmentalMeasurements(measurementRoot,mission);card.append(measurementRoot);
     if(requirementsEnabled)for(const [id,label]of [['max_sun_block','Longest Sun unavailability'],['max_earth_block','Longest Earth obstruction']]){
       const rule=mission.constraints.find(c=>c.id===id),view=constraintEvidence(rule);
-      card.append(element('p','option-outage',`${label}: ${rule.range[0]===rule.range[1]?evidenceTime(rule.metric):view.rangeText}${rule.status==='INDETERMINATE'?' · unresolved':''}.`));
+      measurementRoot.querySelector('details').append(element('p','option-outage',`${label}: ${rule.range[0]===rule.range[1]?evidenceTime(rule.metric):view.rangeText}${rule.status==='INDETERMINATE'?' · unresolved':''}.`));
     }
-    if(requirementsEnabled)card.append(element('p','option-reason',optionDecisionText(mission)));
-    const viewButton=element('button','primary','View this option →');viewButton.id=`comparison-view-${option.key}`;viewButton.type='button';viewButton.disabled=isEdited;
+    const viewButton=element('button','primary','Explore this option →');viewButton.id=`comparison-view-${option.key}`;viewButton.type='button';viewButton.disabled=isEdited;
     viewButton.addEventListener('click',()=>{
       if(isEdited){byId('comparison-difference').textContent='Evaluate pending shared settings in Advanced before loading an option.';return;}
       byId('site').value=option.siteId;byId('nominal').value=inputTime(option.start);selected='nominal';updateSiteDetail();
       if(evaluate()){showGuidedPhase('nominal');setProductMode('explore');byId('workspace-notice').hidden=false;byId('workspace-notice').textContent=`Option ${option.key} is now the original planned arrival. Delay/recovery and exports use this new plan.`;}
     });
-    card.append(viewButton,element('p','option-load-note','Use as the new Mission arrival.'));
+    card.append(viewButton);
     if(requirementsEnabled){const rules=element('div','compact-requirements');renderRequirementCards(rules,mission,true);
       const ruleDetails=element('details','option-rules');ruleDetails.append(element('summary','',`${mission.constraints.length} requirement results`),rules);card.append(ruleDetails);}root.append(card);
   }
   byId('add-comparison-option').hidden=comparisonOptions.length===3;byId('remove-comparison-option').hidden=comparisonOptions.length!==3;
   const pass=evaluations.filter(({mission})=>mission.status==='PASS'),uncertain=evaluations.filter(({mission})=>mission.status==='INDETERMINATE'),excluded=evaluations.filter(({mission})=>mission.startAllowed===false);
   let difference;
-  if(!requirementsEnabled)difference=`Confirmed simultaneous time: ${evaluations.map(({key,mission})=>`Option ${key} ${durationRange(missionMetrics(mission,findSite(mission.siteId)).joint.visibleRangeSeconds)}`).join(' · ')}. Larger lower bounds establish more confirmed overlap in these views, not a safer landing. No mission requirements applied.`;
-  else if(evaluations.length!==comparisonOptions.length)difference='Complete a supported site and valid arrival for each option before comparing them.';
+  if(evaluations.length!==comparisonOptions.length)difference='Comparison incomplete. Choose a supported site and valid arrival for each option.';
+  else if(!requirementsEnabled)difference=comparisonConclusion(evaluations,comparisonOptions.length)+(excluded.length?' Some starts are outside the allowed schedule; visibility measurements remain separate.':'');
   else if(excluded.length===evaluations.length)difference='No option fits the allowed start schedule. That is a scheduling exclusion, not proof of unfavorable lunar conditions.';
-  else if(!pass.length)difference=`${evaluations.length===2?'Neither option passes.':'No option passes.'} ${uncertain.length?'Uncertainty prevents a confirmed passing comparison.':'The selected rules or start schedule reject these options.'} Read each option’s specific rule and margin above.`;
+  else if(!pass.length)difference=`${evaluations.length===2?'Neither option passes.':'No option passes.'} ${uncertain.length?'Uncertainty prevents a confirmed passing comparison.':'The selected rules or start schedule reject these options.'} Each card explains the limiting requirement.`;
   else{
     const failed=evaluations.filter(({mission})=>mission.status==='FAIL'&&mission.startAllowed!==false);
     difference=`${pass.map(x=>`Option ${x.key}`).join(' and ')} ${pass.length>1?'pass':'passes'} the same requirements. ${failed.map(({key,mission})=>{const c=mission.constraints.find(c=>c.status==='FAIL');if(!c)return `Option ${key} fails a mission-level check.`;const v=constraintEvidence(c);return `Option ${key} breaks ${v.title.toLowerCase()}: ${v.metricText}, required ${v.requirementText}.`;}).join(' ')}${uncertain.length?` ${uncertain.map(x=>`Option ${x.key}`).join(' and ')} remains unresolved; that is not a proven environmental failure.`:''}${excluded.length?` ${excluded.map(x=>`Option ${x.key}`).join(' and ')} is outside the allowed schedule.`:''} ${pass.length>1?evaluations.map(({key,mission})=>{const c=mission.constraints.find(c=>c.id==='min_joint_total');return c?`${key}: ${evidenceTime(c.range[0])} confirmed joint time.`:'';}).join(' '):''} No general landing-safety ranking is established.`;
@@ -1542,6 +1564,7 @@ function renderFeasibility() {
 }
 
 function setExpert(enabled) {
+  if(enabled)byId('analysis-tools').open=true;
   setProductMode(enabled?'analyst':'explore',false);
   byId('expert-toggle').setAttribute('aria-expanded',String(enabled));
   byId('expert-toggle').textContent=enabled?'Close analyst mode':'Analyst mode';
@@ -1551,13 +1574,14 @@ function setExpert(enabled) {
 function setProductMode(mode,scroll=true){
   if(mode!==productMode)++rescueAnimation;
   productMode=mode;
+  document.body.dataset.workspace=mode;
   byId('experience').hidden=mode==='compare'||mode==='analyst';
   byId('compare-workspace').hidden=mode!=='compare';
   byId('landing-opportunities').hidden=mode!=='explore'||!opportunityReport;
   byId('top').hidden=mode!=='analyst';
   byId('experience').dataset.workspace=mode;
   for(const button of document.querySelectorAll('[data-workspace]'))button.setAttribute('aria-pressed',String(button.dataset.workspace===mode));
-  if(mode==='analyst'&&result)renderPlot(selectedMission());
+  if(mode==='analyst'&&result&&byId('analysis-tools').open)renderPlot(selectedMission());
   if(mode==='compare'&&inputs)renderOptionComparison();
   if(scroll)scrollTo({top:0,behavior:'instant'});
 }
@@ -1597,6 +1621,8 @@ function setSceneStatus(event) {
 }
 
 async function initializeExperience() {
+  byId('option-comparison').before(document.querySelector('.comparison-difference'));
+  document.querySelector('.story-footer').prepend(byId('mission-requirements-editor'));
   byId('orbital-story-slot').append(byId('mission-story'));
   byId('experience').insertBefore(byId('decision-evidence'),document.querySelector('.experience-status'));
   byId('comparison-panels').append(byId('feasibility'));
@@ -1667,7 +1693,7 @@ function updateExperienceFrame(site,sample,mission) {
   byId('scene-clock').textContent=formatTime(sample[0]);
   const slider=byId('hero-time');slider.max=byId('probe-slider').max;slider.value=byId('probe-slider').value;
   slider.disabled=isEdited;
-  byId('hero-time-label').parentElement.firstChild.textContent=byId('time-scope').value==='coverage'?'November clock · 30-minute samples ':requirementsEnabled?'Mission clock · 30-minute samples ':'View clock · 30-minute samples ';
+  byId('hero-time-label').parentElement.firstChild.textContent=byId('time-scope').value==='coverage'?'View clock · full November cache ':'View clock · 30-minute samples ';
   slider.setAttribute('aria-valuetext',formatTime(sample[0]));
   byId('hero-time-label').textContent=formatTime(sample[0]);
   byId('hero-speed').value=byId('sky-speed').value;
@@ -1738,12 +1764,9 @@ function renderMissionStory() {
     const mission=selectedMission();
     Object.assign(byId('mission-story').dataset,{start:mission.start,site:mission.siteId,status:'ENVIRONMENT'});
     document.querySelector('.experience-intro .eyebrow').textContent=`${inputs.durationHours}-HOUR ENVIRONMENT VIEW`;
-    byId('story-date').textContent=`${shortTime(mission.start)} → ${shortTime(mission.end)}`;
-    byId('story-title').textContent='Sun and Earth visibility';byId('story-explanation').textContent='';byId('story-status').textContent='';
-    if(mission.start<bundle.coverage[0]||mission.end>bundle.coverage[1]){
-      byId('story-title').textContent='Outside complete cached coverage';
-      byId('story-explanation').textContent='The full view is not covered by the November data. Unknown time is not a prediction of sunlight or contact availability.';
-    }
+    byId('story-date').textContent=`${findSite(mission.siteId).name} · ${shortTime(mission.start)} · ${inputs.durationHours} h view`;
+    const conclusion=visibilityConclusion(missionMetrics(mission,findSite(mission.siteId)),mission.end-mission.start,{complete:mission.start>=bundle.coverage[0]&&mission.end<=bundle.coverage[1]});
+    byId('story-title').textContent=conclusion.headline;byId('story-explanation').textContent=conclusion.reason;byId('story-status').textContent='';
     byId('story-joint').hidden=true;byId('configuration-summary').hidden=true;
     byId('story-requirements').textContent='Sun-center visibility: the Sun’s center clears terrain and Earth’s apparent disc. Earth-center line of sight: a geometric direction to Earth’s center. Both at once: joint visibility. Full-disc illumination, electrical power and radio performance are not established.';
     document.querySelector('.story-footer summary').textContent='Visibility definitions';
@@ -1891,7 +1914,7 @@ function renderStoryJoint(story){
   const playhead=element('span','timeline-playhead story-joint-playhead');playhead.dataset.start=mission.start;playhead.dataset.end=mission.end;track.append(playhead);root.append(track);
   if(guidedPhase==='recommended'&&result.recommended){
     const wait=(result.recommended.start-result.delayed.start)/3600;
-    root.append(element('p','recovery-wait',`Wait after delay: ${Math.floor(wait/24)} d ${number.format(wait%24)} h.`));
+    root.prepend(element('p','recovery-wait',`Wait after delay: ${Math.floor(wait/24)} d ${number.format(wait%24)} h.`));
   }
   const detail=element('details');detail.append(element('summary','','Visibility uncertainty'),element('p','',`${durationClock(summary.uncertain+summary.unknown)} unresolved. This is center visibility, not generated power or a working radio link.`));root.append(detail);
 }

@@ -6,6 +6,7 @@ import {resolve} from 'node:path';
 
 const url=process.argv[2]??'https://aryaergin.github.io/lunaris-spaceapps-2026/';
 const expectedSha=process.argv[3];
+const skipMedia=process.argv.includes('--skip-media');
 const work=resolve('progress',`public-${Date.now()}`);await mkdir(work,{recursive:true});
 const release=await fetch(new URL('release.json',url)).then(r=>{assert.equal(r.status,200);return r.json();});
 if(expectedSha)assert.equal(release.application_release_sha,expectedSha);
@@ -68,14 +69,19 @@ try{
   await command('Emulation.setDeviceMetricsOverride',{width:390,height:840,deviceScaleFactor:1,mobile:false});
   await evaluate('scrollTo(0,0)');await screenshot('anonymous-mobile');
   assert(await evaluate('document.documentElement.scrollWidth<=innerWidth'));
+  await evaluate("document.querySelector('#product-analyst').click()");
+  assert.equal(await evaluate("document.querySelectorAll('.science-guide>details').length"),5);
+  await screenshot('anonymous-advanced-mobile');
   await command('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]});
   await command('Page.addScriptToEvaluateOnNewDocument',{source:"const original=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(type,...args){return /webgl/i.test(type)?null:original.call(this,type,...args)}"});
   await command('Page.navigate',{url});await until(()=>evaluate("!!document.querySelector('#export:not([disabled])')"));
   if(guided)await until(()=>evaluate("document.querySelector('#scene-status').textContent.includes('3D graphics unavailable')"));
   await screenshot('anonymous-no-webgl');assert.deepEqual(errors,[]);
+  let video=null;
+  if(!skipMedia){
   await command('Page.navigate',{url:new URL('demo.html',url).href});
   await until(()=>evaluate("document.querySelector('video')?.readyState>=1"));
-  const video=await evaluate("(()=>{const v=document.querySelector('video');return {duration:v.duration,width:v.videoWidth,height:v.videoHeight}})()");
+  video=await evaluate("(()=>{const v=document.querySelector('video');return {duration:v.duration,width:v.videoWidth,height:v.videoHeight}})()");
   assert.equal(video.duration,29);assert.deepEqual([video.width,video.height],[1366,900]);
   await evaluate("document.querySelector('video').play()",true);
   await until(()=>evaluate("document.querySelector('video').currentTime>0.15"));
@@ -83,7 +89,8 @@ try{
   await until(()=>evaluate("!document.querySelector('video').seeking&&document.querySelector('video').readyState>=2"));
   assert(await evaluate('document.documentElement.scrollWidth<=innerWidth'));
   await screenshot('anonymous-demo-mobile');assert.deepEqual(errors,[]);
+  }
   const version=await command('Browser.getVersion');
-  await writeFile(resolve(work,'verification.json'),JSON.stringify({url,release,states,anonymous:true,demo:video,viewports:[[1366,768],[390,840]],browser:version,physicalSecondDevice:false},null,2));
+  await writeFile(resolve(work,'verification.json'),JSON.stringify({url,release,states,anonymous:true,demo:video,mediaNotExercised:skipMedia,viewports:[[1366,768],[390,840]],browser:version,physicalSecondDevice:false},null,2));
   console.log(`Public anonymous deployment verified: ${url} SHA ${release.application_release_sha}; JSON/PNG, refresh, PASS/FAIL/PASS, downloaded certificates, mobile emulation and JavaScript-without-WebGL passed. Evidence: ${work}`);
 }finally{socket?.close();browser.kill();}
