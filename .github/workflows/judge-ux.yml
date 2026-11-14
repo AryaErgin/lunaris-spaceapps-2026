@@ -23,6 +23,10 @@ jobs:
         run: node --test tests/*.test.mjs
       - name: Verify Chrome availability
         run: command -v google-chrome && google-chrome --version
+      - name: First-visit full guide and notable-site browser smoke
+        env:
+          LUNARIS_CHROME: /usr/bin/google-chrome
+        run: timeout 120s node tests/test_experience.mjs --tour-only
       - name: Browser experience regression
         env:
           LUNARIS_CHROME: /usr/bin/google-chrome
