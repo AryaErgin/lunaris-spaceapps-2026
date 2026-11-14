@@ -58,6 +58,30 @@ def scenario_audit_id(kind, scenario):
     return 'de-gerlache-rim-' + kind + '-' + scenario['id'].replace('+', 'plus').replace('-', 'minus')
 
 
+def horizons_source_records(report):
+    """Retain original HTTP acquisition times when a comparison is rerun."""
+    result = []
+    acquisitions = report.get('response_acquisitions', [])
+    for reference in report['references']:
+        notice = {'filename': reference['source_filename'], 'url': reference['url'],
+            'citation': 'https://ssd.jpl.nasa.gov/horizons/', 'bytes': reference['source_bytes'],
+            'sha256': reference['source_sha256'],
+            'product_version': 'JPL Horizons API / airless apparent topocentric reference',
+            'use': 'Matched direction comparison; shared JPL model lineage, not terrain validation'}
+        if acquisitions:
+            matching = [entry for entry in acquisitions if entry.get('requestedUrl') == notice['url']
+                and entry.get('bytes') == notice['bytes'] and entry.get('sha256') == notice['sha256']
+                and entry.get('httpStatus') == 200 and entry.get('acquiredUtc')]
+            if not matching:
+                raise ValueError('Horizons source lacks matching original response acquisition metadata')
+            notice['local_file_acquired_utc'] = matching[0]['acquiredUtc']
+        else:
+            notice.update(comparison_invocation_utc=report['retrieved_utc'],
+                acquisitionTimeScope='Original response acquisition time not retained; this timestamp identifies the comparison invocation only.')
+        result.append(notice)
+    return result
+
+
 def calendar_periods(start, end):
     """Partition integer UTC epochs at calendar-month boundaries (end exclusive)."""
     if not isinstance(start, int) or not isinstance(end, int) or start >= end:
@@ -423,11 +447,7 @@ def build_extended(args):
         manifest['limitations'] = [item.replace('specific to this bounded date range and sites',
             'an adopted ceiling for the explicitly audited coverage and observers; dense sampled checks do not prove a continuous physical bound') for item in manifest['limitations']]
         manifest['limitations'].append('Future UTC epochs use the frozen naif0012.tls leap-second table. Future leap-second decisions require an updated kernel and revalidation; displayed numerical brackets are not physical clock-accuracy guarantees.')
-        for record in horizons['references']:
-            manifest['files'].append({'filename': record['source_filename'], 'url': record['url'],
-                'citation': 'https://ssd.jpl.nasa.gov/horizons/', 'bytes': record['source_bytes'],
-                'sha256': record['source_sha256'], 'product_version': 'JPL Horizons API / airless apparent topocentric reference',
-                'local_file_acquired_utc': horizons['retrieved_utc'], 'use': 'Matched direction comparison; shared JPL model lineage, not terrain validation'})
+        manifest['files'].extend(horizons_source_records(horizons))
         bundle = {'version': '1.1.0', 'coverage': [start, end], 'demonstrationCoverage': [START, END],
                   'sites': sites, 'manifest': manifest, 'demo': deepcopy(reference['demo'])}
         # Establish the new baseline fingerprint before binding finite configurations.

@@ -174,6 +174,26 @@ def test_reference_cannot_be_a_modified_or_empty_bundle_claiming_the_stable_fing
         module.load_reference(path)
 
 
+def test_horizons_source_notice_retains_actual_acquisition_time_not_report_invocation():
+    module = extended()
+    sources = getattr(module, 'horizons_source_records', None)
+    assert callable(sources), 'Reuse actual archived acquisition metadata without inventing retrieval times'
+    reference = {'source_filename': 'x-sun.txt', 'url': 'https://ssd.jpl.nasa.gov/api/horizons.api?x=1',
+                 'source_bytes': 120, 'source_sha256': 'a'*64}
+    report = {'retrieved_utc': '2026-11-15T03:00:00Z', 'references': [reference],
+              'response_acquisitions': [{'requestedUrl': reference['url'], 'bytes': 120,
+                'sha256': 'a'*64, 'acquiredUtc': '2026-11-14T23:10:46Z', 'httpStatus': 200}]}
+    notice = sources(report)[0]
+    assert notice['local_file_acquired_utc'] == '2026-11-14T23:10:46Z'
+    changed = deepcopy(report); changed['response_acquisitions'][0]['sha256'] = 'b'*64
+    with pytest.raises(ValueError, match='acquisition'):
+        sources(changed)
+    report.pop('response_acquisitions')
+    notice = sources(report)[0]
+    assert 'local_file_acquired_utc' not in notice
+    assert notice['comparison_invocation_utc'] == report['retrieved_utc']
+
+
 def test_motion_enclosure_requires_matching_period_observer_radius_and_current_code(tmp_path):
     from hashlib import sha256
     from pathlib import Path
