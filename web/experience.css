@@ -143,3 +143,38 @@
 /* Compact rail: the decision and its primary action stay above the fold on laptop screens. */
 @media(min-width:701px){.experience-intro{padding:16px 26px 2px}.experience-intro h1{font-size:23px;line-height:1.15;margin:4px 0 2px}.experience-intro h1 br{display:none}.explore-site{min-height:22px;padding:2px 0}.orbital-story-slot{padding:8px 26px 10px;scrollbar-width:thin}.scene-site-picker{padding:10px 26px 12px}.scene-site-picker #visual-site-detail{display:none}.scene-site-picker label{margin:0 0 3px}.scene-site-picker select{min-height:36px;margin-bottom:8px}}
 .scene-caption{text-shadow:0 1px 3px #000,0 0 8px #000}
+/* One landing decision: compact inputs, one search action, then its evidence. */
+.scene-stage{grid-template-rows:auto auto minmax(0,1fr)}
+.scene-site-picker{grid-row:2;border-top:0;padding-top:5px;padding-bottom:8px}
+.orbital-story-slot{grid-row:3;border-top:1px solid #263b4d}
+.find-opportunities{width:100%;min-height:44px;margin-top:12px;font-size:14px;font-weight:600}
+.scene-site-picker .opportunity-scope{font:11px/1.5 system-ui,sans-serif;color:#c2d2de;margin:6px 0 0}
+.story-outcome .outline{color:#e8cc9f;border-color:#7a674a;background:#171c22}
+.landing-opportunities{padding-block:30px;scroll-margin-top:12px}
+.landing-opportunities h2{font-size:28px;line-height:1.2;margin:6px 0}
+#opportunities-status{font-size:16px;line-height:1.6;color:#e7f1f7;margin:12px 0 6px}
+#opportunities-basis{font-size:13px;line-height:1.7;max-width:1050px}
+.opportunity-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:22px 0}
+.opportunity-card{min-width:0;padding:20px;background:#101e2a;border:1px solid #40586c;border-radius:7px;display:flex;flex-direction:column;align-items:start}
+.opportunity-card[data-status=PASS]{border-top:3px solid #94c2af}.opportunity-card[data-status=FAIL]{border-top:3px solid #c68a81}.opportunity-card[data-status=INDETERMINATE]{border-top:3px solid #c9ac73}
+.opportunity-card h3{font-size:22px;line-height:1.25;margin:7px 0 14px}
+.opportunity-card .eyebrow{font-size:10px;line-height:1.5;color:#b8cbd8}
+.opportunity-date{font:13px/1.6 var(--mono);color:#e9f2f7;margin:12px 0 6px}
+.opportunity-joint{font:14px/1.6 var(--mono);color:#bcdece}
+.opportunity-rule{font-size:13px;line-height:1.7;margin:12px 0 18px;color:#d7e3eb}
+.opportunity-card button{margin-top:auto;min-height:44px;width:100%}
+#opportunity-other{border-top:1px solid #3c5263;padding-top:16px;font-size:14px;line-height:1.7;color:#c5d7e4}
+#opportunity-other summary{cursor:pointer;color:#e5d1ad}#opportunity-near-misses p{margin-top:14px}
+.opportunity-limit{font-size:12px;line-height:1.7;margin-top:18px;color:#d7c297}
+@media(max-width:1000px){.opportunity-options{grid-template-columns:1fr}.opportunity-card h3{font-size:20px}}
+@media(max-width:700px){
+ .experience-intro{padding:14px 20px 8px}.experience-intro h1{font-size:25px}
+ .scene-mode-switch{order:1}.scene-mount{order:2;height:215px;min-height:215px!important}
+ .scene-caption{order:3;padding-block:5px}.scene-site-picker{order:4;padding:12px 20px}
+ .scene-site-picker #visual-site-detail{display:none}.scene-site-picker select{min-height:36px}
+ .scene-site-picker label{font-size:12px;margin-bottom:3px}.scene-site-picker label span{font-size:10px}
+ .find-opportunities{margin-top:10px}.scene-site-picker .opportunity-scope{font-size:10px}
+ .orbital-story-slot{order:5;padding:12px 20px}.scene-transport{order:6}
+ .story-evidence h2{font-size:19px}.story-progress{margin-bottom:7px}.story-footer{font-size:11px}
+ .landing-opportunities{width:calc(100% - 32px);padding-block:24px}.landing-opportunities .section-head{flex-direction:column;align-items:start;gap:12px}
+}

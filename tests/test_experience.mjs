@@ -87,6 +87,7 @@ try{
   await command('Page.navigate',{url});
   await until(async()=>Boolean((await inspect())?.moon.textured));
   await until(async()=>(await inspect()).renderedFrames>0);
+  assert(await evaluate("!!document.querySelector('#find-opportunities')"),'Mission needs a direct landing-opportunity action.');
   assert.deepEqual(await evaluate("[...document.querySelectorAll('.main-nav button')].map(n=>n.textContent)"),['Mission','Compare','Advanced']);
   assert(await evaluate("getComputedStyle(document.querySelector('#scene-poster')).display==='none'"),'Loaded GPU scene must remove the Moon poster, including in surface mode.');
   let info=await inspect();assert.equal(info.mode,'orbital');assert(info.moon.vertices>10000);
@@ -158,7 +159,7 @@ try{
   assert.match(await evaluate("document.querySelector('#recovery-choice').textContent"),/60.minute.*240.*69/s);
   await evaluate("scrollTo({top:document.querySelector('#decision-evidence').getBoundingClientRect().top+scrollY,behavior:'instant'})");await screenshot('recovery-requirements-desktop');await evaluate("scrollTo({top:0,behavior:'instant'})");
   await sleep(500);await screenshot('recovered-desktop');
-  assert(await evaluate("(()=>{const a=document.querySelector('.recovery-wait').getBoundingClientRect(),b=document.querySelector('.scene-site-picker').getBoundingClientRect();return a.bottom<=b.top&&a.bottom<=innerHeight})()"),'Recovery cost must be visible above the site controls.');
+  assert(await evaluate("(()=>{const a=document.querySelector('.recovery-wait').getBoundingClientRect(),b=document.querySelector('.scene-site-picker').getBoundingClientRect();return (a.bottom<=b.top||b.bottom<=a.top)&&a.top>=0&&a.bottom<=innerHeight})()"),'Recovery cost must stay visible without overlapping the compact mission controls.');
   const expected=runMission(bundle,communicationDemo(bundle));
   const recoveryRecord=await download('recovery-switch-race',"document.querySelector('#export').click();document.querySelector('#story-delayed').click()");
   checkCertificate(recoveryRecord,expected.recommended,'recommended');
@@ -282,6 +283,31 @@ try{
       info=await inspect();assert.equal(info[key].state,state);assert.equal(info[key].visible,state==='visible',`${site.id} ${key} ${state}`);
     }
   }
+  // Custom planning is separate from a delayed same-site recovery.
+  await evaluate("document.querySelector('#solar-demo').click();document.querySelector('#product-explore').click();document.querySelector('#visual-arrival').value='2026-11-17T03:00:00';document.querySelector('#visual-date-go').click()");
+  assert.equal(await evaluate("Date.parse(document.querySelector('#latest').value+'Z')"),Date.parse('2026-11-30T12:00:00Z'),'A custom arrival must not inherit the solar teaching preset\'s Nov7 cap.');
+  await evaluate("document.querySelector('#verified-demo').click();document.querySelector('#visual-arrival').value='2026-11-17T03:00:00';document.querySelector('#visual-date-go').click();document.querySelector('#find-opportunities').click()");
+  await until(()=>evaluate("document.querySelector('#landing-opportunities').dataset.kind==='PASS_FOUND'"));
+  assert.equal(await evaluate("document.querySelector('#delay').value"),'72','The new-arrival search must not alter the original delay demo.');
+  assert.equal(await evaluate("Number(document.querySelector('#opportunity-options [data-status=PASS]').dataset.start)"),Date.parse('2026-11-17T03:00Z')/1000);
+  assert.equal(await evaluate("document.querySelectorAll('#opportunity-options article').length"),3);
+  await screenshot('opportunities-pass-desktop');
+  const viewed=await evaluate("(()=>{const c=document.querySelector('#opportunity-options [data-status=PASS]');return {site:c.dataset.site,start:Number(c.dataset.start)}})()");
+  await evaluate("document.querySelector('#opportunity-options [data-status=PASS] button').click()");
+  assert.equal((await inspect()).siteId,viewed.site);assert.equal((await inspect()).time,viewed.start);
+  const viewedExpected=runMission(bundle,{...communicationDemo(bundle),siteId:viewed.site,nominal:viewed.start});
+  checkCertificate(await download('opportunity-view-certificate'),viewedExpected.nominal,'nominal');
+  await evaluate("document.querySelector('#earliest').value='2026-11-04T06:00:00';document.querySelector('#latest').value='2026-11-04T06:00:00';for(const id of ['earliest','latest'])document.querySelector('#'+id).dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('#visual-arrival').value='2026-11-04T06:00:00';document.querySelector('#visual-date-go').click();document.querySelector('#find-opportunities').click()");
+  await until(()=>evaluate("document.querySelector('#landing-opportunities').dataset.kind==='NO_PASS'"));
+  assert(await evaluate("!document.querySelector('#opportunity-other').hidden&&document.querySelector('#opportunity-near-misses').textContent.includes('broken')"));await screenshot('opportunities-near-misses-desktop');
+  await evaluate("document.querySelector('#visual-arrival').value='2026-11-17T03:00:00';document.querySelector('#visual-date-go').click();document.querySelector('#find-opportunities').click()");
+  await until(()=>evaluate("document.querySelector('#landing-opportunities').dataset.kind==='SCHEDULE_EMPTY'"));
+  assert.equal(await evaluate("Date.parse(document.querySelector('#latest').value+'Z')"),Date.parse('2026-11-04T06:00:00Z'),'Explicitly edited schedule limits must remain fixed.');await screenshot('opportunities-schedule-excluded-desktop');
+  await evaluate("document.querySelector('#verified-demo').click();document.querySelector('#visual-duration').value=6;document.querySelector('#visual-arrival').value='2026-11-30T18:00:00';document.querySelector('#visual-date-go').click()");
+  assert.equal(await evaluate("Date.parse(document.querySelector('#latest').value+'Z')"),Date.parse('2026-11-30T18:00:00Z'));
+  await evaluate("document.querySelector('#verified-demo').click();document.querySelector('#visual-arrival').value='2026-12-02T00:00:00';document.querySelector('#visual-date-go').click();document.querySelector('#find-opportunities').click()");
+  await until(()=>evaluate("document.querySelector('#landing-opportunities').dataset.kind==='NO_DATA'"));
+  assert.equal(await evaluate("document.querySelectorAll('#opportunity-options article').length"),0);await screenshot('opportunities-no-data-desktop');
   await evaluate("document.querySelector('#nominal').value='2026-12-02T00:00:00';document.querySelector('#latest').value='2026-12-10T00:00:00';document.querySelector('#time-scope').value='mission';document.querySelector('#evaluate').click()");
   info=await inspect();assert.equal(info.sun.visible,false);assert.equal(info.earth.visible,false);
   assert(await evaluate("document.querySelector('#hero-play').disabled"));
@@ -293,7 +319,7 @@ try{
   await screenshot('compare-mobile');
   await evaluate("document.querySelector('#product-explore').click()");
   await evaluate("document.querySelector('#focus-earth').click();scrollTo(0,0)");await screenshot('surface-mobile');
-  assert.match(await evaluate("document.querySelector('#experience-title').innerText"),/your landing/);
+  assert.match(await evaluate("document.querySelector('#experience-title').innerText"),/lunar arrival/);
   assert(await evaluate("(()=>{const a=document.querySelector('.mission-scene-caption').getBoundingClientRect(),b=document.querySelector('.mission-scene-body-status').getBoundingClientRect();return a.bottom<=b.top||a.right<=b.left})()"),'Mobile site and body captions must not overlap.');
   await evaluate("document.querySelector('#focus-terrain').click()");await screenshot('surface-terrain-mobile');
   assert(await evaluate('document.documentElement.scrollWidth<=innerWidth'));
@@ -302,7 +328,7 @@ try{
   await until(async()=>{const camera=(await inspect()).camera;return camera.position.every((v,i)=>Math.abs(v-camera.overviewPosition[i])<1e-5);});
   await evaluate('scrollTo(0,0)');await screenshot('orbital-layout-mobile');
   assert(await evaluate("document.querySelector('.scene-mode-switch').getBoundingClientRect().bottom<=document.querySelector('#scene-mount').getBoundingClientRect().top+1"),'Mobile controls must stack above the Moon canvas.');
-  assert(await evaluate("document.querySelector('#story-next').getBoundingClientRect().bottom<=innerHeight"),'Mobile mission and primary action must appear before advanced analysis.');
+  assert(await evaluate("document.querySelector('#find-opportunities').getBoundingClientRect().bottom<=innerHeight"),'The mobile landing-opportunity action must be visible before advanced analysis.');
   await command('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]});
   assert(await evaluate("getComputedStyle(document.querySelector('.scene-poster')).transitionDuration==='0s'"));
   await evaluate("document.querySelector('#scene-mount canvas').getContext('webgl2').getExtension('WEBGL_lose_context').loseContext()");
@@ -330,7 +356,7 @@ try{
   await screenshot('missing-bundle-mobile');
   await writeFile(resolve(work,'verification.json'),JSON.stringify({viewports:[[1024,768],[1366,768],[1440,900],[390,840]],
     initialStatus:'PASS',delayedStatus:'FAIL',recoveredStatus:'PASS',certificateRoles:['nominal','delayed','recommended','cross-site alternative'],
-    invalidArrivalRejected:true,exportSelectionRace:true,allSiteVisibilityGates:true,noExternalRequests:true,ordinaryWheelZoomAndPageScrollOutsideCanvas:['orbital','surface'],keyboardZoom:['orbital','surface'],surfaceTouchPinch:true,
+    invalidArrivalRejected:true,exportSelectionRace:true,allSiteVisibilityGates:true,noExternalRequests:true,customOpportunitySearch:true,automaticAndExplicitSchedules:true,opportunityCertificateIdentity:true,ordinaryWheelZoomAndPageScrollOutsideCanvas:['orbital','surface'],keyboardZoom:['orbital','surface'],surfaceTouchPinch:true,
     webglFallback:true,missingBundleError:true,physicalDevice:false,humanComprehension:false,
     browser:await command('Browser.getVersion'),performance:performanceEvidence},null,2));
   console.log(`3D experience passed: textured GPU Moon/Earth, real DEM meshes, camera controls, PASS/FAIL/PASS story, all-site obstruction gating, lazy/offline assets, mobile, reduced motion and lost/absent WebGL fallback. Evidence: ${work}`);

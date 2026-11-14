@@ -6,6 +6,7 @@ import { renderHorizon } from './horizon.mjs';
 import { createAtlas } from './atlas.mjs';
 import { sceneFrame, missionStory } from './scene-model.mjs';
 import {constraintEvidence,constraintSegments,evidenceTime} from './decision-evidence.mjs';
+import {resolveAutomaticSchedule,findLandingOpportunities} from './opportunities.mjs';
 
 const byId = (id) => document.getElementById(id);
 const form = byId('mission-form');
@@ -73,6 +74,10 @@ let renderingNotes;
 let evidenceMission;
 let highlightedConstraintId;
 let comparisonOptions;
+let scheduleAnchor;
+let explicitSchedule={earliest:false,latest:false};
+let opportunityRequest=0;
+let opportunityReport;
 const SENSITIVITY_STUDY_SITE = 'de-gerlache-rim';
 const studies = [
   { id: 'height', cases: 'heights', evaluator: 'evaluateHeights' },
@@ -183,6 +188,8 @@ function loadDemo(communications = true) {
   byId('latest').value = inputTime(demo.latest);
   byId('grid').value = demo.gridMinutes;
   byId('prelaunch').checked = demo.mode === 'prelaunch';
+  scheduleAnchor={nominal:demo.nominal,durationHours:demo.durationHours};
+  explicitSchedule={earliest:false,latest:false};
   selected='nominal';
   updateSiteDetail();
   evaluate();
@@ -192,13 +199,19 @@ function readInputs() {
   const durationHours = readNumber('duration');
   if (durationHours <= 0) throw new Error('Mission length must be greater than zero.');
   const allowedEnd = bundle.coverage[1] - durationHours * 3600;
-  const earliest = readTime('earliest') ?? bundle.coverage[0];
-  const latest = readTime('latest') ?? allowedEnd;
+  const nominal=readTime('nominal');
+  const automatic=resolveAutomaticSchedule(bundle.coverage,{nominal,durationHours,
+    earliest:readTime('earliest')??bundle.coverage[0],latest:readTime('latest')??allowedEnd},scheduleAnchor,explicitSchedule);
+  const {earliest,latest}=automatic;
+  byId('earliest').value=inputTime(earliest);byId('latest').value=inputTime(latest);
+  scheduleAnchor={nominal,durationHours};
+  for(const key of ['earliest','latest'])byId(key).dataset.automatic=String(!explicitSchedule[key]);
+  byId('schedule-origin').textContent=`Allowed starts: ${formatTime(earliest)} to ${formatTime(latest)}. ${explicitSchedule.earliest||explicitSchedule.latest?'Your explicitly edited bounds are retained.':'Automatic bounds follow cached coverage after arrival or duration changes.'}`;
   const gridMinutes = readNumber('grid');
   if (earliest > latest) throw new Error('The earliest allowable start must be at or before the latest start.');
   return {
     siteId: byId('site').value,
-    nominal: readTime('nominal'),
+    nominal,
     delayHours: readNumber('delay'),
     durationHours,
     maxSunHours: readNumber('max-sun'),
@@ -805,6 +818,7 @@ function evaluate() {
   try {
     const nextInputs = readInputs();
     const nextResult = runMission(bundle, nextInputs);
+    clearOpportunities();
     cancelSceneEntry();
     isEdited = false;
     inputs = nextInputs;
@@ -826,9 +840,78 @@ function evaluate() {
     invalidateExperience();
     if (result) for (const study of studies) resetStudy(study, selectedMission());
     byId('form-status').textContent = error instanceof Error ? error.message : 'The mission could not be evaluated.';
+    if(productMode==='explore'){byId('workspace-notice').hidden=false;byId('workspace-notice').textContent=byId('form-status').textContent;}
     exportButton.disabled = true;
     return false;
   }
+}
+
+function clearOpportunities(){
+  ++opportunityRequest;opportunityReport=null;
+  byId('landing-opportunities').hidden=true;byId('landing-opportunities').setAttribute('aria-busy','false');
+  byId('find-opportunities').disabled=false;byId('find-opportunities').textContent='Find landing opportunities';
+}
+
+async function searchOpportunities(){
+  if(!applyVisualArrival())return;
+  pausePlayback();const requestedInputs=inputs,request=++opportunityRequest,root=byId('landing-opportunities');
+  root.hidden=productMode!=='explore';root.setAttribute('aria-busy','true');root.dataset.kind='SEARCHING';
+  byId('opportunities-status').textContent='Checking supported sites with your unchanged requirements…';
+  byId('opportunities-basis').textContent='This is a new-arrival search before launch; the landing delay is not added.';
+  byId('opportunity-options').replaceChildren();byId('opportunity-other').hidden=true;
+  byId('find-opportunities').disabled=true;byId('find-opportunities').textContent='Checking landing opportunities…';
+  try{
+    const report=await findLandingOpportunities(bundle,requestedInputs,{cancelled:()=>request!==opportunityRequest||inputs!==requestedInputs,
+      yieldControl:()=>new Promise(resolve=>setTimeout(resolve,0))});
+    if(request!==opportunityRequest||inputs!==requestedInputs)return;
+    opportunityReport=report;renderOpportunities(report);
+    if(productMode==='explore')root.scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
+  }catch(error){
+    if(request!==opportunityRequest||error.name==='AbortError')return;
+    root.dataset.kind='ERROR';byId('opportunities-status').textContent=`Search not run: ${error.message}`;
+  }finally{
+    if(request===opportunityRequest){root.setAttribute('aria-busy','false');byId('find-opportunities').disabled=false;byId('find-opportunities').textContent='Find landing opportunities';}
+  }
+}
+
+function renderOpportunities(report){
+  const root=byId('landing-opportunities');root.hidden=productMode!=='explore';root.dataset.kind=report.kind;
+  root.dataset.candidates=report.search.candidateCount;root.dataset.requestedArrival=report.requested.nominal;
+  const titles={PASS_FOUND:'Passing arrivals found',NO_PASS:'No checked arrival passes',UNRESOLVED:'No passing arrival proven',NO_DATA:'No complete mission in cached data',SCHEDULE_EMPTY:'No eligible start inside your allowed schedule'};
+  byId('opportunities-title').textContent=titles[report.kind];
+  byId('opportunities-status').textContent=report.search.candidateCount
+    ?`${report.counts.PASS} passing · ${report.counts.FAIL} failed · ${report.counts.INDETERMINATE} unresolved site-and-time options. ${report.kind==='UNRESOLVED'?'Uncertainty prevents ruling out a passing window.':report.kind==='NO_PASS'?'This applies only to the checked grid, sites and requirements.':''}`
+    :report.kind==='NO_DATA'?'The chosen arrival, allowed dates or mission duration leave no complete mission inside the November cache. No environmental PASS or FAIL has been invented.'
+      :'Your schedule contains no eligible starts at or after this arrival. This is a scheduling exclusion, not a lunar-environment failure.';
+  byId('opportunities-basis').textContent=report.search.candidateCount
+    ?`${report.requested.durationHours} h mission · ${report.search.sites.length} supported study points · starts every ${report.search.gridMinutes} min, ${shortTime(report.search.firstStart)} to ${shortTime(report.search.lastStart)}. All selected limits retained. ${report.coverageClipped?'Only fully covered missions were searched; the grid phase is unchanged.':''}`
+    :`Available evidence: ${formatTime(bundle.coverage[0])} to ${formatTime(bundle.coverage[1])} (exclusive end). Allowed starts: ${formatTime(report.requested.earliest)} to ${formatTime(report.requested.latest)}.`;
+  const cards=byId('opportunity-options');cards.replaceChildren();
+  const passingIds=new Set(report.options.map(m=>m.siteId));
+  const rows=[...report.options.map(mission=>({mission,label:'First confirmed pass at this site'})),
+    ...bundle.sites.filter(s=>!passingIds.has(s.id)).map(site=>{
+      const uncertain=report.unresolved.find(m=>m.siteId===site.id),near=report.nearMisses.find(r=>r.mission.siteId===site.id);
+      return uncertain?{mission:uncertain,label:'Unresolved sampled arrival'}:near?{mission:near.mission,label:'Fewest broken rules at this site'}:null;
+    }).filter(Boolean)];
+  for(const {mission,label} of rows){
+    const card=element('article','opportunity-card');Object.assign(card.dataset,{site:mission.siteId,start:mission.start,status:mission.status});
+    card.append(element('p','eyebrow',label),element('h3','',findSite(mission.siteId).name),statusChip(mission.status),element('p','opportunity-date',shortTime(mission.start)));
+    const joint=mission.constraints.find(c=>c.id==='min_joint_total');
+    if(joint)card.append(element('p','opportunity-joint',`${evidenceTime(joint.range[0])} confirmed Sun + Earth`));
+    card.append(element('p','opportunity-rule',optionDecisionText(mission)));
+    const caution=siteCaution(mission.siteId);if(caution)card.append(element('p','comparison-caution',caution));
+    const view=element('button','outline','View this arrival →');view.type='button';view.addEventListener('click',()=>{
+      byId('site').value=mission.siteId;byId('nominal').value=inputTime(mission.start);selected='nominal';
+      if(evaluate()){showGuidedPhase('nominal');sceneController?.selectSite(mission.siteId,{focus:false});byId('experience').scrollIntoView({block:'start',behavior:'instant'});}
+    });card.append(view);cards.append(card);
+  }
+  const other=byId('opportunity-near-misses');other.replaceChildren();
+  for(const {mission,failedRules} of report.nearMisses){
+    const row=element('p','',`${findSite(mission.siteId).name} · ${shortTime(mission.start)} · ${failedRules.length} broken ${failedRules.length===1?'rule':'rules'}: ${failedRules.map(c=>{const v=constraintEvidence(c);return `${v.title}: ${v.metricText}, required ${v.requirementText}; margin ${v.marginText}`;}).join('; ')}.`);other.append(row);
+  }
+  for(const mission of report.unresolved)other.append(element('p','',`${findSite(mission.siteId).name} · ${shortTime(mission.start)}: ${optionDecisionText(mission)} No PASS is established.`));
+  if(report.nearMisses.length)other.prepend(element('p','secondary','Near misses are ordered by fewer proven broken rules, then earlier UTC. This is not a safety score, and no requirement was relaxed.'));
+  byId('opportunity-other').hidden=!other.childElementCount;
 }
 
 function chooseTarget(value) {
@@ -920,19 +1003,25 @@ byId('comparison-duration').addEventListener('change',()=>{
 });
 byId('add-comparison-option').addEventListener('click',()=>{if(comparisonOptions?.length===2){comparisonOptions.push({...comparisonOptions[1],key:'C'});renderOptionComparison();}});
 byId('remove-comparison-option').addEventListener('click',()=>{comparisonOptions=comparisonOptions?.slice(0,2);renderOptionComparison();});
-byId('visual-date-go').addEventListener('click',()=>{
+function applyVisualArrival(){
   const field=byId('visual-arrival');
   if(!field.value||!Number.isFinite(Date.parse(`${field.value}Z`))){
     field.setCustomValidity('Choose a valid original arrival in UTC.');field.reportValidity();
-    byId('workspace-notice').hidden=false;byId('workspace-notice').textContent='Arrival not changed. Choose a valid UTC date and time, then apply it.';return;
+    byId('workspace-notice').hidden=false;byId('workspace-notice').textContent='Arrival not changed. Choose a valid UTC date and time, then apply it.';return false;
   }
   const duration=Number(byId('visual-duration').value);
-  if(!Number.isFinite(duration)||duration<=0){byId('workspace-notice').hidden=false;byId('workspace-notice').textContent='Choose a positive mission duration. Arrival and mission have not changed.';return;}
+  if(!Number.isFinite(duration)||duration<=0){byId('workspace-notice').hidden=false;byId('workspace-notice').textContent='Choose a positive mission duration. Arrival and mission have not changed.';return false;}
   field.setCustomValidity('');byId('workspace-notice').hidden=true;
-  byId('nominal').value=field.value;byId('duration').value=duration;selected='nominal';if(evaluate())showGuidedPhase('nominal');
-});
+  byId('nominal').value=field.value;byId('duration').value=duration;selected='nominal';if(!evaluate())return false;showGuidedPhase('nominal');return true;
+}
+byId('visual-date-go').addEventListener('click',applyVisualArrival);
+for(const id of ['visual-arrival','visual-duration'])byId(id).addEventListener('change',applyVisualArrival);
+for(const key of ['earliest','latest'])for(const event of ['input','change'])byId(key).addEventListener(event,()=>{explicitSchedule[key]=Boolean(byId(key).value);});
+byId('find-opportunities').addEventListener('click',searchOpportunities);
+byId('opportunity-limits').addEventListener('click',()=>{setExpert(true);byId('latest').focus();});
 document.querySelector('.scene-site-picker').addEventListener('focusin',()=>pausePlayback());
-byId('visual-arrival').addEventListener('input',()=>byId('visual-arrival').setCustomValidity(''));
+byId('visual-arrival').addEventListener('input',()=>{byId('visual-arrival').setCustomValidity('');clearOpportunities();});
+byId('visual-duration').addEventListener('input',clearOpportunities);
 for(const link of document.querySelectorAll('.main-nav a'))link.addEventListener('click',()=>{
   if(link.getAttribute('href')!=='#experience')setExpert(true);
 });
@@ -1351,6 +1440,7 @@ function setProductMode(mode,scroll=true){
   productMode=mode;
   byId('experience').hidden=mode==='compare'||mode==='analyst';
   byId('compare-workspace').hidden=mode!=='compare';
+  byId('landing-opportunities').hidden=mode!=='explore'||!opportunityReport;
   byId('top').hidden=mode!=='analyst';
   byId('experience').dataset.workspace=mode;
   for(const button of document.querySelectorAll('[data-workspace]'))button.setAttribute('aria-pressed',String(button.dataset.workspace===mode));
@@ -1491,6 +1581,7 @@ function updateExperienceFrame(site,sample,mission) {
 }
 
 function invalidateExperience() {
+  clearOpportunities();
   ++rescueAnimation;
   cancelSceneEntry();
   pausePlayback();
@@ -1610,6 +1701,7 @@ function renderDecisionEvidence(mission){
 function cancelSceneEntry(){++sceneIntent;requestedExperienceMode=experienceMode;if(experienceMode==='orbital')sceneController?.setMode('orbital');}
 async function runRescueAction(){
   if(isEdited||!result)return;
+  clearOpportunities();
   const target=guidedPhase==='nominal'?'delayed':guidedPhase==='delayed'?'recommended':'nominal';
   if(target==='nominal'||!result[target]){showGuidedPhase(target);return;}
   const animation=++rescueAnimation,requestedInputs=inputs,from=currentTime??selectedMission().start,to=result[target].start;

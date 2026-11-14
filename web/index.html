@@ -41,7 +41,7 @@
         <div class="scene-vignette" aria-hidden="true"></div>
         <div class="experience-intro">
           <p class="eyebrow">A 12-HOUR MISSION AT THE LUNAR SOUTH POLE</p>
-          <h1 id="experience-title">What if your<br> landing is late?</h1>
+          <h1 id="experience-title">Plan your lunar arrival</h1>
           <button id="explore-site" class="link-button explore-site" type="button" disabled>Explore this surface →</button>
         </div>
         <div id="orbital-story-slot" class="orbital-story-slot"></div>
@@ -56,6 +56,8 @@
           <p id="visual-site-detail">Three supported south-pole study points.</p>
           <label for="visual-arrival">Original arrival <span>UTC · November 2026 only</span></label>
           <div class="visual-date-controls"><input id="visual-arrival" type="datetime-local" step="1"><label class="visual-duration-field" for="visual-duration">Hours<input id="visual-duration" type="number" min="0.001" step="any" value="12" aria-label="Mission duration in hours"></label><button id="visual-date-go" class="outline" type="button">Apply</button></div>
+          <button id="find-opportunities" class="primary find-opportunities" type="button" disabled>Find landing opportunities</button>
+          <p class="opportunity-scope">Before launch · three supported study points · same requirements</p>
         </div>
         <div id="surface-focus" class="surface-focus" role="group" aria-label="Surface camera direction" hidden>
           <button id="focus-earth" type="button">Look at Earth</button>
@@ -89,7 +91,7 @@
         </div>
         <div class="story-evidence">
           <div><p class="eyebrow" id="story-date"></p><h2 id="story-title">Your planned landing</h2><p id="story-explanation"></p><p id="story-witness"></p></div>
-          <div class="story-outcome"><span id="story-status" class="status"></span><button id="story-next" class="primary" type="button">Apply the landing delay →</button></div>
+          <div class="story-outcome"><span id="story-status" class="status"></span><button id="story-next" class="outline" type="button">Apply the landing delay →</button></div>
         </div>
         <div id="story-joint" class="story-joint" aria-label="Joint Sun and Earth visibility timeline"></div>
         <a class="decision-jump" href="#decision-evidence">See all mission requirements and proof ↓</a>
@@ -114,6 +116,13 @@
       <details class="visual-disclosure"><summary>Model limits, NASA sources and visual approximations</summary><p>Visibility is geometry, not measured electrical power or a working radio link. The reduced NASA LOLA surface extends 32 km; more distant ridges use the calculated nominal skyline projected at an artificial 200 km distance. That curtain and local mesh are display geometry, not the uncertainty bounds used to decide a mission. Sun and Earth centers follow cached 30-minute azimuth/elevation samples. In surface view, bodies are hidden unless retained, coarse and fine intervals all confirm visibility; this does not model the complete solar or Earth disc. Fixed approximate diameters are 0.53° and 1.9°. Earth’s approximate lit phase follows the cached Sun direction; its historical cloud-free NASA texture and geographic face are not registered to the simulated time. Surface brightness uses a Lommel–Seeliger regolith approximation with restrained procedural display grain: the grain adds no relief, and cast shadows are not rendered, so only slopes turned away from the Sun darken. In orbital view the Sun and Earth sit in their computed directions at fixed approximate angular sizes with schematic distances. Sun focus uses optical zoom, preserving its 0.53-degree disc. Camera zoom changes field of view, not observer height or sky angles. Rocks, landing hazards, power, thermal safety and radio hardware are not modeled. Only three study points and November 2026 have validated cached calculations. NASA sources and hashes are available in Advanced.</p></details>
     </section>
 
+    <section id="landing-opportunities" class="container landing-opportunities" aria-labelledby="opportunities-title" hidden>
+      <div class="section-head"><div><p class="eyebrow">SAME REQUIREMENTS · BEFORE LAUNCH</p><h2 id="opportunities-title">Landing opportunities</h2></div><button id="opportunity-limits" class="outline" type="button">Edit allowed dates and requirements</button></div>
+      <p id="opportunities-status" role="status"></p><p id="opportunities-basis" class="secondary"></p>
+      <div id="opportunity-options" class="opportunity-options"></div>
+      <details id="opportunity-other" hidden><summary>Near misses and unresolved starts</summary><div id="opportunity-near-misses"></div></details>
+      <p class="opportunity-limit">A passing surface-environment window does not establish a safe landing, spacecraft reachability, electrical power or a working radio link.</p>
+    </section>
     <section id="compare-workspace" class="container compare-workspace" aria-labelledby="compare-workspace-title" hidden>
       <div class="section-head"><div><p class="eyebrow">Same requirements · independent arrivals</p><h1 id="compare-workspace-title">Which arrival works for this mission?</h1><p id="compare-input-summary" class="secondary"></p></div><button id="compare-return" class="outline" type="button">Return to Mission ↗</button></div>
       <div class="comparison-shared"><label for="comparison-duration">Shared mission duration <span>hours</span><input id="comparison-duration" type="number" min="0.001" step="any" value="12"></label><p id="comparison-shared-limits"></p><button id="comparison-edit-limits" class="link-button" type="button">Edit these requirements in Advanced ↗</button></div>
@@ -191,6 +200,7 @@
                 <input id="earliest" name="earliest" type="datetime-local" step="1">
                 <label for="latest">Latest allowable start <span>UTC</span></label>
                 <input id="latest" name="latest" type="datetime-local" step="1">
+                <p id="schedule-origin" class="field-hint">Preset dates adjust to cached coverage when arrival or duration changes. Dates you edit here remain fixed.</p>
                 <label for="grid">Alternative start grid <span>min</span></label>
                 <input id="grid" name="grid" type="number" min="1" step="1" required>
                 <label id="prelaunch-option" class="checkbox" hidden><input id="prelaunch" type="checkbox"> Compare other sites in prelaunch concept study</label>
