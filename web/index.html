@@ -9,7 +9,9 @@
     <link rel="stylesheet" href="./styles.css">
     <link rel="stylesheet" href="./experience.css">
     <link rel="stylesheet" href="./scene3d.css">
+    <link rel="stylesheet" href="./judge.css">
     <script type="module" src="./app.mjs"></script>
+    <script type="module" src="./guide.mjs"></script>
   </head>
   <body>
     <a class="skip" href="#visual-site">Skip to landing site selection</a>
@@ -31,7 +33,7 @@
         <button id="expert-toggle" class="outline expert-toggle" type="button" aria-expanded="false" aria-controls="top" hidden>Analyst mode</button>
       </div>
     </header>
-    <div class="product-purpose"><p>Choose a place and time on the Moon. See when sunlight and Earth are visible, compare locations, and find better landing opportunities.</p><p class="geometry-note">Geometric visibility does not prove electrical power, radio-link performance or landing safety.</p></div>
+    <div class="product-purpose"><div class="purpose-copy"><p>Choose a place and time on the Moon. See Sun and Earth visibility, then find better landing windows.</p><p class="geometry-note">Geometric visibility—not a guarantee of landing safety or spacecraft performance.</p></div><button id="tour-start" type="button">Show me how <span aria-hidden="true">→</span></button></div>
 
     <p id="workspace-notice" class="workspace-notice" role="status" hidden></p>
     <section id="experience" class="experience" aria-labelledby="experience-title">
@@ -141,9 +143,10 @@
     <section id="compare-workspace" class="container compare-workspace" aria-labelledby="compare-workspace-title" hidden>
       <div class="section-head"><div><p class="eyebrow">Same requirements · independent arrivals</p><h1 id="compare-workspace-title">Which arrival works for this mission?</h1><p id="compare-input-summary" class="secondary"></p></div><button id="compare-return" class="outline" type="button">Return to Mission ↗</button></div>
       <div class="comparison-shared"><label for="comparison-duration">Shared mission duration <span>hours</span><input id="comparison-duration" type="number" min="0.001" step="any" value="12"></label><p id="comparison-shared-limits"></p><button id="comparison-edit-limits" class="link-button" type="button">Edit these requirements in Advanced ↗</button></div>
+      <section class="comparison-difference" aria-labelledby="comparison-difference-title"><h2 id="comparison-difference-title">What is the difference?</h2><p id="comparison-difference"></p><details class="comparison-context"><summary>What is being compared?</summary><p>Joint means both center-visibility conditions at once. Site changes are prelaunch concepts. The duration and any enabled requirements stay the same.</p></details></section>
       <div id="option-comparison" class="option-comparison"></div>
       <div class="comparison-actions"><button id="add-comparison-option" class="outline" type="button">Add a third option</button><button id="remove-comparison-option" class="link-button" type="button" hidden>Remove third option</button></div>
-      <section class="comparison-difference" aria-labelledby="comparison-difference-title"><h2 id="comparison-difference-title">What is the difference?</h2><p id="comparison-difference"></p><details class="comparison-context"><summary>What is being compared?</summary><p>Joint means both center-visibility conditions at once. Site changes are prelaunch concepts. The duration and any enabled requirements stay the same.</p></details></section>
+
       <details id="month-explorer" class="month-explorer"><summary>Explore the month · daily start samples</summary><div id="comparison-panels"></div></details>
     </section>
 
