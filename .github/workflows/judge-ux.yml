@@ -1,7 +1,6 @@
 name: Validate judge-first UX
 on:
-  push:
-    branches: [feat/judge-first-walkthrough]
+  workflow_dispatch:
   pull_request:
     paths:
       - 'web/**'
