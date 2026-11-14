@@ -1,0 +1,365 @@
+{
+  "aiUse": "OpenAI Codex assisted implementation, tests and writing under sole human entrant Arya Ergin. Mesh vertices are deterministic NASA DEM derivatives, not generative artwork.",
+  "binaryFormat": "little-endian contiguous Float32 XYZ, followed by Uint32 triangle indices",
+  "bundleSha256": "67f898ff38f66c0feb8bff7196aa78ed060dd609801dce0aca7a8927d2cc05c6",
+  "coordinateConvention": "x=eastM, y=radialUpM above exact bundle ground, z=-northM; right handed",
+  "frame": "MOON_ME_DE440_ME421",
+  "gridProjection": "Inverse gnomonic directions from local east/north reference-sphere tangent coordinates",
+  "kind": "Physical-scale NASA LOLA display meshes",
+  "limits": [
+    "Display mesh is not the mission horizon or a validated shadow-volume solution; computed visibility remains authoritative.",
+    "Native 5 m local DEM is displayed at 5 m within +/-250 m, 62.5 m to +/-4 km; native 80 m regional terrain at 250 m to +/-32 km. Decimation can omit narrow ridges; nominal pixel spacing is not effective resolution.",
+    "Displayed square extends 32 km along cardinal tangent axes (about 45 km to corners); horizon calculations use much greater extent. Distant blockers and sub-grid relief may be absent.",
+    "Missing terrain is omitted as holes, including any potentially missing native contributor; missing regions never become flat ground.",
+    "Nearest-cell heights and linear display triangles approximate the cell-constant scientific terrain model; no vertical exaggeration or procedural craters.",
+    "Study points are published region centers, not approved landing locations. This visual makes no landing safety, power or communication reliability claim."
+  ],
+  "metresPerUnit": 1,
+  "radiusM": 1737400.0,
+  "reduction": "Nearest native DEM cell at each vertex; triangulated multiresolution grids. Every enclosed native gap masks the containing display cell with a conservative one-cell halo. Fine grid boundaries are stitched into coarse-cell fans about genuine sampled centers.",
+  "reproduce": "python -m science.scene_terrain --raw data/raw --bundle web/data/bundle.json --output web/data",
+  "sites": [
+    {
+      "boundsM": [
+        [
+          -32015.77237287632,
+          -5205.93216132001,
+          -32003.783042764724
+        ],
+        [
+          32011.40692801857,
+          13.289734859996745,
+          31990.75131234257
+        ]
+      ],
+      "byteLength": 3295788,
+      "chunks": [
+        {
+          "gridSize": 101,
+          "indexCount": 60000,
+          "indexOffset": 0,
+          "innerHalfExtentM": 0,
+          "name": "native-core",
+          "nativeSourceSpacingM": 5,
+          "nominalGridSpacingM": 5.0,
+          "outerHalfExtentM": 250.0
+        },
+        {
+          "gridSize": 129,
+          "indexCount": 99264,
+          "indexOffset": 60000,
+          "innerHalfExtentM": 250.0,
+          "name": "local-relief",
+          "nativeSourceSpacingM": 5,
+          "nominalGridSpacingM": 62.5,
+          "outerHalfExtentM": 4000.0
+        },
+        {
+          "gridSize": 257,
+          "indexCount": 388992,
+          "indexOffset": 159264,
+          "innerHalfExtentM": 4000.0,
+          "name": "regional-relief",
+          "nativeSourceSpacingM": 80,
+          "nominalGridSpacingM": 250.0,
+          "outerHalfExtentM": 32000.0
+        }
+      ],
+      "elevationRangeM": [
+        -2979.386962890625,
+        1958.0888671875
+      ],
+      "groundM": 1944.632568359375,
+      "heightM": 2.0,
+      "indexCount": 548256,
+      "indicesByteOffset": 1102764,
+      "lat": -89.4632,
+      "lon": 222.51,
+      "missingCellCount": 0,
+      "positionFile": "terrain-connecting-ridge.bin",
+      "positionsByteOffset": 0,
+      "sha256": "f343a3c31d2738f279833c605e07f36028b0eb76fad48bcc4fbd4532914a38ae",
+      "siteId": "connecting-ridge",
+      "vertexCount": 91897
+    },
+    {
+      "boundsM": [
+        [
+          -32023.677709197433,
+          -4180.778269074,
+          -31996.733321684736
+        ],
+        [
+          32010.556893294113,
+          1144.7881058266992,
+          31987.89828372011
+        ]
+      ],
+      "byteLength": 3295788,
+      "chunks": [
+        {
+          "gridSize": 101,
+          "indexCount": 60000,
+          "indexOffset": 0,
+          "innerHalfExtentM": 0,
+          "name": "native-core",
+          "nativeSourceSpacingM": 5,
+          "nominalGridSpacingM": 5.0,
+          "outerHalfExtentM": 250.0
+        },
+        {
+          "gridSize": 129,
+          "indexCount": 99264,
+          "indexOffset": 60000,
+          "innerHalfExtentM": 250.0,
+          "name": "local-relief",
+          "nativeSourceSpacingM": 5,
+          "nominalGridSpacingM": 62.5,
+          "outerHalfExtentM": 4000.0
+        },
+        {
+          "gridSize": 257,
+          "indexCount": 388992,
+          "indexOffset": 159264,
+          "innerHalfExtentM": 4000.0,
+          "name": "regional-relief",
+          "nativeSourceSpacingM": 80,
+          "nominalGridSpacingM": 250.0,
+          "outerHalfExtentM": 32000.0
+        }
+      ],
+      "elevationRangeM": [
+        -2979.386962890625,
+        1955.8240966796875
+      ],
+      "groundM": 771.043212890625,
+      "heightM": 2.0,
+      "indexCount": 548256,
+      "indicesByteOffset": 1102764,
+      "lat": -89.7668,
+      "lon": 188.13,
+      "missingCellCount": 0,
+      "positionFile": "terrain-shackleton-rim.bin",
+      "positionsByteOffset": 0,
+      "sha256": "7803b1d378e3f08597a4101643ff2829de53f906f05a9c41ac06f654b8de1641",
+      "siteId": "shackleton-rim",
+      "vertexCount": 91897
+    },
+    {
+      "boundsM": [
+        [
+          -31997.96607595265,
+          -6575.387151548137,
+          -31987.599016619315
+        ],
+        [
+          31986.59842975758,
+          20.52402457944279,
+          32024.15345245193
+        ]
+      ],
+      "byteLength": 3295788,
+      "chunks": [
+        {
+          "gridSize": 101,
+          "indexCount": 60000,
+          "indexOffset": 0,
+          "innerHalfExtentM": 0,
+          "name": "native-core",
+          "nativeSourceSpacingM": 5,
+          "nominalGridSpacingM": 5.0,
+          "outerHalfExtentM": 250.0
+        },
+        {
+          "gridSize": 129,
+          "indexCount": 99264,
+          "indexOffset": 60000,
+          "innerHalfExtentM": 250.0,
+          "name": "local-relief",
+          "nativeSourceSpacingM": 5,
+          "nominalGridSpacingM": 62.5,
+          "outerHalfExtentM": 4000.0
+        },
+        {
+          "gridSize": 257,
+          "indexCount": 388992,
+          "indexOffset": 159264,
+          "innerHalfExtentM": 4000.0,
+          "name": "regional-relief",
+          "nativeSourceSpacingM": 80,
+          "nominalGridSpacingM": 250.0,
+          "outerHalfExtentM": 32000.0
+        }
+      ],
+      "elevationRangeM": [
+        -4377.45263671875,
+        1814.437255859375
+      ],
+      "groundM": 1793.7939453125,
+      "heightM": 2.0,
+      "indexCount": 548256,
+      "indicesByteOffset": 1102764,
+      "lat": -88.6834,
+      "lon": 292.0679,
+      "missingCellCount": 0,
+      "positionFile": "terrain-de-gerlache-rim.bin",
+      "positionsByteOffset": 0,
+      "sha256": "862d8c0fdccb10d07fae55c8f2e7a9427b847f73de185cdef69104a8d9336c47",
+      "siteId": "de-gerlache-rim",
+      "vertexCount": 91897
+    }
+  ],
+  "sources": [
+    {
+      "acquiredUtc": "2026-11-14T06:12:13.494318+00:00",
+      "bytes": 189158392,
+      "citation": "https://pgda.gsfc.nasa.gov/products/90",
+      "expectedBytes": 189158392,
+      "filename": "LDEM_80S_80MPP_ADJ.TIF",
+      "raster": {
+        "affine": [
+          80.0,
+          0.0,
+          -304000.0,
+          0.0,
+          -80.0,
+          304000.0
+        ],
+        "areaOrPoint": "Area",
+        "boundsM": [
+          -304000.0,
+          -304000.0,
+          304000.0,
+          304000.0
+        ],
+        "dimensions": [
+          7600,
+          7600
+        ],
+        "filename": "LDEM_80S_80MPP_ADJ.TIF",
+        "maskFlags": [
+          "nodata"
+        ],
+        "noData": "NaN",
+        "spacingM": 80.0,
+        "wkt": "PROJCRS[\"Moon (2015) - Sphere / Ocentric / South Polar\",BASEGEOGCRS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",ELLIPSOID[\"Moon (2015) - Sphere\",1737400,0,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]]]],PRIMEM[\"Reference Meridian\",0,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9122]]]],CONVERSION[\"unnamed\",METHOD[\"Polar Stereographic (variant B)\",ID[\"EPSG\",9829]],PARAMETER[\"Latitude of standard parallel\",-90,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8832]],PARAMETER[\"Longitude of origin\",0,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8833]],PARAMETER[\"False easting\",0,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8806]],PARAMETER[\"False northing\",0,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8807]]],CS[Cartesian,2],AXIS[\"easting\",north,ORDER[1],LENGTHUNIT[\"metre\",1]],AXIS[\"northing\",north,ORDER[2],LENGTHUNIT[\"metre\",1]]]"
+      },
+      "sha256": "82030dcbdd7c4bb0c7d858e9b4b293b9f2cda5a543ba31ec0f42784bd6beee5a",
+      "url": "https://pgda.gsfc.nasa.gov/data/LOLA_20mpp/LDEM_80S_80MPP_ADJ.TIF"
+    },
+    {
+      "acquiredUtc": "2026-11-14T06:14:21.992905+00:00",
+      "bytes": 40980810,
+      "citation": "https://pgda.gsfc.nasa.gov/products/78",
+      "expectedBytes": 40980810,
+      "filename": "Site01_final_adj_5mpp_surf.tif",
+      "raster": {
+        "affine": [
+          5.0,
+          0.0,
+          -19000.0,
+          0.0,
+          -5.0,
+          -4000.0
+        ],
+        "areaOrPoint": "Area",
+        "boundsM": [
+          -19000.0,
+          -20000.0,
+          -3000.0,
+          -4000.0
+        ],
+        "dimensions": [
+          3200,
+          3200
+        ],
+        "filename": "Site01_final_adj_5mpp_surf.tif",
+        "maskFlags": [
+          "nodata"
+        ],
+        "noData": "NaN",
+        "spacingM": 5.0,
+        "wkt": "PROJCRS[\"unnamed\",BASEGEOGCRS[\"unnamed ellipse\",DATUM[\"unknown\",ELLIPSOID[\"unnamed\",1737400,0,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]]]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9122]]]],CONVERSION[\"unnamed\",METHOD[\"Polar Stereographic (variant B)\",ID[\"EPSG\",9829]],PARAMETER[\"Latitude of standard parallel\",-90,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8832]],PARAMETER[\"Longitude of origin\",0,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8833]],PARAMETER[\"False easting\",0,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8806]],PARAMETER[\"False northing\",0,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8807]]],CS[Cartesian,2],AXIS[\"easting\",north,ORDER[1],LENGTHUNIT[\"metre\",1]],AXIS[\"northing\",north,ORDER[2],LENGTHUNIT[\"metre\",1]]]"
+      },
+      "sha256": "3ba7b97cb00a2bcf21189c3aeb535f65afc21207154ab9f0d43c5bdc1f7e747e",
+      "url": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/Site01/Site01_final_adj_5mpp_surf.tif"
+    },
+    {
+      "acquiredUtc": "2026-11-14T06:14:39.661391+00:00",
+      "bytes": 40980806,
+      "citation": "https://pgda.gsfc.nasa.gov/products/78",
+      "expectedBytes": 40980806,
+      "filename": "Site04_final_adj_5mpp_surf.tif",
+      "raster": {
+        "affine": [
+          5.0,
+          0.0,
+          -9000.0,
+          0.0,
+          -5.0,
+          1000.0
+        ],
+        "areaOrPoint": "Area",
+        "boundsM": [
+          -9000.0,
+          -15000.0,
+          7000.0,
+          1000.0
+        ],
+        "dimensions": [
+          3200,
+          3200
+        ],
+        "filename": "Site04_final_adj_5mpp_surf.tif",
+        "maskFlags": [
+          "nodata"
+        ],
+        "noData": "NaN",
+        "spacingM": 5.0,
+        "wkt": "PROJCRS[\"unnamed\",BASEGEOGCRS[\"unnamed ellipse\",DATUM[\"unknown\",ELLIPSOID[\"unnamed\",1737400,0,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]]]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9122]]]],CONVERSION[\"unnamed\",METHOD[\"Polar Stereographic (variant B)\",ID[\"EPSG\",9829]],PARAMETER[\"Latitude of standard parallel\",-90,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8832]],PARAMETER[\"Longitude of origin\",0,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8833]],PARAMETER[\"False easting\",0,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8806]],PARAMETER[\"False northing\",0,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8807]]],CS[Cartesian,2],AXIS[\"easting\",north,ORDER[1],LENGTHUNIT[\"metre\",1]],AXIS[\"northing\",north,ORDER[2],LENGTHUNIT[\"metre\",1]]]"
+      },
+      "sha256": "38ff70dbdf2f066c2cfa94a646c3a59d653ce7f6b4528b15fc1b43ee397ce758",
+      "url": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/Site04/Site04_final_adj_5mpp_surf.tif"
+    },
+    {
+      "acquiredUtc": "2026-11-14T06:14:33.327541+00:00",
+      "bytes": 40980806,
+      "citation": "https://pgda.gsfc.nasa.gov/products/78",
+      "expectedBytes": 40980806,
+      "filename": "Site11_final_adj_5mpp_surf.tif",
+      "raster": {
+        "affine": [
+          5.0,
+          0.0,
+          -45000.0,
+          0.0,
+          -5.0,
+          23000.0
+        ],
+        "areaOrPoint": "Area",
+        "boundsM": [
+          -45000.0,
+          7000.0,
+          -29000.0,
+          23000.0
+        ],
+        "dimensions": [
+          3200,
+          3200
+        ],
+        "filename": "Site11_final_adj_5mpp_surf.tif",
+        "maskFlags": [
+          "nodata"
+        ],
+        "noData": "NaN",
+        "spacingM": 5.0,
+        "wkt": "PROJCRS[\"unnamed\",BASEGEOGCRS[\"unnamed ellipse\",DATUM[\"unknown\",ELLIPSOID[\"unnamed\",1737400,0,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]]]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9122]]]],CONVERSION[\"unnamed\",METHOD[\"Polar Stereographic (variant B)\",ID[\"EPSG\",9829]],PARAMETER[\"Latitude of standard parallel\",-90,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8832]],PARAMETER[\"Longitude of origin\",0,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8833]],PARAMETER[\"False easting\",0,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8806]],PARAMETER[\"False northing\",0,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8807]]],CS[Cartesian,2],AXIS[\"easting\",north,ORDER[1],LENGTHUNIT[\"metre\",1]],AXIS[\"northing\",north,ORDER[2],LENGTHUNIT[\"metre\",1]]]"
+      },
+      "sha256": "58f3372c35bbd6baf38ffd5633c1c96b59bd89dbd252150581d12893a43136e5",
+      "url": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/Site11/Site11_final_adj_5mpp_surf.tif"
+    }
+  ],
+  "version": "1.0.0",
+  "verticalDatum": "NASA radial metres above the 1737400 m sphere; origin at exact study point ground",
+  "verticalExaggeration": 1
+}

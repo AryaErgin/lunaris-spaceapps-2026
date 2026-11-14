@@ -1,0 +1,187 @@
+{
+  "schema_version": "1.0",
+  "purpose": "Offline educational rendering; visual maps do not determine mission constraints or certify terrain clearance",
+  "reproduce": "python -m pip install -r requirements-build.txt Pillow==12.3.0; python -m science.visual_assets",
+  "pillow_version": "12.3.0",
+  "numpy_version": "2.4.6",
+  "nasa_media_usage_guidelines": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+  "nasa_usage_note": "Acknowledge the identified NASA sources. No NASA endorsement is implied. NASA identifiers are not used as product branding. Follow the linked NASA media guidelines and any separately identified third-party terms.",
+  "ai_disclosure": "AI assisted this asset acquisition, conversion and orthographic projection script, dependency bundling and verification. The visual imagery is NASA-published satellite-derived data; the poster is a deterministic sphere projection of those pixels. No generative images were used.",
+  "limitations": [
+    "The Moon color mosaic is optimized for aesthetics. NASA describes inpainted small high-latitude gaps and monochromatic LOLA albedo replacing the polar areas outside 70 degrees latitude.",
+    "The 1024x512 LOLA JPEG is an 8-bit visual bump preview, not a numeric terrain source or a scientifically scaled displacement map.",
+    "The Blue Marble texture is a historical multi-date composite with baked topographic shading, not current Earth imagery, current weather, or an Earth-fixed attitude calculation.",
+    "The poster is a smooth-sphere rendering with fixed illustrative lighting and does not depict terrain relief or illumination at the selected mission UTC."
+  ],
+  "assets": [
+    {
+      "path": "assets/moon-color.jpg",
+      "sha256": "6715a52f7337803871f4334ebd8fe2a9f03df3eb5e77e5a75e1ed4c78789412e",
+      "bytes": 2559984,
+      "dimensions": [
+        4096,
+        2048
+      ],
+      "source": {
+        "filename": "lroc_color_16bit_srgb_4k.tif",
+        "url": "https://svs.gsfc.nasa.gov/vis/a000000/a004700/a004720/lroc_color_16bit_srgb_4k.tif",
+        "page": "https://svs.gsfc.nasa.gov/4720/",
+        "sha256": "9731fa8af425b6c2f88f277ecca82bf8c603f3743894f64ed7b25c5bfefa22ff",
+        "credit": "NASA's Scientific Visualization Studio; Ernie Wright; LRO/LROC and LOLA instrument teams",
+        "bytes": 61891324,
+        "retrieved_utc": "2026-11-14T11:22:13.238073+00:00"
+      },
+      "conversion": "Pillow RGB decode to 8 bits/channel; JPEG quality=93, subsampling=0, optimize=True, progressive=True; no resize, shift, flip, added features or gamma adjustment.",
+      "role": "Visual globe texture only; excluded from terrain, ephemeris and decision calculations",
+      "orientation": {
+        "projection": "equirectangular",
+        "image_top_latitude_deg": 90,
+        "image_bottom_latitude_deg": -90,
+        "left_longitude_east_deg": -180,
+        "center_longitude_east_deg": 0,
+        "right_longitude_east_deg": 180,
+        "texture_u": "(longitude_east_deg + 180) / 360",
+        "image_v_from_top": "(90 - latitude_deg) / 180",
+        "note": "Rendering axes must be matched to these UVs; the texture does not define the application's Moon-fixed frame."
+      }
+    },
+    {
+      "path": "assets/moon-bump.jpg",
+      "sha256": "6d93f887e7d8bedfe35ab89ba785e5e3ca12381bd092a5e6abe2c707dda8bb98",
+      "bytes": 111552,
+      "dimensions": [
+        1024,
+        512
+      ],
+      "source": {
+        "filename": "moon-bump.jpg",
+        "url": "https://svs.gsfc.nasa.gov/vis/a000000/a004700/a004720/ldem_3_8bit.jpg",
+        "page": "https://svs.gsfc.nasa.gov/4720/",
+        "sha256": "6d93f887e7d8bedfe35ab89ba785e5e3ca12381bd092a5e6abe2c707dda8bb98",
+        "credit": "NASA's Scientific Visualization Studio; LRO/LOLA instrument team",
+        "bytes": 111552,
+        "retrieved_utc": "2026-11-14T11:20:59.129117+00:00"
+      },
+      "conversion": "Unmodified byte-for-byte copy of the NASA-published JPEG.",
+      "role": "Visual globe texture only; excluded from terrain, ephemeris and decision calculations",
+      "orientation": {
+        "projection": "equirectangular",
+        "image_top_latitude_deg": 90,
+        "image_bottom_latitude_deg": -90,
+        "left_longitude_east_deg": -180,
+        "center_longitude_east_deg": 0,
+        "right_longitude_east_deg": 180,
+        "texture_u": "(longitude_east_deg + 180) / 360",
+        "image_v_from_top": "(90 - latitude_deg) / 180",
+        "note": "Rendering axes must be matched to these UVs; the texture does not define the application's Moon-fixed frame."
+      }
+    },
+    {
+      "path": "assets/moon-poster.jpg",
+      "sha256": "f0e780af31a34d3e89237b3ee5955f0e5f3dc44f0b0c3ed0038607ccba881c88",
+      "bytes": 224553,
+      "dimensions": [
+        1920,
+        1080
+      ],
+      "source": {
+        "filename": "lroc_color_16bit_srgb_4k.tif",
+        "url": "https://svs.gsfc.nasa.gov/vis/a000000/a004700/a004720/lroc_color_16bit_srgb_4k.tif",
+        "page": "https://svs.gsfc.nasa.gov/4720/",
+        "sha256": "9731fa8af425b6c2f88f277ecca82bf8c603f3743894f64ed7b25c5bfefa22ff",
+        "credit": "NASA's Scientific Visualization Studio; Ernie Wright; LRO/LROC and LOLA instrument teams",
+        "bytes": 61891324,
+        "retrieved_utc": "2026-11-14T11:22:13.238073+00:00"
+      },
+      "original_preview_considered": {
+        "filename": "moon-poster.jpg",
+        "url": "https://svs.gsfc.nasa.gov/vis/a010000/a014900/a014959/Moon-Model-Preview-Flat.jpg",
+        "page": "https://svs.gsfc.nasa.gov/14959/",
+        "sha256": "7db7cc91f6c29ce42748ffcf2bc9ba1f3bb5faff817ad0a0b24be898db41ba8e",
+        "credit": "NASA's Goddard Space Flight Center",
+        "bytes": 177175,
+        "retrieved_utc": "2026-11-14T11:20:58.156459+00:00",
+        "finding": "NASA's original model preview contains viewport grid lines and axes; the runtime poster instead projects the NASA color texture deterministically."
+      },
+      "conversion": "Deterministic 1920x1080 orthographic projection of NASA's 2025 CGI Moon Kit color map; Moon center=(1268,540), radius=438px; view latitude=0 and east longitude=0 degrees; bilinear sampling; sRGB linearized for Lambert lighting in viewer coordinates with unit direction normalize([-0.35,0.22,0.91]), ambient=0.12 and diffuse=0.88; JPEG quality=93, subsampling=0. No synthetic craters, terrain or generative image model.",
+      "role": "Static orthographic rendering from NASA texture; fixed illustrative lighting",
+      "orientation": null
+    },
+    {
+      "path": "assets/earth-color.jpg",
+      "sha256": "2ad018f162cdfbdf58050ce07e71e74f845bdc253f72c32222d580c61204a1f7",
+      "bytes": 461845,
+      "dimensions": [
+        2048,
+        1024
+      ],
+      "source": {
+        "filename": "bluemarble-2048.png",
+        "url": "https://svs.gsfc.nasa.gov/vis/a000000/a002900/a002915/bluemarble-2048.png",
+        "page": "https://svs.gsfc.nasa.gov/2915/",
+        "sha256": "ae6214b078ed0864c96f74bcb10ae3021f6eb116f8059797efe0fa9ea8b89d35",
+        "credit": "NASA/Goddard Space Flight Center Scientific Visualization Studio; Reto Stockli (NASA/GSFC); NASA Earth Observatory",
+        "bytes": 1511379,
+        "retrieved_utc": "2026-11-14T11:24:17.347455+00:00"
+      },
+      "conversion": "Pillow RGB decode to 8 bits/channel; JPEG quality=93, subsampling=0, optimize=True, progressive=True; no resize, shift, flip, added features or gamma adjustment.",
+      "role": "Visual globe texture only; excluded from terrain, ephemeris and decision calculations",
+      "orientation": {
+        "projection": "equirectangular",
+        "image_top_latitude_deg": 90,
+        "image_bottom_latitude_deg": -90,
+        "left_longitude_east_deg": -180,
+        "center_longitude_east_deg": 0,
+        "right_longitude_east_deg": 180,
+        "texture_u": "(longitude_east_deg + 180) / 360",
+        "image_v_from_top": "(90 - latitude_deg) / 180",
+        "note": "Rendering axes must be matched to these UVs; the texture does not define the application's Moon-fixed frame."
+      }
+    }
+  ],
+  "inspected_alternatives": [
+    {
+      "url": "https://svs.gsfc.nasa.gov/vis/a010000/a014900/a014959/moon_small.glb",
+      "page": "https://svs.gsfc.nasa.gov/14959/",
+      "sha256": "12d3b0bb7fe214903f51447d1bc61710f442e92a11c703fcaca6d4e7ff8e67d4",
+      "bytes": 13799876,
+      "finding": "4096x4096 cube-cross color atlas, not an equirectangular texture. The source page links the CGI Moon Kit used for the runtime color map instead.",
+      "retrieved_utc": "2026-11-14T11:20:57.197833+00:00",
+      "embedded_image_count": 1,
+      "shipped_to_browser": false
+    },
+    {
+      "url": "https://assets.science.nasa.gov/content/dam/science/psd/solar/2023/09/e/Earth_1_12756.glb",
+      "page": "https://science.nasa.gov/learn/heat/resource/earth-3d-model/",
+      "sha256": "05a5aea99db8ab472487a06debc3b5d0b2cae7636a1a6b9ecfa40b7d1722ba23",
+      "bytes": 12916400,
+      "finding": "4096x3072 cube-cross color and normal atlases, not equirectangular textures. NASA's Blue Marble equirectangular map is used instead.",
+      "retrieved_utc": "2026-11-14T11:21:43.473338+00:00",
+      "embedded_image_count": 2,
+      "shipped_to_browser": false
+    }
+  ],
+  "vendor": {
+    "path": "vendor/three-bundle.mjs",
+    "bytes": 762198,
+    "sha256": "897c1e3bed2d55648f319f776f4bcdcdb00c0398351c3ec6ee3782a1980388ce",
+    "packages": {
+      "three": {
+        "version": "0.186.0",
+        "integrity": "sha512-cr/fIM2ddMSVbYVgkfD4jLJv7Fh/8ZTjvo+7gQeSVGUZHxpx9FDwoL5iC7hUz/LiRA8wMbqfnb90xKfm1/HHkQ==",
+        "source_url": "https://registry.npmjs.org/three/-/three-0.186.0.tgz",
+        "license": "MIT"
+      },
+      "esbuild": {
+        "version": "0.27.0",
+        "integrity": "sha512-jd0f4NHbD6cALCyGElNpGAOtWxSq46l9X/sWB0Nzd5er4Kz2YTm+Vl0qKFT9KUJvD8+fiO8AvoHhFvEatfVixA==",
+        "source_url": "https://registry.npmjs.org/esbuild/-/esbuild-0.27.0.tgz",
+        "license": "MIT"
+      }
+    },
+    "exports": "All exports from three@0.186.0 plus the named OrbitControls export",
+    "external_runtime_imports": [],
+    "license_file": "vendor/three-LICENSE.txt",
+    "build": "science.visual_assets.build_vendor; esbuild --bundle --format=esm --platform=browser --target=es2022 --minify --legal-comments=inline --tsconfig-raw={}"
+  }
+}
