@@ -114,7 +114,8 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,mobileQuality?1.25:1.5));
   renderer.outputColorSpace=THREE.SRGBColorSpace;
   renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;
-  renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  // Shadow maps alias badly at polar Sun elevations of a few degrees; slopes turned from the Sun shade themselves instead.
+  renderer.shadowMap.enabled=false;
   renderer.setClearColor(0x000000,1);
   renderer.debug.onShaderError=()=>report('error','A 3D shader could not be compiled. The scientific 2D views remain available.');
   container.dataset.webgl=container.dataset.webglStatus='ready';
@@ -126,10 +127,16 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   const bodyStatus=document.createElement('div');bodyStatus.className='mission-scene-body-status';
   bodyStatus.setAttribute('aria-live','polite');container.append(bodyStatus);
   const markerLabel=document.createElement('div');markerLabel.className='mission-scene-marker-label';container.append(markerLabel);
+  // Orbital bodies are drawn at true apparent size, so small labels make them findable.
+  const bodyLabels={};
+  for(const [key,text] of [['earth','EARTH'],['sun','SUN']]) {
+    const label=document.createElement('div');label.className='mission-scene-body-label';label.dataset.body=key;label.textContent=text;label.hidden=true;
+    container.append(label);bodyLabels[key]=label;
+  }
 
   const orbitalScene=new THREE.Scene(),surfaceScene=new THREE.Scene();
   orbitalScene.background=surfaceScene.background=new THREE.Color(0x000000);
-  const orbitalCamera=new THREE.PerspectiveCamera(39,1,.01,80);
+  const orbitalCamera=new THREE.PerspectiveCamera(39,1,.01,260);
   orbitalCamera.position.fromArray(orbitalOverviewPosition(container.clientWidth,container.clientHeight));orbitalCamera.lookAt(0,0,0);
   const surfaceCamera=new THREE.PerspectiveCamera(surfaceFov,1,.08,500000);
   const controls=new OrbitControls(orbitalCamera,canvas);
@@ -179,14 +186,42 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   const glowCanvas=document.createElement('canvas');glowCanvas.width=glowCanvas.height=256;
   const glowContext=glowCanvas.getContext('2d');
   if(glowContext) {
-    const gradient=glowContext.createRadialGradient(128,128,24,128,128,128);
-    gradient.addColorStop(0,'rgba(255,247,224,0.45)');gradient.addColorStop(.2,'rgba(255,229,176,0.15)');gradient.addColorStop(.55,'rgba(255,212,146,0.035)');gradient.addColorStop(1,'rgba(255,194,92,0)');
+    // Illustrative camera glare. The disc itself keeps its 0.53 degree apparent diameter.
+    const gradient=glowContext.createRadialGradient(128,128,2,128,128,128);
+    gradient.addColorStop(0,'rgba(255,252,240,0.95)');gradient.addColorStop(.035,'rgba(255,246,222,0.7)');gradient.addColorStop(.09,'rgba(255,232,186,0.26)');
+    gradient.addColorStop(.25,'rgba(255,218,160,0.085)');gradient.addColorStop(.6,'rgba(255,205,140,0.02)');gradient.addColorStop(1,'rgba(255,194,92,0)');
     glowContext.fillStyle=gradient;glowContext.fillRect(0,0,256,256);
+    glowContext.globalCompositeOperation='lighter';
+    for(const angle of [0,Math.PI/2]) {
+      glowContext.save();glowContext.translate(128,128);glowContext.rotate(angle);
+      const streak=glowContext.createLinearGradient(-128,0,128,0);
+      streak.addColorStop(0,'rgba(255,230,190,0)');streak.addColorStop(.5,'rgba(255,240,214,0.22)');streak.addColorStop(1,'rgba(255,230,190,0)');
+      glowContext.fillStyle=streak;glowContext.fillRect(-128,-1.2,256,2.4);glowContext.restore();
+    }
     const sprite=new THREE.Sprite(track(new THREE.SpriteMaterial({map:track(new THREE.CanvasTexture(glowCanvas)),transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,toneMapped:false})));
-    const size=skyDistance*Math.tan(.265*RAD)*5;sprite.scale.set(size,size,1);sun.add(sprite);
+    const size=skyDistance*Math.tan(.265*RAD)*52;sprite.scale.set(size,size,1);sun.add(sprite);
   }
-  // Blue Marble already contains shading; its geographic face and epoch are unregistered.
-  const earthMaterial=track(new THREE.MeshBasicMaterial({color:0xffffff,toneMapped:false}));
+  // Earth's lit hemisphere follows the cached apparent Sun direction (the Sun is far enough that
+  // the Moon-to-Sun and Earth-to-Sun directions differ by under 0.2 degrees). The geographic face
+  // and cloud-free Blue Marble composite remain unregistered to the simulated time.
+  const earthShader=()=>track(new THREE.ShaderMaterial({toneMapped:false,
+    uniforms:{map:{value:null},sunDirection:{value:new THREE.Vector3(0,1,0)},phaseLit:{value:1}},
+    vertexShader:`varying vec2 vUv;varying vec3 vNormalWorld;
+    #include <common>
+    #include <logdepthbuf_pars_vertex>
+    void main(){vUv=uv;vNormalWorld=normalize(mat3(modelMatrix)*normal);vec4 mv=modelViewMatrix*vec4(position,1.0);gl_Position=projectionMatrix*mv;
+    #include <logdepthbuf_vertex>
+    }`,
+    fragmentShader:`uniform sampler2D map;uniform vec3 sunDirection;uniform float phaseLit;varying vec2 vUv;varying vec3 vNormalWorld;
+    #include <logdepthbuf_pars_fragment>
+    void main(){
+    #include <logdepthbuf_fragment>
+    vec3 day=texture2D(map,vUv).rgb;float mu=dot(normalize(vNormalWorld),normalize(sunDirection));
+    float lit=mix(1.0,smoothstep(-0.06,0.2,mu),phaseLit);
+    gl_FragColor=vec4(day*(0.012+1.3*lit)+vec3(0.06,0.12,0.24)*lit*0.3,1.0);
+    #include <colorspace_fragment>
+    }`}));
+  const earthMaterial=earthShader();
   const earth=new THREE.Mesh(track(new THREE.SphereGeometry(skyDistance*Math.tan(.95*RAD),64,48)),earthMaterial);
   earth.rotation.y=-.7;earth.rotation.z=.12;earth.visible=false;surfaceScene.add(earth);
   const limbMaterial=track(new THREE.ShaderMaterial({transparent:true,depthWrite:false,depthTest:true,blending:THREE.AdditiveBlending,toneMapped:false,vertexShader:sphereVertex,
@@ -197,9 +232,12 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     float rim=pow(1.0-max(0.0,dot(normalize(vNormalEye),normalize(vViewEye))),4.0);gl_FragColor=vec4(0.2,0.48,0.8,0.13*rim);}` }));
   const limb=new THREE.Mesh(earth.geometry,limbMaterial);limb.scale.setScalar(1.014);earth.add(limb);
   // Only observer-ray directions are cached. These orbital depths/sizes are schematic.
-  const orbitalRayLength=5;
-  const orbitalEarth=earth.clone(true);orbitalEarth.scale.setScalar(.19/earth.geometry.parameters.radius);orbitalScene.add(orbitalEarth);
-  const orbitalSun=sun.clone(true);orbitalSun.scale.setScalar(.13/sunDisc.geometry.parameters.radius);orbitalScene.add(orbitalSun);
+  const orbitalDepth={earth:30,sun:60};
+  // Orbital bodies keep the apparent angular diameters seen from the Moon; only their distances are schematic.
+  const orbitalEarth=earth.clone(true);orbitalEarth.material=earthShader();
+  orbitalEarth.scale.setScalar(orbitalDepth.earth*Math.tan(.95*RAD)/earth.geometry.parameters.radius);orbitalScene.add(orbitalEarth);
+  const earthMapTarget={set map(value){earthMaterial.uniforms.map.value=orbitalEarth.material.uniforms.map.value=value;},get map(){return earthMaterial.uniforms.map.value;},needsUpdate:false};
+  const orbitalSun=sun.clone(true);orbitalSun.scale.setScalar(orbitalDepth.sun*Math.tan(.265*RAD)/sunDisc.geometry.parameters.radius);orbitalScene.add(orbitalSun);
   const rayOrigin=new THREE.Vector3();
   const orbitalRays={};
   for(const [key,color]of [['sun',0xc6a463],['earth',0x6fbbd3]]){
@@ -208,14 +246,66 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   }
   const floorLight=new THREE.AmbientLight(0xd9d9d7,.18);surfaceScene.add(floorLight);
   // A separate, explicitly illustrative fill shades actual DEM normals without casting shadows.
-  const displayFill=new THREE.DirectionalLight(0xe1e4e8,.65);
+  const displayFill=new THREE.DirectionalLight(0xdfe4ec,.3);
   displayFill.castShadow=false;surfaceScene.add(displayFill,displayFill.target);
-  const sunlight=new THREE.DirectionalLight(0xfff2dd,3.2);
-  sunlight.castShadow=true;sunlight.shadow.mapSize.set(1024,1024);
-  Object.assign(sunlight.shadow.camera,{left:-350,right:350,top:350,bottom:-350,near:1,far:1500});
-  sunlight.shadow.bias=-.00005;sunlight.shadow.normalBias=.1;
+  const sunlight=new THREE.DirectionalLight(0xfff4e2,2.3);
+  sunlight.castShadow=false;
   surfaceScene.add(sunlight,sunlight.target);
 
+  // Display-only tone for the projected skyline: faces turned toward the Sun bearing read brighter.
+  const farHorizonMaterial=track(new THREE.ShaderMaterial({side:THREE.DoubleSide,toneMapped:false,
+    uniforms:{sunAzimuth:{value:0},sunLevel:{value:0}},
+    vertexShader:`varying vec3 vCurtain;
+    #include <common>
+    #include <logdepthbuf_pars_vertex>
+    void main(){vCurtain=position;vec4 mv=modelViewMatrix*vec4(position,1.0);gl_Position=projectionMatrix*mv;
+    #include <logdepthbuf_vertex>
+    }`,
+    fragmentShader:`uniform float sunAzimuth;uniform float sunLevel;varying vec3 vCurtain;
+    #include <logdepthbuf_pars_fragment>
+    void main(){
+    #include <logdepthbuf_fragment>
+    float azimuth=atan(vCurtain.x,-vCurtain.z);float facing=0.5-0.5*cos(azimuth-sunAzimuth);
+    float tone=0.028+sunLevel*(0.03+0.2*facing*facing);
+    gl_FragColor=vec4(vec3(tone*1.02,tone,tone*0.97),1.0);
+    #include <colorspace_fragment>
+    }`}));
+  // Lunar regolith scatters light back strongly and shows no limb darkening. A Lommel-Seeliger
+  // term replaces the Lambert cosine; procedural grain is display texture, never relief data.
+  let regolithShading='lambert';
+  function regolithMaterial() {
+    const material=new THREE.MeshStandardMaterial({color:0xa9a59d,roughness:1,metalness:0,side:THREE.FrontSide});
+    const cosine='float dotNL = saturate( dot( geometryNormal, directLight.direction ) );';
+    const chunk=THREE.ShaderChunk?.lights_physical_pars_fragment;
+    if(!chunk?.includes(cosine))return material;
+    regolithShading='lommel-seeliger';
+    const grain=mobileQuality?'0':'1';
+    material.onBeforeCompile=shader=>{
+      shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 vRegolith;')
+        .replace('#include <begin_vertex>','#include <begin_vertex>\nvRegolith=position;');
+      shader.fragmentShader=shader.fragmentShader.replace('#include <common>',`#include <common>
+        varying vec3 vRegolith;
+        float lnHash(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
+        float lnNoise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);
+          return mix(mix(lnHash(i),lnHash(i+vec2(1.0,0.0)),f.x),mix(lnHash(i+vec2(0.0,1.0)),lnHash(i+vec2(1.0,1.0)),f.x),f.y);}
+        float lnGrain(vec2 p,float range){float near=1.0/(1.0+range*range*0.004),mid=1.0/(1.0+range*range*0.00002);
+          return lnNoise(p*2.3)*0.35*near+lnNoise(p*0.47)*0.8*near+lnNoise(p*0.083)*0.75*mid+lnNoise(p*0.011)*0.25*mid;}`)
+        .replace('#include <lights_physical_pars_fragment>',chunk.replace(cosine,`float lsIn = saturate( dot( geometryNormal, directLight.direction ) );
+        float lsOut = saturate( dot( geometryNormal, geometryViewDir ) );
+        float dotNL = smoothstep( 0.0, 0.035, lsIn ) * min( 1.0, 2.0 * lsIn / ( lsIn + lsOut + 0.05 ) );`))
+        .replace('#include <color_fragment>',`#include <color_fragment>
+        float lnRange=length(vRegolith.xz);
+        diffuseColor.rgb*=0.8+0.22*lnNoise(vRegolith.xz*0.19)/(1.0+lnRange*0.02)+0.2*lnNoise(vRegolith.xz*0.0127);`)
+        .replace('#include <normal_fragment_maps>',`#include <normal_fragment_maps>
+        #if ${grain}
+        { float e=0.12+lnRange*0.004;vec2 q=vRegolith.xz;
+          vec2 slope=vec2(lnGrain(q+vec2(e,0.0),lnRange)-lnGrain(q-vec2(e,0.0),lnRange),lnGrain(q+vec2(0.0,e),lnRange)-lnGrain(q-vec2(0.0,e),lnRange))*(0.045/e);
+          normal=normalize(normal+mat3(viewMatrix)*vec3(-slope.x,0.0,-slope.y)); }
+        #endif`);
+    };
+    material.customProgramCacheKey=()=>'lunaris-regolith-2-'+grain;
+    return material;
+  }
   const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2(),projected=new THREE.Vector3();
   function invalidate(){needsRender=true;schedule();}
   function schedule(){if(!disposed&&!lost&&!raf&&intersecting&&!document.hidden)raf=requestAnimationFrame(draw);}
@@ -239,7 +329,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
         const geometry=track(new THREE.BufferGeometry());
         geometry.setAttribute('position',new THREE.BufferAttribute(model.positions,3));
         geometry.setIndex(new THREE.BufferAttribute(model.indices,1));geometry.computeBoundingSphere();
-        const material=track(new THREE.MeshBasicMaterial({color:0x25282b,side:THREE.DoubleSide,toneMapped:false}));
+        const material=farHorizonMaterial;
         mesh=new THREE.Mesh(geometry,material);mesh.name='Display-only projected retained skyline';
         mesh.castShadow=mesh.receiveShadow=false;
       }
@@ -269,12 +359,15 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     const signature=[site.id,mode,orbitalFocus,states.sun,states.earth,visibility.sun,visibility.earth,framed.sun,framed.earth,earthTextureLoaded].join('|');
     if(signature===captionSignature)return;captionSignature=signature;
     location.textContent=`${mode==='orbital'&&['earth','sun'].includes(orbitalFocus)?`${orbitalFocus==='earth'?'Earth':'Sun'} direction from `:''}${site.name} · ${Math.abs(site.lat).toFixed(4)}° S · ${((site.lon%360+360)%360).toFixed(4)}° E`;
-    note.textContent=mode==='orbital'?'Direction-only context; body distances and sizes are schematic.'
-      :`NASA LOLA mesh + projected nominal skyline · ${site.heightM} m observer · Display lighting; historical unregistered Earth composite`;
+    note.textContent=mode==='orbital'?'Sun and Earth sit in their computed directions at true apparent size (0.53° and 1.9°). Distances are schematic.'
+      :`NASA LOLA mesh + projected nominal skyline · ${site.heightM} m observer · Illustrative grain and lighting; Earth phase from the cached Sun direction`;
     bodyStatus.replaceChildren();
     for(const key of ['sun','earth']) {
       const label=document.createElement('span');label.dataset.body=key;label.dataset.state=states[key]||'unknown';
-      label.textContent=`${key==='sun'?'Sun center':'Earth center'}: ${visibility[key]?(key==='earth'&&!earthTextureLoaded?'visible · image loading/unavailable':framed[key]?'visible':'visible · outside view'):states[key]==='blocked'?(key==='sun'?'unavailable':'terrain-blocked'):states[key]==='uncertain'?'unresolved · withheld':'no verified geometry'}`;
+      const name=key==='sun'?'Sun center':'Earth center',state=states[key];
+      label.textContent=mode==='orbital'
+        ?`${name}: ${state==='visible'?'in view from this site':state==='blocked'?'hidden by terrain at this site':state==='uncertain'?'visibility unresolved at this site':'no verified geometry'}`
+        :`${name}: ${visibility[key]?(key==='earth'&&!earthTextureLoaded?'visible · image loading/unavailable':framed[key]?'visible':'visible · outside view'):state==='blocked'?(key==='sun'?'hidden by terrain':'terrain-blocked'):state==='uncertain'?'unresolved · not drawn':'no verified geometry'}`;
       bodyStatus.append(label);
     }
     bodyStatus.hidden=false;
@@ -283,17 +376,18 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     const show=renderedBodies(sample,states);
     sun.visible=!lost&&!disposed&&mode==='surface'&&show.sun;
     earth.visible=!lost&&!disposed&&mode==='surface'&&show.earth&&earthTextureLoaded;
-    orbitalSun.visible=!lost&&!disposed&&mode==='orbital'&&show.sun;
-    orbitalEarth.visible=!lost&&!disposed&&mode==='orbital'&&show.earth&&earthTextureLoaded;
+    const cachedTime=Number.isFinite(sample?.[0])&&sample[0]>=bundle.coverage[0]&&sample[0]<bundle.coverage[1];
+    orbitalSun.visible=!lost&&!disposed&&mode==='orbital'&&cachedTime&&Boolean(bodyDirection(sample?.[1],sample?.[2]));
+    orbitalEarth.visible=!lost&&!disposed&&mode==='orbital'&&cachedTime&&Boolean(bodyDirection(sample?.[4],sample?.[5]))&&earthTextureLoaded;
     rayOrigin.fromArray(moonPoint(site.lat,site.lon,1+((site.groundM??0)+(site.heightM??2))/1737400)??[0,0,0]);
     container.dataset.sunRendered=String(sun.visible);container.dataset.earthRendered=String(earth.visible);
     for(const [key,object,az,el] of [['sun',sun,1,2],['earth',earth,4,5]]) {
       const direction=bodyDirection(sample?.[az],sample?.[el]);
       if(direction)object.position.copy(surfaceCamera.position).addScaledVector(new THREE.Vector3(...direction),skyDistance);
       const world=localToMoonDirection(site,direction),orbitalObject=key==='sun'?orbitalSun:orbitalEarth;
-      if(world)orbitalObject.position.copy(rayOrigin).addScaledVector(new THREE.Vector3(...world),orbitalRayLength);
+      if(world)orbitalObject.position.copy(rayOrigin).addScaledVector(new THREE.Vector3(...world),orbitalDepth[key]);
       else orbitalObject.visible=false;
-      const ray=orbitalRays[key];ray.visible=orbitalObject.visible;
+      const ray=orbitalRays[key];ray.visible=orbitalObject.visible;ray.material.opacity=states[key]==='visible'?.62:.2;
       const vertices=ray.geometry.attributes.position;vertices.setXYZ(0,...rayOrigin.toArray());vertices.setXYZ(1,...orbitalObject.position.toArray());vertices.needsUpdate=true;ray.geometry.computeBoundingSphere();
       container.dataset[`${key}Direction`]=direction?direction.map(v=>v.toFixed(8)).join(','):'';
       container.dataset[`${key}Azimuth`]=Number.isFinite(sample?.[az])?String(sample[az]):'';
@@ -304,10 +398,14 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     }
     const sunDirection=bodyDirection(sample?.[1],sample?.[2]);
     const worldSun=localToMoonDirection(site,sunDirection);
-    const cachedTime=Number.isFinite(sample?.[0])&&sample[0]>=bundle.coverage[0]&&sample[0]<bundle.coverage[1];
     globeLight.intensity=worldSun&&cachedTime?2.9:0;
+    if(sunDirection)earthMaterial.uniforms.sunDirection.value.fromArray(sunDirection);
+    if(worldSun)orbitalEarth.material.uniforms.sunDirection.value.fromArray(worldSun);
+    earthMaterial.uniforms.phaseLit.value=sunDirection?1:0;orbitalEarth.material.uniforms.phaseLit.value=worldSun?1:0;
+    if(Number.isFinite(sample?.[1]))farHorizonMaterial.uniforms.sunAzimuth.value=sample[1]*RAD;
+    farHorizonMaterial.uniforms.sunLevel.value=!sunDirection?0:states.sun==='visible'?1:.5;
     if(worldSun)globeLight.position.fromArray(worldSun).multiplyScalar(10);
-    sunlight.intensity=!lost&&!disposed&&sunDirection&&states.sun==='visible'?3.2:0;
+    sunlight.intensity=!lost&&!disposed&&sunDirection&&states.sun==='visible'?2.3:0;
     if(sunDirection)sunlight.position.fromArray(sunDirection).multiplyScalar(700);
     sunlight.target.position.set(0,0,0);
     displayFill.position.fromArray(bodyDirection(terrainBearingDeg-55,35)).multiplyScalar(700);
@@ -338,6 +436,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     const controlsMoving=mode==='orbital'&&controls.update();
     if(mode==='orbital'&&controlsMoving)captionUpdate();
     if(needsRender||flight) {
+      renderer.toneMappingExposure=mode==='orbital'?1.15:1.3;
       renderer.render(mode==='orbital'?orbitalScene:surfaceScene,mode==='orbital'?orbitalCamera:surfaceCamera);
       needsRender=false;
       if(mode==='orbital') {
@@ -346,7 +445,15 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
         const facing=marker.group.position.dot(orbitalCamera.position.clone().sub(marker.group.position))>0;
         markerLabel.hidden=!facing||Math.abs(projected.x)>1||Math.abs(projected.y)>1||projected.z>1;
         markerLabel.style.left=`${(projected.x*.5+.5)*100}%`;markerLabel.style.top=`${(-projected.y*.5+.5)*100}%`;
-      } else markerLabel.hidden=true;
+        for(const [key,object] of [['earth',orbitalEarth],['sun',orbitalSun]]) {
+          const label=bodyLabels[key],toBody=object.position.clone().sub(orbitalCamera.position),range=toBody.length();
+          toBody.divideScalar(range);
+          const along=-orbitalCamera.position.dot(toBody),miss=orbitalCamera.position.clone().addScaledVector(toBody,along).length();
+          projected.copy(object.position).project(orbitalCamera);
+          label.hidden=!object.visible||projected.z>1||Math.abs(projected.x)>1||Math.abs(projected.y)>1||(along>0&&along<range&&miss<1);
+          label.style.left=`${(projected.x*.5+.5)*100}%`;label.style.top=`${(-projected.y*.5+.5)*100}%`;
+        }
+      } else {markerLabel.hidden=true;bodyLabels.earth.hidden=bodyLabels.sun.hidden=true;}
     }
     if(flight||controlsMoving&&controls.enableDamping)schedule();
   }
@@ -411,8 +518,8 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
         const geometry=track(new THREE.BufferGeometry());
         geometry.setAttribute('position',new THREE.BufferAttribute(positions,3));
         geometry.setIndex(new THREE.BufferAttribute(indices,1));geometry.computeVertexNormals();geometry.computeBoundingSphere();
-        const material=track(new THREE.MeshStandardMaterial({color:0x898782,roughness:1,metalness:0,side:THREE.FrontSide}));
-        cached={mesh:new THREE.Mesh(geometry,material),record};cached.mesh.castShadow=cached.mesh.receiveShadow=true;
+        const material=track(regolithMaterial());
+        cached={mesh:new THREE.Mesh(geometry,material),record};
         terrainCache.set(requestedSite.id,cached);
       }
       if(disposed||request!==terrainRequest)return;
@@ -452,7 +559,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
       :'Lunar surface at the recorded observer height. Drag or use arrow keys to look around; scroll, pinch, plus and minus change field of view.');
     if(mode==='surface') {
       yaw=terrainBearingDeg*RAD;pitch=terrainPitch();surfaceFov=65;surfaceFocus='terrain';
-      setSurfaceLook();updateFarHorizon();void loadTerrain();earthTexturePromise??=texture('earth-color.jpg',earthMaterial,'map','earth');
+      setSurfaceLook();updateFarHorizon();void loadTerrain();earthTexturePromise??=texture('earth-color.jpg',earthMapTarget,'map','earth');
       if(pendingFocus){const target=pendingFocus;pendingFocus=null;focusBody(target);}
     }
     updateFrame();onModeChange(mode);resize();return true;
@@ -499,12 +606,24 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
       if(mode==='orbital')focusSite();else {yaw=terrainBearingDeg*RAD;surfaceFov=65;pitch=terrainPitch();surfaceFocus='terrain';setSurfaceLook();updateFrame();}return;
     }
     if(!['earth','sun'].includes(target))return;
+    // A body focus requested during the descent applies once the surface view is committed.
+    if(pendingMode==='surface'){pendingFocus=target;return;}
     if(mode==='orbital'){
       const object=target==='earth'?orbitalEarth:orbitalSun;
       if(!Number.isFinite(sample?.[0])){report('warning','No cached body direction exists at this time.');return;}
-      flight=null;orbitalFocus=target;controls.minDistance=.6;controls.target.copy(object.position);
-      orbitalCamera.position.copy(object.position).add(new THREE.Vector3(1,.25,.7).normalize().multiplyScalar(1.3));
-      orbitalCamera.lookAt(controls.target);controls.update();captionUpdate();invalidate();return;
+      if(!object.visible){report('warning',`No ${target==='earth'?'Earth':'Sun'} direction can be drawn at this time.`);return;}
+      const body=object.position.clone().normalize(),pole=new THREE.Vector3(...moonPoint(site.lat,site.lon)).normalize();
+      const side=pole.addScaledVector(body,-pole.dot(body));
+      if(side.lengthSq()<1e-6)side.set(0,-1,0).addScaledVector(body,body.y);
+      side.normalize();
+      const offset=16*RAD,radius=Math.max(5.2,orbitalOverviewDistance(container.clientWidth,container.clientHeight)*1.3);
+      const to=body.multiplyScalar(-Math.cos(offset)).addScaledVector(side,Math.sin(offset)).multiplyScalar(radius);
+      orbitalFocus=target;controls.target.set(0,0,0);controls.minDistance=1.06;
+      const from=orbitalCamera.position.clone();
+      if(reducedMotion){flight=null;orbitalCamera.position.copy(to);orbitalCamera.lookAt(0,0,0);controls.update();}
+      else flight={from,to,start:performance.now(),duration:900,fromDirection:from.clone().normalize(),fromRadius:from.length(),toRadius:to.length(),
+        rotation:new THREE.Quaternion().setFromUnitVectors(from.clone().normalize(),to.clone().normalize())};
+      captionUpdate();invalidate();return;
     }
     focusBody(target);
   }
@@ -527,8 +646,8 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     const gl=renderer.getContext(),gpuExtension=gl.getExtension('WEBGL_debug_renderer_info');
     return {mode,siteId:site.id,time:sample?.[0]??null,webgl:disposed?'disposed':lost?'lost':'ready',
       graphics:{renderer:gpuExtension?gl.getParameter(gpuExtension.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER),quality:mobileQuality?'mobile-2K':'desktop-auto-4K'},
-      orbital:{earth:orbitalBody(orbitalEarth,'earth',4,5),sun:orbitalBody(orbitalSun,'sun',1,2),rayOrigin:rayOrigin.toArray(),displayDepthMoonRadii:orbitalRayLength,
-        disclosure:'Apparent observer-ray directions transformed from the selected site ENU frame. Distances and sizes are illustrative; no planetary ranges are cached. Bodies are withheld unless visible from the selected study point.'},
+      orbital:{earth:orbitalBody(orbitalEarth,'earth',4,5),sun:orbitalBody(orbitalSun,'sun',1,2),rayOrigin:rayOrigin.toArray(),displayDepthMoonRadii:orbitalDepth,apparentDiameterDeg:{earth:1.9,sun:.53},
+        disclosure:'Apparent observer-ray directions transformed from the selected site ENU frame. Bodies keep their apparent angular diameters from the Moon at schematic distances; no planetary ranges are cached. They are drawn whenever a cached direction exists; visibility from the study point is reported separately.'},
       moon:{textured:moonTextureLoaded,detail:moonDetail,bump:moonBumpLoaded,vertices:moon.geometry.attributes.position.count,projectedCenter:new THREE.Vector3().project(orbitalCamera).toArray()},
       terrain:{siteId:terrainSiteId,loaded:Boolean(terrainMesh),vertexCount:terrainMesh?.geometry.attributes.position.count??0,indexCount:terrainMesh?.geometry.index.count??0,sha256:terrainRecord?.sha256??null,error:terrainError},
       farHorizonSectors:farHorizonRecord?.sectorCount??0,
@@ -544,9 +663,10 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
       sun:{...bodyInfo(sun,'sun',1,2),angularDiameterDeg:2*Math.atan(sunDisc.geometry.parameters.radius/skyDistance)/RAD,directLightIntensity:sunlight.intensity,displayDistanceM:skyDistance},
       earth:{...bodyInfo(earth,'earth',4,5),textured:earthTextureLoaded,angularDiameterDeg:2*Math.atan(earth.geometry.parameters.radius/skyDistance)/RAD,displayDistanceM:skyDistance,
         limbIllustrative:true,
-        material:earthMaterial.type,unlit:earthMaterial.isMeshBasicMaterial===true,geographicFaceRegistered:false,timeMatchedPhase:false,
-        disclosure:'Historical Blue Marble composite with baked shading; geographic face, weather and phase are not registered to the selected UTC.'},
-      displayLighting:{ambientIntensity:floorLight.intensity,shadowsLocalHalfExtentM:350,proceduralMaterialGrain:false,
+        material:earthMaterial.type,unlit:false,geographicFaceRegistered:false,timeMatchedPhase:true,phaseBasis:'Lit hemisphere follows the cached apparent Sun direction; Moon-Sun and Earth-Sun directions differ by under 0.2 degrees.',
+        disclosure:'Historical cloud-free Blue Marble composite. The phase follows the cached Sun direction; the geographic face and weather are not registered to the selected UTC.'},
+      displayLighting:{ambientIntensity:floorLight.intensity,shadowsLocalHalfExtentM:0,castShadowsRendered:false,proceduralMaterialGrain:regolithShading==='lommel-seeliger'&&!mobileQuality,regolithShading,
+        materialNote:'Lommel-Seeliger regolith reflectance with procedural display grain. Grain adds no relief; all slopes and ridges are LOLA data.',
         fill:{intensity:displayFill.intensity,direction:displayFill.position.clone().normalize().toArray(),castsShadows:displayFill.castShadow,basis:'Illustrative display fill; actual DEM normals, independent of Sun visibility.'}},
       renderedFrames:renderer.info.render.frame,triangles:renderer.info.render.triangles,
       gpuResources:{geometries:renderer.info.memory.geometries,textures:renderer.info.memory.textures}};
@@ -628,7 +748,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     if(disposed)return;disposed=true;++terrainRequest;cancelAnimationFrame(raf);raf=0;
     observer?.disconnect();resizeObserver?.disconnect();listeners.forEach(remove=>remove());controls.dispose();
     resources.forEach(resource=>resource.dispose());renderer.dispose();
-    canvas.remove();caption.remove();bodyStatus.remove();markerLabel.remove();
+    canvas.remove();caption.remove();bodyStatus.remove();markerLabel.remove();bodyLabels.earth.remove();bodyLabels.sun.remove();
     container.dataset.webgl=container.dataset.webglStatus='disposed';
     container.dataset.sunRendered=container.dataset.earthRendered='false';
     sun.visible=earth.visible=orbitalSun.visible=orbitalEarth.visible=false;
@@ -642,7 +762,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     throw new Error(message);
   }
   report('ready','Interactive Moon ready. Select a cached study point or enter its surface view.');
-  earthTexturePromise??=texture('earth-color.jpg',earthMaterial,'map','earth');
+  earthTexturePromise??=texture('earth-color.jpg',earthMapTarget,'map','earth');
   if(!mobileQuality)requestAnimationFrame(()=>{if(!disposed&&!lost)void loadHighDetail();});
   return {selectSite,setMode,setFrame,focus,resize,dispose,inspect,loadHighDetail};
 }

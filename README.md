@@ -1,4 +1,4 @@
-﻿# LUNARIS
+# LUNARIS
 
 What if a lunar landing is late? LUNARIS shows the sunlight and Earth-contact opportunities lost, which fixed requirements fail, and the next confirmed arrival at a verified south-pole study point.
 
@@ -16,10 +16,10 @@ Open http://127.0.0.1:5173/. On Windows PowerShell, use `npm.cmd` if script poli
 For the offline app, Python 3.11+ is sufficient; no npm install or network is needed:
 
 ```sh
-python -m http.server --bind 127.0.0.1 --directory web 8000
+python serve.py
 ```
 
-Open http://127.0.0.1:8000/. All runtime code, images and data are local. A usable 2D analysis view remains available without WebGL.
+Open http://127.0.0.1:8000/. `serve.py` is a small standard-library launcher that pins the JavaScript module MIME type; plain `python -m http.server` serves `.mjs` as text on some Windows installations and the page then stays blank. All runtime code, images and data are local. A usable 2D analysis view remains available without WebGL.
 
 ## The landing-delay story
 
@@ -43,7 +43,7 @@ Calculations cover only the published Connecting Ridge, Shackleton Rim and de Ge
 
 The engine uses curved local/regional NASA LRO/LOLA terrain and SPICE `CN+S` in `MOON_ME_DE440_ME421`. East-positive longitude and clockwise-from-north azimuth are explicit. Its 24-direction airless topocentric Horizons comparison has a maximum separation of 0.000000482 degrees; shared JPL lineage means that comparison does not independently validate terrain. Numerical/model intervals retain gaps and refinement disagreements.
 
-The reduced display mesh extends 32 km with no vertical exaggeration. More distant terrain uses the nominal angular skyline projected at an artificial 200 km distance. These visuals never decide visibility. Cached sky positions are 30 minutes apart; bodies are hidden unless retained/coarse/fine intervals all confirm visibility. Fixed approximate Sun/Earth diameters are 0.53/1.9 degrees. Earth uses a historical composite with unregistered face and phase; globe lighting, display fill and local shadows are illustrative. No rocks or landing hazards are resolved.
+The reduced display mesh extends 32 km with no vertical exaggeration. More distant terrain uses the nominal angular skyline projected at an artificial 200 km distance. These visuals never decide visibility. Cached sky positions are 30 minutes apart; bodies are hidden unless retained/coarse/fine intervals all confirm visibility. Fixed approximate Sun/Earth diameters are 0.53/1.9 degrees, in both the surface and orbital views; orbital distances are schematic. Earth's lit phase follows the cached Sun direction, while its historical cloud-free composite and geographic face stay unregistered. Surface brightness uses a Lommel-Seeliger regolith approximation with procedural display grain that adds no relief; cast shadows are not rendered, so only slopes turned from the Sun darken. Sun glare is a camera-style illustration. No rocks or landing hazards are resolved.
 
 **Geometric visibility is not electrical power, thermal survival, a working radio link, safe landing or trajectory reachability.** Center tests do not establish complete-disc illumination. PASS means only the declared model constraints pass. Finite sensitivity cases establish no universal robustness.
 
@@ -68,4 +68,4 @@ Rebuilding science additionally requires about 439 MB of NASA source files: `pyt
 
 ## AI use
 
-Arya Ergin directed the project as the sole human entrant. OpenAI Codex assisted research, scientific implementation, tests, interface design and writing. Decisions are deterministic calculations from frozen data, with no runtime AI. NASA images are source-derived, not generative artwork. [NASA Space Apps AI guidance](https://github.com/nasa/spaceapps/discussions/1849).
+Arya Ergin directed the project as the sole human entrant. OpenAI Codex and Anthropic Claude (Claude Code) assisted research, scientific implementation, rendering, tests, interface design and writing. Decisions are deterministic calculations from frozen data, with no runtime AI. NASA images are source-derived, not generative artwork. [NASA Space Apps AI guidance](https://github.com/nasa/spaceapps/discussions/1849).

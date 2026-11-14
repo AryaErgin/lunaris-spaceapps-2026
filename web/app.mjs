@@ -1367,7 +1367,7 @@ function setExperienceMode(mode) {
   byId('focus-terrain').textContent=mode==='surface'?'Explore terrain':'Focus study points';
   byId('scene-transport').hidden=false;
   byId('mission-story').hidden=false;
-  byId('scene-mode-label').textContent=mode==='surface'?'NASA LOLA / SURFACE OBSERVER · DISPLAY FILL':'NASA LRO / ORBITAL EXPLORATION';
+  byId('scene-mode-label').textContent=mode==='surface'?'NASA LOLA RELIEF · ILLUSTRATIVE GRAIN + LIGHTING':'NASA LRO / ORBITAL EXPLORATION';
   byId('explore-site').textContent=mode==='surface'?'Drag to look around · scroll to zoom':'Explore this surface →';
   if(sceneController&&!sceneDisabled)byId('scene-status').textContent=mode==='orbital'?'Orbital view · drag to orbit, scroll or pinch to zoom. Select a study point to approach the surface.':'Surface view · actual LOLA relief at the recorded observer height. Drag to look around; use the focus controls or play time.';
 }
