@@ -439,3 +439,7 @@ body[data-delay-story='true'] #delay-shortcut{display:none}
 }
 .hero-visibility{margin-top:8px}
 .hero-visibility .hero-body small{display:block}
+
+/* Distinguish globally plotted locations from the three terrain-calculated study sites. */
+.moon-site-legend{position:absolute;left:12px;bottom:10px;z-index:5;pointer-events:none;padding:6px 9px;border:1px solid #38536a;border-radius:6px;background:#08121dd9;color:#d7e7f0;font:600 13px/1.4 system-ui,sans-serif;max-width:calc(100% - 24px)}
+@media(max-width:700px){.moon-site-legend{font-size:12px;bottom:8px;left:8px;padding:5px 7px}}
