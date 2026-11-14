@@ -45,6 +45,19 @@ try{
   const evaluate=async expression=>{const r=await command('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});
     if(r.exceptionDetails)throw Error(r.exceptionDetails.exception?.description??r.exceptionDetails.text);return r.result.value;};
   const inspect=()=>evaluate("import('/web/app.mjs').then(m=>m.inspectExperience())");
+  const checkWheel=async mode=>{
+    await evaluate('scrollTo(0,0)');await sleep(200);
+    const before=await inspect(),point=await evaluate("(()=>{const r=document.querySelector('#scene-mount canvas').getBoundingClientRect();return {x:r.left+r.width*.5,y:r.top+r.height*.5}})()");
+    await command('Input.dispatchMouseEvent',{type:'mouseWheel',...point,deltaX:0,deltaY:320});
+    await until(()=>evaluate('scrollY>50'));
+    const after=await inspect();
+    assert.deepEqual(after.camera.position,before.camera.position,`${mode}: ordinary wheel must scroll the page without moving the camera.`);
+    assert.equal(after.camera.fov,before.camera.fov);
+    await evaluate('scrollTo(0,0)');await sleep(100);
+    await command('Input.dispatchMouseEvent',{type:'mouseWheel',...point,deltaX:0,deltaY:-120,modifiers:2});
+    await until(async()=>{const c=(await inspect()).camera;return mode==='surface'?c.fov<before.camera.fov:Math.hypot(...c.position)<Math.hypot(...before.camera.position);});
+    assert.equal(await evaluate('scrollY'),0,`${mode}: deliberate Ctrl+wheel zoom must retain the page position.`);
+  };
   const screenshot=async name=>{const r=await command('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});await writeFile(resolve(work,name+'.png'),Buffer.from(r.data,'base64'));};
   const download=async(label,action)=>{
     const folder=resolve(work,label);await mkdir(folder,{recursive:true});await command('Page.setDownloadBehavior',{behavior:'allow',downloadPath:folder});
@@ -79,9 +92,13 @@ try{
     assert(info.orbital[key].direction.every((v,i)=>Math.abs(v-expectedDirection[i])<1e-12),'Orbital directions must match the verified local-to-Moon transform.');
   }
   await until(async()=>(await inspect()).orbital.earth.textured);
+  await checkWheel('orbital');
   await evaluate("document.querySelector('#focus-earth').click()");await until(async()=>(await inspect()).orbital.earth.inFrustum);
   assert.equal((await inspect()).mode,'orbital');await screenshot('orbital-earth-desktop');
   await evaluate("document.querySelector('#focus-sun').click()");await until(async()=>(await inspect()).orbital.sun.inFrustum);await screenshot('orbital-sun-desktop');
+  await evaluate("document.querySelector('#reset-orbit').click()");
+  await until(async()=>{const c=(await inspect()).camera;return c.position.every((v,i)=>Math.abs(v-c.overviewPosition[i])<1e-5);});
+  await evaluate("document.querySelector('#focus-terrain').click()");await sleep(1500);await screenshot('orbital-study-points-desktop');
   await evaluate("document.querySelector('#reset-orbit').click()");
   await until(async()=>{const c=(await inspect()).camera;return c.position.every((v,i)=>Math.abs(v-c.overviewPosition[i])<1e-5);});
   for(const [width,height] of [[1024,768],[1440,900]]){
@@ -194,6 +211,13 @@ try{
   info=await inspect();assert.equal(info.camera.position[1],2);assert(info.terrain.vertexCount>50000);assert(info.terrain.indexCount>300000);
   const currentSite=bundle.sites.find(s=>s.id===info.siteId),sample=currentSite.geometry.find(r=>r[0]===info.time);
   await evaluate("document.querySelector('#focus-terrain').click()");await screenshot('surface-terrain-desktop');
+  await checkWheel('surface');
+  const pinchPoint=await evaluate("(()=>{const r=document.querySelector('#scene-mount canvas').getBoundingClientRect();return {x:r.left+r.width*.5,y:r.top+r.height*.5}})()"),pinchFov=(await inspect()).camera.fov;
+  const touches=span=>[{id:1,x:pinchPoint.x-span,y:pinchPoint.y},{id:2,x:pinchPoint.x+span,y:pinchPoint.y}];
+  await command('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:touches(35)});
+  await command('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:touches(65)});
+  await command('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+  await until(async()=>(await inspect()).camera.fov<pinchFov);
   const frame=sceneFrame(currentSite,sample,bundle.coverage);
   for(const [key,az,el] of [['sun',1,2],['earth',4,5]]){
     assert.equal(info[key].visible,frame.states[key]==='visible');
@@ -202,6 +226,10 @@ try{
   await evaluate("document.querySelector('#focus-earth').click()");await until(async()=>(await inspect()).camera.fov===10);
   assert(Math.abs((await inspect()).earth.angularDiameterDeg-1.9)<.001);
   await screenshot('surface-earth-desktop');
+  await evaluate("document.querySelector('#focus-sun').click()");
+  assert.equal((await inspect()).camera.fov,8,'Sun focus must use optical zoom without changing body angular size.');
+  assert(Math.abs((await inspect()).sun.angularDiameterDeg-.53)<.001);
+  await screenshot('surface-sun-desktop');
   const storyStates=[];
   for(const phase of ['nominal','delayed','recommended']){
     await evaluate(`document.querySelector('[data-story="${phase}"]').click()`);
@@ -287,7 +315,7 @@ try{
   await screenshot('missing-bundle-mobile');
   await writeFile(resolve(work,'verification.json'),JSON.stringify({viewports:[[1024,768],[1366,768],[1440,900],[390,840]],
     initialStatus:'PASS',delayedStatus:'FAIL',recoveredStatus:'PASS',certificateRoles:['nominal','delayed','recommended','cross-site alternative'],
-    invalidArrivalRejected:true,exportSelectionRace:true,allSiteVisibilityGates:true,noExternalRequests:true,
+    invalidArrivalRejected:true,exportSelectionRace:true,allSiteVisibilityGates:true,noExternalRequests:true,wheelPageScrollAndModifierZoom:['orbital','surface'],surfaceTouchPinch:true,
     webglFallback:true,missingBundleError:true,physicalDevice:false,humanComprehension:false,
     browser:await command('Browser.getVersion'),performance:performanceEvidence},null,2));
   console.log(`3D experience passed: textured GPU Moon/Earth, real DEM meshes, camera controls, PASS/FAIL/PASS story, all-site obstruction gating, lazy/offline assets, mobile, reduced motion and lost/absent WebGL fallback. Evidence: ${work}`);

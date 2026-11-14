@@ -1,0 +1,13 @@
+{
+  "project": "LUNARIS",
+  "human_contributors": [
+    {"name": "Arya Ergin", "contribution": "Project direction and AI-assisted development with OpenAI Codex"},
+    {"name": "Aras", "contribution": "Teammate contributing through Anthropic Claude (Claude Code)"}
+  ],
+  "ai_assistance": "Research, scientific implementation, rendering, tests, interface design and writing. No runtime AI is used for mission decisions.",
+  "data_generation_notices": "Frozen scientific artifacts retain their original-generation notices and hashes. This release-level record identifies the current human team and AI assistance.",
+  "visual_media": "NASA source imagery and deterministic terrain/rendering derivatives; no generative image or video model.",
+  "nasa_endorsement": false,
+  "sources": "assets/visual-sources.json and data/bundle.json manifest",
+  "guidance": "https://github.com/nasa/spaceapps/discussions/1849"
+}

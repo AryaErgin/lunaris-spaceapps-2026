@@ -102,7 +102,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   const canvas=document.createElement('canvas');
   canvas.className='mission-scene-canvas';canvas.tabIndex=0;
   canvas.setAttribute('role','application');
-  canvas.setAttribute('aria-label','Interactive Moon. Drag to rotate, scroll or pinch to zoom. Arrow keys rotate; plus and minus zoom.');
+  canvas.setAttribute('aria-label','Interactive Moon. Drag to rotate. Ctrl or Command plus scroll, pinch, or plus and minus keys zoom. Ordinary scrolling moves the page. Arrow keys rotate.');
   container.append(canvas);
   let renderer;
   try {
@@ -127,7 +127,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   const bodyStatus=document.createElement('div');bodyStatus.className='mission-scene-body-status';
   bodyStatus.setAttribute('aria-live','polite');container.append(bodyStatus);
   const markerLabel=document.createElement('div');markerLabel.className='mission-scene-marker-label';container.append(markerLabel);
-  // Orbital bodies are drawn at true apparent size, so small labels make them findable.
+  // Orbital bodies are drawn at fixed approximate angular sizes, so small labels make them findable.
   const bodyLabels={};
   for(const [key,text] of [['earth','EARTH'],['sun','SUN']]) {
     const label=document.createElement('div');label.className='mission-scene-body-label';label.dataset.body=key;label.textContent=text;label.hidden=true;
@@ -144,6 +144,11 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   controls.enablePan=false;controls.enableZoom=true;controls.enableRotate=true;
   controls.minDistance=1.06;controls.maxDistance=18;controls.rotateSpeed=.55;controls.zoomSpeed=.65;
   listen(controls,'change',()=>invalidate());listen(controls,'start',()=>{flight=null;});
+  // OrbitControls cancels all wheel events, including ordinary page navigation.
+  // Intercept only that path; modifier-wheel and touch pinch retain their handlers.
+  listen(canvas,'wheel',event=>{
+    if(!event.ctrlKey&&!event.metaKey)event.stopImmediatePropagation();
+  },{capture:true,passive:true});
 
   const moonMaterial=track(new THREE.MeshStandardMaterial({color:0xeeeeea,roughness:1,metalness:0}));
   const moon=new THREE.Mesh(track(new THREE.SphereGeometry(1,128,96)),moonMaterial);
@@ -199,7 +204,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
       glowContext.fillStyle=streak;glowContext.fillRect(-128,-1.2,256,2.4);glowContext.restore();
     }
     const sprite=new THREE.Sprite(track(new THREE.SpriteMaterial({map:track(new THREE.CanvasTexture(glowCanvas)),transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,toneMapped:false})));
-    const size=skyDistance*Math.tan(.265*RAD)*52;sprite.scale.set(size,size,1);sun.add(sprite);
+    const size=skyDistance*Math.tan(.265*RAD)*20;sprite.scale.set(size,size,1);sun.add(sprite);
   }
   // Earth's lit hemisphere follows the cached apparent Sun direction (the Sun is far enough that
   // the Moon-to-Sun and Earth-to-Sun directions differ by under 0.2 degrees). The geographic face
@@ -295,15 +300,15 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
         float dotNL = smoothstep( 0.0, 0.035, lsIn ) * min( 1.0, 2.0 * lsIn / ( lsIn + lsOut + 0.05 ) );`))
         .replace('#include <color_fragment>',`#include <color_fragment>
         float lnRange=length(vRegolith.xz);
-        diffuseColor.rgb*=0.8+0.22*lnNoise(vRegolith.xz*0.19)/(1.0+lnRange*0.02)+0.2*lnNoise(vRegolith.xz*0.0127);`)
+        diffuseColor.rgb*=0.93+0.04*lnNoise(vRegolith.xz*0.19)/(1.0+lnRange*0.02)+0.03*lnNoise(vRegolith.xz*0.0127);`)
         .replace('#include <normal_fragment_maps>',`#include <normal_fragment_maps>
         #if ${grain}
         { float e=0.12+lnRange*0.004;vec2 q=vRegolith.xz;
-          vec2 slope=vec2(lnGrain(q+vec2(e,0.0),lnRange)-lnGrain(q-vec2(e,0.0),lnRange),lnGrain(q+vec2(0.0,e),lnRange)-lnGrain(q-vec2(0.0,e),lnRange))*(0.045/e);
+          vec2 slope=vec2(lnGrain(q+vec2(e,0.0),lnRange)-lnGrain(q-vec2(e,0.0),lnRange),lnGrain(q+vec2(0.0,e),lnRange)-lnGrain(q-vec2(0.0,e),lnRange))*(0.004/e);
           normal=normalize(normal+mat3(viewMatrix)*vec3(-slope.x,0.0,-slope.y)); }
         #endif`);
     };
-    material.customProgramCacheKey=()=>'lunaris-regolith-2-'+grain;
+    material.customProgramCacheKey=()=>'lunaris-regolith-3-'+grain;
     return material;
   }
   const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2(),projected=new THREE.Vector3();
@@ -359,7 +364,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     const signature=[site.id,mode,orbitalFocus,states.sun,states.earth,visibility.sun,visibility.earth,framed.sun,framed.earth,earthTextureLoaded].join('|');
     if(signature===captionSignature)return;captionSignature=signature;
     location.textContent=`${mode==='orbital'&&['earth','sun'].includes(orbitalFocus)?`${orbitalFocus==='earth'?'Earth':'Sun'} direction from `:''}${site.name} · ${Math.abs(site.lat).toFixed(4)}° S · ${((site.lon%360+360)%360).toFixed(4)}° E`;
-    note.textContent=mode==='orbital'?'Sun and Earth sit in their computed directions at true apparent size (0.53° and 1.9°). Distances are schematic.'
+    note.textContent=mode==='orbital'?'Sun and Earth sit in their computed directions at fixed approximate angular sizes (0.53° and 1.9°). Distances are schematic.'
       :`NASA LOLA mesh + projected nominal skyline · ${site.heightM} m observer · Illustrative grain and lighting; Earth phase from the cached Sun direction`;
     bodyStatus.replaceChildren();
     for(const key of ['sun','earth']) {
@@ -555,8 +560,8 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     pendingMode=null;
     mode=next;flight=null;controls.enabled=mode==='orbital';container.dataset.mode=mode;
     if(!reducedMotion&&typeof canvas.animate==='function')canvas.animate([{opacity:.15},{opacity:1}],{duration:420,easing:'ease-out'});
-    canvas.setAttribute('aria-label',mode==='orbital'?'Interactive Moon. Drag or use arrow keys to rotate; scroll, pinch, plus and minus zoom.'
-      :'Lunar surface at the recorded observer height. Drag or use arrow keys to look around; scroll, pinch, plus and minus change field of view.');
+    canvas.setAttribute('aria-label',mode==='orbital'?'Interactive Moon. Drag or use arrow keys to rotate. Ctrl or Command plus scroll, pinch, or plus and minus keys zoom. Ordinary scrolling moves the page.'
+      :'Lunar surface at the recorded observer height. Drag or use arrow keys to look around. Ctrl or Command plus scroll, pinch, or plus and minus keys change field of view. Ordinary scrolling moves the page.');
     if(mode==='surface') {
       yaw=terrainBearingDeg*RAD;pitch=terrainPitch();surfaceFov=65;surfaceFocus='terrain';
       setSurfaceLook();updateFarHorizon();void loadTerrain();earthTexturePromise??=texture('earth-color.jpg',earthMapTarget,'map','earth');
@@ -585,7 +590,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   function focusBody(target) {
     const [az,el]=target==='earth'?[4,5]:[1,2];
     if(!bodyDirection(sample?.[az],sample?.[el])){report('warning',`No verified ${target} geometry exists at this frame.`);return;}
-    yaw=sample[az]*RAD;pitch=sample[el]*RAD;surfaceFov=target==='earth'?10:28;surfaceFocus=target;
+    yaw=sample[az]*RAD;pitch=sample[el]*RAD;surfaceFov=target==='earth'?10:8;surfaceFocus=target;
     setSurfaceLook();updateFrame();
   }
   function focus(target) {
@@ -663,9 +668,9 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
       sun:{...bodyInfo(sun,'sun',1,2),angularDiameterDeg:2*Math.atan(sunDisc.geometry.parameters.radius/skyDistance)/RAD,directLightIntensity:sunlight.intensity,displayDistanceM:skyDistance},
       earth:{...bodyInfo(earth,'earth',4,5),textured:earthTextureLoaded,angularDiameterDeg:2*Math.atan(earth.geometry.parameters.radius/skyDistance)/RAD,displayDistanceM:skyDistance,
         limbIllustrative:true,
-        material:earthMaterial.type,unlit:false,geographicFaceRegistered:false,timeMatchedPhase:true,phaseBasis:'Lit hemisphere follows the cached apparent Sun direction; Moon-Sun and Earth-Sun directions differ by under 0.2 degrees.',
+        material:earthMaterial.type,unlit:false,geographicFaceRegistered:false,approximateSunDirectionPhase:true,phaseBasis:'Approximate lit hemisphere follows the cached apparent Sun direction; geographic face and weather are unregistered.',
         disclosure:'Historical cloud-free Blue Marble composite. The phase follows the cached Sun direction; the geographic face and weather are not registered to the selected UTC.'},
-      displayLighting:{ambientIntensity:floorLight.intensity,shadowsLocalHalfExtentM:0,castShadowsRendered:false,proceduralMaterialGrain:regolithShading==='lommel-seeliger'&&!mobileQuality,regolithShading,
+      displayLighting:{ambientIntensity:floorLight.intensity,shadowsLocalHalfExtentM:0,castShadowsRendered:false,proceduralMaterialGrain:regolithShading==='lommel-seeliger',proceduralNormalGrain:regolithShading==='lommel-seeliger'&&!mobileQuality,regolithShading,
         materialNote:'Lommel-Seeliger regolith reflectance with procedural display grain. Grain adds no relief; all slopes and ridges are LOLA data.',
         fill:{intensity:displayFill.intensity,direction:displayFill.position.clone().normalize().toArray(),castsShadows:displayFill.castShadow,basis:'Illustrative display fill; actual DEM normals, independent of Sun visibility.'}},
       renderedFrames:renderer.info.render.frame,triangles:renderer.info.render.triangles,

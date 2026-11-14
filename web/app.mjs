@@ -1368,8 +1368,8 @@ function setExperienceMode(mode) {
   byId('scene-transport').hidden=false;
   byId('mission-story').hidden=false;
   byId('scene-mode-label').textContent=mode==='surface'?'NASA LOLA RELIEF · ILLUSTRATIVE GRAIN + LIGHTING':'NASA LRO / ORBITAL EXPLORATION';
-  byId('explore-site').textContent=mode==='surface'?'Drag to look around · scroll to zoom':'Explore this surface →';
-  if(sceneController&&!sceneDisabled)byId('scene-status').textContent=mode==='orbital'?'Orbital view · drag to orbit, scroll or pinch to zoom. Select a study point to approach the surface.':'Surface view · actual LOLA relief at the recorded observer height. Drag to look around; use the focus controls or play time.';
+  byId('explore-site').textContent=mode==='surface'?'Drag to look · Ctrl/⌘ + scroll to zoom':'Explore this surface →';
+  if(sceneController&&!sceneDisabled)byId('scene-status').textContent=mode==='orbital'?'Drag to orbit. Ctrl/⌘ + scroll, pinch or +/− keys zoom; ordinary scrolling moves the page. Select a study point to approach the surface.':'Surface view · actual LOLA relief at the recorded observer height. Drag to look; Ctrl/⌘ + scroll, pinch or +/− keys zoom. Ordinary scrolling moves the page.';
 }
 
 function setSceneStatus(event) {
