@@ -1,5 +1,6 @@
 // Display renderer only. Visibility and all mission decisions come from frozen intervals.
 import {bodyDirection, moonPoint,localToMoonDirection} from './scene-model.mjs';
+import {NOTABLE_SITES} from './anysite.mjs';
 
 const RAD=Math.PI/180;
 const asset=name=>new URL(`./assets/${name}`,import.meta.url).href;
@@ -85,11 +86,11 @@ export function terrainBufferViews(buffer,metadata) {
   return {positions,indices};
 }
 
-export async function createMissionScene({container,bundle,onSiteSelect=()=>{},onModeChange=()=>{},onStatus=()=>{}}) {
+export async function createMissionScene({container,bundle,onSiteSelect=()=>{},onNotableSelect=()=>{},onModeChange=()=>{},onStatus=()=>{}}) {
   if(!container||!bundle?.sites?.length)throw new Error('A scene container and cached study points are required.');
   const vendor=await import('./vendor/three-bundle.mjs');
   const THREE=vendor.THREE??vendor,OrbitControls=vendor.OrbitControls;
-  let disposed=false,lost=false,mode='orbital',site=bundle.sites[0],sample=null,states={};
+  let disposed=false,lost=false,mode='orbital',site=bundle.sites[0],sample=null,states={},selectedNotableId=null;
   let raf=0,intersecting=true,flight=null,pendingMode=null,pendingFocus=null,terrainRequest=0,terrainMetadataPromise;
   let terrainMesh=null,terrainSiteId=null,terrainRecord=null,terrainError=null;
   let moonTextureLoaded=false,earthTextureLoaded=false,moonBumpLoaded=false;
@@ -172,6 +173,27 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     ring.userData.siteId=dot.userData.siteId=point.id;orbitalScene.add(group);
     markers.push({group,ring,dot,material,site:point,index});
   });
+
+  // Curated sites are positions only. Blue markers never enter terrain-dependent mission calculations.
+  const notableMarkers=[],notableRing=track(new THREE.RingGeometry(.005,.008,24));
+  const notableDot=track(new THREE.SphereGeometry(.0028,12,8));
+  const notableHit=track(new THREE.SphereGeometry(.016,12,8));
+  for(const point of NOTABLE_SITES){
+    const group=new THREE.Group();group.position.fromArray(moonPoint(point.lat,point.lon,1.012));
+    group.quaternion.setFromUnitVectors(normal,group.position.clone().normalize());
+    const material=track(new THREE.MeshBasicMaterial({color:0x55bfdc,side:THREE.DoubleSide,depthTest:true}));
+    const ring=new THREE.Mesh(notableRing,material);ring.userData.notableId=point.id;group.add(ring);
+    const dot=new THREE.Mesh(notableDot,material);dot.userData.notableId=point.id;dot.position.z=.004;group.add(dot);
+    // A transparent pick volume makes tiny scientifically located markers usable.
+    const pickMaterial=track(new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false,depthTest:false}));
+    const hit=new THREE.Mesh(notableHit,pickMaterial);hit.position.z=.004;hit.userData.notableId=point.id;group.add(hit);
+    orbitalScene.add(group);notableMarkers.push({group,ring,dot,hit,material,site:point});
+  }
+  container.dataset.notableSiteCount=String(notableMarkers.length);
+  const legend=document.createElement('div');legend.className='moon-site-legend';
+  legend.textContent='Gold: terrain study · Blue: locations only';
+  legend.setAttribute('aria-label','Gold markers are terrain-aware study points. Blue markers are notable lunar locations with level-horizon directions only.');
+  container.append(legend);
 
   // Both sky objects retain their angular scale. Focus changes the camera FOV.
   // Display depth only: place angular-sized sky objects behind the projected skyline.
@@ -430,6 +452,11 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
       const active=marker.site.id===site.id;
       marker.material.color.set(active?0xeebf74:0xb9c9dd);
       marker.group.scale.setScalar(active?1.3:.8);
+    }
+    for(const marker of notableMarkers){
+      const active=marker.site.id===selectedNotableId;
+      marker.material.color.set(active?0xa7ebf5:0x55bfdc);
+      marker.group.scale.setScalar(active?1.4:1);
     }
     markerLabel.textContent=site.name;
   }
@@ -697,6 +724,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
         limbIllustrative:true,
         material:earthMaterial.type,unlit:false,geographicFaceRegistered:false,approximateSunDirectionPhase:true,phaseBasis:'Approximate lit hemisphere follows the cached apparent Sun direction; geographic face and weather are unregistered.',
         disclosure:'Historical cloud-free Blue Marble composite. The phase follows the cached Sun direction; the geographic face and weather are not registered to the selected UTC.'},
+      notableSites:{count:notableMarkers.length,selectedId:selectedNotableId,scope:'Level-horizon sky coordinates only; no terrain-aware verdicts.'},
       displayLighting:{ambientIntensity:floorLight.intensity,enhancedNight,shadowsLocalHalfExtentM:0,castShadowsRendered:false,proceduralMaterialGrain:regolithShading==='lommel-seeliger',proceduralNormalGrain:regolithShading==='lommel-seeliger'&&!mobileQuality,regolithShading,
         lightScope:'Direct display illumination follows confirmed Sun-center visibility. Dim ambient or enhanced fill is artificial; full-disc shadow, Earthshine and photometric brightness are not calculated.',
         materialNote:'Lommel-Seeliger regolith reflectance with procedural display grain. Grain adds no relief; all slopes and ridges are LOLA data.',
@@ -727,9 +755,14 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     if(mode==='orbital'&&pressed&&!pressed.moved&&event.type==='pointerup') {
       const bounds=canvas.getBoundingClientRect();pointer.set((event.clientX-bounds.left)/bounds.width*2-1,-(event.clientY-bounds.top)/bounds.height*2+1);
       raycaster.setFromCamera(pointer,orbitalCamera);
-      const hit=raycaster.intersectObjects(markers.flatMap(marker=>[marker.ring,marker.dot]),false)[0];
+      const hit=raycaster.intersectObjects([
+        ...markers.flatMap(marker=>[marker.ring,marker.dot]),
+        ...notableMarkers.flatMap(marker=>[marker.ring,marker.dot,marker.hit])
+      ],false)[0];
       const moonHit=raycaster.intersectObject(moon,false)[0];
-      let picked=hit&&(!moonHit||hit.distance<moonHit.distance)?hit.object.userData.siteId:null;
+      const onSurface=hit&&(!moonHit||hit.distance<moonHit.distance);
+      let picked=onSurface?hit.object.userData.siteId:null;
+      const pickedNotable=onSurface?hit.object.userData.notableId:null;
       if(!picked&&orbitalFocus==='site'){
         const candidates=markers.map(marker=>{
           const p=marker.group.position.clone().project(orbitalCamera),facing=marker.group.position.dot(orbitalCamera.position.clone().sub(marker.group.position))>0;
@@ -737,7 +770,8 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
         }).sort((a,b)=>a.distance-b.distance);
         if(candidates[0]?.distance<18)picked=candidates[0].id;
       }
-      if(picked){selectSite(picked);onSiteSelect(picked);}
+      if(picked){selectedNotableId=null;selectSite(picked);onSiteSelect(picked);}
+      else if(pickedNotable){selectedNotableId=pickedNotable;updateMarkers();invalidate();onNotableSelect(pickedNotable);}
     }
     pressed=null;
   };
@@ -780,7 +814,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     if(disposed)return;disposed=true;++terrainRequest;cancelAnimationFrame(raf);raf=0;
     observer?.disconnect();resizeObserver?.disconnect();listeners.forEach(remove=>remove());controls.dispose();
     resources.forEach(resource=>resource.dispose());renderer.dispose();
-    canvas.remove();caption.remove();bodyStatus.remove();markerLabel.remove();obstruction.remove();bodyLabels.earth.remove();bodyLabels.sun.remove();
+    canvas.remove();caption.remove();bodyStatus.remove();markerLabel.remove();legend.remove();obstruction.remove();bodyLabels.earth.remove();bodyLabels.sun.remove();
     container.dataset.webgl=container.dataset.webglStatus='disposed';
     container.dataset.sunRendered=container.dataset.earthRendered='false';
     sun.visible=earth.visible=orbitalSun.visible=orbitalEarth.visible=false;
