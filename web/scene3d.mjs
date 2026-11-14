@@ -266,7 +266,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     void main(){
     #include <logdepthbuf_fragment>
     float azimuth=atan(vCurtain.x,-vCurtain.z);float facing=0.5-0.5*cos(azimuth-sunAzimuth);
-    float tone=0.028+sunLevel*(0.03+0.2*facing*facing);
+    float tone=0.02+sunLevel*(0.02+0.1*facing*facing);
     gl_FragColor=vec4(vec3(tone*1.02,tone,tone*0.97),1.0);
     #include <colorspace_fragment>
     }`}));

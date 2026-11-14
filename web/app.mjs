@@ -1462,13 +1462,25 @@ function updateExperienceFrame(site,sample,mission) {
   byId('hero-play').disabled=isEdited||!chart||chart.samples.length<2;
   const visibility=byId('hero-visibility');visibility.replaceChildren();
   for(const [key,title] of [['sun','Sun'],['earth','Earth']]) {
-    const state=latestSceneFrame.states[key],label=state==='visible'?'visible':state==='blocked'?'unavailable / obstructed':'unresolved · body hidden';
-    const item=element('span','',`${title}: ${label}`);item.dataset.state=state;item.dataset.target=key;visibility.append(item);
+    const state=latestSceneFrame.states[key],label=state==='visible'?'visible':state==='blocked'?'hidden by terrain':'unresolved · body hidden';
+    const elevation=sample?.[key==='sun'?2:5];
+    // Plain-language time to the next established change, from the same bounded events as Advanced.
+    const wanted=isEdited?null:state==='visible'?'loss':state==='blocked'?'reacquisition':null;
+    let next='';
+    if(wanted) {
+      const countdown=transitionCountdown(refinedEvents(site,key,sample[0],bundle.coverage),wanted,sample[0]);
+      const name=wanted==='loss'?(key==='sun'?'sunset':'Earthset'):(key==='sun'?'sunrise':'Earthrise');
+      next=countdown.kind==='bounded'?`${name} in ${durationRange(countdown.remaining)}`
+        :countdown.kind==='unresolved'?`${name} timing cannot be resolved (between ${shortTime(countdown.interval[0])} and ${shortTime(countdown.interval[1])})`
+          :`no ${name} established in the cached data`;
+    }
+    const item=element('span','',`${title}${Number.isFinite(elevation)?` ${elevation.toFixed(1)}° elevation`:''} · ${label}${next?` · ${next}`:''}`);
+    item.dataset.state=state;item.dataset.target=key;if(wanted)item.dataset.nextEvent=wanted;visibility.append(item);
   }
   for(const key of ['sun','earth']){
     const d=latestSceneFrame.sample,az=d?.[key==='sun'?1:4],el=d?.[key==='sun'?2:5];
     const item=visibility.querySelector(`[data-target='${key}']`);
-    if(item&&Number.isFinite(az)&&Number.isFinite(el))item.title=`Bearing ${az.toFixed(1)}° / elevation ${el.toFixed(1)}°. 30-minute cached direction; geometry only.`;
+    if(item&&Number.isFinite(az)&&Number.isFinite(el))item.title=`Bearing ${az.toFixed(1)}° / elevation ${el.toFixed(1)}° above the level horizon. Rise and set mean the body center crossing the terrain skyline. 30-minute cached direction; geometry only.`;
   }
   for(const head of document.querySelectorAll('.story-joint-playhead')){
     const start=Number(head.dataset.start),end=Number(head.dataset.end);head.hidden=sample[0]<start||sample[0]>=end;head.style.left=`${100*(sample[0]-start)/(end-start)}%`;
