@@ -1,5 +1,6 @@
 // Display renderer only. Visibility and all mission decisions come from frozen intervals.
 import {bodyDirection, moonPoint,localToMoonDirection} from './scene-model.mjs';
+import {NOTABLE_SITES} from './anysite.mjs';
 
 const RAD=Math.PI/180;
 const asset=name=>new URL(`./assets/${name}`,import.meta.url).href;
@@ -7,6 +8,12 @@ const terrainUrl=new URL('./data/terrain-scenes.json',import.meta.url);
 const clamp=(value,lo,hi)=>Math.max(lo,Math.min(hi,value));
 
 export const moonFixedPosition=moonPoint;
+// Catalog pins are geographical context. Only bundle study points have terrain-aware evidence.
+export function orbitalMarkerRecords(studyPoints) {
+  return [...studyPoints.map(point=>({point,kind:'terrain',terrainAware:true,symbol:'○',color:0xeebf74})),
+    ...NOTABLE_SITES.map(point=>({point,kind:'context',terrainAware:false,symbol:'◇',color:0x8edbea}))]
+    .map(record=>({...record,position:moonPoint(record.point.lat,record.point.lon,1.008)}));
+}
 export function surfaceLightState(sunState,hasDirection,enhanced=false){
   const lit=hasDirection&&sunState==='visible';
   return {direct:lit?2.3:0,ambient:(lit||enhanced)? .18:.002,fill:(lit||enhanced)? .3:0,
@@ -85,7 +92,7 @@ export function terrainBufferViews(buffer,metadata) {
   return {positions,indices};
 }
 
-export async function createMissionScene({container,bundle,onSiteSelect=()=>{},onModeChange=()=>{},onStatus=()=>{}}) {
+export async function createMissionScene({container,bundle,onSiteSelect=()=>{},onContextSelect=()=>{},onModeChange=()=>{},onStatus=()=>{}}) {
   if(!container||!bundle?.sites?.length)throw new Error('A scene container and cached study points are required.');
   const vendor=await import('./vendor/three-bundle.mjs');
   const THREE=vendor.THREE??vendor,OrbitControls=vendor.OrbitControls;
@@ -97,6 +104,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   let terrainBearingDeg=terrainFocusBearing(site);
   let yaw=0,pitch=-5*RAD,surfaceFov=65,surfaceFocus='terrain',orbitalFocus='Moon',needsRender=true,captionSignature='';
   let enhancedNight=false;
+  let contextSite=null;
   const mobileQuality=window.matchMedia('(max-width:700px)').matches||navigator.connection?.saveData===true;
   const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const resources=new Set(),listeners=[],terrainCache=new Map(),farHorizonCache=new Map();
@@ -133,6 +141,8 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   const bodyStatus=document.createElement('div');bodyStatus.className='mission-scene-body-status';
   bodyStatus.setAttribute('aria-live','polite');container.append(bodyStatus);
   const markerLabel=document.createElement('div');markerLabel.className='mission-scene-marker-label';container.append(markerLabel);
+  const markerLegend=document.createElement('div');markerLegend.className='mission-marker-legend';
+  markerLegend.innerHTML='<span>○ Terrain study points</span><span>◇ Other landing locations · level horizon only</span>';container.append(markerLegend);
   // Orbital bodies are drawn at fixed approximate angular sizes, so small labels make them findable.
   const bodyLabels={};
   const obstruction=document.createElement('div');obstruction.className='mission-terrain-obstruction';obstruction.hidden=true;
@@ -161,16 +171,41 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   const globeLight=new THREE.DirectionalLight(0xfff2df,2.9);globeLight.position.set(4,1.5,-2);orbitalScene.add(globeLight);
   const markers=[];
   const ringGeometry=track(new THREE.RingGeometry(.0017,.0025,36));
+  const contextGeometry=track(new THREE.RingGeometry(.004,.007,4,1,Math.PI/4));
   const dotGeometry=track(new THREE.SphereGeometry(.0012,12,8));
   const normal=new THREE.Vector3(0,0,1);
-  bundle.sites.forEach((point,index)=>{
-    const group=new THREE.Group();group.position.fromArray(moonPoint(point.lat,point.lon,1.008));
+  orbitalMarkerRecords(bundle.sites).forEach((record,index)=>{
+    const {point,kind}=record;
+    const group=new THREE.Group();group.position.fromArray(record.position);
     group.quaternion.setFromUnitVectors(normal,group.position.clone().normalize());
-    const material=track(new THREE.MeshBasicMaterial({color:0xc9d4e1,side:THREE.DoubleSide,depthTest:true}));
-    const ring=new THREE.Mesh(ringGeometry,material);group.add(ring);
+    const material=track(new THREE.MeshBasicMaterial({color:record.color,side:THREE.DoubleSide,depthTest:true}));
+    const ring=new THREE.Mesh(kind==='context'?contextGeometry:ringGeometry,material);group.add(ring);
     const dot=new THREE.Mesh(dotGeometry,material);dot.position.z=.006;group.add(dot);
     ring.userData.siteId=dot.userData.siteId=point.id;orbitalScene.add(group);
-    markers.push({group,ring,dot,material,site:point,index});
+    let button=null;
+    if(kind==='context'){
+      button=document.createElement('button');button.className='mission-context-marker';button.type='button';button.hidden=true;
+      button.dataset.contextSite=point.id;button.textContent=record.symbol;
+      button.setAttribute('aria-label',`${point.name}: explore Sun and Earth above a level horizon; local terrain is not modeled.`);
+      button.title=`${point.name} (${point.year}) · level-horizon geometry only`;
+      listen(button,'click',event=>{
+        let chosen=point;
+        // Some Apollo sites are close on the globe. A pointer chooses the nearest
+        // real projected pin even when generous touch targets overlap; keyboard
+        // activation always chooses the focused named button.
+        if(event.detail>0){
+          const bounds=canvas.getBoundingClientRect();
+          const nearest=markers.filter(marker=>marker.kind==='context').map(marker=>{
+            const view=markerView(marker);
+            return {point:marker.site,distance:view.visible?Math.hypot(bounds.left+view.projectedPosition[0]*bounds.width-event.clientX,
+              bounds.top+view.projectedPosition[1]*bounds.height-event.clientY):Infinity};
+          }).sort((a,b)=>a.distance-b.distance)[0];
+          if(nearest&&Number.isFinite(nearest.distance))chosen=nearest.point;
+        }
+        selectContextSite(chosen.id);onContextSelect(chosen);
+      });container.append(button);
+    }
+    markers.push({group,ring,dot,material,site:point,index,kind,button});
   });
 
   // Both sky objects retain their angular scale. Focus changes the camera FOV.
@@ -365,7 +400,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   function captionUpdate() {
     const visibility=renderedBodies(sample,states);
     const framed=Object.fromEntries([['sun',1,2,orbitalSun],['earth',4,5,orbitalEarth]].map(([key,az,el,object])=>[key,(mode==='orbital'?orbitalFraming(object):viewInfo(bodyDirection(sample?.[az],sample?.[el]))).inFrustum]));
-    const signature=[site.id,mode,orbitalFocus,states.sun,states.earth,visibility.sun,visibility.earth,framed.sun,framed.earth,earthTextureLoaded].join('|');
+    const signature=[site.id,contextSite?.id,mode,orbitalFocus,states.sun,states.earth,visibility.sun,visibility.earth,framed.sun,framed.earth,earthTextureLoaded].join('|');
     if(signature===captionSignature)return;captionSignature=signature;
     location.textContent=`${mode==='orbital'&&['earth','sun'].includes(orbitalFocus)?`${orbitalFocus==='earth'?'Earth':'Sun'} direction from `:''}${site.name} · ${Math.abs(site.lat).toFixed(4)}° S · ${((site.lon%360+360)%360).toFixed(4)}° E`;
     note.textContent=mode==='orbital'?'Sun and Earth sit in their computed directions at fixed approximate angular sizes (0.53° and 1.9°). Distances are schematic.'
@@ -379,15 +414,19 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
         :`${name}: ${visibility[key]?(key==='earth'&&!earthTextureLoaded?'visible · image loading/unavailable':framed[key]?'visible':'visible · outside view'):state==='blocked'?(key==='sun'?'hidden by terrain':'terrain-blocked'):state==='uncertain'?'unresolved · not drawn':'no verified geometry'}`;
       bodyStatus.append(label);
     }
-    bodyStatus.hidden=false;
+    if(mode==='orbital'&&contextSite){
+      location.textContent=`${contextSite.name} · ${Math.abs(contextSite.lat).toFixed(4)}° ${contextSite.lat<0?'S':'N'} · ${((contextSite.lon%360+360)%360).toFixed(4)}° E`;
+      note.textContent='Context location: level-horizon geometry only. Local ridges and terrain-aware feasibility are not calculated here.';
+    }
+    bodyStatus.hidden=mode==='orbital'&&Boolean(contextSite);
   }
   function updateFrame() {
     const show=renderedBodies(sample,states);
     sun.visible=!lost&&!disposed&&mode==='surface'&&show.sun;
     earth.visible=!lost&&!disposed&&mode==='surface'&&show.earth&&earthTextureLoaded;
     const cachedTime=Number.isFinite(sample?.[0])&&sample[0]>=bundle.coverage[0]&&sample[0]<bundle.coverage[1];
-    orbitalSun.visible=!lost&&!disposed&&mode==='orbital'&&cachedTime&&Boolean(bodyDirection(sample?.[1],sample?.[2]));
-    orbitalEarth.visible=!lost&&!disposed&&mode==='orbital'&&cachedTime&&Boolean(bodyDirection(sample?.[4],sample?.[5]))&&earthTextureLoaded;
+    orbitalSun.visible=!contextSite&&!lost&&!disposed&&mode==='orbital'&&cachedTime&&Boolean(bodyDirection(sample?.[1],sample?.[2]));
+    orbitalEarth.visible=!contextSite&&!lost&&!disposed&&mode==='orbital'&&cachedTime&&Boolean(bodyDirection(sample?.[4],sample?.[5]))&&earthTextureLoaded;
     rayOrigin.fromArray(moonPoint(site.lat,site.lon,1+((site.groundM??0)+(site.heightM??2))/1737400)??[0,0,0]);
     container.dataset.sunRendered=String(sun.visible);container.dataset.earthRendered=String(earth.visible);
     for(const [key,object,az,el] of [['sun',sun,1,2],['earth',earth,4,5]]) {
@@ -427,11 +466,19 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   }
   function updateMarkers() {
     for(const marker of markers) {
-      const active=marker.site.id===site.id;
-      marker.material.color.set(active?0xeebf74:0xb9c9dd);
-      marker.group.scale.setScalar(active?1.3:.8);
+      const active=marker.kind==='context'?marker.site.id===contextSite?.id:!contextSite&&marker.site.id===site.id;
+      marker.material.color.set(marker.kind==='context'?(active?0xc6f3ff:0x8edbea):active?0xeebf74:0xb9c9dd);
+      marker.group.scale.setScalar(active?1.3:.8);marker.button?.setAttribute('aria-pressed',String(active));
     }
-    markerLabel.textContent=site.name;
+    markerLabel.dataset.kind=contextSite?'context':'terrain';
+    markerLabel.textContent=contextSite?`${contextSite.name} · level horizon only`:site.name;
+    container.dataset.contextSite=contextSite?.id??'';
+  }
+  function markerView(marker){
+    const projected=marker.group.position.clone().project(orbitalCamera);
+    const facing=marker.group.position.dot(orbitalCamera.position.clone().sub(marker.group.position))>0;
+    return {visible:mode==='orbital'&&!lost&&!disposed&&facing&&Math.abs(projected.x)<=1&&Math.abs(projected.y)<=1&&projected.z<=1,
+      projectedPosition:[projected.x*.5+.5,-projected.y*.5+.5]};
   }
   function draw(now) {
     raf=0;if(disposed||lost||!intersecting||document.hidden)return;
@@ -460,11 +507,16 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
       renderer.render(mode==='orbital'?orbitalScene:surfaceScene,mode==='orbital'?orbitalCamera:surfaceCamera);
       needsRender=false;
       if(mode==='orbital') {
-        const marker=markers.find(item=>item.site.id===site.id);
+        const marker=markers.find(item=>item.site.id===(contextSite?.id??site.id));
         projected.copy(marker.group.position).project(orbitalCamera);
         const facing=marker.group.position.dot(orbitalCamera.position.clone().sub(marker.group.position))>0;
         markerLabel.hidden=!facing||Math.abs(projected.x)>1||Math.abs(projected.y)>1||projected.z>1;
         markerLabel.style.left=`${(projected.x*.5+.5)*100}%`;markerLabel.style.top=`${(-projected.y*.5+.5)*100}%`;
+        for(const marker of markers.filter(item=>item.button)){
+          const view=markerView(marker);marker.button.hidden=!view.visible;
+          marker.button.style.left=`${view.projectedPosition[0]*100}%`;marker.button.style.top=`${view.projectedPosition[1]*100}%`;
+        }
+        markerLegend.hidden=false;
         for(const [key,object] of [['earth',orbitalEarth],['sun',orbitalSun]]) {
           const label=bodyLabels[key],toBody=object.position.clone().sub(orbitalCamera.position),range=toBody.length();
           toBody.divideScalar(range);
@@ -473,7 +525,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
           label.hidden=!object.visible||projected.z>1||Math.abs(projected.x)>1||Math.abs(projected.y)>1||(along>0&&along<range&&miss<1);
           label.style.left=`${(projected.x*.5+.5)*100}%`;label.style.top=`${(-projected.y*.5+.5)*100}%`;
         }
-      } else {markerLabel.hidden=true;bodyLabels.earth.hidden=bodyLabels.sun.hidden=true;}
+      } else {markerLabel.hidden=true;bodyLabels.earth.hidden=bodyLabels.sun.hidden=true;markerLegend.hidden=true;for(const marker of markers)if(marker.button)marker.button.hidden=true;}
     }
     if(flight||controlsMoving&&controls.enableDamping)schedule();
   }
@@ -553,9 +605,9 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
       report('warning',`Surface terrain unavailable: ${error.message} No substitute terrain is shown.`);invalidate();
     }
   }
-  function focusSite(duration=900,onComplete=null) {
+  function focusSite(duration=900,onComplete=null,point=site) {
     if(!onComplete&&pendingMode==='surface')onComplete=()=>{if(pendingMode==='surface'&&!disposed)commitMode('surface');};
-    const selected=new THREE.Vector3(...moonPoint(site.lat,site.lon));
+    const selected=new THREE.Vector3(...moonPoint(point.lat,point.lon));
     orbitalFocus='site';controls.target.set(0,0,0);controls.minDistance=1.06;
     const to=selected.clone().multiplyScalar(onComplete?1.25:orbitalOverviewDistance(container.clientWidth,container.clientHeight));
     if(reducedMotion){orbitalCamera.position.copy(to);orbitalCamera.lookAt(0,0,0);onComplete?.();}
@@ -564,12 +616,24 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   }
   function selectSite(siteId,{focus:shouldFocus=true}={}) {
     const next=bundle.sites.find(point=>point.id===siteId);if(!next)return false;
+    contextSite=null;
     const changed=site.id!==next.id;site=next;terrainBearingDeg=terrainFocusBearing(site);container.dataset.site=site.id;
     if(changed){sample=null;states={};container.dataset.frame='';}
     if(changed&&mode==='surface'){yaw=terrainBearingDeg*RAD;pitch=terrainPitch();surfaceFov=65;surfaceFocus='terrain';updateFarHorizon();}
     updateMarkers();setSurfaceLook();updateFrame();
     if(mode==='surface'&&changed)void loadTerrain();
     if(mode==='orbital'&&shouldFocus)focusSite(pendingMode==='surface'?520:900,pendingMode==='surface'?()=>commitMode('surface'):null);return true;
+  }
+  function selectContextSite(siteId,{focus:shouldFocus=true}={}){
+    if(siteId===null){
+      if(lost||disposed)return false;
+      contextSite=null;updateMarkers();updateFrame();captionUpdate();invalidate();return true;
+    }
+    const point=NOTABLE_SITES.find(item=>item.id===siteId);if(!point||lost||disposed)return false;
+    if(mode!=='orbital'||pendingMode)setMode('orbital');
+    contextSite=point;updateMarkers();updateFrame();
+    if(shouldFocus){focusSite(900,null,point);orbitalFocus='context';}
+    captionUpdate();invalidate();return true;
   }
   function commitMode(next) {
     pendingMode=null;
@@ -578,6 +642,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     canvas.setAttribute('aria-label',mode==='orbital'?'Interactive Moon. Drag or use arrow keys to rotate; scroll, pinch, plus and minus zoom. Scroll outside the scene to move the page.'
       :'Lunar surface at the recorded observer height. Drag or use arrow keys to look around; scroll, pinch, plus and minus change field of view. Scroll outside the scene to move the page.');
     if(mode==='surface') {
+      contextSite=null;updateMarkers();
       yaw=terrainBearingDeg*RAD;pitch=terrainPitch();surfaceFov=65;surfaceFocus='terrain';
       setSurfaceLook();updateFarHorizon();void loadTerrain();earthTexturePromise??=texture('earth-color.jpg',earthMapTarget,'map','earth');
       if(pendingFocus){const target=pendingFocus;pendingFocus=null;focusBody(target);}
@@ -622,10 +687,12 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
       captionUpdate();invalidate();return;
     }
     if(target==='site') {
+      contextSite=null;updateMarkers();updateFrame();
       pendingFocus=null;
       if(mode==='orbital')focusSite();else {yaw=terrainBearingDeg*RAD;surfaceFov=65;pitch=terrainPitch();surfaceFocus='terrain';setSurfaceLook();updateFrame();}return;
     }
     if(!['earth','sun'].includes(target))return;
+    if(contextSite){report('warning','This context marker has level-horizon angles in the other-locations explorer. Choose a terrain study point to use the Sun/Earth scene cameras.');return;}
     // A body focus requested during the descent applies once the surface view is committed.
     if(pendingMode==='surface'){pendingFocus=target;return;}
     if(mode==='orbital'){
@@ -677,6 +744,9 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     const orbitalBody=(object,key,az,el)=>({visible:object.visible,position:object.position.toArray(),direction:localToMoonDirection(site,bodyDirection(sample?.[az],sample?.[el])),state:states[key]??'unknown',...orbitalFraming(object),...(key==='earth'?{textured:earthTextureLoaded,limbIllustrative:true}:{photosphereIllustrative:true})});
     const gl=renderer.getContext(),gpuExtension=gl.getExtension('WEBGL_debug_renderer_info');
     return {mode,siteId:site.id,time:sample?.[0]??null,webgl:disposed?'disposed':lost?'lost':'ready',
+      contextSiteId:contextSite?.id??null,
+      contextMarkers:markers.filter(marker=>marker.kind==='context').map(marker=>({id:marker.site.id,lat:marker.site.lat,lon:marker.site.lon,group:marker.site.group,
+        selected:marker.site.id===contextSite?.id,terrainAware:false,position:marker.group.position.toArray(),...markerView(marker)})),
       graphics:{renderer:gpuExtension?gl.getParameter(gpuExtension.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER),quality:mobileQuality?'mobile-2K':'desktop-auto-4K'},
       orbital:{earth:orbitalBody(orbitalEarth,'earth',4,5),sun:orbitalBody(orbitalSun,'sun',1,2),rayOrigin:rayOrigin.toArray(),displayDepthMoonRadii:orbitalDepth,apparentDiameterDeg:{earth:1.9,sun:.53},
         disclosure:'Apparent observer-ray directions transformed from the selected site ENU frame. Bodies keep their apparent angular diameters from the Moon at schematic distances; no planetary ranges are cached. They are drawn whenever a cached direction exists; visibility from the study point is reported separately.'},
@@ -730,14 +800,18 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
       const hit=raycaster.intersectObjects(markers.flatMap(marker=>[marker.ring,marker.dot]),false)[0];
       const moonHit=raycaster.intersectObject(moon,false)[0];
       let picked=hit&&(!moonHit||hit.distance<moonHit.distance)?hit.object.userData.siteId:null;
-      if(!picked&&orbitalFocus==='site'){
+      if(!picked){
         const candidates=markers.map(marker=>{
           const p=marker.group.position.clone().project(orbitalCamera),facing=marker.group.position.dot(orbitalCamera.position.clone().sub(marker.group.position))>0;
           return {id:marker.site.id,distance:facing&&p.z<1?Math.hypot((p.x*.5+.5)*bounds.width-(event.clientX-bounds.left),(-p.y*.5+.5)*bounds.height-(event.clientY-bounds.top)):Infinity};
         }).sort((a,b)=>a.distance-b.distance);
         if(candidates[0]?.distance<18)picked=candidates[0].id;
       }
-      if(picked){selectSite(picked);onSiteSelect(picked);}
+      if(picked){
+        const context=NOTABLE_SITES.find(point=>point.id===picked);
+        if(context){selectContextSite(picked);onContextSelect(context);}
+        else{selectSite(picked);onSiteSelect(picked);}
+      }
     }
     pressed=null;
   };
@@ -768,6 +842,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     event.preventDefault();lost=true;cancelAnimationFrame(raf);raf=0;
     sun.visible=earth.visible=orbitalSun.visible=orbitalEarth.visible=false;Object.values(orbitalRays).forEach(ray=>{ray.visible=false;});container.dataset.sunRendered=container.dataset.earthRendered='false';
     container.dataset.webgl=container.dataset.webglStatus='lost';
+    markerLabel.hidden=markerLegend.hidden=true;for(const marker of markers)if(marker.button)marker.button.hidden=true;
     report('error','The WebGL context was lost. The accessible mission views remain available.');
   });
   listen(document,'visibilitychange',()=>{if(document.hidden){cancelAnimationFrame(raf);raf=0;}else invalidate();});
@@ -780,7 +855,8 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     if(disposed)return;disposed=true;++terrainRequest;cancelAnimationFrame(raf);raf=0;
     observer?.disconnect();resizeObserver?.disconnect();listeners.forEach(remove=>remove());controls.dispose();
     resources.forEach(resource=>resource.dispose());renderer.dispose();
-    canvas.remove();caption.remove();bodyStatus.remove();markerLabel.remove();obstruction.remove();bodyLabels.earth.remove();bodyLabels.sun.remove();
+    canvas.remove();caption.remove();bodyStatus.remove();markerLabel.remove();markerLegend.remove();obstruction.remove();bodyLabels.earth.remove();bodyLabels.sun.remove();
+    for(const marker of markers)marker.button?.remove();
     container.dataset.webgl=container.dataset.webglStatus='disposed';
     container.dataset.sunRendered=container.dataset.earthRendered='false';
     sun.visible=earth.visible=orbitalSun.visible=orbitalEarth.visible=false;
@@ -796,6 +872,6 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   report('ready','Interactive Moon ready. Select a cached study point or enter its surface view.');
   earthTexturePromise??=texture('earth-color.jpg',earthMapTarget,'map','earth');
   if(!mobileQuality)requestAnimationFrame(()=>{if(!disposed&&!lost)void loadHighDetail();});
-  return {selectSite,setMode,setFrame,focus,resize,dispose,inspect,loadHighDetail,
+  return {selectSite,selectContextSite,setMode,setFrame,focus,resize,dispose,inspect,loadHighDetail,
     setEnhancedNight(enabled){if(lost||disposed)return false;enhancedNight=Boolean(enabled);updateFrame();return true;}};
 }

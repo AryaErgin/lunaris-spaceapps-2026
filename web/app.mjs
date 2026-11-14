@@ -249,6 +249,7 @@ function loadDemo(communications = true,environmentOnly=false) {
   selected='nominal';
   updateSiteDetail();
   loadingPreset=true;try{evaluate();}finally{loadingPreset=false;}
+  sceneController?.selectSite(demo.siteId,{focus:false});
 }
 
 function readInputs() {
@@ -1486,10 +1487,13 @@ function setupAnySite(){
   const choose=()=>{
     const site=[...NOTABLE_SITES,...bundle.sites].find(entry=>entry.id===select.value);
     if(site){byId('any-site-lat').value=site.lat;byId('any-site-lon').value=site.lon;}
+    // Context globe selections are educational only; never replace the study-point mission.
+    const contextId=NOTABLE_SITES.some(point=>point.id===select.value)?select.value:null;
+    sceneController?.selectContextSite(contextId,{focus:contextId!==null&&sceneController?.inspect().contextSiteId!==contextId});
     renderAnySite(true);
   };
   select.addEventListener('change',choose);
-  for(const id of ['any-site-lat','any-site-lon'])byId(id).addEventListener('input',()=>{select.value='custom';renderAnySite(true);});
+  for(const id of ['any-site-lat','any-site-lon'])byId(id).addEventListener('input',()=>{select.value='custom';sceneController?.selectContextSite(null,{focus:false});renderAnySite(true);});
   byId('any-site').addEventListener('toggle',()=>renderAnySite(true));
   select.value=NOTABLE_SITES[0].id;choose();
 }
@@ -1758,7 +1762,11 @@ async function initializeExperience() {
   showGuidedPhase('nominal');
   setExperienceMode('orbital');
   sceneLoading=import('./scene3d.mjs').then(module=>module.createMissionScene({container:byId('scene-mount'),bundle,
-    onSiteSelect:siteId=>selectVisualSite(siteId),onModeChange:setExperienceMode,onStatus:setSceneStatus}));
+    onSiteSelect:siteId=>selectVisualSite(siteId),onContextSelect:point=>{
+      byId('any-site-select').value=point.id;
+      byId('any-site-select').dispatchEvent(new Event('change'));
+      showOtherSites();
+    },onModeChange:setExperienceMode,onStatus:setSceneStatus}));
   try {
     sceneController=await sceneLoading;
     if(sceneDisabled){sceneController.dispose();return;}
@@ -2025,6 +2033,13 @@ async function runRescueAction(){
   clearOpportunities();
   const target=guidedPhase==='nominal'?'delayed':guidedPhase==='delayed'?'recommended':'nominal';
   if(target==='nominal'||!result[target]){showGuidedPhase(target);return;}
+  // Graphics are optional. A failed renderer must not cancel the existing
+  // evaluated decision by routing through enterSurface / a workspace change.
+  if(sceneDisabled||byId('scene-mount').dataset.terrainStatus==='unavailable'){
+    pausePlayback();showGuidedPhase(target);
+    byId('scene-status').textContent='3D animation unavailable. Showing the calculated mission result and timelines; the scientific evidence is unchanged.';
+    return;
+  }
   const animation=++rescueAnimation,requestedInputs=inputs,from=currentTime??selectedMission().start,to=result[target].start;
   byId('story-next').disabled=true;byId('rescue-transition').hidden=false;
   byId('rescue-transition').textContent=target==='delayed'?`Advancing the landing clock by ${inputs.delayHours} hours…`:'Moving to the next confirmed mission window…';
@@ -2082,3 +2097,33 @@ async function renderConfigurations(){
 
 // Read-only snapshot for reproducible renderer/data parity tests.
 export function inspectExperience() {return sceneController?.inspect()??null;}
+
+// Onboarding saves actual user controls before an explicitly consented preset load.
+// No independent evaluator: restoration goes through the normal evaluation path.
+const onboardingFields=['site','nominal','duration','delay','max-sun','max-earth','min-total','min-continuous','earliest','latest','grid'];
+export function captureOnboardingPlan(){
+  if(!bundle||!inputs)return null;
+  return {
+    fields:Object.fromEntries(onboardingFields.map(id=>[id,byId(id).value])),
+    compact:{arrival:byId('visual-arrival').value,duration:byId('visual-duration').value},
+    prelaunch:byId('prelaunch').checked,requirementsEnabled,requirementsSource,delayStoryEnabled,
+    explicitSchedule:{...explicitSchedule},scheduleAnchor:{...scheduleAnchor},selected,
+    comparisonOptions:comparisonOptions?structuredClone(comparisonOptions):null
+  };
+}
+export function restoreOnboardingPlan(saved){
+  if(!saved?.fields||!bundle)return false;
+  pausePlayback();
+  for(const id of onboardingFields)byId(id).value=saved.fields[id];
+  byId('prelaunch').checked=saved.prelaunch;
+  requirementsEnabled=saved.requirementsEnabled;requirementsSource=saved.requirementsSource;delayStoryEnabled=saved.delayStoryEnabled;
+  explicitSchedule={...saved.explicitSchedule};scheduleAnchor={...saved.scheduleAnchor};
+  comparisonOptions=saved.comparisonOptions?structuredClone(saved.comparisonOptions):null;selected=saved.selected;
+  syncAssessment();updateSiteDetail();
+  loadingPreset=true;try{evaluate();}finally{loadingPreset=false;}
+  // Preserve uncommitted compact-field drafts as well as the previously evaluated inputs.
+  byId('visual-arrival').value=saved.compact.arrival;byId('visual-duration').value=saved.compact.duration;
+  // An invalid saved draft is still restored; normal validation keeps it stale,
+  // rather than substituting the demonstration or claiming a computed result.
+  setProductMode('explore');return true;
+}

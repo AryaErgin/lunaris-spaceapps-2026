@@ -439,3 +439,18 @@ body[data-delay-story='true'] #delay-shortcut{display:none}
 }
 .hero-visibility{margin-top:8px}
 .hero-visibility .hero-body small{display:block}
+
+/* First-visit onboarding remains non-modal: the highlighted controls stay usable. */
+.quick-tour {width:min(390px,calc(100vw - 24px));max-height:60svh;overscroll-behavior:contain;}
+.quick-tour h2 {font-size:25px;line-height:1.2;}
+.quick-tour p {font-size:17px;line-height:1.5;}
+.quick-tour-progress,.quick-tour-actions button,.quick-tour-close {font-size:15px;}
+.quick-tour-feedback {border-left:3px solid #f3c275;padding-left:12px;}
+.quick-tour-keep,.quick-tour-restore {display:block;margin-top:12px;background:transparent;border:0;color:#e1edf5;font-size:16px;text-decoration:underline;min-height:44px;cursor:pointer;}
+.quick-tour [hidden] {display:none!important;}
+.quick-tour button:disabled {opacity:.65;cursor:wait;}
+@media(max-width:700px){
+ .quick-tour {width:calc(100vw - 24px);max-height:49svh;padding:14px 16px;}
+ .quick-tour h2 {font-size:23px;}
+ .quick-tour p {font-size:16px;line-height:1.4;margin-bottom:12px;}
+}

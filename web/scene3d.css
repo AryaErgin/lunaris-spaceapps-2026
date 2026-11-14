@@ -15,6 +15,14 @@
 .mission-scene-body-label{position:absolute;pointer-events:none;transform:translate(14px,-50%);padding:3px 7px;border-left:1px solid #8fc7dd;color:#d3ebf5;background:rgba(0,0,0,.5);font-size:10px;letter-spacing:.1em;white-space:nowrap}
 .mission-scene-body-label[data-body="sun"]{border-left-color:#e6bd7c;color:#f4dbb0}
 .mission-scene-body-label[hidden]{display:none}
+.mission-context-marker{position:absolute;z-index:2;transform:translate(-50%,-50%);width:36px;height:36px;min-height:36px;padding:0;border:0;border-radius:50%;background:transparent;color:#9ee2ed;font:26px/36px system-ui,sans-serif;text-shadow:0 1px 4px #000;cursor:pointer}
+.mission-context-marker[hidden],.mission-marker-legend[hidden]{display:none}
+.mission-context-marker:hover,.mission-context-marker:focus-visible{background:#071b25d9;outline:2px solid #b8effa;outline-offset:0;color:#e5fcff}
+.mission-context-marker[aria-pressed="true"]{color:#e5fcff}
+.mission-marker-legend{position:absolute;bottom:80px;left:16px;display:flex;flex-wrap:wrap;gap:6px 16px;max-width:calc(100% - 32px);pointer-events:none;color:#b9d0db;font:14px/1.5 system-ui,sans-serif;text-shadow:0 2px 4px #000}
+.mission-marker-legend span:first-child{color:#edcb95}
+.mission-scene-marker-label[data-kind="context"]{max-width:min(260px,55%);white-space:normal;border-left-color:#8edbea;color:#c6f3ff;font:14px/1.4 system-ui,sans-serif;letter-spacing:0;text-transform:none}
+@media(max-width:700px){.mission-marker-legend{bottom:68px;font-size:14px;gap:2px 12px}.mission-context-marker{width:40px;height:40px;min-height:40px;line-height:40px}}
 .mission-terrain-obstruction{position:absolute;transform:translate(-50%,-100%);max-width:250px;text-align:center;color:#c4dce9;background:#09121be8;border-bottom:1px solid #86b3ca;padding:8px 12px;font:13px/1.6 system-ui,sans-serif;pointer-events:none}
 .mission-terrain-obstruction[hidden]{display:none}
 @media(max-width:700px){.mission-terrain-obstruction{font-size:12px;max-width:210px;padding:6px 9px}}

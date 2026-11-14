@@ -27,11 +27,17 @@ jobs:
         env:
           LUNARIS_CHROME: /usr/bin/google-chrome
         run: node tests/test_experience.mjs
+      - name: Interactive onboarding and context markers
+        env:
+          LUNARIS_CHROME: /usr/bin/google-chrome
+        run: node tests/test_onboarding.mjs
       - name: Preserve visual inspection screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: judge-ux-screenshots
-          path: progress/experience-*/**/*.png
+          path: |
+            progress/experience-*/**/*.png
+            progress/onboarding-*/**/*.png
           if-no-files-found: warn
           retention-days: 2
