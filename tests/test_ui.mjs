@@ -315,6 +315,54 @@ try {
   assert(await browserEval("document.querySelector('#export').disabled"));
   await browserEval("document.querySelector('#evaluate').click()");
   assert(await browserEval("!document.querySelector('#export').disabled"));
+  await browserEval(`(() => {
+    const earliest = document.querySelector('#earliest');
+    earliest.value = '2030-01-01T00:00:00';
+    earliest.dispatchEvent(new Event('input', { bubbles: true }));
+    document.querySelector('#evaluate').click();
+    document.querySelector('[data-decision=nominal]').click();
+  })()`);
+  assert.match(await browserEval("document.querySelector('#form-status').textContent"), /earliest allowable start/);
+  assert(await browserEval("document.querySelector('#export').disabled"));
+  assert(await browserEval("document.querySelector('#run-heights').disabled"),
+    'Rejected input allowed a new sensitivity report for the previous result');
+  if (!fixture) {
+    await browserEval(`(() => {
+      document.querySelector('#reset-demo').click();
+      const duration = document.querySelector('#duration');
+      duration.value = '1e-20';
+      duration.dispatchEvent(new Event('input', { bubbles: true }));
+      document.querySelector('#evaluate').click();
+    })()`);
+    assert.match(await browserEval("document.querySelector('#form-status').textContent"), /timestamp resolution/);
+    assert(await browserEval("document.querySelector('#export').disabled"));
+    await browserEval(`(() => {
+      document.querySelector('#reset-demo').click();
+      document.querySelector('#nominal').value = '2026-11-30T22:00:00';
+      document.querySelector('#latest').value = '2026-12-02T00:00:00';
+      document.querySelector('#delay').value = 0;
+      document.querySelector('#evaluate').click();
+      document.querySelector('[data-decision=nominal]').click();
+    })()`);
+    assert.equal(await browserEval("document.querySelector('[data-decision=nominal] .decision-status').textContent"),
+      'INDETERMINATE');
+    assert.match(await browserEval("document.querySelector('#warnings').textContent"), /outside the cached visibility dates/);
+    const data = JSON.parse(await readFile(resolve(workspace, 'web/data/bundle.json'), 'utf8'));
+    const { runMission } = await import('../web/engine.mjs');
+    const nominal = Date.parse('2026-11-06T12:02:00Z') / 1000;
+    const { delayTolerance } = runMission(data, { ...data.demo, nominal, delayHours: 0 });
+    assert.equal(delayTolerance.kind, 'lower-bound');
+    const endpoint = new Date(delayTolerance.until * 1000).toISOString().replace('T', ' ').replace('Z', ' UTC');
+    await browserEval(`(() => {
+      document.querySelector('#reset-demo').click();
+      document.querySelector('#nominal').value = '2026-11-06T12:02:00';
+      document.querySelector('#delay').value = 0;
+      document.querySelector('#evaluate').click();
+    })()`);
+    const summary = await browserEval("document.querySelector('#decision-summary').textContent");
+    assert(summary.includes(`Feasible through ${endpoint}`), summary);
+    assert.doesNotMatch(summary, /At least \d+(\.\d+)? h/, 'A rounded duration can overstate the lower bound');
+  }
   const appOrigin = new URL(url).origin;
   assert.deepEqual(requests.filter((resource) => /^https?:/.test(resource) && new URL(resource).origin !== appOrigin), []);
   console.log(`T14 ${fixture ? 'synthetic UI fixture' : 'real-data dashboard'} passed in headless Chrome. Results: ${phases.map((phase) => actual[phase]?.status ?? 'no recommendation').join(' / ')}. Evidence: ${work}`);

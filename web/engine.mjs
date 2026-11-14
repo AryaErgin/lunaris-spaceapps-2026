@@ -1,4 +1,5 @@
 const HOUR = 3600;
+const ENGINE_VERSION = '1.0.1';
 const EPSILON_SECONDS = 0.000001;
 const REFINEMENT_LIMIT_SECONDS = 120;
 const MAX_CANDIDATES = 10_000;
@@ -247,9 +248,9 @@ function applyRefinement(mission, coarse, fine) {
   return mission;
 }
 
-function evaluateMission(site, start, inputs, coverage, detail = false) {
+function evaluateMission(site, start, inputs, coverage) {
   const mission = evaluateCore(site, start, inputs, coverage);
-  if (!site.refinements || (!detail && mission.status !== 'PASS')) return mission;
+  if (!site.refinements) return mission;
   const coarse = evaluateCore(site.refinements.coarse, start, inputs, coverage);
   const fine = evaluateCore(site.refinements.fine, start, inputs, coverage);
   return applyRefinement(mission, coarse, fine);
@@ -378,7 +379,7 @@ function verifiedTolerance(site, inputs, nominal, coverage) {
     until = Math.max(left, until);
     const target = Math.min(right, limit);
     while (until < target) {
-      const { maxShiftSeconds } = evaluateMission(site, until, inputs, coverage, true).refinement;
+      const { maxShiftSeconds } = evaluateMission(site, until, inputs, coverage).refinement;
       // Moving a fixed-duration window by dt changes each longest clipped run by at most dt.
       // A difference between two independent longest-run bounds therefore changes by at most 2dt.
       const safeStep = (REFINEMENT_LIMIT_SECONDS - EPSILON_SECONDS - maxShiftSeconds) * 0.49;
@@ -413,10 +414,14 @@ function validateInputs(inputs) {
     if (!Number.isFinite(inputs[key] * scale)) throw new Error(`The value for ${key} is outside the supported interval magnitude.`);
   }
   if (!['same-site', 'prelaunch'].includes(inputs.mode)) throw new Error('Select a valid alternative search mode.');
-  for (const point of [inputs.nominal, inputs.earliest, inputs.latest,
-    inputs.nominal + (inputs.delayHours + inputs.durationHours) * HOUR,
-    inputs.latest + inputs.durationHours * HOUR]) {
+  const delayed = inputs.nominal + inputs.delayHours * HOUR;
+  const duration = inputs.durationHours * HOUR;
+  const startPoints = [inputs.nominal, inputs.earliest, inputs.latest, delayed];
+  for (const point of [...startPoints, ...startPoints.map((start) => start + duration)]) {
     if (!Number.isFinite(new Date(point * 1000).getTime())) throw new Error('Use dates in the supported UTC calendar.');
+  }
+  if (startPoints.some((start) => start + duration <= start)) {
+    throw new Error('Mission duration is below the supported UTC timestamp resolution.');
   }
 }
 
@@ -491,8 +496,8 @@ export function runMission(bundle, inputs) {
   if (slots * sites.length > MAX_CANDIDATES) {
     throw new Error(`This search exceeds ${MAX_CANDIDATES} site/start pairs. Choose a larger grid or a shorter start range.`);
   }
-  const nominal = evaluateMission(original, inputs.nominal, inputs, coverage, true);
-  const delayed = evaluateMission(original, delayedStart, inputs, coverage, true);
+  const nominal = evaluateMission(original, inputs.nominal, inputs, coverage);
+  const delayed = evaluateMission(original, delayedStart, inputs, coverage);
   const counts = { PASS: 0, FAIL: 0, INDETERMINATE: 0 };
   const passes = [];
   for (let i = 0; i < slots; i++) {
@@ -555,8 +560,9 @@ export async function makeCertificate(bundle, inputs, result) {
   const created = new Date().toISOString();
   return {
     certificate_version: '1.0',
-    engine_version: '1.0',
-    engine_commit: manifest.engineCommit ?? null,
+    engine_version: ENGINE_VERSION,
+    engine_commit: null,
+    bundle_engine_commit: manifest.engineCommit ?? null,
     created_utc: created,
     input_hash: inputHash,
     data_bundle_hash: dataHash,

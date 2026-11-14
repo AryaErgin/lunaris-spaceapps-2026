@@ -175,6 +175,21 @@ test('unrepresentable time inputs are rejected before they can corrupt the grid 
   assert.throws(() => runMission(data, input({ maxSunHours: Number.MAX_VALUE })), /maxSunHours/);
 });
 
+test('a positive duration smaller than the UTC timestamp resolution cannot yield an empty passing mission', async () => {
+  const { runMission } = await engine();
+  const data = bundle([[0, 10, 'visible']]);
+  const now = 1_793_491_200;
+  data.coverage = data.coverage.map((time) => time + now);
+  for (const site of data.sites) {
+    for (const channel of ['sun', 'earth']) {
+      site[channel] = site[channel].map(([start, end, state]) => [start + now, end + now, state]);
+    }
+  }
+  const mission = input({ nominal: now, earliest: now, latest: now, maxSunHours: 0 });
+  assert.throws(() => runMission(data, { ...mission, durationHours: 1e-12 }), /timestamp resolution/);
+  assert.equal(runMission(data, { ...mission, durationHours: 1 / hour }).nominal.end, now + 1);
+});
+
 test('T06 withholds a pass at a 120-second clipped bound shift', async () => {
   const { runMission } = await engine();
   const data = bundle([[0, 2, 'blocked'], [2, 2.25, 'uncertain'], [2.25, 10, 'visible']]);
@@ -235,6 +250,24 @@ test('T06 preserves a failure established by both refinements', async () => {
   assert.equal(result.nominal.refinement.status, 'UNRESOLVED');
   assert.equal(result.nominal.refinement.coarseStatus, 'FAIL');
   assert.equal(result.nominal.refinement.fineStatus, 'FAIL');
+});
+
+test('T06 gives a conflicting retained failure the same decision in the detail and search paths', async () => {
+  const { runMission } = await engine();
+  const data = bundle([[0, 10, 'blocked']]);
+  const [site] = data.sites;
+  const visible = intervals([[0, 10, 'visible']]);
+  site.refinementIntervals = {
+    sun: { coarse: visible, fine: visible },
+    earth: { coarse: site.earth, fine: site.earth },
+  };
+  const result = runMission(data, input({ maxSunHours: 0 }));
+  assert.equal(result.nominal.status, 'INDETERMINATE');
+  assert.equal(result.delayed.status, 'INDETERMINATE');
+  assert.equal(result.nominal.refinement.status, 'UNRESOLVED');
+  assert.ok(result.nominal.coverageWarnings.some((note) => note.includes('matching support')));
+  assert.deepEqual(result.counts, { PASS: 0, FAIL: 0, INDETERMINATE: 1 });
+  assert.equal(result.recommended, null);
 });
 
 test('T06 delay tolerance cannot bridge an internal convergence exclusion', async () => {

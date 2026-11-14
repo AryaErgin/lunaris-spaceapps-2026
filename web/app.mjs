@@ -239,7 +239,7 @@ function renderDecisions() {
     if (tolerance.kind === 'lower-bound') {
       const line = element('p');
       line.append(element('strong', '', 'Connected feasible delay lower bound. '));
-      line.append(`At least ${hours(tolerance.hours)}, through ${formatTime(tolerance.until)}.${tolerance.stopReason ? ` ${tolerance.stopReason}` : ''}`);
+      line.append(`Feasible through ${formatTime(tolerance.until)}.${tolerance.stopReason ? ` ${tolerance.stopReason}` : ''}`);
       summary.append(line);
     } else {
       summary.append(element('p', '', `The nominal start stays in the same continuous feasible period for ${hours(tolerance.hours)}, through ${formatTime(tolerance.until)}.`));
@@ -724,6 +724,7 @@ function evaluate() {
   try {
     const nextInputs = readInputs();
     const nextResult = runMission(bundle, nextInputs);
+    isEdited = false;
     inputs = nextInputs;
     result = nextResult;
     selected = result.delayed?.status === 'FAIL' ? 'delayed' : 'nominal';
@@ -734,6 +735,8 @@ function evaluate() {
     byId('results').setAttribute('aria-busy', 'false');
     exportButton.disabled = false;
   } catch (error) {
+    isEdited = true;
+    if (result) for (const study of studies) resetStudy(study, selectedMission());
     byId('form-status').textContent = error instanceof Error ? error.message : 'The mission could not be evaluated.';
     exportButton.disabled = true;
   }
@@ -779,7 +782,6 @@ async function downloadCertificate() {
 
 form.addEventListener('submit', (event) => {
   event.preventDefault();
-  isEdited = false;
   evaluate();
 });
 form.addEventListener('input', () => {
