@@ -13,7 +13,7 @@ import pyproj
 import rasterio
 import spiceypy
 
-from science.ephemerides import FRAME, Ephemeris
+from science.ephemerides import CORRECTION, FRAME, Ephemeris
 from science.sources import SITE_SOURCE, SITES, source_manifest
 from science.terrain import RADIUS_M, build_skyline
 from science.visibility import (
@@ -39,8 +39,8 @@ LIMITS = [
     "Earth-center geometric line of sight cannot establish a communications link or station availability.",
     "Two-metre observer height, radial up, astronomical bodies evaluated in airless reception geometry.",
     (
-        "The model assigns each LOLA cell a constant radial height. Local and regional cells overlap "
-        "in a narrow transition annulus. Nominal 5 m pixels are largely interpolated. "
+        "The model assigns each LOLA cell a constant radial height. In the narrow transition annulus, "
+        "both scales contribute and the higher apparent terrain wins. Nominal 5 m pixels are largely interpolated. "
         "Surface roughness below the DEM scale and DEM reconstruction error are outside the numerical bounds."
     ),
     "Horizon enclosures use spherical caps around each projected cell rather than sampling at a few rays.",
@@ -150,7 +150,7 @@ def _site(raw, ephemeris, row):
     }
 
 
-def build(raw, horizons, output, demo_path):
+def build(raw, horizons, output, demo_path, engine_commit):
     sources = source_manifest(raw)
     if horizons:
         comparison = json.loads(horizons.read_text(encoding="utf-8-sig"))
@@ -170,6 +170,7 @@ def build(raw, horizons, output, demo_path):
         })
     manifest = {
         "version": "1.0.0",
+        "engineCommit": engine_commit,
         "aiUse": "OpenAI Codex assisted research, scientific implementation, tests, UI and documentation "
                  "under the direction of sole human entrant Arya Ergin. Model outputs are deterministic; "
                  "the offline app uses no runtime AI.",
@@ -177,6 +178,11 @@ def build(raw, horizons, output, demo_path):
         "challenge": {"url": CHALLENGE, "resourcesCrossCheck": LOCAL_MIRROR,
                       "status": "JPL Horizons verified in organizer mirror; official Resources tab unavailable at build."},
         "files": sources,
+        "kernels": [source for source in sources if source["use"] == "JPL SPICE kernel"],
+        "correctionConventions": {
+            "spice": CORRECTION, "locus": "OBSERVER", "observerCenter": "Moon (301)",
+            "sunTarget": 10, "earthTarget": 399, "atmosphericRefraction": False,
+        },
         "frame": {
             "working": FRAME, "dem": "DE421 MOON_ME", "ephemeris": coverage,
             "conventions": "Planetocentric north latitude, east longitude [0,360), radial up, azimuth N=0° clockwise "
@@ -201,14 +207,7 @@ def build(raw, horizons, output, demo_path):
         "transformations": "Native LOLA cells to lunar Cartesian elevation bounds. Refine terrain ranges, angular bins "
                            "and apparent directions, retain both interval enclosures, export compressed runs.",
     }
-    if demo_path:
-        demo = json.loads(demo_path.read_text(encoding="utf-8-sig"))
-    else:
-        demo = {
-            "siteId": sites[0]["id"], "nominal": START, "delayHours": 8, "durationHours": 24, "earliest": START,
-            "latest": END - 86400, "maxSunHours": 12, "maxEarthHours": 12, "minJointHours": None,
-            "minContinuousJointHours": None, "gridMinutes": 60, "mode": "same-site",
-        }
+    demo = json.loads(demo_path.read_text(encoding="utf-8-sig"))
     bundle = {"version": ENGINE_VERSION, "coverage": [START, END], "sites": sites, "manifest": manifest, "demo": demo}
     manifest["bundleSha256"] = sha256(_canonical(bundle)).hexdigest()
     manifest["bundleHashConvention"] = (
@@ -225,8 +224,9 @@ def build(raw, horizons, output, demo_path):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--raw", type=Path, default=Path("data/raw"))
-    parser.add_argument("--horizons-validation", type=Path)
+    parser.add_argument("--horizons-validation", type=Path, default=Path("web/data/horizons-validation.json"))
     parser.add_argument("--out", type=Path, default=Path("web/data/bundle.json"))
-    parser.add_argument("--demo", type=Path)
+    parser.add_argument("--demo", type=Path, default=Path("web/data/demo.json"))
+    parser.add_argument("--engine-commit")
     args = parser.parse_args()
-    build(args.raw, args.horizons_validation, args.out, args.demo)
+    build(args.raw, args.horizons_validation, args.out, args.demo, args.engine_commit)

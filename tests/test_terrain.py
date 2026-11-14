@@ -1,13 +1,25 @@
 import math
 from pathlib import Path
+from types import SimpleNamespace
 
 import numpy as np
 import pytest
 import rasterio
+from affine import Affine
 from pyproj import CRS, Transformer
+from rasterio.io import MemoryFile
 
 from science.sources import SITES
-from science.terrain import angles_over_range, bin_cells, project, unproject
+from science.terrain import (
+    RADIUS_M,
+    STEREO,
+    _scan,
+    angles_over_range,
+    bin_cells,
+    project,
+    unproject,
+)
+from science.visibility import Visibility
 
 
 def test_t02_lunar_stereographic_round_trip():
@@ -60,3 +72,36 @@ def test_t05_cell_spanning_north_populates_both_sides():
     values, _ = bin_cells(np.array([-0.2]), np.array([0.2]), np.array([-0.5]), 360, entire=False)
     assert values[-1] == values[0] == -0.5
     assert np.isneginf(values[1])
+
+
+def test_t09_masked_north_cell_censors_solar_intervals():
+    lat, lon, observer = -89., 15., RADIUS_M + 2
+    x, y = project(lat, lon)
+    north = np.deg2rad(lon)
+    missing_x, missing_y = x + 100 * np.sin(north), y + 100 * np.cos(north)
+    with (
+        MemoryFile() as memory,
+        memory.open(
+            driver="GTiff", width=1, height=1, count=1, dtype="float32",
+            transform=Affine(5, 0, missing_x - 2.5, 0, -5, missing_y + 2.5),
+            crs=STEREO.to_wkt(), nodata=-9999.,
+        ) as tile,
+    ):
+        tile.write(np.full((1, 1, 1), -9999, dtype=np.float32))
+        upper, lower, gap, nominal = (np.full(360, -np.inf) for _ in range(4))
+        scan = _scan(tile, lat, lon, observer, 0, 200, 360,
+                     (upper, lower, gap, nominal, np.full((360, 4), np.nan)))
+    assert scan["sampledMaskedCells"] == 1
+    assert np.isfinite(gap[0])
+    assert np.isneginf(gap[180])
+
+    class ConstantEphemeris:
+        def vectors(self, lat, lon, radius, times):
+            return (
+                np.repeat([[0., 1.5e8, 1.e6]], len(times), axis=0),
+                np.repeat([[370000., 0., 0.]], len(times), axis=0),
+            )
+
+    skyline = SimpleNamespace(lower=np.full(360, -1.), upper=np.full(360, -1.), gap=gap, far_cap=-2.)
+    visibility = Visibility(ConstantEphemeris(), lat, lon, observer)
+    assert visibility.intervals("sun", skyline, 0, 100, step=100, terminal=8) == [[0, 100, "unknown"]]

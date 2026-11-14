@@ -123,7 +123,7 @@ def _scan(dataset, lat, lon, observer, inner, outer, count, horizon):
     # Stereographic projection scale equals 1 + rho²/(4R²). Window
     # coordinates overestimate the length of spherical surface paths.
     projected = outer * 1.015 + 2 * pixel
-    col, row = (~transform) * (x, y)
+    col, row = (~transform) @ (x, y)
     c0, c1 = max(0, floor(col - projected / pixel)), min(dataset.width, floor(col + projected / pixel) + 1)
     r0, r1 = max(0, floor(row - projected / pixel)), min(dataset.height, floor(row + projected / pixel) + 1)
     clipping = np.deg2rad(lat)
@@ -207,7 +207,7 @@ def build_skyline(raw, tile, lat, lon, height_m, *, count=3600, radius_m=240_000
             raise ValueError(f"Site/radius outside raster coverage: {tile}, {local_limit=}, {regional_limit=}")
         row, col = local.index(x, y)
         delta_x, delta_y = local.xy(row, col)
-        back_row, back_col = (~local.transform) * (delta_x, delta_y)
+        back_row, back_col = (~local.transform) @ (delta_x, delta_y)
         raster_error = max(abs(back_row - col - 0.5), abs(back_col - row - 0.5))
         lat_check, lon_check = unproject(x, y)
         check_x, check_y = project(lat_check, lon_check)

@@ -1,0 +1,14 @@
+{
+  "siteId": "de-gerlache-rim",
+  "nominal": 1793512800,
+  "delayHours": 72,
+  "durationHours": 12,
+  "earliest": 1793491200,
+  "latest": 1794031200,
+  "maxSunHours": 7,
+  "maxEarthHours": 12,
+  "minJointHours": null,
+  "minContinuousJointHours": null,
+  "gridMinutes": 60,
+  "mode": "same-site"
+}
