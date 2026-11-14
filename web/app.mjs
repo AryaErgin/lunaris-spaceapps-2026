@@ -1608,7 +1608,8 @@ function setExperienceMode(mode) {
   byId('mission-story').hidden=false;
   byId('night-visibility').hidden=mode!=='surface'||sceneDisabled;
   updateSceneCaption();
-  byId('explore-site').textContent=mode==='surface'?'Explore terrain around you':'Explore the surface';
+  byId('explore-site').textContent='Explore surface';
+  byId('explore-site').setAttribute('aria-label','Explore the modeled lunar surface');
   if(sceneController&&!sceneDisabled)byId('scene-status').textContent=mode==='orbital'?'Drag to orbit; scroll or pinch to zoom. Scroll outside the scene to move the page. Select a study point to approach the surface.':'Surface view · actual LOLA relief at the recorded observer height. Drag to look; scroll or pinch to zoom. Scroll outside the scene to move the page.';
 }
 
