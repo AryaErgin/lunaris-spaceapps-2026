@@ -33,7 +33,7 @@
         <button id="expert-toggle" class="outline expert-toggle" type="button" aria-expanded="false" aria-controls="top" hidden>Analyst mode</button>
       </div>
     </header>
-    <div class="product-purpose"><div class="purpose-copy"><p class="geometry-note">Visibility geometry does not prove power, radio-link performance or landing safety.</p></div><button id="tour-start" type="button">Show me how <span aria-hidden="true">→</span></button></div>
+    <div class="product-purpose"><div class="purpose-copy"><p class="geometry-note">Visibility geometry does not prove power, radio-link performance or landing safety.</p></div><button id="delay-shortcut" type="button">Try a 72-hour landing delay</button><button id="tour-start" type="button">Show me how <span aria-hidden="true">→</span></button></div>
 
     <p id="workspace-notice" class="workspace-notice" role="status" hidden></p>
     <section id="experience" class="experience" aria-labelledby="experience-title">
@@ -56,7 +56,7 @@
           <button id="reset-orbit" type="button" title="Restore the familiar near-side Moon view">Reset view ↺</button>
         </div>
         <div class="scene-site-picker">
-          <label for="visual-site">Landing site <span>Study coordinates</span></label>
+          <div class="site-label-row"><label for="visual-site">Landing site <span>Study coordinates</span></label><button id="more-sites" class="link-button" type="button">Apollo, CLPS, custom ↓</button></div>
           <select id="visual-site" disabled aria-describedby="visual-site-detail"></select>
           <p id="visual-site-detail">Three supported south-pole study points.</p>
           <label for="visual-arrival">Arrival <span>UTC · November 2026 only</span></label>
@@ -93,12 +93,12 @@
           <button id="hero-pause" class="outline" type="button">Pause</button>
           <button id="hero-reset" class="outline" type="button">Reset</button>
           <button id="guide-open" class="outline" type="button" hidden>Landing-delay story</button>
-          <label for="hero-scope" class="hero-scope-field">Play <select id="hero-scope"><option value="mission">This stay</option><option value="coverage">All of November</option></select></label>
+          <div class="hero-scope" role="group" aria-label="Playback range"><button id="hero-scope-stay" type="button" aria-pressed="true">This stay</button><button id="hero-scope-month" type="button" aria-pressed="false">Whole month</button></div>
           <label for="hero-speed">Speed <select id="hero-speed"><option value="1">30 min/s</option><option value="4" selected>2 h/s</option><option value="12">6 h/s</option><option value="48">24 h/s</option></select></label>
         </div>
-        <label class="scene-time-label" for="hero-time">Showing <output id="hero-time-label" for="hero-time"></output></label>
         <input id="hero-time" type="range" min="0" max="1" step="1" value="0" aria-label="Move through the selected stay. This does not change your arrival.">
-        <div class="hero-time-ends" aria-hidden="true"><span id="hero-time-start">Arrival</span><span id="hero-time-end">End of stay</span></div>
+        <div class="hero-time-ends"><span id="hero-time-start">Arrival</span><output id="hero-time-label" for="hero-time"></output><span id="hero-time-end">End of stay</span></div>
+        <p id="hero-scope-note" class="hero-scope-note" hidden>One lunar day in about 30 seconds. At the pole the Sun circles low around the horizon, while Earth stays in one part of the sky.</p>
         <div id="hero-visibility" class="hero-visibility" aria-label="Sun and Earth at the time shown"></div>
       </div>
       <section id="mission-story" class="mission-story" aria-labelledby="story-title" hidden>
@@ -108,7 +108,7 @@
           <button id="story-recovered" type="button" data-story="recommended" aria-pressed="false"><span>03</span> Recovered</button>
         </div>
         <div class="story-evidence">
-          <div><p class="eyebrow" id="story-date"></p><h2 id="story-title">Your planned landing</h2><p id="story-explanation"></p><p id="story-witness"></p></div>
+          <div><p class="eyebrow" id="story-date"></p><h2 id="story-title">Your planned landing</h2><p id="story-explanation"></p><p id="story-durations" class="story-durations" hidden></p><p id="story-witness"></p></div>
           <div class="story-outcome"><span id="story-status" class="status"></span><button id="story-next" class="outline" type="button">Apply the landing delay →</button></div>
         </div>
         <div id="mission-actions" class="mission-actions"></div>
@@ -133,8 +133,8 @@
         <p id="recovery-choice" class="recovery-choice" hidden></p>
         <div class="visibility-definitions"><p><strong>Sun-center visibility:</strong> the Sun’s center clears terrain and is outside Earth’s apparent disc.</p><p><strong>Earth-center LOS:</strong> an unobstructed geometric line to Earth’s center.</p><p><strong>Joint visibility:</strong> both conditions hold at the same time.</p></div>
       </section>
-      <details id="any-site" class="any-site">
-        <summary>Other landing sites: Apollo, CLPS, other nations or any coordinate</summary>
+      <details id="any-site" class="any-site" open>
+        <summary>Compare with Apollo, CLPS, other nations or any coordinate <span>level horizon only, no terrain</span></summary>
         <p class="any-site-intro">See where the Sun and Earth sit in the sky anywhere on the Moon at the time shown above. Angles are measured from the level horizon; terrain is not included here.</p>
         <div class="any-site-controls">
           <label for="any-site-select">Landing site<select id="any-site-select"></select></label>
@@ -146,7 +146,7 @@
           <div class="any-site-plot"><span class="any-site-axis top">90° overhead</span><span class="any-site-axis middle">0° level horizon</span><span class="any-site-axis bottom">−90°</span>
             <svg id="any-site-chart" viewBox="0 0 1000 200" preserveAspectRatio="none" role="img" aria-label="Elevation of the Sun and Earth across November 2026 at the chosen site"></svg></div>
           <div class="any-site-days" aria-hidden="true"><span>1 Nov</span><span>8 Nov</span><span>15 Nov</span><span>22 Nov</span><span>1 Dec</span></div>
-          <figcaption><span class="any-site-key sun">Sun</span><span class="any-site-key earth">Earth</span>Height above the level horizon through November 2026, about one lunar day. The vertical line is the time shown above.</figcaption>
+          <figcaption><span class="any-site-key sun">Sun</span><span class="any-site-key earth">Earth</span><span id="any-site-study-key" class="any-site-key dashed" hidden></span>Height above the level horizon through November 2026, about one lunar day. The vertical line is the time shown above.</figcaption>
         </figure>
         <p id="any-site-contrast" class="any-site-contrast"></p>
         <p class="any-site-note">Level-horizon geometry only. Hills and crater rims can hide a low Sun or Earth sooner, so this is not a visibility result. Terrain-aware visibility is calculated only for the three south-pole study points. Earth’s direction is accurate to about 0.05°. <a id="any-site-source" href="#" target="_blank" rel="noopener">Coordinate source ↗</a></p>
@@ -167,7 +167,7 @@
       <div class="comparison-shared"><label for="comparison-duration">Shared mission duration <span>hours</span><input id="comparison-duration" type="number" min="0.001" step="any" value="12"></label><p id="comparison-shared-limits"></p><button id="comparison-edit-limits" class="link-button" type="button">Edit these requirements in Advanced ↗</button></div>
       <section class="comparison-difference" aria-labelledby="comparison-difference-title"><h2 id="comparison-difference-title">What is the difference?</h2><p id="comparison-difference"></p><details class="comparison-context"><summary>What is being compared?</summary><p>Joint means both center-visibility conditions at once. Site changes are prelaunch concepts. The duration and any enabled requirements stay the same.</p></details></section>
       <div id="option-comparison" class="option-comparison"></div>
-      <div class="comparison-actions"><button id="add-comparison-option" class="outline" type="button">Add a third option</button><button id="remove-comparison-option" class="link-button" type="button" hidden>Remove third option</button></div>
+      <div class="comparison-actions"><button id="add-comparison-option" class="outline" type="button">Add a third option</button><button id="remove-comparison-option" class="link-button" type="button" hidden>Remove third option</button><button id="compare-more-sites" class="link-button" type="button">Apollo, CLPS or a custom coordinate: Sun and Earth angles without terrain →</button></div>
 
       <details id="month-explorer" class="month-explorer"><summary>Explore the month · daily start samples</summary><div id="comparison-panels"></div></details>
     </section>

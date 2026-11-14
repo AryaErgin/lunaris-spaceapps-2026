@@ -397,3 +397,45 @@ body[data-delay-story='true'] .story-outcome button{font:600 15px/1.4 system-ui,
 }
 #hero-scope{width:150px}
 .hero-visibility .hero-body{flex:1 1 250px}
+
+/* Judge-first shortcuts: delay example, other sites, monthly playback and per-body durations. */
+#delay-shortcut{min-height:44px;padding:8px 16px;border:1px solid #6f8ea3;border-radius:6px;background:#10202d;color:#e3eef5;font:600 15px/1.3 system-ui,sans-serif;cursor:pointer;white-space:nowrap}
+#delay-shortcut:hover,#delay-shortcut:focus-visible{border-color:#a9cfe3;background:#16293a}
+body[data-delay-story='true'] #delay-shortcut{display:none}
+.site-label-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.site-label-row label{margin-bottom:5px}
+#more-sites{min-height:0;padding:0;font-size:14px;line-height:1.4;color:#9fd4e7;white-space:nowrap}
+.story-durations{display:flex;flex-wrap:wrap;gap:2px 16px;margin:6px 0 0;font-size:15px;line-height:1.5;color:#c4d5e1}
+.story-durations[hidden]{display:none}
+.story-duration::before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;background:#d1a15d}
+.story-duration.earth::before{background:#7bb9d1}
+.story-duration strong{color:#f1f6f9;font-weight:600}
+.hero-scope{display:inline-flex;margin-left:auto;border:1px solid #5d7689;border-radius:6px;overflow:hidden}
+.hero-scope button{width:auto;min-height:38px;padding:6px 14px;border:0;border-radius:0;background:#0d1822;color:#c3d4e0;font:600 14px/1.4 system-ui,sans-serif;cursor:pointer}
+.hero-scope button+button{border-left:1px solid #5d7689}
+.hero-scope button[aria-pressed=true]{background:#274158;color:#f3f8fb}
+.hero-scope+label{margin-left:12px!important}
+.hero-time-ends{display:grid;grid-template-columns:1fr auto 1fr;align-items:baseline;gap:4px 12px;margin-top:2px}
+.hero-time-ends output{font:600 16px/1.4 system-ui,sans-serif;color:#f1f6f9;font-variant-numeric:tabular-nums;text-align:center}
+.hero-time-ends #hero-time-end{text-align:right}
+.hero-scope-note{margin:8px 0 0;padding:7px 12px;border-left:3px solid #e2b467;background:#161d22;color:#ecdcb6;font-size:15px;line-height:1.5}
+.hero-scope-note[hidden]{display:none}
+.any-site>summary span{font-weight:400;font-size:14px;color:#d9c598;margin-left:8px}
+.any-site-line.study{stroke-dasharray:7 6;stroke-width:1.6;opacity:.85}
+.any-site-key.dashed::before{background:repeating-linear-gradient(90deg,#c9d6df 0 5px,transparent 5px 9px)}
+.any-site-key.dashed{font-weight:400}
+.any-site-body .any-site-versus{margin-top:6px;padding-top:6px;border-top:1px solid #2a3e4f;color:#b9cbd8}
+#compare-more-sites{font-size:15px;text-align:left}
+@media(max-width:700px){
+ #delay-shortcut{min-height:42px;padding:8px 13px;white-space:normal}
+ .hero-scope{margin-left:0}.hero-scope+label{margin-left:0!important}
+ .hero-time-ends{grid-template-columns:1fr 1fr}.hero-time-ends output{grid-column:1/-1;grid-row:1;text-align:left}
+}
+/* Keep the Sun and Earth state on the first desktop screen: a slightly shorter scene, three-line chips. */
+@media(min-width:701px){
+ .scene-mount{height:clamp(330px,calc(100svh - 394px),520px)}
+ .scene-transport{top:calc(48px + clamp(330px,calc(100svh - 394px),520px))}
+ .scene-caption{top:calc(48px + clamp(330px,calc(100svh - 394px),520px) - 28px)}
+}
+.hero-visibility{margin-top:8px}
+.hero-visibility .hero-body small{display:block}

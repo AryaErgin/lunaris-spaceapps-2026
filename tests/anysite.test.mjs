@@ -75,3 +75,21 @@ test('curated sites carry valid coordinates and a source',()=>{
   for(const site of NOTABLE_SITES){assert(validCoordinate(site.lat,site.lon),site.id);assert.match(site.source,/^https:\/\//);}
   assert.equal(validCoordinate(91,0),false);assert.equal(validCoordinate(0,Number.NaN),false);
 });
+
+test('level crossings between samples are found and never reported at or before the query time',()=>{
+  const series=[{time:0,sun:2},{time:1800,sun:-2},{time:3600,sun:-4},{time:5400,sun:1},{time:7200,sun:0},{time:9000,sun:-1}];
+  // A query time inside the interval that holds the crossing must still find it.
+  assert.deepEqual(nextLevelCrossing(series,'sun',600),{kind:'sets',time:900});
+  // A crossing at or before the query time is not "next".
+  assert.equal(nextLevelCrossing(series,'sun',900).kind,'rises');
+  assert.equal(nextLevelCrossing(series,'sun',1000).kind,'rises');
+  assert.equal(nextLevelCrossing(series,'sun',0).time,900);
+  // A body exactly on the horizon counts as not above it: one crossing, not two.
+  assert.deepEqual(nextLevelCrossing(series,'sun',5400),{kind:'sets',time:7200});
+  assert.equal(nextLevelCrossing(series,'sun',7200),null);
+  assert.equal(nextLevelCrossing(series,'sun',9000),null);
+  assert.equal(nextLevelCrossing([],'sun',0),null);
+  // Gaps longer than two hours and missing values are not interpolated across.
+  assert.equal(nextLevelCrossing([{time:0,sun:1},{time:9000,sun:-1}],'sun',0),null);
+  assert.equal(nextLevelCrossing([{time:0,sun:1},{time:1800,sun:Number.NaN},{time:3600,sun:-1}],'sun',0),null);
+});

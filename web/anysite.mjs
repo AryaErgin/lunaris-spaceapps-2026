@@ -87,14 +87,17 @@ export function elevationSeries(bundle,lat,lon){
  * side for the rest of the cached data.
  */
 export function nextLevelCrossing(series,key,time){
-  const start=series.findIndex(point=>point.time>=time);
+  // Begin with the interval that contains `time`, so a crossing between two samples is
+  // not skipped when `time` itself falls between them. Only crossings strictly after
+  // `time` count, and a body exactly on the horizon is treated as not above it.
+  const start=series.findIndex(point=>point.time>time);
   if(start<0)return null;
-  for(let i=Math.max(1,start+1);i<series.length;i++){
+  for(let i=Math.max(1,start);i<series.length;i++){
     const a=series[i-1],b=series[i];
-    if(b.time-a.time>2*3600||a[key]===b[key])continue;
+    if(b.time-a.time>2*3600||!Number.isFinite(a[key])||!Number.isFinite(b[key]))continue;
     if((a[key]>0)!==(b[key]>0)){
-      const fraction=a[key]/(a[key]-b[key]);
-      return {kind:a[key]>0?'sets':'rises',time:a.time+fraction*(b.time-a.time)};
+      const crossing=a.time+a[key]/(a[key]-b[key])*(b.time-a.time);
+      if(crossing>time)return {kind:a[key]>0?'sets':'rises',time:crossing};
     }
   }
   return null;

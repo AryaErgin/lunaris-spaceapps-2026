@@ -1154,9 +1154,23 @@ byId('hero-play').addEventListener('click',async()=>{
 byId('hero-pause').addEventListener('click',()=>pausePlayback());
 byId('guide-open').addEventListener('click',()=>{pausePlayback();byId('mission-story').scrollIntoView({block:'start'});});
 byId('hero-reset').addEventListener('click',()=>{pausePlayback('Reset to the first cached sample in this domain.');byId('probe-slider').value=0;updateProbe();});
-byId('hero-scope').addEventListener('change',()=>{
-  byId('time-scope').value=byId('hero-scope').value;byId('time-scope').dispatchEvent(new Event('change'));
-});
+// Whole-month playback runs at 24 h/s so one lunar day takes about half a minute.
+let autoMonthSpeed=false;
+function setHeroScope(scope){
+  if(byId('time-scope').value===scope||isEdited)return;
+  if(scope==='coverage'){autoMonthSpeed=true;byId('sky-speed').value='48';}
+  byId('time-scope').value=scope;byId('time-scope').dispatchEvent(new Event('change'));
+}
+byId('hero-scope-stay').addEventListener('click',()=>setHeroScope('mission'));
+byId('hero-scope-month').addEventListener('click',()=>setHeroScope('coverage'));
+function showOtherSites(){
+  setProductMode('explore',false);const panel=byId('any-site');panel.open=true;renderAnySite();
+  panel.scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
+  byId('any-site-select').focus({preventScroll:true});
+}
+byId('more-sites').addEventListener('click',showOtherSites);
+byId('compare-more-sites').addEventListener('click',showOtherSites);
+byId('delay-shortcut').addEventListener('click',()=>{byId('start-delay-demo').click();scrollTo({top:0,behavior:'instant'});byId('story-next').focus({preventScroll:true});});
 byId('hero-speed').addEventListener('change',()=>{
   byId('sky-speed').value=byId('hero-speed').value;
   if(playing){pausePlayback();startPlayback();}
@@ -1451,7 +1465,7 @@ function jumpPlayback() {
 }
 
 // Level-horizon sky for curated and custom lunar coordinates. No terrain, so no visibility claim.
-let anySiteSeries=null;
+let anySiteSeries=null,anySiteStudy=null,anySiteKey='';
 const compass=azimuth=>['north','north-east','east','south-east','south','south-west','west','north-west'][Math.round(azimuth/45)%8];
 function spanText(seconds){
   const s=Math.max(0,seconds),d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60);
@@ -1483,9 +1497,9 @@ function drawAnySiteChart(){
   const svg=byId('any-site-chart'),[start,end]=bundle.coverage;svg.replaceChildren();
   const x=time=>1000*(time-start)/(end-start),y=elevation=>100-elevation/90*100;
   svg.append(svgElement('line',{x1:0,x2:1000,y1:100,y2:100,class:'any-site-zero'}));
-  for(const key of ['earth','sun']){
-    const path=anySiteSeries.map((point,index)=>`${index?'L':'M'}${x(point.time).toFixed(1)} ${y(point[key]).toFixed(1)}`).join('');
-    svg.append(svgElement('path',{d:path,class:`any-site-line ${key}`}));
+  for(const [series,style] of [[anySiteStudy,' study'],[anySiteSeries,'']])if(series)for(const key of ['earth','sun']){
+    const path=series.map((point,index)=>`${index?'L':'M'}${x(point.time).toFixed(1)} ${y(point[key]).toFixed(1)}`).join('');
+    svg.append(svgElement('path',{d:path,class:`any-site-line ${key}${style}`}));
   }
   svg.append(svgElement('line',{x1:0,x2:0,y1:0,y2:200,class:'any-site-playhead'}));
 }
@@ -1493,12 +1507,15 @@ function renderAnySite(rebuild=false){
   if(!bundle||!byId('any-site').open)return;
   const target=anySiteTarget(),root=byId('any-site-result');
   if(!target){
-    anySiteSeries=null;byId('any-site-chart').replaceChildren();byId('any-site-contrast').textContent='';byId('any-site-source').hidden=true;
+    anySiteSeries=null;anySiteKey='';byId('any-site-chart').replaceChildren();byId('any-site-contrast').textContent='';byId('any-site-source').hidden=true;
     root.replaceChildren(element('p','any-site-empty','Enter a latitude from −90 to 90 and a longitude from −180 to 360 degrees east.'));return;
   }
   const {rows}=referenceDirections(bundle);
-  if(rebuild||!anySiteSeries){
-    anySiteSeries=elevationSeries(bundle,target.lat,target.lon);drawAnySiteChart();
+  const study=findSite(inputs?.siteId),sameAsStudy=!study||(study.lat===target.lat&&study.lon===target.lon),key=`${target.lat}|${target.lon}|${study?.id}`;
+  if(rebuild||!anySiteSeries||key!==anySiteKey){
+    anySiteKey=key;anySiteSeries=elevationSeries(bundle,target.lat,target.lon);
+    anySiteStudy=sameAsStudy?null:elevationSeries(bundle,study.lat,study.lon);drawAnySiteChart();
+    const legend=byId('any-site-study-key');legend.hidden=sameAsStudy;legend.textContent=sameAsStudy?'':`Dashed: ${study.name}, same level-horizon model`;
     const sun=levelSummary(anySiteSeries,'sun'),earth=levelSummary(anySiteSeries,'earth'),percent=value=>`${Math.round(value*100)}%`;
     byId('any-site-contrast').textContent=`Through November the Sun is above the level horizon ${percent(sun.aboveFraction)} of the time here and climbs to ${sun.max.toFixed(0)}°. `
       +(earth.aboveFraction===1?`Earth never leaves the sky: it stays between ${earth.min.toFixed(0)}° and ${earth.max.toFixed(0)}°.`
@@ -1508,7 +1525,7 @@ function renderAnySite(rebuild=false){
     const link=byId('any-site-source');link.hidden=!target.source?.startsWith('https://');if(!link.hidden)link.href=target.source;
   }
   const time=currentTime??inputs?.nominal??bundle.coverage[0],cadence=rows[1].time-rows[0].time;
-  const sky=skyAt(rows[Math.max(0,Math.min(rows.length-1,Math.round((time-rows[0].time)/cadence)))],target.lat,target.lon);
+  const sampleIndex=Math.max(0,Math.min(rows.length-1,Math.round((time-rows[0].time)/cadence))),sky=skyAt(rows[sampleIndex],target.lat,target.lon);
   root.replaceChildren();root.dataset.time=sky?.time??'';
   if(!sky){root.append(element('p','any-site-empty','No cached direction exists at this time.'));return;}
   root.append(element('p','any-site-when',`${target.name} · ${shortTime(sky.time)}`));
@@ -1520,6 +1537,10 @@ function renderAnySite(rebuild=false){
       element('span','',`Toward the ${compass(azimuth)} · bearing ${azimuth.toFixed(0)}°`),
       element('span','any-site-next',crossing?`${crossing.kind==='sets'?'Drops below':'Rises above'} the level horizon in ${spanText(crossing.time-sky.time)}`
         :`Stays ${elevation>0?'above':'below'} the level horizon for the rest of November`));
+    if(!sameAsStudy){
+      const there=skyAt(rows[sampleIndex],study.lat,study.lon)[key].elevation;
+      card.append(element('span','any-site-versus',`${study.name} at this moment: ${Math.abs(there).toFixed(1)}° ${there<0?'below':'above'}`));
+    }
     root.append(card);
   }
   const head=byId('any-site-chart').querySelector('.any-site-playhead');
@@ -1796,7 +1817,10 @@ function updateExperienceFrame(site,sample,mission) {
   byId('hero-time-label').title='The scene moves in 30-minute steps. Your arrival and stay do not change.';
   byId('hero-time-start').textContent=wholeMonth&&chart?.domain?shortTime(chart.domain[0]):`Arrival · ${shortTime(mission.start)}`;
   byId('hero-time-end').textContent=wholeMonth&&chart?.domain?shortTime(chart.domain[1]):`End of stay · ${shortTime(mission.end)}`;
-  byId('hero-speed').value=byId('sky-speed').value;byId('hero-scope').value=byId('time-scope').value;
+  if(!wholeMonth&&autoMonthSpeed){autoMonthSpeed=false;byId('sky-speed').value='4';}
+  byId('hero-speed').value=byId('sky-speed').value;
+  byId('hero-scope-stay').setAttribute('aria-pressed',String(!wholeMonth));byId('hero-scope-month').setAttribute('aria-pressed',String(wholeMonth));
+  byId('hero-scope-note').hidden=!wholeMonth;
   renderAnySite();
   byId('hero-play').disabled=isEdited||!chart||chart.samples.length<2;
   const visibility=byId('hero-visibility'),eventNotes={};visibility.replaceChildren();
@@ -1822,8 +1846,8 @@ function updateExperienceFrame(site,sample,mission) {
           :` No ${name} is established in the November data.`;
     }
     const item=element('span','hero-body');item.append(element('strong','',`${title} ${label}`));
-    const facts=[Number.isFinite(elevation)?`${Math.abs(elevation).toFixed(1)}° ${elevation<0?'below':'above'} the level horizon`:'',next].filter(Boolean).join(' · ');
-    if(facts)item.append(element('small','',facts));
+    if(Number.isFinite(elevation))item.append(element('small','',`${Math.abs(elevation).toFixed(1)}° ${elevation<0?'below':'above'} the level horizon`));
+    if(next)item.append(element('small','hero-next',next.replace(/^./,first=>first.toUpperCase())));
     item.dataset.state=state;item.dataset.target=key;if(wanted)item.dataset.nextEvent=wanted;visibility.append(item);
   }
   for(const key of ['sun','earth']){
@@ -1878,11 +1902,19 @@ function renderMissionStory() {
     byId('story-date').textContent=`${findSite(mission.siteId).name} · ${shortTime(mission.start)} · ${inputs.durationHours} h view`;
     const conclusion=firstScreenConclusion(missionMetrics(mission,findSite(mission.siteId)),mission.end-mission.start,{complete:mission.start>=bundle.coverage[0]&&mission.end<=bundle.coverage[1]});
     byId('story-title').textContent=conclusion.headline;byId('story-explanation').textContent=conclusion.reason;byId('story-status').textContent='';
+    // Each body's own time in view, as a confirmed minimum, beside the joint headline.
+    const own=missionMetrics(mission,findSite(mission.siteId)),stay=mission.end-mission.start,durations=byId('story-durations');
+    const inView=range=>{const lo=Math.floor(range[0]/60)*60;return lo>=stay?'whole stay':lo<60?(range[1]>=60?'not confirmed':'none'):`${range[1]-range[0]>=60?'at least ':''}${conciseDuration(lo)}`;};
+    durations.hidden=!(mission.start>=bundle.coverage[0]&&mission.end<=bundle.coverage[1]);
+    durations.replaceChildren(...[['sun','Sun in view'],['earth','Earth in view']].map(([key,label])=>{
+      const item=element('span',`story-duration ${key}`),value=inView(own[key].visibleRangeSeconds);item.dataset.channel=key;
+      item.setAttribute('aria-label',`${label}: ${value}`);item.append(`${label.split(' ')[0]}: `,element('strong','',value));return item;}));
     byId('story-joint').hidden=true;byId('configuration-summary').hidden=true;
     byId('story-requirements').textContent='Sun-center visibility: the Sun’s center clears terrain and Earth’s apparent disc. Earth-center line of sight: a geometric direction to Earth’s center. Both at once: joint visibility. Full-disc illumination, electrical power and radio performance are not established.';
     document.querySelector('.story-footer summary').textContent='Visibility definitions';
     environmentalMeasurements(byId('environment-overview'),mission,{timelines:true});return;
   }
+  byId('story-durations').hidden=true;
   byId('story-joint').hidden=false;document.querySelector('.story-footer summary').textContent='Illustrative mission requirements';
   byId('story-next').disabled=false;for(const button of document.querySelectorAll('[data-story]'))button.disabled=false;
   const inspectedResult=typeof selected==='number'?{...result,[guidedPhase]:selectedMission()}:result;
