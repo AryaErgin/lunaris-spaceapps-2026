@@ -384,7 +384,18 @@ try {
     }
     await screenshot('communications-comparison-mobile');
     assert(await browserEval('document.documentElement.scrollWidth <= innerWidth'));
-    console.log('Comparison parity and binding communication/joint-window demo passed.');
+    const prior=await browserEval("document.querySelector('#probe-slider').focus(); Number(document.querySelector('#probe-slider').value)");
+      await command('Input.dispatchKeyEvent',{type:'keyDown',key:'ArrowRight',code:'ArrowRight',windowsVirtualKeyCode:39});
+      await command('Input.dispatchKeyEvent',{type:'keyUp',key:'ArrowRight',code:'ArrowRight',windowsVirtualKeyCode:39});
+      assert.equal(await browserEval("Number(document.querySelector('#probe-slider').value)"),prior+1);
+      const sky=await browserEval(`({time:Number(document.querySelector('#local-sky').dataset.time),metrics:[...document.querySelectorAll('#local-sky .sky-metric')].map(n=>[n.dataset.target,Number(n.dataset.azimuth),Number(n.dataset.elevation)]),text:document.querySelector('#local-sky').textContent})`);
+      const geometry=b.sites.find(s=>s.id===communicationDemo(b).siteId).geometry.find(r=>r[0]===sky.time);
+      assert(geometry);assert.deepEqual(sky.metrics,[['sun',((geometry[1]%360)+360)%360,geometry[2]],['earth',((geometry[4]%360)+360)%360,geometry[5]]]);
+      assert.match(sky.text,/Mission refinement/);assert.match(sky.text,/schematic/);
+      await browserEval("document.querySelector('#local-sky').scrollIntoView({block:'center'})");
+      await screenshot('local-sky-mobile');
+      assert(await browserEval('document.documentElement.scrollWidth <= innerWidth'));
+      console.log('Comparison parity, binding communication demo and keyboard-synchronized sky passed.');
   }
   const appOrigin = new URL(url).origin;
   assert.deepEqual(requests.filter((resource) => /^https?:/.test(resource) && new URL(resource).origin !== appOrigin), []);

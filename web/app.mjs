@@ -1,4 +1,4 @@
-import { compareSites, communicationDemo, visibilitySummary, nextVisibilityEvents } from './overview.mjs';
+import { compareSites, communicationDemo, visibilitySummary, refinedEvents, skySnapshot } from './overview.mjs';
 import { makeCertificate, runMission } from './engine.mjs';
 
 const byId = (id) => document.getElementById(id);
@@ -509,6 +509,7 @@ function updateProbe() {
   }
   byId('probe-output').textContent = details.join(' · ');
   byId('probe-slider').setAttribute('aria-valuetext', formatTime(sample[0]));
+  renderLocalSky(findSite(mission.siteId),sample,mission);
 }
 
 function renderPlot(mission) {
@@ -517,6 +518,7 @@ function renderPlot(mission) {
   chart = undefined;
   probe.hidden = true;
   plot.replaceChildren();
+  byId('local-sky').replaceChildren();
   const site = findSite(mission.siteId);
   const samples = (site?.geometry ?? []).filter(([time]) => time >= mission.start && time <= mission.end);
   const [azimuth, elevation, horizon] = target === 'sun' ? [1, 2, 3] : [4, 5, 6];
@@ -873,7 +875,7 @@ function missionOverview(mission) {
  const site=findSite(mission.siteId);
  return Object.fromEntries(['sun','earth','joint'].map(channel=>[channel,{
   ...visibilitySummary(mission.timeline[channel],mission.start,mission.end),
-  events:channel==='joint' ? null : nextVisibilityEvents(site[channel],mission.start,bundle.coverage)
+  events:channel==='joint' ? null : refinedEvents(site,channel,mission.start,bundle.coverage)
  }]));
 }
 function renderComparison() {
@@ -902,9 +904,50 @@ function renderVisibilityOverview() {
   card.append(element('p','',`${hours(m.visible/3600)} confirmed visible / ${hours(m.blocked/3600)} blocked / ${hours((m.unknown+m.uncertain)/3600)} unresolved within this mission.`));
   if(summary.events) for(const [key,label] of [['loss','Next loss'],['reacquisition','Next reacquisition']]) {
    const interval=summary.events[key];
-   card.append(element('p','event-time',`${label}: ${interval ? interval[0]===interval[1] ? formatTime(interval[0])+' (cached transition)' : formatTime(interval[0])+' to '+formatTime(interval[1])+' (uncertainty bracket)' : 'not established in remaining contiguous cache; not a guarantee of continuous visibility'}`));
+   card.append(element('p','event-time',`${label}: ${interval ? interval[0]===interval[1] ? formatTime(interval[0])+' (cached transition)' : formatTime(interval[0])+' to '+formatTime(interval[1])+' (retained/coarse/fine enclosure'+(summary.events.unresolved.includes(key)?'; timing unresolved':'')+')' : 'not established in remaining contiguous cache; not a guarantee of continuous visibility'}`));
   }
   root.append(card);
  }
  root.append(element('p','secondary',`Events are measured from the selected mission start, may lie after its end, and stop at missing data or ${formatTime(bundle.coverage[1])}. Brackets retain crossing uncertainty; DEM resolution and refinement limitations still apply.`));
+}
+
+function renderLocalSky(site,sample,mission) {
+ const root=byId('local-sky');root.replaceChildren();
+ const snapshot=skySnapshot(site,sample,mission);root.dataset.time=snapshot.time;
+ root.append(element('h3','','Your local sky: Sun and Earth together'));
+ root.append(element('p','secondary',`${formatTime(sample[0])} at ${site.name}. Horizontal position is compass bearing clockwise from north; vertical position is height above the level horizon. This is a schematic, not a photograph. Use the time slider or its arrow keys.`));
+ const rows=site.terrain?.skyline??[];
+ const vals=rows.flatMap(r=>r.slice(1,4)).concat([snapshot.sun.elevation,snapshot.earth.elevation]).filter(v=>Number.isFinite(v)&&v>-89);
+ const low=Math.min(-3,...vals)-0.5,high=Math.max(5,...vals)+0.5;
+ const x=a=>45+a*810/360,y=e=>245-(e-low)*210/(high-low);
+ const svg=svgElement('svg',{viewBox:'0 0 900 285',role:'img','aria-label':'Synchronized Sun and Earth centers against terrain skyline and its uncertainty envelope'});
+ for(const [a,label]of [[0,'N 0°'],[90,'E 90°'],[180,'S 180°'],[270,'W 270°'],[360,'N 360°']]) {
+  svg.append(svgElement('line',{x1:x(a),x2:x(a),y1:25,y2:245,class:'plot-axis'}));
+  const t=svgElement('text',{x:x(a),y:270,'text-anchor':'middle'});t.textContent=label;svg.append(t);
+ }
+ for(const e of [low,0,high]) {
+  svg.append(svgElement('line',{x1:45,x2:855,y1:y(e),y2:y(e),class:e===0?'plot-axis plot-zero':'plot-axis'}));
+  const t=svgElement('text',{x:40,y:y(e)+4,'text-anchor':'end'});t.textContent=number.format(e)+'°';svg.append(t);
+ }
+ // Retain all sectors; no smoothing or invented interpolation over absent sectors.
+ for(let i=0;i<rows.length;i++) {
+  const r=rows[i],right=i+1<rows.length?rows[i+1][0]:360;
+  if(!Number.isFinite(r[1])||!Number.isFinite(r[2]))continue;
+  svg.append(svgElement('rect',{x:x(r[0]),y:y(r[2]),width:Math.max(0,x(right)-x(r[0])),height:Math.max(0,y(r[1])-y(r[2])),class:'sky-envelope'}));
+  if(Number.isFinite(r[3]))svg.append(svgElement('line',{x1:x(r[0]),x2:x(right),y1:y(r[3]),y2:y(r[3]),class:'plot-curve plot-horizon'}));
+ }
+ for(const [key,label]of [['sun','Sun center'],['earth','Earth center']]) {
+  const d=snapshot[key];
+  if(d.azimuth!==null&&d.elevation!==null) {
+   svg.append(svgElement('circle',{cx:x(d.azimuth),cy:y(d.elevation),r:6,class:'sky-'+key}));
+   const t=svgElement('text',{x:Math.min(800,Math.max(95,x(d.azimuth))),y:y(d.elevation)+(key==='sun'?-12:22),'text-anchor':'middle'});t.textContent=label;svg.append(t);
+  }
+ }
+ root.append(svg);
+ const fmt=v=>v===null?'unknown':number.format(v)+'°';
+ for(const [key,label]of [['sun','Sun'],['earth','Earth']]) {
+  const d=snapshot[key],line=element('p','sky-metric',`${label}: bearing ${fmt(d.azimuth)}, elevation ${fmt(d.elevation)}, terrain center trace ${fmt(d.horizon)}. Retained interval: ${stateNames[d.state]??d.state}.`);
+  line.dataset.target=key;line.dataset.azimuth=d.azimuth??'';line.dataset.elevation=d.elevation??'';root.append(line);
+ }
+ root.append(element('p','secondary',`Shaded band is the sampled terrain envelope, not a guarantee about unresolved far-field coverage; markers are sampled body centers, not discs. Interval decisions include crossing uncertainty and refinement checks, so a marker alone cannot establish PASS. Mission refinement: ${snapshot.refinement}. Source: bundled NASA LRO/LOLA terrain and SPICE geometry; no live observation or RF/power simulation.`));
 }

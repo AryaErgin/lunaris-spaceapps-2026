@@ -39,3 +39,34 @@ test('real communication demonstration imposes binding Earth and joint limits wi
  assert(r.recommended.constraints.every(c=>c.status==='PASS'));
  assert.equal(r.recommended.constraints.find(c=>c.id==='max_earth_block').threshold,2);
 });
+
+test('refined event brackets enclose all refinements and withhold missing correspondence',()=>{
+ const site={sun:[[0,10,'visible'],[10,50,'blocked']],refinementIntervals:{sun:{coarse:[[0,8,'visible'],[8,50,'blocked']],fine:[[0,12,'visible'],[12,50,'blocked']]}}};
+ assert.deepEqual(overview.refinedEvents(site,'sun',0,[0,50]).loss,[8,12]);
+ site.refinementIntervals.sun.fine=[[0,50,'visible']];
+ assert.equal(overview.refinedEvents(site,'sun',0,[0,50]).loss,null);
+});
+test('local sky preserves sampled angles, half-open states, and missing data',()=>{
+ const site={terrain:{skyline:[[0,1,2,1.5,-90]]}};
+ const mission={timeline:{sun:[[0,10,'visible']],earth:[[0,10,'uncertain']]}};
+ const r=overview.skySnapshot(site,[0,0,3,1.5,180,1,2],mission);
+ assert.equal(r.sun.azimuth,0);assert.equal(r.earth.elevation,1);assert.equal(r.earth.state,'uncertain');
+ assert.equal(overview.skySnapshot(site,[10,0,3,1.5,180,1,2],mission).sun.state,'unknown');
+ assert.equal(overview.skySnapshot(site,[0,null,null,null,180,1,2],mission).sun.azimuth,null);
+});
+
+test('all real sites retain sampled Sun/Earth geometry and refinement event enclosures',async()=>{
+ const {readFile}=await import('node:fs/promises');const b=JSON.parse(await readFile(new URL('../web/data/bundle.json',import.meta.url),'utf8'));
+ for(const site of b.sites) {
+  const sample=site.geometry[0],m={timeline:{sun:site.sun,earth:site.earth}};
+  const sky=overview.skySnapshot(site,sample,m);
+  assert.equal(sky.sun.elevation,sample[2]);assert.equal(sky.earth.elevation,sample[5]);
+  for(const channel of ['sun','earth']) {
+   const e=overview.refinedEvents(site,channel,b.coverage[0],b.coverage);
+   for(const key of ['loss','reacquisition'])if(e[key])for(const t of [site[channel],site.refinementIntervals[channel].coarse,site.refinementIntervals[channel].fine]) {
+    const r=overview.nextVisibilityEvents(t,b.coverage[0],b.coverage)[key];
+    assert(e[key][0]<=r[0]&&e[key][1]>=r[1]);
+   }
+  }
+ }
+});

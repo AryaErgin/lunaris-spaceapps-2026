@@ -46,3 +46,28 @@ export function communicationDemo(bundle) {
  return {...bundle.demo,maxEarthHours:2,minJointHours:6,minContinuousJointHours:2,
   earliest:bundle.coverage[0],latest:bundle.coverage[1]-bundle.demo.durationHours*3600,mode:'same-site'};
 }
+
+// Enclose matching first transitions from retained, coarse and fine caches.
+// Missing correspondence is not evidence of a precisely timed event.
+export function refinedEvents(site,channel,instant,coverage) {
+ const timelines=[site[channel],site.refinementIntervals?.[channel]?.coarse,site.refinementIntervals?.[channel]?.fine];
+ const results=timelines.map(t=>nextVisibilityEvents(t??[],instant,coverage));
+ const out={loss:null,reacquisition:null,censored:true,coverageEnd:coverage[1],basis:'retained/coarse/fine event enclosure',unresolved:[]};
+ for(const key of ['loss','reacquisition']) {
+  if(results.every(r=>r[key])) {
+   out[key]=[Math.min(...results.map(r=>r[key][0])),Math.max(...results.map(r=>r[key][1]))];
+   if(out[key][1]-out[key][0]>=120)out.unresolved.push(key);
+  }
+ }
+ out.censored=!out.loss||!out.reacquisition;
+ return out;
+}
+export function skySnapshot(site,sample,mission) {
+ const snapshot={time:sample[0],refinement:mission.refinement?.status??'not supplied'};
+ for(const [key,az,el,hor] of [['sun',1,2,3],['earth',4,5,6]]) {
+  snapshot[key]={azimuth:Number.isFinite(sample[az])?((sample[az]%360)+360)%360:null,
+   elevation:Number.isFinite(sample[el])?sample[el]:null,horizon:Number.isFinite(sample[hor])?sample[hor]:null,
+   state:mission.timeline?.[key]?.find(([a,b])=>sample[0]>=a&&sample[0]<b)?.[2]??'unknown'};
+ }
+ return snapshot;
+}

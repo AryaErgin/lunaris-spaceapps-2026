@@ -318,3 +318,12 @@ tbody th { font-weight: 680; min-width: 125px; }
 .comparison-card { border:1px solid #405062; border-radius:8px; padding:14px; margin:10px 0; min-width:0; }
 .comparison-metric, .event-time { font-size:.85rem; overflow-wrap:anywhere; }
 @media(max-width:900px) { .comparison-grid { grid-template-columns:1fr; } }
+
+.local-sky { margin: 1.5rem 0; }
+.local-sky svg { width:100%; height:auto; font-size:13px; }
+.sky-envelope { fill:#c4baa0; opacity:.65; }
+.sky-sun { fill:#a76c00; stroke:#292713; stroke-width:1; }
+.sky-earth { fill:#387b9b; stroke:#123747; stroke-width:1; }
+.sky-metric { overflow-wrap:anywhere; }
+
+.local-sky svg text { fill:currentColor; font-size:24px; }
