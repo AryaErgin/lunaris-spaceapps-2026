@@ -315,3 +315,41 @@ body[data-delay-story='true'] .story-outcome button{font:600 15px/1.4 system-ui,
  .comparison-difference{padding:16px}.comparison-difference p{font-size:17px}
  .quick-tour{max-height:55svh;padding:14px 16px}.quick-tour h2{font-size:22px}.quick-tour p{font-size:16px}
 }
+
+/* Playback strip: one readable clock tied to the arrival, and two plain body states. */
+.scene-time-label{display:flex;align-items:baseline;gap:10px;justify-content:flex-start;font:600 15px/1.4 system-ui,sans-serif;color:#b9cad6;margin-top:10px}
+.scene-time-label output{font:600 16px/1.4 system-ui,sans-serif;color:#f1f6f9;font-variant-numeric:tabular-nums}
+.hero-time-ends{display:flex;justify-content:space-between;gap:12px;font-size:13px;line-height:1.4;color:#a9bdcc;font-variant-numeric:tabular-nums}
+.hero-visibility{display:flex;flex-wrap:wrap;gap:8px 12px;margin-top:10px}
+.hero-visibility .hero-body{display:flex;flex-direction:column;min-width:0;padding:6px 12px 7px;border:1px solid #32485a;border-left-width:3px;border-radius:5px;background:#0e1a25;cursor:help}
+.hero-visibility .hero-body strong{font:600 15px/1.4 system-ui,sans-serif}
+.hero-visibility .hero-body small{font-size:13px;line-height:1.4;color:#b4c6d3}
+.hero-visibility .hero-body[data-state=visible]{border-left-color:#8fcbae}
+.hero-visibility .hero-body[data-state=blocked]{border-left-color:#d9938b}
+.hero-visibility .hero-body[data-state=uncertain],.hero-visibility .hero-body[data-state=unknown]{border-left-color:#d6b674}
+.scene-transport{height:auto;min-height:180px;padding-bottom:14px}
+@media(max-width:700px){.hero-time-ends{font-size:12px}.hero-visibility .hero-body{flex:1 1 150px}.scene-time-label{flex-wrap:wrap;gap:2px 8px}}
+/* Type floor: nothing a visitor needs to read is smaller than 14px; dense reference grids use 13px. */
+.eyebrow,.experience-intro .eyebrow,.opportunity-card .eyebrow{font-size:13px;line-height:1.5}
+.assessment-toggle,#assessment-label{font-size:15px!important}
+.mission-requirements-editor,.mission-requirements-editor p,.mission-requirements-editor .requirement-edit-fields label,.scene-site-picker .requirement-edit-fields label{font-size:14px}
+#apply-quick-requirements,#start-delay-demo{font-size:15px}
+.decision-jump{font-size:14px}
+.story-footer,.story-footer p,.story-footer summary,.story-footer #verified-demo{font-size:14px;line-height:1.6}
+.scene-caption{font-size:12px}
+.hero-time-ends,.hero-visibility .hero-body small{font-size:14px}
+.experience-status p,.experience-status button{font-size:14px;line-height:1.5}
+.visual-disclosure,.visual-disclosure p{font-size:15px}
+.experience .mission-scene-body-status{font-size:14px}
+.comparison-caution,.opportunity-limit,.option-load-note,.comparison-context{font-size:14px;line-height:1.55}
+.comparison-shared label span,.scene-site-picker label span{font-size:13px}
+.footer-inner{font-size:13px}
+.feasibility-table th,.feasibility-cell,.panel-tag,.console-frame{font-size:13px}
+@media(max-width:700px){.experience .mission-scene-body-status{font-size:13px}.scene-caption{font-size:12px}}
+.comparison-shared{grid-template-columns:minmax(200px,auto) minmax(0,1fr) auto}
+.comparison-shared label span{margin-left:4px}.comparison-shared input{display:block}
+@media(max-width:700px){.comparison-shared{grid-template-columns:1fr}}
+/* The same floor for the optional requirement and delay views. */
+#story-witness{font:14px/1.5 system-ui,sans-serif}
+.requirement-values span,.compact-requirement-values,.compact-requirement-values span,.requirement-range,.compact-requirements .requirement-range,.evidence-time-label,.evidence-margin-key,.evidence-refinement,#evidence-warnings,.requirement-proof,.visibility-definitions,.evidence-timeline-row,.configuration-summary,.story-joint,.story-joint details,.option-rules,.compact-requirements .requirement-name,#evidence-plan{font-size:14px}
+.requirement-head .status,.compact-requirements .requirement-head .status{font-size:13px}

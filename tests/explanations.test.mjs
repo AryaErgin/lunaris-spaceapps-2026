@@ -9,7 +9,7 @@ test('environment conclusions distinguish full, confirmed minimum, unresolved, a
   assert.match(visibilityConclusion(metrics([0,43200]),43200).headline,/not confirmed/);
   assert.match(visibilityConclusion(metrics([0,3600.1]),43200).reason,/up to 1 h 1 s/,'A displayed upper bound must round outward.');
   assert.match(visibilityConclusion(metrics([0,0],[0,0],[43200,43200]),43200).reason,/Earth.*terrain.*full view/);
-  assert.match(visibilityConclusion(metrics([0,0],[43200,43200]),43200).reason,/Sun-center.*full view/);
+  assert.match(visibilityConclusion(metrics([0,0],[43200,43200]),43200).reason,/Sun is hidden.*full view/);
   assert.match(visibilityConclusion(metrics([86400,86400]),86400,{complete:false}).headline,/available data/);
   assert.doesNotMatch(visibilityConclusion(metrics([86399.9,86400]),86400).headline,/all 24/,'Rounding a lower bound must not invent complete coverage.');
 });

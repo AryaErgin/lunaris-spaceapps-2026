@@ -10,11 +10,11 @@ export function visibilityConclusion(metrics,duration,{complete=true}={}){
   const [lo,hi]=metrics.joint.visibleRangeSeconds;
   const earth=metrics.earth.longestBlockedRangeSeconds[0],sun=metrics.sun.longestBlockedRangeSeconds[0];
   const reason=earth>=duration?'Earth is blocked by terrain for the full view.'
-    :sun>=duration?'Sun-center visibility is unavailable for the full view.'
+    :sun>=duration?'The Sun is hidden for the full view.'
       :earth>0?`Earth is hidden by terrain for at least ${conciseDuration(earth)} at a time.`
-        :sun>0?`Sun-center visibility is interrupted for at least ${conciseDuration(sun)} at a time.`
-          :hi>lo?'Some time remains unresolved. Open the durations to see the bounds.':'Their visibility windows do not overlap throughout the whole view.';
-  if(lo>=duration)return {headline:`Sun and Earth visible together for all ${conciseDuration(duration)}`,reason:'Both center-visibility conditions hold throughout this modeled view.'};
+        :sun>0?`The Sun is hidden for at least ${conciseDuration(sun)} at a time.`
+          :hi>lo?'Some time is too close to the skyline to confirm. Open the durations to see the bounds.':'Their visibility windows do not overlap throughout the whole view.';
+  if(lo>=duration)return {headline:`Sun and Earth visible together for all ${conciseDuration(duration)}`,reason:'Both stay in view for the whole modeled stay.'};
   if(lo>0)return {headline:`At least ${conciseDuration(lo)} with Sun and Earth together`,reason};
   if(hi>0)return {headline:'Simultaneous visibility is not confirmed',reason:`Unresolved intervals may allow up to ${conciseDuration(Math.ceil(hi))} together. The data do not establish that opportunity.`};
   return {headline:'No simultaneous Sun and Earth visibility in this view',reason};

@@ -95,10 +95,10 @@
           <button id="guide-open" class="outline" type="button" hidden>Landing-delay story</button>
           <label for="hero-speed">Speed <select id="hero-speed"><option value="1">30 min/s</option><option value="4" selected>2 h/s</option><option value="12">6 h/s</option><option value="48">24 h/s</option></select></label>
         </div>
-        <label class="scene-time-label" for="hero-time">View clock <output id="hero-time-label" for="hero-time"></output></label>
-        <p class="view-clock-help">Scrubbing changes the displayed instant, not your arrival or duration.</p>
-        <input id="hero-time" type="range" min="0" max="1" step="1" value="0" aria-label="Explore cached mission time">
-        <div id="hero-visibility" class="hero-visibility" aria-label="Authoritative visibility states"></div>
+        <label class="scene-time-label" for="hero-time">Showing <output id="hero-time-label" for="hero-time"></output></label>
+        <input id="hero-time" type="range" min="0" max="1" step="1" value="0" aria-label="Move through the selected stay. This does not change your arrival.">
+        <div class="hero-time-ends" aria-hidden="true"><span id="hero-time-start">Arrival</span><span id="hero-time-end">End of stay</span></div>
+        <div id="hero-visibility" class="hero-visibility" aria-label="Sun and Earth at the time shown"></div>
       </div>
       <section id="mission-story" class="mission-story" aria-labelledby="story-title" hidden>
         <div class="story-progress" role="group" aria-label="Mission demonstration steps">
@@ -136,7 +136,7 @@
     </section>
 
     <section id="landing-opportunities" class="container landing-opportunities" aria-labelledby="opportunities-title" hidden>
-      <div class="section-head"><div><p class="eyebrow">SAME REQUIREMENTS · BEFORE LAUNCH</p><h2 id="opportunities-title">Landing opportunities</h2></div><button id="opportunity-limits" class="outline" type="button">Edit allowed dates and requirements</button></div>
+      <div class="section-head"><div><p class="eyebrow" id="opportunities-eyebrow">THREE STUDY SITES · NOVEMBER 2026</p><h2 id="opportunities-title">Landing opportunities</h2></div><button id="opportunity-limits" class="outline" type="button">Edit allowed dates and requirements</button></div>
       <p id="opportunities-status" role="status"></p><p id="opportunities-basis" class="secondary"></p>
       <details class="search-evidence"><summary>How this search was evaluated</summary><p id="opportunities-counts"></p><p id="opportunities-ranking"></p></details>
       <div id="opportunity-options" class="opportunity-options"></div>

@@ -917,6 +917,7 @@ async function searchOpportunities(){
   if(!applyVisualArrival())return;
   pausePlayback();const requestedInputs=inputs,request=++opportunityRequest,root=byId('landing-opportunities');
   root.hidden=productMode!=='explore';root.setAttribute('aria-busy','true');root.dataset.kind='SEARCHING';
+  byId('opportunities-eyebrow').textContent=requirementsEnabled?'YOUR REQUIREMENTS · THREE STUDY SITES · BEFORE LAUNCH':'THREE STUDY SITES · NOVEMBER 2026';
   byId('opportunities-status').textContent=requirementsEnabled?'Checking sites against your selected requirements…':'Finding confirmed Sun and Earth visibility…';
   byId('opportunities-counts').textContent='Search in progress.';byId('opportunities-ranking').textContent='';
   byId('opportunities-basis').textContent='This is a new-arrival search before launch; the landing delay is not added.';
@@ -1443,6 +1444,12 @@ function jumpPlayback() {
   byId('playback-status').textContent=`Jumped to nearest actual cached sample: ${formatTime(currentTime)}. Ties choose the earlier sample; geometry cadence is 30 minutes.`;
 }
 
+function arrivalOffset(seconds) {
+  const size=Math.abs(seconds),d=Math.floor(size/86400),h=Math.floor(size%86400/3600),m=Math.floor(size%3600/60);
+  const text=[d?`${d} d`:'',h?`${h} h`:'',m?`${m} min`:''].filter(Boolean).join(' ');
+  return !text?'at arrival':seconds>0?`${text} after arrival`:`${text} before arrival`;
+}
+
 function durationRange(range) {
   return Math.abs(range[1]-range[0])<1e-6 ? hours(range[0]/3600) : `${hours(range[0]/3600)}–${hours(range[1]/3600)}`;
 }
@@ -1700,14 +1707,18 @@ function updateExperienceFrame(site,sample,mission) {
   byId('scene-clock').textContent=formatTime(sample[0]);
   const slider=byId('hero-time');slider.max=byId('probe-slider').max;slider.value=byId('probe-slider').value;
   slider.disabled=isEdited;
-  byId('hero-time-label').parentElement.firstChild.textContent=byId('time-scope').value==='coverage'?'View clock · full November cache ':'View clock · 30-minute samples ';
-  slider.setAttribute('aria-valuetext',formatTime(sample[0]));
-  byId('hero-time-label').textContent=formatTime(sample[0]);
+  // The clock reads relative to the chosen arrival, so scrubbing cannot be mistaken for changing it.
+  const sinceArrival=arrivalOffset(sample[0]-mission.start),wholeMonth=byId('time-scope').value==='coverage';
+  slider.setAttribute('aria-valuetext',`${formatTime(sample[0])}, ${sinceArrival}`);
+  byId('hero-time-label').textContent=`${shortTime(sample[0])} · ${sinceArrival}`;
+  byId('hero-time-label').title='The scene moves in 30-minute steps. Your arrival and stay do not change.';
+  byId('hero-time-start').textContent=wholeMonth&&chart?.domain?shortTime(chart.domain[0]):`Arrival · ${shortTime(mission.start)}`;
+  byId('hero-time-end').textContent=wholeMonth&&chart?.domain?shortTime(chart.domain[1]):`End of stay · ${shortTime(mission.end)}`;
   byId('hero-speed').value=byId('sky-speed').value;
   byId('hero-play').disabled=isEdited||!chart||chart.samples.length<2;
-  const visibility=byId('hero-visibility');visibility.replaceChildren();
+  const visibility=byId('hero-visibility'),eventNotes={};visibility.replaceChildren();
   for(const [key,title] of [['sun','Sun'],['earth','Earth']]) {
-    const state=latestSceneFrame.states[key],label=state==='visible'?'visible':state==='blocked'?'hidden by terrain':'unresolved · body hidden';
+    const state=latestSceneFrame.states[key],label=state==='visible'?'in view':state==='blocked'?'hidden by terrain':state==='uncertain'?'too close to the skyline to confirm':'no data at this time';
     const elevation=sample?.[key==='sun'?2:5];
     // Plain-language time to the next established change, from the same bounded events as Advanced.
     const wanted=isEdited?null:state==='visible'?'loss':state==='blocked'?'reacquisition':null;
@@ -1715,17 +1726,21 @@ function updateExperienceFrame(site,sample,mission) {
     if(wanted) {
       const countdown=transitionCountdown(refinedEvents(site,key,sample[0],bundle.coverage),wanted,sample[0]);
       const name=wanted==='loss'?(key==='sun'?'sunset':'Earthset'):(key==='sun'?'sunrise':'Earthrise');
-      next=countdown.kind==='bounded'?`${name} in ${durationRange(countdown.remaining)}`
-        :countdown.kind==='unresolved'?`${name} timing cannot be resolved (between ${shortTime(countdown.interval[0])} and ${shortTime(countdown.interval[1])})`
-          :`no ${name} established in the cached data`;
+      // Only a bounded time is shown as a countdown; unresolved timing stays in the tooltip with its bracket.
+      if(countdown.kind==='bounded')next=`${name} in ${durationRange(countdown.remaining)}`;
+      eventNotes[key]=countdown.kind==='bounded'?''
+        :countdown.kind==='unresolved'?` The ${name} time cannot be pinned down: between ${shortTime(countdown.interval[0])} and ${shortTime(countdown.interval[1])}.`
+          :` No ${name} is established in the November data.`;
     }
-    const item=element('span','',`${title}${Number.isFinite(elevation)?` ${elevation.toFixed(1)}° elevation`:''} · ${label}${next?` · ${next}`:''}`);
+    const item=element('span','hero-body');item.append(element('strong','',`${title} ${label}`));
+    const facts=[Number.isFinite(elevation)?`${Math.abs(elevation).toFixed(1)}° ${elevation<0?'below':'above'} the level horizon`:'',next].filter(Boolean).join(' · ');
+    if(facts)item.append(element('small','',facts));
     item.dataset.state=state;item.dataset.target=key;if(wanted)item.dataset.nextEvent=wanted;visibility.append(item);
   }
   for(const key of ['sun','earth']){
     const d=latestSceneFrame.sample,az=d?.[key==='sun'?1:4],el=d?.[key==='sun'?2:5];
     const item=visibility.querySelector(`[data-target='${key}']`);
-    if(item&&Number.isFinite(az)&&Number.isFinite(el))item.title=`Bearing ${az.toFixed(1)}° / elevation ${el.toFixed(1)}° above the level horizon. Rise and set mean the body center crossing the terrain skyline. 30-minute cached direction; geometry only.`;
+    if(item&&Number.isFinite(az)&&Number.isFinite(el))item.title=`Bearing ${az.toFixed(1)}°, elevation ${el.toFixed(1)}° above the level horizon.${eventNotes[key]??''} Rise and set mean the body center crossing the terrain skyline. 30-minute cached direction; geometry only.`;
   }
   for(const head of document.querySelectorAll('.story-joint-playhead')){
     const start=Number(head.dataset.start),end=Number(head.dataset.end);head.hidden=sample[0]<start||sample[0]>=end;head.style.left=`${100*(sample[0]-start)/(end-start)}%`;
