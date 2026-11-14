@@ -1602,7 +1602,8 @@ function setExperienceMode(mode) {
   byId('experience').dataset.mode=mode;
   for(const key of ['orbital','surface'])byId(`mode-${key}`).setAttribute('aria-pressed',String(key===mode));
   byId('surface-focus').hidden=false;
-  byId('focus-terrain').textContent=mode==='surface'?'Explore terrain':'Focus study points';
+  byId('focus-terrain').textContent=mode==='surface'?'Terrain':'Study sites';
+  byId('focus-terrain').setAttribute('aria-label',mode==='surface'?'Explore the modeled lunar terrain':'Focus the lunar study points');
   byId('scene-transport').hidden=false;
   byId('mission-story').hidden=false;
   byId('night-visibility').hidden=mode!=='surface'||sceneDisabled;

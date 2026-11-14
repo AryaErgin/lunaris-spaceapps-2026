@@ -91,7 +91,7 @@ try{
   const coldRequests=[...requests],coldSceneReadyMs=await evaluate('performance.now()');
   assert(await evaluate("document.querySelector('#quick-tour').hidden"),'Tour must never open automatically.');
   assert.match(await evaluate("document.querySelector('#experience-title').textContent"),/Explore the Moon. Find a landing window/);
-  assert(await evaluate("(()=>{for(const id of ['visual-site','visual-arrival','visual-duration','story-title','find-opportunities']){const n=document.querySelector('#'+id),r=n.getBoundingClientRect();if(r.top<0||r.bottom>innerHeight)return false;}const n=document.querySelector('#find-opportunities'),r=n.getBoundingClientRect();return n.contains(document.elementFromPoint(r.left+r.width/2,r.top+r.height/2));})()"),'The default environment inputs, main conclusion and Find action must be visible and clickable without scrolling at1366x768.');
+  assert(await evaluate("(()=>{for(const id of ['visual-site','visual-arrival','visual-duration','story-title','find-opportunities','explore-site']){const n=document.querySelector('#'+id),r=n.getBoundingClientRect();if(r.top<0||r.bottom>innerHeight)return false;}const n=document.querySelector('#find-opportunities'),r=n.getBoundingClientRect();return n.contains(document.elementFromPoint(r.left+r.width/2,r.top+r.height/2));})()"),'The default environment inputs, main conclusion, Find and Explore actions must be visible and clickable without scrolling at1366x768.');
   await screenshot('cold-mission-desktop');
   const clickVisible=async selector=>{
     await evaluate(`document.querySelector(${JSON.stringify(selector)}).scrollIntoView({behavior:'instant',block:'nearest'})`);await sleep(60);

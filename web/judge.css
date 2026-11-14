@@ -225,7 +225,7 @@
 }
 
 /* Essential inputs, one conclusion, then one action. Evidence expands below. */
-.experience{--rail:420px}
+.experience{--rail:440px}
 .product-purpose{padding:6px 24px;background:#0b151e;gap:18px}
 .product-purpose .purpose-copy>.geometry-note:first-child{font:400 14px/1.5 system-ui,sans-serif;color:#c2d2de;max-width:none;margin:0}
 #tour-start{font-size:14px;min-height:40px;padding:8px 14px;border-radius:5px;background:transparent;box-shadow:none}
@@ -295,7 +295,7 @@ body[data-delay-story='true'] .story-outcome button{font:600 15px/1.4 system-ui,
  .experience{--rail:0px}.product-purpose{padding:8px 16px;flex-wrap:nowrap;align-items:center;gap:12px}
  .product-purpose .purpose-copy>.geometry-note:first-child{font-size:13px}
  #tour-start{min-height:42px;padding:8px 10px;font-size:14px}#tour-start span{display:none}
- .experience-intro{padding:18px 20px 14px}.experience-intro h1{font-size:31px;max-width:18ch;margin:5px 0 10px}
+ .experience-intro{padding:18px 20px 14px}.experience-intro h1{font-size:28px;max-width:18ch;margin:5px 0 10px}
  .hero-support{font-size:16px;line-height:1.45;max-width:none}
  .scene-site-picker{padding:14px 20px 6px}.scene-site-picker select{min-height:46px}
  .scene-mode-switch button{font-size:13px!important;min-height:42px;padding:6px 8px}
