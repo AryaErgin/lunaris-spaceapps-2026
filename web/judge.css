@@ -211,7 +211,7 @@ body:not(.environment-only) .product-purpose {display:none;}
   .product-purpose .purpose-copy>p:first-child{font-size:15px;}
   .product-purpose .geometry-note{font-size:13px;}
   #tour-start{min-height:42px;padding:8px 13px;}
-  .experience .mission-scene-body-status{font-size:12px;max-width:53%;padding:6px 8px;}
+  .experience .mission-scene-body-status{top:auto;bottom:56px;right:10px;font-size:12px;line-height:1.35;max-width:54%;padding:5px 8px;}
   .scene-site-picker label{font-size:14px;}
   .scene-site-picker .opportunity-scope{font-size:13px !important;}
   .scene-mode-switch button{font-size:12px !important;}
