@@ -71,7 +71,7 @@ try{
     resources:await evaluate("performance.getEntriesByType('resource').map(r=>({name:r.name.split('/').pop(),bytes:r.transferSize,durationMs:r.duration}))")};
   assert(await evaluate("document.querySelector('#top').hidden"),'Opening experience must not show the engineering form wall.');
   assert(await evaluate("(()=>{const canvas=document.querySelector('#scene-mount').getBoundingClientRect();return document.querySelector('.experience-intro').getBoundingClientRect().right<=canvas.left&&document.querySelector('.scene-mode-switch').getBoundingClientRect().bottom<=canvas.top+1})()"),'Desktop orbital copy and controls must sit outside the canvas.');
-  assert(!requests.some(r=>/terrain-.*\.bin/.test(r)),'Surface terrain must remain lazy while orbital bodies load.');
+  assert(!requests.some(r=>/terrain-.*.mesh/.test(r)),'Surface terrain must remain lazy while orbital bodies load.');
   assert(info.orbital,'Orbital Sun and Earth direction context is missing.');
   const orbitalSite=bundle.sites.find(s=>s.id===info.siteId),orbitalSample=orbitalSite.geometry.find(r=>r[0]===info.time);
   for(const [key,az,el]of [['sun',1,2],['earth',4,5]]){

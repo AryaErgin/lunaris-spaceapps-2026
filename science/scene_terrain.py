@@ -273,7 +273,7 @@ def build_scenes(raw, bundle_path, output):
                     raise ValueError(f"Bundle ground anchor differs from native local DEM: {site_id}")
                 mesh = build_mesh(site, sampler)
             payload, encoding = encode_mesh(mesh["positions"], mesh["indices"])
-            filename = f"terrain-{site_id}.bin"
+            filename = f"terrain-{site_id}.mesh"
             (output / filename).write_bytes(payload)
             metadata["sites"].append({"siteId": site_id, "positionFile": filename, **encoding,
                                       "lat": site["lat"], "lon": site["lon"], "groundM": site["groundM"],
