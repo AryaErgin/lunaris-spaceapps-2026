@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:http';
 import { once } from 'node:events';
-import { mkdir, readdir, readFile } from 'node:fs/promises';
+import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import { extname, resolve, sep } from 'node:path';
 
 // Run from the repository root with Node 24 and Chrome or Chromium.
@@ -10,6 +10,8 @@ import { extname, resolve, sep } from 'node:path';
 
 const fixture = process.argv.includes('--fixture');
 const requireRecovery = process.argv.includes('--require-recovery');
+const testHeight = process.argv.includes('--height');
+assert(!(fixture && testHeight), '--height requires the packaged real-data bundle.');
 const workspace = process.cwd();
 const browserExecutable = process.env.LUNARIS_CHROME || (process.platform === 'win32'
   ? 'C:/Program Files/Google/Chrome/Application/chrome.exe' : 'chromium');
@@ -90,6 +92,7 @@ try {
   await new Promise((open) => socket.addEventListener('open', open, { once: true }));
   const callbacks = new Map();
   const requests = [];
+  const heightRequests = () => requests.filter((request) => /\/(height\.mjs|height-study\.json)$/.test(new URL(request).pathname));
   let messageId = 0;
   socket.addEventListener('message', ({ data }) => {
     const message = JSON.parse(data);
@@ -200,12 +203,72 @@ try {
   async function screenshot(name) {
     if (!screenshots) return;
     const { data } = await command('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
-    const { writeFile } = await import('node:fs/promises');
     await writeFile(resolve(work, `${name}.png`), Buffer.from(data, 'base64'));
   }
 
   await browserEval("document.querySelector('#interval-details').open = false; document.querySelector('#reset-demo').click()");
   await screenshot('desktop');
+  assert.deepEqual(heightRequests(), [], 'Phase B triggered an unrequested optional height fetch');
+  if (testHeight) {
+    await browserEval("document.querySelector('#height-panel > summary').click()");
+    assert.deepEqual(heightRequests(), [], 'Opening the optional panel triggered a height data fetch');
+    await browserEval("document.querySelector('[data-decision=recommended]').click(); document.querySelector('#run-heights').click()");
+    await until(() => browserEval("Boolean(document.querySelector('#height-results:not([hidden])'))"));
+    const displayed = await browserEval(`(() => {
+      const report = document.querySelector('#height-results');
+      return { status: report.dataset.robustStatus, scenarios: [...report.querySelectorAll('[data-scenario]')].map((card) => ({
+        id: card.dataset.scenario, heightM: Number(card.dataset.height), status: card.dataset.status,
+        margins: [...card.querySelectorAll('[data-constraint]')].map(({ dataset }) => [dataset.constraint, Number(dataset.margin)]),
+      })) };
+    })()`);
+    assert.equal(heightRequests().length, 2, 'Expected one lazy-load request each for module and data');
+
+    const { evaluateHeights } = await import('../web/height.mjs');
+    const realBundle = JSON.parse(await readFile(resolve(workspace, 'web/data/bundle.json'), 'utf8'));
+    const heightBundle = JSON.parse(await readFile(resolve(workspace, 'web/data/height-study.json'), 'utf8'));
+    const selectedMission = certificate.recommended_result;
+    const expected = evaluateHeights(realBundle, heightBundle, certificate.inputs, selectedMission);
+    assert.equal(displayed.status, expected.robust_status);
+    assert.deepEqual(displayed.scenarios, expected.scenario_results.map((scenario) => ({
+      id: scenario.id, heightM: scenario.heightM, status: scenario.status,
+      margins: scenario.constraints.map(({ id, margin }) => [id, margin]),
+    })));
+
+    const nextCertificate = async (label) => {
+      const folder = resolve(work, `download-${label}`);
+      await mkdir(folder, { recursive: true });
+      await command('Page.setDownloadBehavior', { behavior: 'allow', downloadPath: folder });
+      await browserEval("document.querySelector('#export').click()");
+      const file = await until(async () => (await readdir(folder)).find((name) => name.endsWith('.json')));
+      const text = await readFile(resolve(folder, file), 'utf8');
+      await writeFile(resolve(work, `${label}-certificate.json`), text);
+      return JSON.parse(text);
+    };
+    const enriched = await nextCertificate('height');
+    assert.deepEqual(enriched.scenario_results, expected.scenario_results);
+    assert.deepEqual(enriched.scenario_ids, expected.scenario_ids);
+    assert.equal(enriched.robust_status, expected.robust_status);
+    assert.equal(enriched.height_study_source_hash, expected.source_hash);
+    assert.equal(Date.parse(enriched.height_study_mission_start) / 1000, expected.mission_start);
+    assert.equal(Date.parse(enriched.height_study_mission_end) / 1000, expected.mission_end);
+    assert.equal(enriched.height_study_inspected_decision, 'recommended');
+    for (const phase of phases) assert.deepEqual(enriched[`${phase}_result`], certificate[`${phase}_result`]);
+    await browserEval("document.querySelector('#height-panel').scrollIntoView({ block: 'center' })");
+    await screenshot('height-desktop');
+    await browserEval("document.querySelector('[data-decision=delayed]').click()");
+    assert(await browserEval("document.querySelector('#height-results').hidden"), 'A new decision retained stale heights');
+    const cleared = await nextCertificate('cleared');
+    assert.deepEqual(cleared.scenario_results, certificate.scenario_results);
+    assert.equal(cleared.height_study_source_hash, undefined);
+    await command('Emulation.setDeviceMetricsOverride', { width: 390, height: 840, deviceScaleFactor: 1, mobile: false });
+    await browserEval("document.querySelector('[data-decision=recommended]').click(); document.querySelector('#run-heights').click()");
+    await until(() => browserEval("Boolean(document.querySelector('#height-results:not([hidden])'))"));
+    await browserEval("document.querySelector('#height-panel').scrollIntoView({ block: 'center' })");
+    await screenshot('height-mobile');
+    assert(await browserEval('document.documentElement.scrollWidth <= innerWidth'), 'Height cards overflow the mobile viewport');
+    await browserEval("document.querySelector('#height-panel').open = false; scrollTo(0, 0)");
+    console.log(`Height study browser parity passed: ${displayed.scenarios.map((scenario) => `${scenario.heightM} m ${scenario.status}`).join(', ')}`);
+  }
   await command('Emulation.setDeviceMetricsOverride', { width: 390, height: 840, deviceScaleFactor: 1, mobile: false });
   await sleep(300);
   await screenshot('mobile');

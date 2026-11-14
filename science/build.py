@@ -24,6 +24,7 @@ from science.visibility import (
 )
 
 ENGINE_VERSION = "1.0.0"
+ENGINE_COMMIT = "f45173e3fa63e23290cc5d13cbb5f27cb63e9c32"
 START = int(datetime(2026, 11, 1, tzinfo=timezone.utc).timestamp())
 END = int(datetime(2026, 12, 1, tzinfo=timezone.utc).timestamp())
 HEIGHT_M = 2.0
@@ -98,12 +99,12 @@ def _bounds_report(coarse, fine, merged):
     }
 
 
-def _site(raw, ephemeris, row):
+def _site(raw, ephemeris, row, *, height_m=HEIGHT_M, include_plot=True):
     site_id, name, region, lat, lon, tile = row
     begin = perf_counter()
-    coarse = build_skyline(raw, tile, lat, lon, HEIGHT_M, count=1800, radius_m=200_000)
-    fine = build_skyline(raw, tile, lat, lon, HEIGHT_M, count=3600, radius_m=240_000)
-    print(f"{site_id}: both terrain scans in {perf_counter() - begin:.1f}s", flush=True)
+    coarse = build_skyline(raw, tile, lat, lon, height_m, count=1800, radius_m=200_000)
+    fine = build_skyline(raw, tile, lat, lon, height_m, count=3600, radius_m=240_000)
+    print(f"{site_id} ({height_m:g} m): both terrain scans in {perf_counter() - begin:.1f}s", flush=True)
     visibility = Visibility(ephemeris, lat, lon, fine.info["observerRadiusM"])
     visibility.cache(range(START, END + 1, 60), measure=True)
     intervals = {}
@@ -132,7 +133,7 @@ def _site(raw, ephemeris, row):
         "coordinateStatus": "Published region center", "sourceFrame": "DE421 MOON_ME",
         "workingFrame": FRAME, "referenceRadiusM": RADIUS_M,
         "verticalDatum": "Radial metres above the 1,737,400 m lunar reference sphere",
-        "groundM": fine.info["groundM"], "heightM": HEIGHT_M,
+        "groundM": fine.info["groundM"], "heightM": height_m,
         "terrain": {
             "warnings": warnings,
             "fine": fine.info, "coarse": coarse.info,
@@ -140,13 +141,13 @@ def _site(raw, ephemeris, row):
                               "80 m regional nominal spacing; effective resolution varies spatially.",
             "skylineColumns": ["azimuthStartDeg", "lowerDeg", "upperDeg", "centerModelDeg", "gapCapDeg",
                                "blocker[latDeg,lonDegE,surfaceDistanceM,elevationM]"],
-            "skyline": _skyline_rows(fine),
+            **({"skyline": _skyline_rows(fine)} if include_plot else {}),
         },
         **intervals,
         "refinementIntervals": refinement_intervals,
         "refinement": refinement,
         "maxSampledAngularRateDegMin": visibility.max_sampled_rate,
-        "geometry": visibility.plot_samples(fine, START, END),
+        **({"geometry": visibility.plot_samples(fine, START, END)} if include_plot else {}),
     }
 
 
@@ -209,6 +210,11 @@ def build(raw, horizons, output, demo_path, engine_commit):
     }
     demo = json.loads(demo_path.read_text(encoding="utf-8-sig"))
     bundle = {"version": ENGINE_VERSION, "coverage": [START, END], "sites": sites, "manifest": manifest, "demo": demo}
+    _write_bundle(bundle, output)
+
+
+def _write_bundle(bundle, output):
+    manifest = bundle["manifest"]
     manifest["bundleSha256"] = sha256(_canonical(bundle)).hexdigest()
     manifest["bundleHashConvention"] = (
         "SHA-256 of UTF-8 minified JSON with ASCII escapes and recursively sorted keys, "
@@ -227,6 +233,6 @@ if __name__ == "__main__":
     parser.add_argument("--horizons-validation", type=Path, default=Path("web/data/horizons-validation.json"))
     parser.add_argument("--out", type=Path, default=Path("web/data/bundle.json"))
     parser.add_argument("--demo", type=Path, default=Path("web/data/demo.json"))
-    parser.add_argument("--engine-commit")
+    parser.add_argument("--engine-commit", default=ENGINE_COMMIT)
     args = parser.parse_args()
     build(args.raw, args.horizons_validation, args.out, args.demo, args.engine_commit)

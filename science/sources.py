@@ -5,7 +5,6 @@ import json
 import re
 import time
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime, timezone
 from functools import partial
 from hashlib import file_digest
 from pathlib import Path
@@ -45,6 +44,18 @@ SHA256 = {
     "moon_pa_de440_200625.bpc": "60cd55aa401ea2ea97360636f567554bfe4e37bb829f901b4460a455dfaf783f",
     "moon_de440_250416.tf": "a47c71e9c9f33796bdafb2c9d69a7ee447b6016ecad80f71cd6f3e479f9cf768",
     "naif0012.tls": "678e32bdb5a744117a467cd9601cd6b373f0e9bc9bbde1371d5eee39600a039b",
+}
+# Original local acquisition timestamps from the verified November release.
+# Preserve provenance on rebuilds when newly downloaded bytes match the pins.
+ACQUIRED_UTC = {
+    REGIONAL: "2026-11-14T06:12:13.494318+00:00",
+    "Site01_final_adj_5mpp_surf.tif": "2026-11-14T06:14:21.992905+00:00",
+    "Site04_final_adj_5mpp_surf.tif": "2026-11-14T06:14:39.661391+00:00",
+    "Site11_final_adj_5mpp_surf.tif": "2026-11-14T06:14:33.327541+00:00",
+    "de440s.bsp": "2026-11-14T06:12:27.445103+00:00",
+    "moon_pa_de440_200625.bpc": "2026-11-14T06:12:32.300673+00:00",
+    "moon_de440_250416.tf": "2026-11-14T06:12:28.191050+00:00",
+    "naif0012.tls": "2026-11-14T06:12:27.991396+00:00",
 }
 
 
@@ -119,7 +130,7 @@ def source_manifest(root):
             "citation": citation,
             "bytes": size,
             "sha256": checksum,
-            "local_file_acquired_utc": datetime.fromtimestamp(stat.st_mtime, timezone.utc).isoformat(),
+            "local_file_acquired_utc": ACQUIRED_UTC[name],
             "product_version": re.sub(r"\.[^.]+$", "", name),
             "use": "DE421 ME radial-height raster in metres" if name.lower().endswith(".tif") else "JPL SPICE kernel",
             "access": "NASA public archive. Cite the publisher and linked product.",

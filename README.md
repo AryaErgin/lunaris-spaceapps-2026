@@ -16,15 +16,18 @@ Open [LUNARIS](http://127.0.0.1:8000/) in a browser. The bundled data cover Nove
 
 Select a decision to see its timeline, hard-constraint margins and witness intervals. **Decision certificate** exports the inputs, results, search bounds, validation evidence, frame and source hashes. The default search stays at the selected study point. The prelaunch option allows comparison with the other sampled points.
 
+At de Gerlache Rim 1, **Observer-height sensitivity** re-evaluates the selected mission at 1 m, 2 m and 5 m above the same point. The three heights are illustrative design settings. An all-scenario pass applies only to those settings. The optional comparison leaves the Phase B recommendation intact and can be included in the downloaded certificate.
+
 ## Reproduce and verify
 
 ```sh
 python -m pip install -r requirements-build.txt pytest
 python -m science.sources
 python -m science.build
+python -m science.height_study
 python -m pytest -q
-node --test tests/engine.test.mjs
-node tests/test_ui.mjs
+node --test tests/engine.test.mjs tests/height.test.mjs
+node tests/test_ui.mjs --require-recovery --height
 ```
 
 The source download is about 358 MB. The browser test uses Node.js 24 and a local Chrome or Chromium installation. Set `LUNARIS_CHROME` to its executable if it is installed in a nonstandard location. [Bundled Horizons comparison](web/data/horizons-validation.json) records the exact reference queries, observer heights and numerical results. Run `python -m science.ephemerides --help` to repeat the reference comparison online. Build and raw-data dependencies are independent of the offline app.
