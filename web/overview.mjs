@@ -14,26 +14,53 @@ export function visibilitySummary(timeline, start, end) {
 
 // Transition ranges are numerical/model brackets, not precise physical event times.
 // A coverage gap interrupts inference; a cache edge never implies a future event.
-export function nextVisibilityEvents(timeline, instant, coverage) {
-  const result={loss:null,reacquisition:null,censored:false,coverageEnd:coverage[1]};
-  if(instant<coverage[0] || instant>=coverage[1]) return {...result,censored:true};
-  let previous=null, previousEnd=null, cursor=instant;
-  for(const [a,b,state] of timeline) {
-    if(b<=instant) continue;
-    if(a>=coverage[1]) break;
-    if(a>cursor || state==='unknown') { result.censored=true; break; }
-    if(state==='visible' || state==='blocked') {
-      if(previous && previous!==state) {
-        const key=state==='blocked' ? 'loss' : 'reacquisition';
-        if(!result[key]) result[key]=[Math.max(instant,previousEnd),a];
-      }
-      previous=state; previousEnd=b;
+function contiguousSegment(timeline, instant, coverage) {
+  let segment=[], previousEnd=null, containsInstant=false;
+  for(const [start,end,state] of timeline) {
+    const a=Math.max(start,coverage[0]), b=Math.min(end,coverage[1]);
+    if(b<=a) continue;
+    const qualified=['visible','blocked','uncertain'].includes(state);
+    if(!qualified || (previousEnd!==null && a!==previousEnd)) {
+      if(containsInstant) return segment;
+      segment=[]; previousEnd=null;
     }
-    cursor=Math.min(b,coverage[1]);
-    if(result.loss && result.reacquisition) break;
+    if(!qualified) continue;
+    segment.push([a,b,state]); previousEnd=b;
+    if(a<=instant && instant<b) containsInstant=true;
   }
-  if(!result.loss || !result.reacquisition) result.censored=true;
-  return result;
+  return containsInstant ? segment : [];
+}
+
+function transitionEvidence(timeline, instant, coverage) {
+  const events={loss:null,reacquisition:null};
+  if(instant<coverage[0] || instant>=coverage[1]) return events;
+  const episodes=[];
+  // Retain resolved history within this contiguous segment. It supplies the
+  // predecessor when the probe is already inside an uncertain transition.
+  for(const [a,b,state] of contiguousSegment(timeline,instant,coverage)) {
+    if(state==='uncertain') continue;
+    const previous=episodes.at(-1);
+    if(previous?.state===state) previous.runs.push([a,b]);
+    else episodes.push({state,runs:[[a,b]]});
+  }
+  for(let i=1;i<episodes.length;i++) {
+    const before=episodes[i-1], after=episodes[i];
+    const upper=after.runs[0][0];
+    // An exact transition at the probe is already reflected by its new state.
+    if(upper<=instant) continue;
+    const key=after.state==='blocked' ? 'loss' : 'reacquisition';
+    if(!events[key]) events[key]={
+      interval:[Math.max(instant,before.runs.at(-1)[1]),upper],
+      before:before.runs, after:after.runs,
+    };
+  }
+  return events;
+}
+
+export function nextVisibilityEvents(timeline, instant, coverage) {
+  const evidence=transitionEvidence(timeline,instant,coverage);
+  const loss=evidence.loss?.interval??null, reacquisition=evidence.reacquisition?.interval??null;
+  return {loss,reacquisition,censored:!loss||!reacquisition,coverageEnd:coverage[1]};
 }
 import {runMission} from './engine.mjs';
 export function compareSites(bundle, inputs) {
@@ -49,13 +76,33 @@ export function communicationDemo(bundle) {
 
 // Enclose matching first transitions from retained, coarse and fine caches.
 // Missing correspondence is not evidence of a precisely timed event.
+function sharedResolvedWitness(runSets) {
+ let shared=runSets[0];
+ for(const runs of runSets.slice(1)) {
+  const next=[];
+  let i=0,j=0;
+  while(i<shared.length && j<runs.length) {
+   const [a,b]=shared[i], [c,d]=runs[j], left=Math.max(a,c), right=Math.min(b,d);
+   if(left<right) next.push([left,right]);
+   if(b<=d)i++;
+   if(d<=b)j++;
+  }
+  shared=next;
+  if(!shared.length)return false;
+ }
+ return shared.length>0;
+}
+
 export function refinedEvents(site,channel,instant,coverage) {
  const timelines=[site[channel],site.refinementIntervals?.[channel]?.coarse,site.refinementIntervals?.[channel]?.fine];
- const results=timelines.map(t=>nextVisibilityEvents(t??[],instant,coverage));
+ const results=timelines.map(t=>transitionEvidence(t??[],instant,coverage));
  const out={loss:null,reacquisition:null,censored:true,coverageEnd:coverage[1],basis:'retained/coarse/fine event enclosure',unresolved:[]};
  for(const key of ['loss','reacquisition']) {
-  if(results.every(r=>r[key])) {
-   out[key]=[Math.min(...results.map(r=>r[key][0])),Math.max(...results.map(r=>r[key][1]))];
+  // Require common resolved-state witnesses on both sides of the selected
+  // episodes. A short timing separation alone cannot identify the same event.
+  const events=results.map(r=>r[key]);
+  if(events.every(Boolean) && sharedResolvedWitness(events.map(e=>e.before)) && sharedResolvedWitness(events.map(e=>e.after))) {
+   out[key]=[Math.min(...events.map(e=>e.interval[0])),Math.max(...events.map(e=>e.interval[1]))];
    if(out[key][1]-out[key][0]>=120)out.unresolved.push(key);
   }
  }

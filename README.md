@@ -18,7 +18,13 @@ The **Communication + joint-window demo** uses a 2-hour Earth blackout cap, 6 ho
 
 Select a decision to see its timeline, hard-constraint margins and witness intervals. **Decision certificate** exports the inputs, results, search bounds, validation evidence, frame and source hashes. The default search stays at the selected study point. The prelaunch option allows comparison with the other sampled points.
 
-The synchronized **local sky** shows both body centers against the terrain envelope using the existing keyboard-accessible time slider. It displays cached azimuth/elevation samples, not interpolated live observations. Event estimates enclose retained, coarse and fine crossings; missing correspondence is withheld and enclosures spanning two minutes or more are marked timing unresolved. The event display does not override mission-level refinement gates.
+The **mission-control console** animates the Sun and Earth centers against the curved terrain skyline, with Play, Pause, Reset, playback speed, a keyboard time slider and UTC jumping. Choose the selected mission or full November cache. Telemetry uses actual 30-minute geometry samples; trajectory lines and eased marker motion connect those samples for orientation. Playback stops at the domain's last sample. This is a schematic environment view, not a spacecraft trajectory or a scale rendering of either body's disc.
+
+Live telemetry shows sampled elevations and center-trace terrain clearance. Expand **Mission duration metrics** for qualified sunlight, Earth-center LOS, joint visibility and longest unavailable/operating runs. Duration ranges enclose retained, coarse and fine interval evaluations; they are not statistical confidence intervals. Transition estimates preserve uncertainty, withhold unresolved countdowns and stop at gaps or the cache boundary. The display does not override mission-level refinement gates.
+
+The **south-pole terrain atlas** is an offline derivative of NASA's regional LOLA DEM: a 128 km square south-polar stereographic crop reduced from 80 m source pixels to 200 m display pixels. Its artificial relief lighting does not represent sunlight at the selected UTC. Markers select the three cached study points. Clicking or entering other coordinates explores their location and reports unsupported terrain-aware calculations; valid pixels alone do not establish a validated horizon. [Map provenance](web/data/terrain-atlas.json) records the source and image hashes, frame, reduction, coverage and limitations.
+
+The **date/site feasibility matrix** compares all three points at 30 daily starts, using the nominal UTC time of day, fixed mission duration, unchanged hard limits and allowed start range. Select a cell for status, margins and warnings, then explicitly load that concept-study start. Missions crossing the cache boundary remain indeterminate. Certificates include this matrix, bounded metrics and the inspected geometry sample. **Explain this** panels cover polar horizons, Earth's apparent libration and delay recovery. Keyboard focus, responsive layouts and reduced-motion support are included.
 
 At de Gerlache Rim 1, **Observer-height sensitivity** re-evaluates the selected mission at 1 m, 2 m and 5 m above the same point. The three heights are illustrative design settings. An all-scenario pass applies only to those settings. The optional comparison leaves the Phase B recommendation intact and can be included in the downloaded certificate.
 
@@ -32,6 +38,7 @@ At de Gerlache Rim 1, **Observer-height sensitivity** re-evaluates the selected 
 python -m pip install -r requirements-build.txt pytest
 python -m science.sources --clones
 python -m science.build
+python -m science.atlas
 python -m science.height_study
 python -m science.position_study
 python -m science.terrain_study

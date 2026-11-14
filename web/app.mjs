@@ -1,5 +1,9 @@
-import { compareSites, communicationDemo, visibilitySummary, refinedEvents, skySnapshot } from './overview.mjs';
+import { compareSites, communicationDemo, visibilitySummary, refinedEvents } from './overview.mjs';
 import { makeCertificate, runMission } from './engine.mjs';
+import { feasibilityMatrix, missionMetrics } from './operations.mjs';
+import { playbackSamples, nearestSample, transitionCountdown, terrainClearance } from './playback.mjs';
+import { renderHorizon } from './horizon.mjs';
+import { createAtlas } from './atlas.mjs';
 
 const byId = (id) => document.getElementById(id);
 const form = byId('mission-form');
@@ -38,6 +42,13 @@ let target = 'sun';
 let chart;
 let lastPlotWidth;
 let isEdited = false;
+let atlas;
+let matrix;
+let currentTime = null;
+let inspectedMission;
+let playbackTimer;
+let playing = false;
+const metricCache = new WeakMap();
 const SENSITIVITY_STUDY_SITE = 'de-gerlache-rim';
 const studies = [
   { id: 'height', cases: 'heights', evaluator: 'evaluateHeights' },
@@ -176,6 +187,7 @@ function selectedMission() {
 }
 
 function selectDecision(value) {
+  pausePlayback();
   selected = value;
   for (const button of document.querySelectorAll('[data-decision]')) {
     button.setAttribute('aria-pressed', String(button.dataset.decision === String(value)));
@@ -446,6 +458,9 @@ function renderTimeline(mission) {
       piece.dataset.end = precise(end);
       track.append(piece);
     }
+    const playhead = element('span', 'timeline-playhead');
+    playhead.setAttribute('aria-hidden', 'true');
+    track.append(playhead);
     row.append(element('span', 'timeline-label', label), track);
     timeline.append(row);
   }
@@ -494,6 +509,7 @@ function updateProbe() {
   const { samples, x, line, azimuth, elevation, horizon, mission, skyline } = chart;
   const sample = samples[Number(byId('probe-slider').value)];
   if (!sample) return;
+  currentTime = sample[0];
   const position = x(sample[0]);
   line.setAttribute('x1', position);
   line.setAttribute('x2', position);
@@ -509,7 +525,15 @@ function updateProbe() {
   }
   byId('probe-output').textContent = details.join(' · ');
   byId('probe-slider').setAttribute('aria-valuetext', formatTime(sample[0]));
-  renderLocalSky(findSite(mission.siteId),sample,mission);
+  const site = findSite(mission.siteId);
+  byId('local-sky').style.setProperty('--sky-step-duration',`${playing?Math.min(180,1000/Number(byId('sky-speed').value)):180}ms`);
+  renderHorizon(byId('local-sky'),site,sample,mission,samples);
+  renderTelemetry(site,sample,mission);
+  for (const playhead of document.querySelectorAll('.timeline-playhead')) {
+    playhead.hidden = sample[0] < mission.start || sample[0] >= mission.end;
+    playhead.style.left = `${100*(sample[0]-mission.start)/(mission.end-mission.start)}%`;
+  }
+  byId('sky-jump').value = inputTime(sample[0]);
 }
 
 function renderPlot(mission) {
@@ -520,11 +544,17 @@ function renderPlot(mission) {
   plot.replaceChildren();
   byId('local-sky').replaceChildren();
   const site = findSite(mission.siteId);
-  const samples = (site?.geometry ?? []).filter(([time]) => time >= mission.start && time <= mission.end);
+  const scope = byId('time-scope').value;
+  const samples = playbackSamples(site,mission,bundle.coverage,scope);
+  const domain = scope === 'coverage' ? bundle.coverage : [Math.max(mission.start,bundle.coverage[0]),Math.min(mission.end,bundle.coverage[1])];
   const [azimuth, elevation, horizon] = target === 'sun' ? [1, 2, 3] : [4, 5, 6];
   byId('plot-subtitle').textContent = `${site?.name ?? mission.siteId} · ${shortTime(mission.start)} to ${shortTime(mission.end)}`;
-  if (samples.length < 2) {
+  if (samples.length === 0) {
+    pausePlayback();
     plot.append(element('p', 'plot-empty', 'This mission does not contain enough cached geometry samples for a curve. Inspect the computed intervals below.'));
+    byId('live-telemetry').replaceChildren(element('p','secondary','No sampled geometry inside this mission and cache intersection. Interval-based mission evidence remains below.'));
+    byId('playback-status').textContent = 'No cached geometry in the selected time domain. Try full data coverage.';
+    byId('sky-play').disabled = true;
     return;
   }
 
@@ -551,7 +581,7 @@ function renderPlot(mission) {
   const bottom = height - 8;
   const svg = svgElement('svg', { viewBox: `0 0 ${width} ${height}`, role: 'img' });
   svg.setAttribute('aria-label', `${target === 'sun' ? 'Sun' : 'Earth'} elevation and terrain horizon in degrees over the selected mission window`);
-  const x = (time) => left + (right - left) * (time - mission.start) / (mission.end - mission.start);
+  const x = (time) => left + (right - left) * (time - domain[0]) / (domain[1] - domain[0]);
   const y = (value) => bottom - (bottom - top) * (value - lower) / (upper - lower);
   for (const vertical of [0, .25, .5, .75, 1]) {
     const position = left + vertical * (right - left);
@@ -570,12 +600,16 @@ function renderPlot(mission) {
   const line = svgElement('line', { x1: left, x2: left, y1: top, y2: bottom, class: 'plot-probe' });
   svg.append(line);
   const labels = element('div', 'axis-labels');
-  labels.append(element('span', '', shortTime(mission.start)), element('span', '', shortTime(mission.end)));
+  labels.append(element('span', '', shortTime(domain[0])), element('span', '', shortTime(domain[1])));
   plot.append(svg, labels, chartLegend());
-  chart = { samples, x, line, azimuth, elevation, horizon, mission, skyline: site.terrain?.skyline };
+  chart = { samples, x, line, azimuth, elevation, horizon, mission, domain, skyline: site.terrain?.skyline };
   probe.hidden = false;
   byId('probe-slider').max = samples.length - 1;
-  byId('probe-slider').value = Math.floor((samples.length - 1) / 2);
+  byId('probe-slider').value = currentTime===null ? 0 : nearestSample(samples,currentTime,domain) ?? 0;
+  byId('sky-play').disabled = isEdited || samples.length<2;
+  byId('sky-jump').min = inputTime(domain[0]);
+  byId('sky-jump').max = inputTime(samples.at(-1)[0]);
+  if(!playing) byId('playback-status').textContent = 'Paused · actual cached samples at 30-minute cadence. Use arrow keys to step. Geometry display does not refine interval decisions.';
   updateProbe();
 }
 
@@ -583,6 +617,7 @@ function renderInspection() {
   renderVisibilityOverview();
   const mission = selectedMission();
   if (!mission) return;
+  if(inspectedMission!==mission) {pausePlayback();currentTime=null;inspectedMission=mission;}
   const site = findSite(mission.siteId);
   const sources = byId('terrain-provenance');
   const { local, regional } = site?.terrain?.fine ?? {};
@@ -594,6 +629,8 @@ function renderInspection() {
   renderConstraints(mission);
   renderPlot(mission);
   renderTimeline(mission);
+  updateProbe();
+  atlas?.setSelected(mission.siteId);
   for (const study of studies) resetStudy(study, mission);
 }
 
@@ -736,6 +773,7 @@ function evaluate() {
     renderComparison();
     renderAlternatives();
     renderInspection();
+    renderFeasibility();
     byId('form-status').textContent = '';
     byId('results').setAttribute('aria-busy', 'false');
     exportButton.disabled = false;
@@ -756,14 +794,25 @@ function chooseTarget(value) {
 async function downloadCertificate() {
   exportButton.disabled = true;
   const requestedInputs = inputs;
+  const requestedResult = result;
+  const requestedMatrix = matrix;
   const mission = selectedMission();
+  const requestedTime = currentTime;
+  const requestedSample = chart?.samples.find(row=>row[0]===requestedTime)?.slice();
+  const inspection = requestedSample ? {sample_utc:requestedTime,sample:requestedSample,geometry_cadence_seconds:1800,
+    basis:'Actual cached geometry sample; sampled center-trace clearance does not establish a visibility decision.',
+    events:Object.fromEntries(['sun','earth'].map(key=>[key,refinedEvents(findSite(mission.siteId),key,requestedTime,bundle.coverage)]))} : null;
   const evidence = Object.fromEntries(studies
     .filter(({ panel, report }) => panel.open && report?.inputs === requestedInputs && report.mission === mission)
     .map(({ id, report }) => [id, studyCertificate(report)]));
   try {
-    const certificate = await makeCertificate(bundle, requestedInputs, result);
+    const certificate = await makeCertificate(bundle, requestedInputs, requestedResult);
     certificate.same_input_site_comparison = compareSites(bundle, requestedInputs);
     certificate.visibility_summary = missionOverview(mission);
+    certificate.inspected_mission = {siteId:mission.siteId,start:mission.start,end:mission.end,status:mission.status};
+    certificate.mission_visibility_metrics = missionMetrics(mission,findSite(mission.siteId));
+    certificate.date_site_comparison = requestedMatrix;
+    if(inspection) certificate.display_inspection=inspection;
     if (evidence.position) certificate.position_study = evidence.position;
     if (evidence.terrain) certificate.terrain_study = evidence.terrain;
     if (evidence.height) {
@@ -794,10 +843,14 @@ form.addEventListener('submit', (event) => {
 form.addEventListener('input', () => {
   if (!result) return;
   isEdited = true;
+  pausePlayback();
+  byId('sky-play').disabled = true;
   exportButton.disabled = true;
   for (const study of studies) resetStudy(study, selectedMission());
   byId('site-comparison').replaceChildren(element('p', '', 'Inputs changed. Evaluate to refresh the comparison.'));
   byId('visibility-overview').replaceChildren(element('p', '', 'Inputs changed. Evaluate to refresh visibility metrics.'));
+  byId('feasibility-grid').replaceChildren(element('p','','Inputs changed. Evaluate to refresh the date/site matrix.'));
+  byId('live-telemetry').replaceChildren(element('p','secondary','Inputs changed. Evaluate to refresh telemetry. The chart shows the previous evaluated mission.'));
   byId('form-status').textContent = 'Evaluate the updated inputs to refresh the decisions.';
 });
 byId('communication-demo').addEventListener('click', () => loadDemo(true));
@@ -809,7 +862,15 @@ byId('reset-demo').addEventListener('click', () => {
 });
 byId('view-sun').addEventListener('click', () => chooseTarget('sun'));
 byId('view-earth').addEventListener('click', () => chooseTarget('earth'));
-byId('probe-slider').addEventListener('input', updateProbe);
+byId('probe-slider').addEventListener('input', () => {pausePlayback();updateProbe();});
+byId('sky-play').addEventListener('click',startPlayback);
+byId('sky-pause').addEventListener('click',() => pausePlayback());
+byId('sky-reset').addEventListener('click',() => {pausePlayback('Reset to the first cached sample in this domain.');byId('probe-slider').value=0;updateProbe();});
+byId('sky-speed').addEventListener('change',() => {if(playing) {pausePlayback();startPlayback();}});
+byId('time-scope').addEventListener('change',() => {pausePlayback();if(result) renderPlot(selectedMission());});
+byId('sky-jump-go').addEventListener('click',jumpPlayback);
+byId('sky-jump').addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();jumpPlayback();}});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)pausePlayback();});
 byId('interval-details').addEventListener('toggle', () => { if (result) renderIntervalList(); });
 byId('interval-channel').addEventListener('change', () => { if (result) renderIntervalList(); });
 for (const study of studies) {
@@ -860,6 +921,18 @@ async function initialize() {
       comparison.hidden = false;
     }
     loadDemo();
+    try {
+      atlas=await createAtlas({bundle,mapRoot:byId('site-map'),sitesRoot:byId('map-sites'),
+        coordinateForm:byId('coordinate-form'),feedback:byId('coordinate-feedback'),
+        onSelect:siteId=>{
+          // Explicit map selection starts a new concept-study mission at that point.
+          byId('site').value=siteId;updateSiteDetail();pausePlayback();evaluate();
+        }});
+      atlas.setSelected(selectedMission().siteId);
+    } catch(error) {
+      byId('site-map').textContent=`Terrain atlas unavailable: ${error.message}. Study-point mission calculations remain available.`;
+      byId('coordinate-feedback').textContent='Coordinate exploration requires the atlas metadata; no unsupported calculations are available.';
+    }
   } catch (error) {
     byId('load-error').hidden = false;
     byId('load-error').textContent = `The offline demo could not load. Start the local server from the project folder and reopen this page. ${error.message}`;
@@ -890,6 +963,12 @@ function renderComparison() {
     const line=element('p','comparison-metric',`${title}: ${hours(m.visible/3600)} confirmed; ${hours((m.uncertain+m.unknown)/3600)} unresolved`);
     line.dataset.phase=key;line.dataset.channel=channel;line.dataset.visibleSeconds=m.visible;card.append(line);
    }
+   const bounded=missionMetrics(mission,findSite(row.siteId));
+   for(const [channel,metric,title] of [['sun','longestBlockedRangeSeconds','Longest sunlight-unqualified'],['earth','longestBlockedRangeSeconds','Longest Earth blockage'],['joint','longestVisibleRangeSeconds','Longest joint opportunity']]) {
+    const range=bounded[channel][metric],line=element('p','comparison-metric',`${title}: ${durationRange(range)}`);
+    line.dataset.phase=key;line.dataset.metric=`${channel}-${metric}`;line.dataset.lower=range[0];line.dataset.upper=range[1];card.append(line);
+   }
+   card.append(element('p','telemetry-note',`Duration ranges enclose retained/coarse/fine models · refinement ${bounded.refinementStatus}.`));
   }
   root.append(card);
  }
@@ -902,52 +981,145 @@ function renderVisibilityOverview() {
   const summary=overview[channel],m=summary.seconds,card=element('article','comparison-card');card.dataset.channel=channel;
   card.append(element('h3','',title));
   card.append(element('p','',`${hours(m.visible/3600)} confirmed visible / ${hours(m.blocked/3600)} blocked / ${hours((m.unknown+m.uncertain)/3600)} unresolved within this mission.`));
-  if(summary.events) for(const [key,label] of [['loss','Next loss'],['reacquisition','Next reacquisition']]) {
+  if(summary.events) for(const [key,label] of [['loss','Next established loss'],['reacquisition','Next established reacquisition']]) {
    const interval=summary.events[key];
    card.append(element('p','event-time',`${label}: ${interval ? interval[0]===interval[1] ? formatTime(interval[0])+' (cached transition)' : formatTime(interval[0])+' to '+formatTime(interval[1])+' (retained/coarse/fine enclosure'+(summary.events.unresolved.includes(key)?'; timing unresolved':'')+')' : 'not established in remaining contiguous cache; not a guarantee of continuous visibility'}`));
   }
   root.append(card);
  }
- root.append(element('p','secondary',`Events are measured from the selected mission start, may lie after its end, and stop at missing data or ${formatTime(bundle.coverage[1])}. Brackets retain crossing uncertainty; DEM resolution and refinement limitations still apply.`));
+ root.append(element('p','secondary',`Established resolved-state events are measured from the selected mission start, may lie after its end, and stop at missing data or ${formatTime(bundle.coverage[1])}. Earlier uncertain pockets may conceal additional unproved crossings. Brackets retain crossing uncertainty; DEM resolution and refinement limitations still apply.`));
 }
 
-function renderLocalSky(site,sample,mission) {
- const root=byId('local-sky');root.replaceChildren();
- const snapshot=skySnapshot(site,sample,mission);root.dataset.time=snapshot.time;
- root.append(element('h3','','Your local sky: Sun and Earth together'));
- root.append(element('p','secondary',`${formatTime(sample[0])} at ${site.name}. Horizontal position is compass bearing clockwise from north; vertical position is height above the level horizon. This is a schematic, not a photograph. Use the time slider or its arrow keys.`));
- const rows=site.terrain?.skyline??[];
- const vals=rows.flatMap(r=>r.slice(1,4)).concat([snapshot.sun.elevation,snapshot.earth.elevation]).filter(v=>Number.isFinite(v)&&v>-89);
- const low=Math.min(-3,...vals)-0.5,high=Math.max(5,...vals)+0.5;
- const x=a=>45+a*810/360,y=e=>245-(e-low)*210/(high-low);
- const svg=svgElement('svg',{viewBox:'0 0 900 285',role:'img','aria-label':'Synchronized Sun and Earth centers against terrain skyline and its uncertainty envelope'});
- for(const [a,label]of [[0,'N 0°'],[90,'E 90°'],[180,'S 180°'],[270,'W 270°'],[360,'N 360°']]) {
-  svg.append(svgElement('line',{x1:x(a),x2:x(a),y1:25,y2:245,class:'plot-axis'}));
-  const t=svgElement('text',{x:x(a),y:270,'text-anchor':'middle'});t.textContent=label;svg.append(t);
- }
- for(const e of [low,0,high]) {
-  svg.append(svgElement('line',{x1:45,x2:855,y1:y(e),y2:y(e),class:e===0?'plot-axis plot-zero':'plot-axis'}));
-  const t=svgElement('text',{x:40,y:y(e)+4,'text-anchor':'end'});t.textContent=number.format(e)+'°';svg.append(t);
- }
- // Retain all sectors; no smoothing or invented interpolation over absent sectors.
- for(let i=0;i<rows.length;i++) {
-  const r=rows[i],right=i+1<rows.length?rows[i+1][0]:360;
-  if(!Number.isFinite(r[1])||!Number.isFinite(r[2]))continue;
-  svg.append(svgElement('rect',{x:x(r[0]),y:y(r[2]),width:Math.max(0,x(right)-x(r[0])),height:Math.max(0,y(r[1])-y(r[2])),class:'sky-envelope'}));
-  if(Number.isFinite(r[3]))svg.append(svgElement('line',{x1:x(r[0]),x2:x(right),y1:y(r[3]),y2:y(r[3]),class:'plot-curve plot-horizon'}));
- }
- for(const [key,label]of [['sun','Sun center'],['earth','Earth center']]) {
-  const d=snapshot[key];
-  if(d.azimuth!==null&&d.elevation!==null) {
-   svg.append(svgElement('circle',{cx:x(d.azimuth),cy:y(d.elevation),r:6,class:'sky-'+key}));
-   const t=svgElement('text',{x:Math.min(800,Math.max(95,x(d.azimuth))),y:y(d.elevation)+(key==='sun'?-12:22),'text-anchor':'middle'});t.textContent=label;svg.append(t);
+function pausePlayback(message) {
+  if(!message && playing) message='Paused · inspect cached samples with the time slider or arrow keys.';
+  clearTimeout(playbackTimer); playing=false;
+  byId('sky-play')?.setAttribute('aria-pressed','false');
+  if(message && byId('playback-status')) byId('playback-status').textContent=message;
+}
+
+function startPlayback() {
+  if(!chart || isEdited || chart.samples.length<2) return;
+  pausePlayback();
+  const slider=byId('probe-slider');
+  if(Number(slider.value)>=chart.samples.length-1) slider.value=0;
+  playing=true;byId('sky-play').setAttribute('aria-pressed','true');
+  byId('playback-status').textContent=`Playing cached 30-minute samples · ${byId('sky-speed').selectedOptions[0].textContent}. Stops at this domain's final sample.`;
+  const tick=()=>{
+    if(!playing || !chart || isEdited) return;
+    if(Number(slider.value)>=chart.samples.length-1) {
+      pausePlayback('Playback ended at the last cached sample in this domain. No geometry extrapolated.');return;
+    }
+    slider.value=Number(slider.value)+1;updateProbe();
+    playbackTimer=setTimeout(tick,1000/Number(byId('sky-speed').value));
+  };
+  updateProbe();playbackTimer=setTimeout(tick,1000/Number(byId('sky-speed').value));
+}
+
+function jumpPlayback() {
+  if(!chart || isEdited) return;
+  pausePlayback();
+  const time=Date.parse(`${byId('sky-jump').value}Z`)/1000;
+  const index=nearestSample(chart.samples,time,chart.domain);
+  if(index===null) {
+    byId('playback-status').textContent='This UTC time is outside the selected cached domain. No extrapolated positions are available.';return;
   }
- }
- root.append(svg);
- const fmt=v=>v===null?'unknown':number.format(v)+'°';
- for(const [key,label]of [['sun','Sun'],['earth','Earth']]) {
-  const d=snapshot[key],line=element('p','sky-metric',`${label}: bearing ${fmt(d.azimuth)}, elevation ${fmt(d.elevation)}, terrain center trace ${fmt(d.horizon)}. Retained interval: ${stateNames[d.state]??d.state}.`);
-  line.dataset.target=key;line.dataset.azimuth=d.azimuth??'';line.dataset.elevation=d.elevation??'';root.append(line);
- }
- root.append(element('p','secondary',`Shaded band is the sampled terrain envelope, not a guarantee about unresolved far-field coverage; markers are sampled body centers, not discs. Interval decisions include crossing uncertainty and refinement checks, so a marker alone cannot establish PASS. Mission refinement: ${snapshot.refinement}. Source: bundled NASA LRO/LOLA terrain and SPICE geometry; no live observation or RF/power simulation.`));
+  byId('probe-slider').value=index;updateProbe();
+  byId('playback-status').textContent=`Jumped to nearest actual cached sample: ${formatTime(currentTime)}. Ties choose the earlier sample; geometry cadence is 30 minutes.`;
+}
+
+function durationRange(range) {
+  return Math.abs(range[1]-range[0])<1e-6 ? hours(range[0]/3600) : `${hours(range[0]/3600)}–${hours(range[1]/3600)}`;
+}
+
+function renderTelemetry(site,sample,mission) {
+  if(isEdited) return;
+  const root=byId('live-telemetry');root.replaceChildren();root.dataset.time=sample[0];
+  let metrics=metricCache.get(mission);
+  if(!metrics) {metrics=missionMetrics(mission,site);metricCache.set(mission,metrics);}
+  const grid=element('div','telemetry-grid');
+  for(const [id,label,value,note] of [
+    ['sun-elevation','Solar-center elevation',sample[2],'Above local radial level'],
+    ['earth-elevation','Earth-center elevation',sample[5],'Apparent topocentric center'],
+    ['sun-clearance','Sun terrain clearance',terrainClearance(sample,'sun'),'Center elevation minus DEM center trace'],
+    ['earth-clearance','Earth terrain clearance',terrainClearance(sample,'earth'),'Center trace; interval status governs visibility'],
+  ]) {
+    const card=element('article',`telemetry-card ${id.startsWith('sun')?'sun':'earth'}`);card.dataset.metric=id;
+    card.dataset.value=precise(value);
+    card.append(element('span','telemetry-label',label),element('strong','telemetry-value',Number.isFinite(value)?`${value.toFixed(2)}°`:'Unknown'),element('span','telemetry-note',note));
+    grid.append(card);
+  }
+  const durations=element('div','telemetry-grid duration-telemetry');
+  for(const [channel,key,label] of [
+    ['sun','visibleRangeSeconds','Qualified Sun-center time'],
+    ['sun','longestBlockedRangeSeconds','Longest sunlight-unqualified run'],
+    ['earth','visibleRangeSeconds','Earth-center LOS time'],
+    ['earth','longestBlockedRangeSeconds','Longest Earth obstruction'],
+    ['joint','visibleRangeSeconds','Total joint visibility'],
+    ['joint','longestVisibleRangeSeconds','Longest joint operating window'],
+  ]) {
+    const range=metrics[channel][key],card=element('article',`telemetry-card ${channel}`);
+    card.dataset.metric=`${channel}-${key}`;card.dataset.lower=range[0];card.dataset.upper=range[1];
+    card.append(element('span','telemetry-label',label),element('strong','telemetry-value',durationRange(range)),element('span','telemetry-note','Selected mission · retained/coarse/fine bounds'));
+    durations.append(card);
+  }
+  const events=element('div','telemetry-events');
+  for(const [channel,label] of [['sun','Sun'],['earth','Earth']]) {
+    const found=refinedEvents(site,channel,sample[0],bundle.coverage);
+    const line=element('p',`event-countdown ${channel}`);
+    line.append(element('strong','',`${label} established state changes · `));
+    for(const [key,title] of [['loss','loss'],['reacquisition','reacquisition']]) {
+      const countdown=transitionCountdown(found,key,sample[0]);
+      let text;
+      if(countdown.kind==='bounded') text=`${title} in ${durationRange(countdown.remaining)} (numerical enclosure)`;
+      else if(countdown.kind==='unresolved') text=`${title}: timing unresolved, ${shortTime(countdown.interval[0])} to ${shortTime(countdown.interval[1])}; countdown withheld`;
+      else text=`${title}: not established before a gap or cache end`;
+      const item=element('span','',text);item.dataset.channel=channel;item.dataset.event=key;item.dataset.kind=countdown.kind;
+      if(countdown.interval) {item.dataset.start=countdown.interval[0];item.dataset.end=countdown.interval[1];}
+      line.append(item, ' · ');
+    }
+    events.append(line);
+  }
+  const durationDetails=element('details','duration-details');
+  durationDetails.append(element('summary','','Mission duration metrics · 6 bounded values'),durations);
+  root.append(grid,durationDetails,events,element('p','telemetry-note',`Duration ranges are numerical/model enclosures, not physical confidence intervals. Mission refinement: ${metrics.refinementStatus}. Earlier uncertain pockets may conceal additional unproved crossings before the established state changes above. Sun-center qualification is not full-disc illumination or array power; Earth-center LOS is not a working communications link. Timelines retain their explicit unresolved intervals.`));
+}
+
+function renderFeasibility() {
+  const root=byId('feasibility-grid');root.replaceChildren();
+  matrix=feasibilityMatrix(bundle,inputs);
+  const scroll=element('div','heatmap-scroll');scroll.tabIndex=0;scroll.setAttribute('role','region');scroll.setAttribute('aria-label','Scrollable daily site feasibility table');
+  const table=element('table','feasibility-table'),head=element('thead'),header=element('tr');
+  const corner=element('th','','Study point / UTC day');corner.scope='col';header.append(corner);
+  for(const start of matrix.starts) {
+    const th=element('th','',new Date(start*1000).getUTCDate());th.scope='col';th.title=formatTime(start);header.append(th);
+  }
+  head.append(header);table.append(head);
+  const body=element('tbody');
+  const detail=element('div','heatmap-detail');detail.setAttribute('role','status');
+  detail.textContent='Select a cell to inspect its exact start, decision, constraint margins and warnings. Cross-site dates are prelaunch concept comparisons.';
+  for(const row of matrix.rows) {
+    const tr=element('tr');const label=element('th','',row.name);label.scope='row';tr.append(label);
+    for(const mission of row.cells) {
+      const td=element('td');
+      const button=element('button',`feasibility-cell status-${mission.status.toLowerCase()}`,{PASS:'P',FAIL:'F',INDETERMINATE:'?'}[mission.status]);
+      button.type='button';button.dataset.site=row.siteId;button.dataset.start=mission.start;button.dataset.status=mission.status;
+      const description=`${row.name}, ${formatTime(mission.start)}, ${mission.status}`;
+      button.title=description;button.setAttribute('aria-label',description);
+      button.addEventListener('click',()=>{
+        for(const active of root.querySelectorAll('[aria-pressed]')) active.setAttribute('aria-pressed','false');
+        button.setAttribute('aria-pressed','true');detail.replaceChildren();
+        const heading=element('p');heading.append(element('strong','',`${row.name} · ${shortTime(mission.start)} · `),statusChip(mission.status));detail.append(heading);
+        for(const c of mission.constraints) detail.append(element('p','secondary',`${constraintName(c.id)} · ${c.status} · ${hours(c.margin,true)} signed margin · ${durationRange(c.range.map(h=>h*3600))} modeled`));
+        for(const warning of [...mission.scheduleWarnings,...mission.coverageWarnings])detail.append(element('p','secondary',warning));
+        const use=element('button','outline','Use this site and start in concept study');use.type='button';
+        use.addEventListener('click',()=>{
+          byId('site').value=row.siteId;byId('nominal').value=inputTime(mission.start);updateSiteDetail();evaluate();selectDecision('nominal');
+          byId('console').scrollIntoView({block:'start'});
+        });detail.append(use);
+      });td.append(button);tr.append(td);
+    }
+    body.append(tr);
+  }
+  table.append(body);scroll.append(table);root.append(scroll,detail);
+  byId('feasibility-note').textContent=`${matrix.starts.length} dates × ${matrix.rows.length} sites · starts every ${matrix.stepHours} h at ${new Date(inputs.nominal*1000).toISOString().slice(11,19)} UTC · ${inputs.durationHours} h fixed mission. P = PASS, F = FAIL, ? = INDETERMINATE. All hard limits and the allowed start range remain unchanged. The last date may be censored by the cache end. ${matrix.basis}`;
 }

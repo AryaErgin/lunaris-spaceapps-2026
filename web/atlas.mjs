@@ -58,8 +58,8 @@ export async function createAtlas({bundle,mapRoot,sitesRoot,coordinateForm,feedb
   const metadata=await response.json(),document=mapRoot.ownerDocument;
   const {width,height,boundsM,spacingM}=metadata.display;
   const svg=svgNode(document,'svg',{viewBox:`0 0 ${width} ${height}`,role:'img',
-    'aria-labelledby':'atlas-title atlas-description',class:'terrain-map'});
-  svg.append(svgNode(document,'title',{id:'atlas-title'},'Lunar south-pole NASA LOLA terrain atlas'));
+    'aria-labelledby':'atlas-map-title atlas-description',class:'terrain-map'});
+  svg.append(svgNode(document,'title',{id:'atlas-map-title'},'Lunar south-pole NASA LOLA terrain atlas'));
   svg.append(svgNode(document,'desc',{id:'atlas-description'},
     'South polar stereographic map: zero east up, ninety east right. Shaded relief from NASA terrain, not actual sunlight. Select a numbered study-point button below; click elsewhere only to inspect unsupported coordinates.'));
   const defs=svgNode(document,'defs');

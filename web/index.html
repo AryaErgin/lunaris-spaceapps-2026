@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#101923">
+    <meta name="theme-color" content="#080e17">
     <meta name="description" content="Compare lunar south-pole surface conditions and replan a delayed landing using terrain-aware visibility.">
     <title>LUNARIS · Lunar Landing Site Navigator</title>
     <link rel="stylesheet" href="./styles.css">
@@ -21,17 +21,26 @@
           </svg>
           <span>LUNARIS</span>
         </a>
-        <a class="nav-link" href="#methods">Data &amp; methods <span aria-hidden="true">↘</span></a>
+        <nav class="main-nav" aria-label="Main navigation">
+          <a class="nav-link" href="#console">Console</a>
+          <a class="nav-link" href="#atlas">Study map</a>
+          <a class="nav-link" href="#compare">Compare</a>
+          <a class="nav-link" href="#methods">Evidence</a>
+        </nav>
+        <span class="mast-status"><i aria-hidden="true"></i> Offline mission control</span>
       </div>
     </header>
 
     <main id="top" class="container">
       <div class="intro">
         <div>
-          <p class="eyebrow">Lunar Landing Site Navigator</p>
+          <p class="eyebrow"><span class="section-code">SOUTH POLE /</span> Lunar Landing Site Navigator</p>
           <h1>Plan for a<br class="intro-break"> shifted landing.</h1>
           <p class="lede">Compare sunlight and Earth visibility at lunar south-pole study points. Set mission limits, impose a delay, and find the earliest sampled start that meets them.</p>
-          <a class="jump-results" href="#results-title">View landing decisions <span aria-hidden="true">↓</span></a>
+          <div class="intro-links">
+            <a class="jump-results" href="#console">Open mission console <span aria-hidden="true">↘</span></a>
+            <a class="setup-jump" href="#mission-form">Mission setup <span aria-hidden="true">↘</span></a>
+          </div>
         </div>
         <aside class="data-card" aria-labelledby="data-title">
           <p class="eyebrow" id="data-title">Offline data coverage</p>
@@ -101,6 +110,63 @@
         </form>
 
         <div id="results" aria-busy="true" class="results">
+          <section id="console" class="panel figure" aria-labelledby="plot-title">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">01 / Surface environment</p>
+                <h2 id="plot-title">Terrain &amp; visibility</h2>
+                <p id="plot-subtitle" class="secondary">Target elevations and terrain horizon during the selected mission.</p>
+              </div>
+              <div class="segmented" aria-label="Target to display">
+                <button id="view-sun" type="button" aria-pressed="true">Sun</button>
+                <button id="view-earth" type="button" aria-pressed="false">Earth</button>
+              </div>
+            </div>
+            <div class="console-caption"><span><i class="target-dot sun" aria-hidden="true"></i> Sun</span><span><i class="target-dot earth" aria-hidden="true"></i> Earth center</span><span class="console-frame">LOCAL HORIZON / UTC</span></div>
+            <section id="local-sky" class="local-sky" aria-label="Local sky visualization"></section>
+            <div id="playback-controls" class="playback-controls" aria-label="Sky playback controls">
+              <div class="transport-buttons" role="group" aria-label="Playback">
+                <button id="sky-play" class="transport play" type="button" aria-label="Play sky animation" title="Play sky animation"><span aria-hidden="true">▶</span> Play</button>
+                <button id="sky-pause" class="transport" type="button" aria-label="Pause sky animation" title="Pause sky animation"><span aria-hidden="true">Ⅱ</span> Pause</button>
+                <button id="sky-reset" class="transport" type="button" aria-label="Reset playback to start" title="Reset playback to start"><span aria-hidden="true">↺</span> Reset</button>
+              </div>
+              <div class="playback-field">
+                <label for="sky-speed">Playback speed</label>
+                <select id="sky-speed"><option value="1">30 min/s</option><option value="4" selected>2 h/s</option><option value="12">6 h/s</option><option value="48">24 h/s</option></select>
+              </div>
+              <div class="playback-field">
+                <label for="time-scope">Time domain</label>
+                <select id="time-scope"><option value="mission">Selected mission</option><option value="coverage">Full data coverage</option></select>
+              </div>
+              <div class="playback-jump">
+                <label for="sky-jump">Jump to time <span>UTC</span></label>
+                <div><input id="sky-jump" type="datetime-local" step="1"><button id="sky-jump-go" class="transport" type="button">Go <span aria-hidden="true">→</span></button></div>
+              </div>
+            </div>
+            <p id="playback-status" class="playback-status" role="status">Preparing cached geometry for playback…</p>
+            <div id="time-probe" class="time-probe" hidden>
+              <label for="probe-slider">Inspect mission time</label>
+              <input type="range" id="probe-slider" min="0" max="1" step="1" value="0">
+              <output id="probe-output" for="probe-slider"></output>
+            </div>
+            <div id="live-telemetry" class="live-telemetry" aria-label="Current geometry telemetry"></div>
+            <div id="timeline" class="timeline"></div>
+            <details class="elevation-details">
+              <summary>Elevation trace <span>Inspect the selected target over time</span></summary>
+              <div id="plot" class="plot"></div>
+            </details>
+            <details id="interval-details" class="interval-details" hidden>
+              <summary>UTC visibility intervals</summary>
+              <label for="interval-channel">Visibility condition</label>
+              <select id="interval-channel">
+                <option value="sun">Sunlight</option>
+                <option value="earth">Earth center</option>
+                <option value="joint">Joint visibility</option>
+              </select>
+              <div id="interval-table" class="interval-table"></div>
+            </details>
+          </section>
+
           <section aria-labelledby="results-title">
             <div class="section-head">
               <h2 id="results-title">Landing decisions</h2>
@@ -112,7 +178,7 @@
             <div id="decision-summary" class="decision-summary" hidden></div>
           </section>
 
-          <section class="panel comparison" aria-labelledby="comparison-title">
+          <section id="compare" class="panel comparison" aria-labelledby="comparison-title">
             <h2 id="comparison-title">Three sites. Identical mission requirements.</h2>
             <p class="secondary">Concept-study comparison only. Same planned start, delay, duration and constraints at every site. This does not authorize changing a launched mission's landing site.</p>
             <div id="site-comparison" class="comparison-grid"></div>
@@ -121,35 +187,34 @@
             <h2 id="visibility-title">Visibility at a glance</h2>
             <div id="visibility-overview"></div>
           </section>
-          <section class="panel figure" aria-labelledby="plot-title">
-            <div class="panel-head">
-              <div>
-                <h2 id="plot-title">Terrain &amp; visibility</h2>
-                <p id="plot-subtitle" class="secondary">Target elevations and terrain horizon during the selected mission.</p>
-              </div>
-              <div class="segmented" aria-label="Target to display">
-                <button id="view-sun" type="button" aria-pressed="true">Sun</button>
-                <button id="view-earth" type="button" aria-pressed="false">Earth</button>
+
+
+          <section id="feasibility" class="panel feasibility" aria-labelledby="feasibility-title">
+            <div class="panel-head"><div><p class="eyebrow">02 / Landing opportunities</p><h2 id="feasibility-title">Find a window. Keep the mission.</h2></div><span class="panel-tag">SAMPLED STARTS</span></div>
+            <p id="feasibility-note" class="secondary">Feasibility is evaluated against the selected hard limits. Unresolved inputs remain indeterminate.</p>
+            <div id="feasibility-grid" class="feasibility-grid"></div>
+          </section>
+
+          <section id="atlas" class="panel atlas" aria-labelledby="atlas-title">
+            <div class="panel-head"><div><p class="eyebrow">03 / Lunar south pole</p><h2 id="atlas-title">Study point atlas</h2></div><span class="panel-tag">MOON-FIXED</span></div>
+            <p class="secondary">Explore the packaged study coordinates. A map location does not establish terrain coverage or a feasible landing.</p>
+            <div class="atlas-layout">
+              <div id="site-map" class="site-map" aria-label="Lunar south-pole study point map"></div>
+              <div class="atlas-controls">
+                <p class="eyebrow">Packaged study points</p>
+                <div id="map-sites" class="map-sites"></div>
+                <form id="coordinate-form" class="coordinate-form">
+                  <h3>Explore a coordinate</h3>
+                  <p class="field-hint">Planetocentric latitude north and longitude east, in degrees.</p>
+                  <div class="field-pair">
+                    <div><label for="explore-lat">Latitude <span>°N</span></label><input id="explore-lat" type="number" min="-90" max="90" step="any" placeholder="−89.0" required></div>
+                    <div><label for="explore-lon">Longitude <span>°E</span></label><input id="explore-lon" type="number" min="-180" max="360" step="any" placeholder="0.0" required></div>
+                  </div>
+                  <button class="outline" type="submit">Locate coordinate <span aria-hidden="true">↗</span></button>
+                  <p id="coordinate-feedback" class="coordinate-feedback" role="status"></p>
+                </form>
               </div>
             </div>
-            <div id="plot" class="plot"></div>
-            <div id="time-probe" class="time-probe" hidden>
-              <label for="probe-slider">Inspect mission time</label>
-              <input type="range" id="probe-slider" min="0" max="1" step="1" value="0">
-              <output id="probe-output" for="probe-slider"></output>
-            </div>
-            <section id="local-sky" class="local-sky" aria-label="Local sky visualization"></section>
-              <div id="timeline" class="timeline"></div>
-            <details id="interval-details" class="interval-details" hidden>
-              <summary>UTC visibility intervals</summary>
-              <label for="interval-channel">Visibility condition</label>
-              <select id="interval-channel">
-                <option value="sun">Sunlight</option>
-                <option value="earth">Earth center</option>
-                <option value="joint">Joint visibility</option>
-              </select>
-              <div id="interval-table" class="interval-table"></div>
-            </details>
           </section>
 
           <section class="panel constraints" aria-labelledby="constraints-title">
@@ -206,6 +271,15 @@
               <button id="run-terrains" class="outline" type="button" disabled>Evaluate terrain realizations</button>
               <p id="terrain-status" class="secondary" role="status"></p>
               <div id="terrain-results" hidden></div>
+            </div>
+          </details>
+
+          <details id="explain" class="panel explain">
+            <summary><span>Reading the lunar environment</span><small>What the geometry means for your mission</small></summary>
+            <div class="explain-grid">
+              <article><span class="explain-symbol sun" aria-hidden="true">☼</span><h3>Sunlight grazes the terrain</h3><p>Near the lunar south pole, the Sun stays close to the horizon. A ridge can hide it even when it is above the level horizon. Solar visibility is separate from the electrical power a particular array can generate.</p></article>
+              <article><span class="explain-symbol earth" aria-hidden="true">◎</span><h3>Earth moves in the local sky</h3><p>Lunar libration changes Earth’s direction above a fixed surface point. Terrain can block its center. Earth-center line of sight is geometric visibility; a working RF link also needs antennas, pointing, a link budget, and network availability.</p></article>
+              <article><span class="explain-symbol" aria-hidden="true">↻</span><h3>A delay changes the environment</h3><p>The same mission begins in a different sequence of light and blockage. Recovery searches later sampled starts at the same site while keeping the duration and hard constraints fixed. Cross-site comparison is a prelaunch concept study.</p></article>
             </div>
           </details>
         </div>

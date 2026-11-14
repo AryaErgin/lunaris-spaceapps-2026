@@ -16,7 +16,7 @@ assert(!(fixture && requestedStudies.length), 'Sensitivity studies require packa
 const workspace = process.cwd();
 const browserExecutable = process.env.LUNARIS_CHROME || (process.platform === 'win32'
   ? 'C:/Program Files/Google/Chrome/Application/chrome.exe' : 'chromium');
-const contents = { '.html': 'text/html', '.mjs': 'text/javascript', '.css': 'text/css', '.json': 'application/json' };
+const contents = { '.html': 'text/html', '.mjs': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.png': 'image/png' };
 const beginning = Date.parse('2027-01-01T00:00:00Z') / 1000;
 const coverage = [beginning, beginning + 10 * 86400];
 const mission = {
@@ -154,6 +154,19 @@ try {
   await browserEval("document.querySelector('#export').click()");
   const certificateFile = await until(async () => (await readdir(downloadPath)).find((name) => name.endsWith('.json')));
   const certificate = JSON.parse(await readFile(resolve(downloadPath, certificateFile), 'utf8'));
+  const { missionMetrics, feasibilityMatrix } = await import('../web/operations.mjs');
+  const exportedBundle = fixture ? fixtureBundle : JSON.parse(await readFile(resolve(workspace,'web/data/bundle.json'),'utf8'));
+  // New console evidence is bound to the explicitly exported inspected mission.
+  const selectedRecord = ['nominal_result','delayed_result','recommended_result'].map(key=>certificate[key])
+    .find(record=>record && record.siteId===certificate.inspected_mission.siteId && record.start===certificate.inspected_mission.start);
+  assert(selectedRecord,'Export must identify the inspected decision.');
+  assert.deepEqual(certificate.mission_visibility_metrics,
+    missionMetrics(selectedRecord,exportedBundle.sites.find(s=>s.id===selectedRecord.siteId)));
+  assert.deepEqual(certificate.date_site_comparison,feasibilityMatrix(exportedBundle,certificate.inputs));
+  const metricBounds=await browserEval(`[...document.querySelectorAll('#live-telemetry [data-lower]')].map(n=>[n.dataset.metric,Number(n.dataset.lower),Number(n.dataset.upper)])`);
+  for(const [name,lo,hi] of metricBounds) {
+    const [channel,key]=name.split('-');assert.deepEqual([lo,hi],certificate.mission_visibility_metrics[channel][key]);
+  }
   if (fixture || requireRecovery) assert.deepEqual(phases.map((phase) => actual[phase]?.status), ['PASS', 'FAIL', 'PASS']);
   const asEpoch = (label) => Date.parse(label.replace(' UTC', 'Z').replace(' ', 'T')) / 1000;
   const asHours = (label) => Number(label.replace(' h', '').replace('−', '-').replaceAll(',', ''));
@@ -372,7 +385,7 @@ try {
     assert.equal(compared.cards.length,3); assert.equal(new Set(compared.cards).size,3);
     assert.equal(compared.earth,'2'); assert.equal(compared.joint,'6');
     assert.deepEqual(compared.states,['PASS','FAIL','PASS']);
-    assert.match(compared.text,/Next loss/); assert.match(compared.text,/cache/);
+    assert.match(compared.text,/Next established loss/); assert.match(compared.text,/cache/);
     const {compareSites,visibilitySummary}=await import('../web/overview.mjs');
     const {communicationDemo}=await import('../web/overview.mjs');
     const b=JSON.parse(await readFile(resolve(workspace,'web/data/bundle.json'),'utf8'));
@@ -396,6 +409,63 @@ try {
       await screenshot('local-sky-mobile');
       assert(await browserEval('document.documentElement.scrollWidth <= innerWidth'));
       console.log('Comparison parity, binding communication demo and keyboard-synchronized sky passed.');
+  }
+  if(!fixture) {
+    await browserEval("document.querySelector('#reset-demo').click();document.querySelector('[data-decision=nominal]').click()");
+    await until(()=>browserEval("document.querySelectorAll('.atlas-site-button').length===3"));
+    const b=JSON.parse(await readFile(resolve(workspace,'web/data/bundle.json'),'utf8'));
+    const matrix=feasibilityMatrix(b,b.demo);
+    const matrixCells=await browserEval(`[...document.querySelectorAll('.feasibility-cell')].map(n=>[n.dataset.site,Number(n.dataset.start),n.dataset.status])`);
+    assert.deepEqual(matrixCells,matrix.rows.flatMap(row=>row.cells.map(m=>[row.siteId,m.start,m.status])));
+    assert.equal(matrixCells.length,90);
+    const playheadStyle=await browserEval("(()=>{const s=getComputedStyle(document.querySelector('.timeline-playhead'));return {position:s.position,width:parseFloat(s.width)}})()");
+    assert.equal(playheadStyle.position,'absolute');assert(playheadStyle.width>=1,'Timeline playhead must be visible.');
+    const raceFolder=resolve(work,'export-race');await mkdir(raceFolder,{recursive:true});
+    await command('Page.setDownloadBehavior',{behavior:'allow',downloadPath:raceFolder});
+    const capturedTime=await browserEval("Number(document.querySelector('#local-sky').dataset.time)");
+    await browserEval(`document.querySelector('#export').click();document.querySelector('#site').value='${b.sites[0].id}';document.querySelector('#nominal').value='2026-11-02T00:00:00';document.querySelector('#evaluate').click()`);
+    const raceFile=await until(async()=>(await readdir(raceFolder)).find(name=>name.endsWith('.json')));
+    const raceCertificate=JSON.parse(await readFile(resolve(raceFolder,raceFile),'utf8'));
+    assert.equal(raceCertificate.inputs.siteId,b.demo.siteId);
+    assert.deepEqual(raceCertificate.date_site_comparison,matrix);
+    assert.equal(raceCertificate.display_inspection.sample_utc,capturedTime);
+    assert.deepEqual(raceCertificate.display_inspection.sample,b.sites.find(s=>s.id===b.demo.siteId).geometry.find(row=>row[0]===capturedTime));
+    await browserEval("document.querySelector('#reset-demo').click();document.querySelector('[data-decision=nominal]').click()");
+    const priorSite=await browserEval("document.querySelector('#site').value");
+    await browserEval("document.querySelector('#explore-lat').value=-89;document.querySelector('#explore-lon').value=45;document.querySelector('#coordinate-form').requestSubmit()");
+    assert.match(await browserEval("document.querySelector('#coordinate-feedback').textContent"),/Unsupported terrain-aware calculation/);
+    assert.equal(await browserEval("document.querySelector('#site').value"),priorSite);
+    await browserEval("document.querySelector('.atlas-site-button').click()");
+    assert.equal(await browserEval("document.querySelector('#site').value"),b.sites[0].id);
+    await browserEval("document.querySelector('#reset-demo').click();document.querySelector('[data-decision=nominal]').click()");
+    const timeBefore=await browserEval("Number(document.querySelector('#local-sky').dataset.time)");
+    await browserEval("document.querySelector('#sky-speed').value=48;document.querySelector('#sky-play').click()");
+    await until(()=>browserEval(`Number(document.querySelector('#local-sky').dataset.time)>${timeBefore}`));
+    await browserEval("document.querySelector('#sky-pause').click()");
+    const paused=await browserEval("Number(document.querySelector('#local-sky').dataset.time)");await sleep(100);
+    assert.equal(await browserEval("Number(document.querySelector('#local-sky').dataset.time)"),paused);
+    assert.match(await browserEval("document.querySelector('#playback-status').textContent"),/Paused/);
+    await browserEval("document.querySelector('#time-scope').value='coverage';document.querySelector('#time-scope').dispatchEvent(new Event('change'))");
+    const jump='2026-11-20T10:10:00';
+    await browserEval(`document.querySelector('#sky-jump').value='${jump}';document.querySelector('#sky-jump-go').click()`);
+    const sampleTime=Date.parse('2026-11-20T10:00:00Z')/1000;
+    assert.equal(await browserEval("Number(document.querySelector('#local-sky').dataset.time)"),sampleTime);
+    assert(await browserEval("[...document.querySelectorAll('.timeline-playhead')].every(n=>n.hidden)"));
+    await browserEval("document.querySelector('#sky-jump').value='2026-12-01T00:00:00';document.querySelector('#sky-jump-go').click()");
+    assert.match(await browserEval("document.querySelector('#playback-status').textContent"),/outside/);
+    assert.equal(await browserEval("Number(document.querySelector('#local-sky').dataset.time)"),sampleTime);
+    await browserEval("document.querySelector('#probe-slider').value=document.querySelector('#probe-slider').max;document.querySelector('#probe-slider').dispatchEvent(new Event('input'))");
+    assert.equal(await browserEval("Number(document.querySelector('#local-sky').dataset.time)"),b.coverage[1]-1800);
+    await command('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]});
+    assert(await browserEval("getComputedStyle(document.querySelector('.figure'),'::before').animationName==='none'"),'Reduced motion must stop decorative star drift.');
+    await command('Emulation.setDeviceMetricsOverride',viewport);
+    await browserEval("document.querySelector('#time-scope').value='mission';document.querySelector('#time-scope').dispatchEvent(new Event('change'));document.querySelector('#console').scrollIntoView({block:'start'})");
+    await screenshot('mission-control-desktop');
+    await browserEval("document.querySelector('#atlas').scrollIntoView({block:'start'})");await screenshot('terrain-atlas-desktop');
+    await command('Emulation.setDeviceMetricsOverride',{width:390,height:840,deviceScaleFactor:1,mobile:false});
+    await browserEval("document.querySelector('#console').scrollIntoView({block:'start'})");await screenshot('mission-control-mobile');
+    assert(await browserEval('document.documentElement.scrollWidth<=innerWidth'));
+    console.log('Mission console playback/pause, UTC domain censoring, atlas selection/unsupported input, all 90 heatmap cells, metric/export parity and reduced motion passed.');
   }
   const appOrigin = new URL(url).origin;
   assert.deepEqual(requests.filter((resource) => /^https?:/.test(resource) && new URL(resource).origin !== appOrigin), []);

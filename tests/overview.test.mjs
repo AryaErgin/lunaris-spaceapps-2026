@@ -70,3 +70,45 @@ test('all real sites retain sampled Sun/Earth geometry and refinement event encl
   }
  }
 });
+
+test('an in-progress uncertainty bracket retains its preceding resolved state',()=>{
+ const timeline=[[0,10,'visible'],[10,20,'uncertain'],[20,30,'blocked'],[30,40,'uncertain'],[40,50,'visible']];
+ const loss=overview.nextVisibilityEvents(timeline,15,[0,50]);
+ assert.deepEqual(loss.loss,[15,20]);assert.deepEqual(loss.reacquisition,[30,40]);
+ const reacquisition=overview.nextVisibilityEvents(timeline,35,[0,50]);
+ assert.deepEqual(reacquisition.reacquisition,[35,40]);
+ assert.equal(overview.nextVisibilityEvents(timeline,20,[0,50]).loss,null);
+});
+
+test('uncertainty without a resolved predecessor never infers through an unknown interval or gap',()=>{
+ for(const prefix of [[[0,10,'visible'],[10,12,'unknown']],[[0,10,'visible']]]) {
+  const timeline=[...prefix,[12,20,'uncertain'],[20,30,'blocked']];
+  assert.equal(overview.nextVisibilityEvents(timeline,15,[0,30]).loss,null);
+ }
+ assert.equal(overview.nextVisibilityEvents([[0,10,'visible'],[10,20,'uncertain'],[25,30,'blocked']],15,[0,30]).loss,null);
+ const sameState=[[0,10,'visible'],[10,20,'uncertain'],[20,30,'visible'],[30,40,'blocked']];
+ assert.deepEqual(overview.nextVisibilityEvents(sameState,15,[0,40]).loss,[30,30]);
+});
+
+test('real Connecting Ridge lookups retain in-progress Earth loss and Sun reacquisition',()=>{
+ const site=bundle.sites.find(s=>s.id==='connecting-ridge');
+ for(const [channel,instant,key,end] of [
+  ['earth','2026-11-01T19:00:00Z','loss','2026-11-01T21:50:24Z'],
+  ['sun','2026-11-02T15:30:00Z','reacquisition','2026-11-02T17:28:16Z'],
+ ]) {
+  const time=Date.parse(instant)/1000, expected=[time,Date.parse(end)/1000];
+  assert.deepEqual(overview.nextVisibilityEvents(site[channel],time,bundle.coverage)[key],expected);
+  assert.deepEqual(overview.refinedEvents(site,channel,time,bundle.coverage)[key],expected);
+ }
+});
+
+test('refinement correspondence rejects first events belonging to different resolved episodes',()=>{
+ const retained=[[0,10,'visible'],[10,15,'blocked'],[15,20,'visible'],[20,50,'blocked']];
+ const later=[[0,20,'visible'],[20,50,'blocked']];
+ const site={sun:retained,refinementIntervals:{sun:{coarse:later,fine:later}}};
+ const result=overview.refinedEvents(site,'sun',0,[0,50]);
+ assert.equal(result.loss,null);assert.equal(result.censored,true);
+ // The cache disagreements are only ten seconds apart: a duration cutoff is not correspondence evidence.
+ assert.equal(overview.nextVisibilityEvents(retained,0,[0,50]).loss[0],10);
+ assert.equal(overview.nextVisibilityEvents(later,0,[0,50]).loss[0],20);
+});
