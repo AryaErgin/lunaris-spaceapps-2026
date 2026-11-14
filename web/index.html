@@ -49,7 +49,6 @@
           <button id="mode-orbital" type="button" aria-pressed="true">Orbital view</button>
           <button id="mode-surface" type="button" aria-pressed="false" disabled>Surface view</button>
           <button id="reset-orbit" type="button" title="Restore the familiar near-side Moon view">Reset view ↺</button>
-          <button id="moon-hd" type="button">Load HD detail</button>
         </div>
         <div class="scene-site-picker">
           <label for="visual-site">Landing study point</label>
@@ -59,9 +58,9 @@
           <div class="visual-date-controls"><input id="visual-arrival" type="datetime-local" step="1"><label class="visual-duration-field" for="visual-duration">Hours<input id="visual-duration" type="number" min="0.001" step="any" value="12" aria-label="Mission duration in hours"></label><button id="visual-date-go" class="outline" type="button">Apply</button></div>
         </div>
         <div id="surface-focus" class="surface-focus" role="group" aria-label="Surface camera direction" hidden>
-          <button id="focus-earth" type="button">Find Earth</button>
-          <button id="focus-sun" type="button">Find Sun</button>
-          <button id="focus-terrain" type="button">Look across terrain</button>
+          <button id="focus-earth" type="button">Look at Earth</button>
+          <button id="focus-sun" type="button">Look at Sun</button>
+          <button id="focus-terrain" type="button">Explore terrain</button>
         </div>
         <figure id="earth-inset" class="earth-inset" hidden><img src="./assets/earth-inset.jpg" loading="lazy" alt="Historical NASA Blue Marble globe composite; geographic face and phase are not registered to the simulated time."><figcaption>Historical Blue Marble composite.<br>Face and phase unregistered; not current weather.</figcaption><button id="close-earth-inset" type="button" aria-label="Close Earth image inset">×</button></figure>
         <div class="scene-caption"><span id="scene-mode-label">NASA LRO / ORBITAL EXPLORATION</span><span id="scene-clock">NOVEMBER 2026 · OFFLINE EVIDENCE</span></div>

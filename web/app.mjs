@@ -957,10 +957,6 @@ byId('hero-time').addEventListener('input',()=>{pausePlayback();byId('probe-slid
 for(const [id,target] of [['focus-earth','earth'],['focus-sun','sun'],['focus-terrain','site']])byId(id).addEventListener('click',()=>sceneController?.focus(target));
 byId('focus-earth').addEventListener('click',()=>{byId('earth-inset').hidden=true;});
 byId('close-earth-inset').addEventListener('click',()=>{earthReferenceRequested=false;byId('earth-inset').hidden=true;});
-byId('moon-hd').addEventListener('click',async()=>{
-  if(!sceneController)return;byId('moon-hd').disabled=true;byId('moon-hd').textContent='Loading 4K NASA detail…';
-  const loaded=await sceneController.loadHighDetail();byId('moon-hd').textContent=loaded?'4K NASA detail loaded':'HD unavailable';
-});
 for(const button of document.querySelectorAll('[data-story]'))button.addEventListener('click',()=>showGuidedPhase(button.dataset.story));
 byId('story-next').addEventListener('click',runRescueAction);
 byId('verified-demo').addEventListener('click',()=>{loadDemo();showGuidedPhase('nominal');enterSurface();});
@@ -1367,7 +1363,8 @@ function setExperienceMode(mode) {
   experienceMode=mode;
   byId('experience').dataset.mode=mode;
   for(const key of ['orbital','surface'])byId(`mode-${key}`).setAttribute('aria-pressed',String(key===mode));
-  byId('surface-focus').hidden=mode!=='surface';
+  byId('surface-focus').hidden=false;
+  byId('focus-terrain').textContent=mode==='surface'?'Explore terrain':'Focus study points';
   byId('scene-transport').hidden=false;
   byId('mission-story').hidden=false;
   byId('scene-mode-label').textContent=mode==='surface'?'NASA LOLA / SURFACE OBSERVER · DISPLAY FILL':'NASA LRO / ORBITAL EXPLORATION';

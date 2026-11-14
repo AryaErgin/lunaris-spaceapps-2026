@@ -4,7 +4,7 @@ import {createServer} from 'node:http';
 import {once} from 'node:events';
 import {mkdir,readFile,readdir,writeFile} from 'node:fs/promises';
 import {resolve,sep,extname} from 'node:path';
-import {bodyDirection,sceneFrame} from '../web/scene-model.mjs';
+import {bodyDirection,sceneFrame,localToMoonDirection} from '../web/scene-model.mjs';
 import {runMission} from '../web/engine.mjs';
 import {communicationDemo} from '../web/overview.mjs';
 
@@ -71,16 +71,28 @@ try{
     resources:await evaluate("performance.getEntriesByType('resource').map(r=>({name:r.name.split('/').pop(),bytes:r.transferSize,durationMs:r.duration}))")};
   assert(await evaluate("document.querySelector('#top').hidden"),'Opening experience must not show the engineering form wall.');
   assert(await evaluate("(()=>{const canvas=document.querySelector('#scene-mount').getBoundingClientRect();return document.querySelector('.experience-intro').getBoundingClientRect().right<=canvas.left&&document.querySelector('.scene-mode-switch').getBoundingClientRect().bottom<=canvas.top+1})()"),'Desktop orbital copy and controls must sit outside the canvas.');
-  assert(!requests.some(r=>/earth-color|terrain-.*\.bin/.test(r)),'Earth and surface meshes must load lazily.');
+  assert(!requests.some(r=>/terrain-.*\.bin/.test(r)),'Surface terrain must remain lazy while orbital bodies load.');
+  assert(info.orbital,'Orbital Sun and Earth direction context is missing.');
+  const orbitalSite=bundle.sites.find(s=>s.id===info.siteId),orbitalSample=orbitalSite.geometry.find(r=>r[0]===info.time);
+  for(const [key,az,el]of [['sun',1,2],['earth',4,5]]){
+    const expectedDirection=localToMoonDirection(orbitalSite,bodyDirection(orbitalSample[az],orbitalSample[el]));
+    assert(info.orbital[key].direction.every((v,i)=>Math.abs(v-expectedDirection[i])<1e-12),'Orbital directions must match the verified local-to-Moon transform.');
+  }
+  await until(async()=>(await inspect()).orbital.earth.textured);
+  await evaluate("document.querySelector('#focus-earth').click()");await until(async()=>(await inspect()).orbital.earth.inFrustum);
+  assert.equal((await inspect()).mode,'orbital');await screenshot('orbital-earth-desktop');
+  await evaluate("document.querySelector('#focus-sun').click()");await until(async()=>(await inspect()).orbital.sun.inFrustum);await screenshot('orbital-sun-desktop');
+  await evaluate("document.querySelector('#reset-orbit').click()");
+  await until(async()=>{const c=(await inspect()).camera;return c.position.every((v,i)=>Math.abs(v-c.overviewPosition[i])<1e-5);});
   for(const [width,height] of [[1024,768],[1440,900]]){
     await command('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:false});
     assert(await evaluate("(()=>{const n=document.querySelector('#story-next'),r=n.getBoundingClientRect();return r.bottom<=innerHeight&&document.elementFromPoint(r.left+r.width/2,r.top+r.height/2)?.closest('#story-next')===n&&document.documentElement.scrollWidth<=innerWidth})()"),`The mission action must remain usable at ${width}x${height}.`);
     await screenshot('orbital-'+width);
   }
   await command('Emulation.setDeviceMetricsOverride',desktop);
-  await evaluate("document.querySelector('#moon-hd').click()");
   await until(async()=>(await inspect()).moon.detail==='high');
-  assert((await inspect()).moon.textured,'The explicit 4K asset must become the live GPU Moon texture.');
+  assert((await inspect()).moon.textured,'Desktop quality must upgrade automatically to the live 4K NASA texture.');
+  assert.equal(await evaluate("document.querySelector('#moon-hd')"),null,'Judges should not need an HD button.');
   await screenshot('orbital-desktop');
   assert(await evaluate("(()=>{const result=document.querySelector('#story-status').getBoundingClientRect(),action=document.querySelector('#story-next').getBoundingClientRect();return result.top>=0&&result.bottom<=innerHeight&&action.bottom<=innerHeight})()"),'Mission outcome and primary action must be visible without scrolling at1366x768.');
   assert(await evaluate("(()=>{const n=document.querySelector('#story-next'),r=n.getBoundingClientRect();return document.elementFromPoint(r.left+r.width/2,r.top+r.height/2)?.closest('#story-next')===n})()"),'Primary action must not be overlapped by a site/date control.');
