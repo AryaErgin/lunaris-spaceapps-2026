@@ -563,25 +563,54 @@ function siteRecord(site) {
   };
 }
 
-export async function makeCertificate(bundle, inputs, result) {
+export async function makeCertificate(bundle, inputs, result, options = {}) {
+  // Capture the inspected decision before any digest yields to the UI. Neither
+  // later selections nor mutations of caller-owned reports can rewrite it.
+  ({ bundle, inputs, result, options } = structuredClone({ bundle, inputs, result, options }));
   const manifest = bundle.manifest ?? {};
-  const decision = result.recommended ?? result.delayed;
-  const site = siteRecord(bundle.sites.find(({ id }) => id === decision.siteId));
-  const comparedSites = bundle.sites.filter(({ id }) => [inputs.siteId, ...result.search.sites].includes(id));
+  const role = options.role ?? (result.recommended ? 'recommended' : 'delayed');
+  if (!['nominal', 'delayed', 'recommended', 'alternative'].includes(role)) {
+    throw new Error('The certificate selected role is not supported.');
+  }
+  const alternativeIndex = role === 'alternative' ? options.alternativeIndex : null;
+  if (role === 'alternative' && (!Number.isInteger(alternativeIndex) || alternativeIndex < 0 ||
+      alternativeIndex >= result.alternatives.length)) {
+    throw new Error('The certificate alternative index does not identify an inspected plan.');
+  }
+  const decision = role === 'alternative' ? result.alternatives[alternativeIndex] : result[role];
+  if (!decision) throw new Error(`The selected ${role} plan is unavailable for certificate export.`);
+  const selectedSite = bundle.sites.find(({ id }) => id === decision.siteId);
+  if (!selectedSite) throw new Error('The inspected plan has no study-point record in this bundle.');
+  const site = siteRecord(selectedSite);
+  const comparedSites = bundle.sites.filter(({ id }) =>
+    [inputs.siteId, decision.siteId, ...result.search.sites].includes(id));
   const missionInputs = Object.fromEntries(INPUT_KEYS.map((key) => [key, inputs[key]]));
-  const [inputHash, dataHash] = await Promise.all([
+  const [searchInputHash, dataHash] = await Promise.all([
     sha256(missionInputs), manifest.bundleSha256 ?? sha256(bundle),
   ]);
+  const selectedPlanFingerprint = await sha256({ data_bundle_hash: dataHash, selected_plan: decision });
+  const inputHash = await sha256({ search_input_hash: searchInputHash, selected_role: role,
+    selected_alternative_index: alternativeIndex, selected_plan_fingerprint: selectedPlanFingerprint });
   const created = new Date().toISOString();
   return {
-    certificate_version: '1.0',
+    certificate_version: '2.0',
     engine_version: ENGINE_VERSION,
-    engine_commit: null,
+    engine_commit: options.releaseSha ?? null,
+    application_release_sha: options.releaseSha ?? null,
+    public_url: options.publicUrl ?? null,
     bundle_engine_commit: manifest.engineCommit ?? null,
+    data_generator_commit: manifest.engineCommit ?? null,
     created_utc: created,
     input_hash: inputHash,
+    search_input_hash: searchInputHash,
+    selected_plan_fingerprint: selectedPlanFingerprint,
+    input_hash_semantics: 'SHA-256 of canonical JSON containing search_input_hash, selected_role, selected_alternative_index and selected_plan_fingerprint. The selected role is part of export identity. search_input_hash hashes the original search inputs; selected_plan_fingerprint hashes the complete selected computed plan and data_bundle_hash independently of its display role. Application release identity is recorded separately.',
     data_bundle_hash: dataHash,
     data_bundle_version: bundle.version,
+    selected_role: role,
+    selected_alternative_index: alternativeIndex,
+    selected_plan: decision,
+    status: decision.status,
     site_id: site.site_id,
     point_coordinates: site.point_coordinates,
     coordinate_source: site.coordinate_source,
@@ -591,6 +620,9 @@ export async function makeCertificate(bundle, inputs, result) {
     instrument_heights_m: { solar: site.instrument_height_m, earth_center_los: site.instrument_height_m },
     visibility_definitions: manifest.visibilityDefinitions ?? null,
     constraints: decision.constraints,
+    witness_intervals: decision.constraints.map((constraint) => ({
+      constraint_id: constraint.id, interval: constraint.witness, segments: constraint.witnessSegments ?? null,
+    })),
     candidate_search_bounds: { earliest_utc: utc(result.search.from), latest_utc: utc(result.search.to) },
     candidate_search_grid_minutes: result.search.gridMinutes,
     tie_break_policy: result.search.tieBreak,
@@ -602,6 +634,11 @@ export async function makeCertificate(bundle, inputs, result) {
     recommended_result: result.recommended,
     nondominated_alternatives: result.alternatives,
     delay_tolerance: result.delayTolerance,
+    delay_tolerance_scope: {
+      selected_role: 'nominal', site_id: result.nominal.siteId,
+      mission_start_utc: utc(result.nominal.start),
+      meaning: 'Connected feasible-start interval containing the original nominal start; hours measure delay from that original start. Exact and lower-bound fields are retained without reinterpretation. This is not a recovered or selected-plan tolerance; recovery tolerance was not computed for this export.',
+    },
     scenario_ids: [],
     scenario_results: [],
     robustness_scope: 'Single fixed observer per study point.',
@@ -614,6 +651,6 @@ export async function makeCertificate(bundle, inputs, result) {
       .flatMap((mission) => mission.coverageWarnings))],
     excluded_physics: manifest.limitations ?? [],
     validation: manifest.validation ?? null,
-    serialization: 'UTC ISO strings at millisecond display precision. Witness and interval timestamps are UTC seconds. Metrics and margins are hours. The creation timestamp varies between exports.',
+    serialization: 'UTC ISO strings at millisecond display precision. Witness and interval timestamps are UTC seconds. Metrics and margins are hours. Top-level identity, status, constraints and witnesses refer exclusively to selected_plan. inputs and search retain the original search configuration; separately named result records retain their own plan identities. engine_commit and application_release_sha identify the deployed application, when supplied; bundle_engine_commit and data_generator_commit identify the frozen data generator. The creation timestamp varies between exports.',
   };
 }

@@ -1,9 +1,10 @@
 import { compareSites, communicationDemo, visibilitySummary, refinedEvents } from './overview.mjs';
-import { makeCertificate, runMission } from './engine.mjs';
+import { makeCertificate, runMission, evaluateStart } from './engine.mjs';
 import { feasibilityMatrix, missionMetrics } from './operations.mjs';
 import { playbackSamples, nearestSample, transitionCountdown, terrainClearance } from './playback.mjs';
 import { renderHorizon } from './horizon.mjs';
 import { createAtlas } from './atlas.mjs';
+import { sceneFrame, missionStory } from './scene-model.mjs';
 
 const byId = (id) => document.getElementById(id);
 const form = byId('mission-form');
@@ -49,6 +50,25 @@ let inspectedMission;
 let playbackTimer;
 let playing = false;
 const metricCache = new WeakMap();
+let sceneController;
+let sceneLoading;
+let sceneDisabled=false;
+let latestSceneFrame;
+let visualSiteId;
+let guidedPhase='nominal';
+let experienceMode='orbital';
+let sceneIntent=0;
+let requestedExperienceMode='orbital';
+let productMode='explore';
+let applicationRelease={application_release_sha:null,public_url:null};
+let configurationRequest=0;
+let configurationReport;
+let configurationsRequested=false;
+let earthReferenceRequested=false;
+let rescueAnimation=0;
+const prefixCountCache=new WeakMap();
+let telemetryMission;
+let renderingNotes;
 const SENSITIVITY_STUDY_SITE = 'de-gerlache-rim';
 const studies = [
   { id: 'height', cases: 'heights', evaluator: 'evaluateHeights' },
@@ -131,9 +151,15 @@ function updateSiteDetail() {
     if (site.coordinateReference) link.title = site.coordinateReference;
     detail.append(link);
   }
+  const caution=siteCaution(site.id);if(caution)detail.append(element('p','',caution));
 }
 
-function loadDemo(communications = false) {
+function siteCaution(id){
+  const slope=renderingNotes?.sites.find(s=>s.siteId===id)?.slope;
+  return slope?.status==='COMPUTED'&&slope.slopeDeg>15?`Steep study point: ${slope.slopeDeg.toFixed(1)}° local DEM gradient. A region center, not an approved landing pad.`:'';
+}
+
+function loadDemo(communications = true) {
   const [start, end] = bundle.coverage;
   const fallbackDuration = Math.min(24, (end - start) / 3600);
   const demo = (communications ? communicationDemo(bundle) : bundle.demo) ?? {
@@ -153,6 +179,7 @@ function loadDemo(communications = false) {
   byId('latest').value = inputTime(demo.latest);
   byId('grid').value = demo.gridMinutes;
   byId('prelaunch').checked = demo.mode === 'prelaunch';
+  selected='nominal';
   updateSiteDetail();
   evaluate();
 }
@@ -193,6 +220,8 @@ function selectDecision(value) {
     button.setAttribute('aria-pressed', String(button.dataset.decision === String(value)));
   }
   renderInspection();
+  guidedPhase=typeof value==='string'?value:'recommended';
+  renderMissionStory();
 }
 
 function renderDecisions() {
@@ -534,6 +563,7 @@ function updateProbe() {
     playhead.style.left = `${100*(sample[0]-mission.start)/(mission.end-mission.start)}%`;
   }
   byId('sky-jump').value = inputTime(sample[0]);
+  updateExperienceFrame(site,sample,mission);
 }
 
 function renderPlot(mission) {
@@ -555,6 +585,12 @@ function renderPlot(mission) {
     byId('live-telemetry').replaceChildren(element('p','secondary','No sampled geometry inside this mission and cache intersection. Interval-based mission evidence remains below.'));
     byId('playback-status').textContent = 'No cached geometry in the selected time domain. Try full data coverage.';
     byId('sky-play').disabled = true;
+    latestSceneFrame={site,sample:null,states:{sun:'unknown',earth:'unknown'}};
+    sceneController?.setFrame(latestSceneFrame);
+    byId('hero-play').disabled=true;
+    byId('hero-time').disabled=true;
+    byId('hero-visibility').textContent='No cached geometry in the selected mission. Bodies are withheld; no position is extrapolated.';
+    byId('scene-clock').textContent='GEOMETRY UNAVAILABLE IN THIS MISSION';
     return;
   }
 
@@ -761,27 +797,33 @@ function studyCertificate(record) {
 }
 
 function evaluate() {
-  if (!form.reportValidity()) return;
+  if (!form.reportValidity()) {isEdited=true;invalidateExperience();exportButton.disabled=true;return false;}
   try {
     const nextInputs = readInputs();
     const nextResult = runMission(bundle, nextInputs);
+    cancelSceneEntry();
     isEdited = false;
     inputs = nextInputs;
     result = nextResult;
-    selected = result.delayed?.status === 'FAIL' ? 'delayed' : 'nominal';
+    if(typeof selected==='number'?!result.alternatives[selected]:!result[selected])selected='nominal';
+    guidedPhase=selected;
     renderDecisions();
     renderComparison();
     renderAlternatives();
     renderInspection();
     renderFeasibility();
+    renderMissionStory();
     byId('form-status').textContent = '';
     byId('results').setAttribute('aria-busy', 'false');
     exportButton.disabled = false;
+    return true;
   } catch (error) {
     isEdited = true;
+    invalidateExperience();
     if (result) for (const study of studies) resetStudy(study, selectedMission());
     byId('form-status').textContent = error instanceof Error ? error.message : 'The mission could not be evaluated.';
     exportButton.disabled = true;
+    return false;
   }
 }
 
@@ -796,6 +838,10 @@ async function downloadCertificate() {
   const requestedInputs = inputs;
   const requestedResult = result;
   const requestedMatrix = matrix;
+  const requestedConfigurations=configurationReport;
+  const requestedRole=typeof selected==='number'?'alternative':selected;
+  const requestedAlternativeIndex=typeof selected==='number'?selected:null;
+  const requestedRelease={...applicationRelease};
   const mission = selectedMission();
   const requestedTime = currentTime;
   const requestedSample = chart?.samples.find(row=>row[0]===requestedTime)?.slice();
@@ -806,12 +852,15 @@ async function downloadCertificate() {
     .filter(({ panel, report }) => panel.open && report?.inputs === requestedInputs && report.mission === mission)
     .map(({ id, report }) => [id, studyCertificate(report)]));
   try {
-    const certificate = await makeCertificate(bundle, requestedInputs, requestedResult);
+    const certificate = await makeCertificate(bundle, requestedInputs, requestedResult,{
+      role:requestedRole,alternativeIndex:requestedAlternativeIndex,
+      releaseSha:requestedRelease.application_release_sha,publicUrl:requestedRelease.public_url});
     certificate.same_input_site_comparison = compareSites(bundle, requestedInputs);
     certificate.visibility_summary = missionOverview(mission);
-    certificate.inspected_mission = {siteId:mission.siteId,start:mission.start,end:mission.end,status:mission.status};
+    certificate.inspected_mission = {role:requestedRole,alternativeIndex:requestedAlternativeIndex,siteId:mission.siteId,start:mission.start,end:mission.end,status:mission.status};
     certificate.mission_visibility_metrics = missionMetrics(mission,findSite(mission.siteId));
     certificate.date_site_comparison = requestedMatrix;
+    if(requestedConfigurations?.mission===mission&&requestedConfigurations.inputs===requestedInputs)certificate.one_factor_configurations=requestedConfigurations.report;
     if(inspection) certificate.display_inspection=inspection;
     if (evidence.position) certificate.position_study = evidence.position;
     if (evidence.terrain) certificate.terrain_study = evidence.terrain;
@@ -824,7 +873,7 @@ async function downloadCertificate() {
     const resource = URL.createObjectURL(blob);
     const anchor = element('a');
     anchor.href = resource;
-    anchor.download = `lunaris-decision-${requestedInputs.siteId}.json`;
+    anchor.download = `lunaris-certificate-v2-${requestedRole}-${mission.siteId}-${new Date(mission.start*1000).toISOString().slice(0,16).replaceAll(':','')}.json`;
     document.body.append(anchor);
     anchor.click();
     anchor.remove();
@@ -851,9 +900,55 @@ form.addEventListener('input', () => {
   byId('visibility-overview').replaceChildren(element('p', '', 'Inputs changed. Evaluate to refresh visibility metrics.'));
   byId('feasibility-grid').replaceChildren(element('p','','Inputs changed. Evaluate to refresh the date/site matrix.'));
   byId('live-telemetry').replaceChildren(element('p','secondary','Inputs changed. Evaluate to refresh telemetry. The chart shows the previous evaluated mission.'));
+  invalidateExperience();
   byId('form-status').textContent = 'Evaluate the updated inputs to refresh the decisions.';
 });
-byId('communication-demo').addEventListener('click', () => loadDemo(true));
+byId('communication-demo').addEventListener('click', () => {setExpert(true);loadDemo(true);});
+byId('solar-demo').addEventListener('click',()=>{setExpert(true);loadDemo(false);});
+byId('expert-toggle').addEventListener('click',()=>setExpert(byId('top').hidden));
+for(const button of document.querySelectorAll('[data-workspace]'))button.addEventListener('click',()=>setProductMode(button.dataset.workspace));
+byId('compare-return').addEventListener('click',()=>setProductMode('explore'));
+byId('visual-date-go').addEventListener('click',()=>{
+  const field=byId('visual-arrival');
+  if(!field.value||!Number.isFinite(Date.parse(`${field.value}Z`))){
+    field.setCustomValidity('Choose a valid original arrival in UTC.');field.reportValidity();
+    byId('workspace-notice').hidden=false;byId('workspace-notice').textContent='Arrival not changed. Choose a valid UTC date and time, then apply it.';return;
+  }
+  field.setCustomValidity('');byId('workspace-notice').hidden=true;
+  byId('nominal').value=field.value;if(evaluate())showGuidedPhase('nominal');
+});
+byId('visual-arrival').addEventListener('input',()=>byId('visual-arrival').setCustomValidity(''));
+for(const link of document.querySelectorAll('.main-nav a'))link.addEventListener('click',()=>{
+  if(link.getAttribute('href')!=='#experience')setExpert(true);
+});
+byId('scene-fallback').addEventListener('click',()=>{setExpert(true);byId('console').scrollIntoView({block:'start'});});
+byId('explore-site').addEventListener('click',enterSurface);
+byId('mode-surface').addEventListener('click',enterSurface);
+byId('reset-orbit').addEventListener('click',()=>sceneController?.focus('overview'));
+byId('mode-orbital').addEventListener('click',()=>{++sceneIntent;requestedExperienceMode='orbital';pausePlayback();sceneController?.setMode('orbital');setExperienceMode('orbital');});
+byId('visual-site').addEventListener('change',()=>selectVisualSite(byId('visual-site').value));
+byId('hero-play').addEventListener('click',async()=>{
+  if(experienceMode==='orbital'){await enterSurface();sceneController?.focus(latestSceneFrame?.states.earth==='visible'?'earth':'sun');}
+  if(!isEdited)startPlayback();
+});
+byId('hero-pause').addEventListener('click',()=>pausePlayback());
+byId('guide-open').addEventListener('click',()=>{pausePlayback();byId('mission-story').scrollIntoView({block:'start'});});
+byId('hero-reset').addEventListener('click',()=>{pausePlayback('Reset to the first cached sample in this domain.');byId('probe-slider').value=0;updateProbe();});
+byId('hero-speed').addEventListener('change',()=>{
+  byId('sky-speed').value=byId('hero-speed').value;
+  if(playing){pausePlayback();startPlayback();}
+});
+byId('hero-time').addEventListener('input',()=>{pausePlayback();byId('probe-slider').value=byId('hero-time').value;updateProbe();});
+for(const [id,target] of [['focus-earth','earth'],['focus-sun','sun'],['focus-terrain','site']])byId(id).addEventListener('click',()=>sceneController?.focus(target));
+byId('focus-earth').addEventListener('click',()=>{byId('earth-inset').hidden=true;});
+byId('close-earth-inset').addEventListener('click',()=>{earthReferenceRequested=false;byId('earth-inset').hidden=true;});
+byId('moon-hd').addEventListener('click',async()=>{
+  if(!sceneController)return;byId('moon-hd').disabled=true;byId('moon-hd').textContent='Loading 4K NASA detail…';
+  const loaded=await sceneController.loadHighDetail();byId('moon-hd').textContent=loaded?'4K NASA detail loaded':'HD unavailable';
+});
+for(const button of document.querySelectorAll('[data-story]'))button.addEventListener('click',()=>showGuidedPhase(button.dataset.story));
+byId('story-next').addEventListener('click',runRescueAction);
+byId('verified-demo').addEventListener('click',()=>{loadDemo();showGuidedPhase('nominal');enterSurface();});
 byId('site').addEventListener('change', updateSiteDetail);
 byId('reset-demo').addEventListener('click', () => {
   isEdited = false;
@@ -886,6 +981,7 @@ new ResizeObserver(() => {
 
 async function initialize() {
   try {
+    applicationRelease=await fetch('./release.json').then(r=>r.ok?r.json():applicationRelease).catch(()=>applicationRelease);
     const response = await fetch('./data/bundle.json');
     if (!response.ok) throw new Error(`Offline bundle request returned HTTP ${response.status}.`);
     bundle = await response.json();
@@ -921,6 +1017,12 @@ async function initialize() {
       comparison.hidden = false;
     }
     loadDemo();
+    initializeExperience();
+    void fetch('./data/rendering-notes.json').then(r=>r.ok?r.json():null).then(notes=>{
+      if(notes?.bundlePayloadSha256!==bundle.manifest?.bundleSha256)return;
+      renderingNotes=notes;updateSiteDetail();
+      if(chart?.samples.length)updateProbe();
+    }).catch(()=>{});
     try {
       atlas=await createAtlas({bundle,mapRoot:byId('site-map'),sitesRoot:byId('map-sites'),
         coordinateForm:byId('coordinate-form'),feedback:byId('coordinate-feedback'),
@@ -934,6 +1036,10 @@ async function initialize() {
       byId('coordinate-feedback').textContent='Coordinate exploration requires the atlas metadata; no unsupported calculations are available.';
     }
   } catch (error) {
+    setExpert(true);
+    byId('scene-status').textContent=`Mission evidence unavailable: ${error.message}. Reload the page or use the checked offline release.`;
+    byId('workspace-notice').hidden=false;
+    byId('workspace-notice').textContent=byId('scene-status').textContent;
     byId('load-error').hidden = false;
     byId('load-error').textContent = `The offline demo could not load. Start the local server from the project folder and reopen this page. ${error.message}`;
     byId('bundle-range').textContent = 'Unavailable';
@@ -956,20 +1062,29 @@ function renderComparison() {
  for(const row of compareSites(bundle,inputs)) {
   const card=element('article','comparison-card'); card.dataset.site=row.siteId;
   card.append(element('h3','',row.name));
-  for(const [key,label] of [['nominal','Planned start'],['delayed','Same delay']]) {
-   const mission=row[key]; const line=element('p',''); line.append(`${label}: `,statusChip(mission.status));card.append(line);
+  if(siteCaution(row.siteId))card.append(element('p','comparison-caution',siteCaution(row.siteId)));
+  const explore=element('button','outline','Explore this site ↗');explore.type='button';explore.addEventListener('click',()=>{selectVisualSite(row.siteId);setProductMode('explore');});card.append(explore);
+  const details=element('details','comparison-details');details.append(element('summary','','All visibility durations and numerical bounds'));
+  for(const [key,label] of [['nominal','Original arrival'],['delayed','Delayed arrival']]) {
+   const mission=row[key]; const line=element('p','comparison-arrival'); line.append(`${label} · ${shortTime(mission.start)} `,statusChip(mission.status));card.append(line);
+   const narrative=missionStory({[key]:mission},key);
+   card.append(element('p','comparison-reason',mission.status==='PASS'?'Meets the selected visibility requirements.':narrative.message));
+   const joint=visibilitySummary(mission.timeline.joint,mission.start,mission.end).seconds;
+   card.append(element('p','comparison-joint',`${hours(joint.visible/3600)} confirmed with Sun + Earth`));
+   details.append(element('h4','',label));
    for(const [channel,title] of timelineChannels) {
     const m=visibilitySummary(mission.timeline[channel],mission.start,mission.end).seconds;
     const line=element('p','comparison-metric',`${title}: ${hours(m.visible/3600)} confirmed; ${hours((m.uncertain+m.unknown)/3600)} unresolved`);
-    line.dataset.phase=key;line.dataset.channel=channel;line.dataset.visibleSeconds=m.visible;card.append(line);
+    line.dataset.phase=key;line.dataset.channel=channel;line.dataset.visibleSeconds=m.visible;details.append(line);
    }
    const bounded=missionMetrics(mission,findSite(row.siteId));
    for(const [channel,metric,title] of [['sun','longestBlockedRangeSeconds','Longest sunlight-unqualified'],['earth','longestBlockedRangeSeconds','Longest Earth blockage'],['joint','longestVisibleRangeSeconds','Longest joint opportunity']]) {
     const range=bounded[channel][metric],line=element('p','comparison-metric',`${title}: ${durationRange(range)}`);
-    line.dataset.phase=key;line.dataset.metric=`${channel}-${metric}`;line.dataset.lower=range[0];line.dataset.upper=range[1];card.append(line);
+    line.dataset.phase=key;line.dataset.metric=`${channel}-${metric}`;line.dataset.lower=range[0];line.dataset.upper=range[1];details.append(line);
    }
-   card.append(element('p','telemetry-note',`Duration ranges enclose retained/coarse/fine models · refinement ${bounded.refinementStatus}.`));
+   details.append(element('p','telemetry-note',`Numerical refinement: ${bounded.refinementStatus}. Agreement of sampled grids is not total physical accuracy. Ranges enclose retained/coarse/fine models, not statistical confidence.`));
   }
+  card.append(details);
   root.append(card);
  }
 }
@@ -987,13 +1102,14 @@ function renderVisibilityOverview() {
   }
   root.append(card);
  }
- root.append(element('p','secondary',`Established resolved-state events are measured from the selected mission start, may lie after its end, and stop at missing data or ${formatTime(bundle.coverage[1])}. Earlier uncertain pockets may conceal additional unproved crossings. Brackets retain crossing uncertainty; DEM resolution and refinement limitations still apply.`));
+ root.append(element('p','secondary',`Established resolved-state events are measured from the selected mission start, may lie after its end, and stop at missing data or the cache boundary ${formatTime(bundle.coverage[1])}. Earlier uncertain pockets may conceal additional unproved crossings. Brackets retain crossing uncertainty; DEM resolution and refinement limitations still apply.`));
 }
 
 function pausePlayback(message) {
   if(!message && playing) message='Paused · inspect cached samples with the time slider or arrow keys.';
   clearTimeout(playbackTimer); playing=false;
   byId('sky-play')?.setAttribute('aria-pressed','false');
+  byId('hero-play')?.setAttribute('aria-pressed','false');
   if(message && byId('playback-status')) byId('playback-status').textContent=message;
 }
 
@@ -1003,6 +1119,7 @@ function startPlayback() {
   const slider=byId('probe-slider');
   if(Number(slider.value)>=chart.samples.length-1) slider.value=0;
   playing=true;byId('sky-play').setAttribute('aria-pressed','true');
+  byId('hero-play').setAttribute('aria-pressed','true');
   byId('playback-status').textContent=`Playing cached 30-minute samples · ${byId('sky-speed').selectedOptions[0].textContent}. Stops at this domain's final sample.`;
   const tick=()=>{
     if(!playing || !chart || isEdited) return;
@@ -1033,7 +1150,23 @@ function durationRange(range) {
 
 function renderTelemetry(site,sample,mission) {
   if(isEdited) return;
-  const root=byId('live-telemetry');root.replaceChildren();root.dataset.time=sample[0];
+  const root=byId('live-telemetry');root.dataset.time=sample[0];
+  if(telemetryMission===mission&&root.querySelector('.duration-details')){
+    for(const [id,value]of [['sun-elevation',sample[2]],['earth-elevation',sample[5]],['sun-clearance',terrainClearance(sample,'sun')],['earth-clearance',terrainClearance(sample,'earth')]]){
+      const card=root.querySelector(`[data-metric='${id}']`);card.dataset.value=precise(value);card.querySelector('.telemetry-value').textContent=Number.isFinite(value)?`${value.toFixed(2)}°`:'Unknown';
+    }
+    for(const channel of ['sun','earth']){
+      const found=refinedEvents(site,channel,sample[0],bundle.coverage);
+      for(const key of ['loss','reacquisition']){
+        const countdown=transitionCountdown(found,key,sample[0]),item=root.querySelector(`[data-channel='${channel}'][data-event='${key}']`);
+        item.dataset.kind=countdown.kind;
+        item.textContent=countdown.kind==='bounded'?`${key} in ${durationRange(countdown.remaining)} (numerical enclosure)`:countdown.kind==='unresolved'?`${key}: timing unresolved, ${shortTime(countdown.interval[0])} to ${shortTime(countdown.interval[1])}; countdown withheld`:`${key}: not established before a gap or cache end`;
+        if(countdown.interval){item.dataset.start=countdown.interval[0];item.dataset.end=countdown.interval[1];}else{delete item.dataset.start;delete item.dataset.end;}
+      }
+    }
+    return;
+  }
+  telemetryMission=mission;root.replaceChildren();
   let metrics=metricCache.get(mission);
   if(!metrics) {metrics=missionMetrics(mission,site);metricCache.set(mission,metrics);}
   const grid=element('div','telemetry-grid');
@@ -1114,7 +1247,7 @@ function renderFeasibility() {
         const use=element('button','outline','Use this site and start in concept study');use.type='button';
         use.addEventListener('click',()=>{
           byId('site').value=row.siteId;byId('nominal').value=inputTime(mission.start);updateSiteDetail();evaluate();selectDecision('nominal');
-          byId('console').scrollIntoView({block:'start'});
+          setProductMode('explore');byId('experience').scrollIntoView({block:'start'});
         });detail.append(use);
       });td.append(button);tr.append(td);
     }
@@ -1123,3 +1256,246 @@ function renderFeasibility() {
   table.append(body);scroll.append(table);root.append(scroll,detail);
   byId('feasibility-note').textContent=`${matrix.starts.length} dates × ${matrix.rows.length} sites · starts every ${matrix.stepHours} h at ${new Date(inputs.nominal*1000).toISOString().slice(11,19)} UTC · ${inputs.durationHours} h fixed mission. P = PASS, F = FAIL, ? = INDETERMINATE. All hard limits and the allowed start range remain unchanged. The last date may be censored by the cache end. ${matrix.basis}`;
 }
+
+function setExpert(enabled) {
+  setProductMode(enabled?'analyst':'explore',false);
+  byId('expert-toggle').setAttribute('aria-expanded',String(enabled));
+  byId('expert-toggle').textContent=enabled?'Close analyst mode':'Analyst mode';
+  document.body.classList.toggle('expert-mode',enabled);
+}
+
+function setProductMode(mode,scroll=true){
+  if(mode!==productMode)++rescueAnimation;
+  productMode=mode;
+  byId('experience').hidden=mode==='compare'||mode==='analyst';
+  byId('compare-workspace').hidden=mode!=='compare';
+  byId('top').hidden=mode!=='analyst';
+  byId('experience').dataset.workspace=mode;
+  for(const button of document.querySelectorAll('[data-workspace]'))button.setAttribute('aria-pressed',String(button.dataset.workspace===mode));
+  if(mode==='analyst'&&result)renderPlot(selectedMission());
+  if(mode==='compare'&&inputs)byId('compare-input-summary').textContent=`${inputs.durationHours} h mission · original ${shortTime(inputs.nominal)} · delayed ${shortTime(inputs.nominal+inputs.delayHours*3600)}. Same requirements at all sites. Calendar starts are sampled daily; recovery starts every ${inputs.gridMinutes} minutes.`;
+  if(scroll)scrollTo({top:0,behavior:'instant'});
+}
+
+function setExperienceMode(mode) {
+  experienceMode=mode;
+  byId('experience').dataset.mode=mode;
+  for(const key of ['orbital','surface'])byId(`mode-${key}`).setAttribute('aria-pressed',String(key===mode));
+  byId('surface-focus').hidden=mode!=='surface';
+  byId('scene-transport').hidden=false;
+  byId('mission-story').hidden=false;
+  byId('scene-mode-label').textContent=mode==='surface'?'NASA LOLA / SURFACE OBSERVER · DISPLAY FILL':'NASA LRO / ORBITAL EXPLORATION';
+  byId('explore-site').textContent=mode==='surface'?'Drag to look around · scroll to zoom':'Explore this surface →';
+  if(sceneController&&!sceneDisabled)byId('scene-status').textContent=mode==='orbital'?'Orbital view · drag to orbit, scroll or pinch to zoom. Select a study point to approach the surface.':'Surface view · actual LOLA relief at the recorded observer height. Drag to look around; use the focus controls or play time.';
+}
+
+function setSceneStatus(event) {
+  byId('scene-status').textContent=event.message??String(event);
+  if(event.kind==='ready')byId('experience').dataset.ready='true';
+  if(event.kind==='error') {
+    sceneDisabled=true;
+    byId('experience').dataset.ready='false';
+    byId('scene-status').textContent=`3D graphics unavailable. ${event.message??''} The accessible 2D planner remains fully functional.`;
+    byId('workspace-notice').hidden=false;byId('workspace-notice').textContent=byId('scene-status').textContent;
+    setExpert(true);
+  }
+}
+
+async function initializeExperience() {
+  byId('orbital-story-slot').append(byId('mission-story'));
+  byId('comparison-panels').append(byId('compare'),byId('feasibility'));
+  byId('scene-mount').append(byId('scene-poster'));
+  byId('scene-mount').append(byId('earth-inset'));
+  byId('scene-mount').append(byId('surface-focus'),byId('rescue-transition'));
+  document.querySelector('.scene-stage').append(byId('scene-transport'));
+  document.querySelector('.story-footer details').append(byId('verified-demo'));
+  if(byId('explain'))byId('experience').append(byId('explain'));
+  const options=bundle.sites.map(site=>{const option=element('option','',site.name);option.value=site.id;return option;});
+  byId('visual-site').replaceChildren(...options);
+  byId('visual-site').disabled=false;
+  byId('mode-surface').disabled=false;
+  byId('explore-site').disabled=false;
+  showGuidedPhase('nominal');
+  setExperienceMode('orbital');
+  sceneLoading=import('./scene3d.mjs').then(module=>module.createMissionScene({container:byId('scene-mount'),bundle,
+    onSiteSelect:siteId=>selectVisualSite(siteId),onModeChange:setExperienceMode,onStatus:setSceneStatus}));
+  try {
+    sceneController=await sceneLoading;
+    if(sceneDisabled){sceneController.dispose();return;}
+    sceneController.selectSite(visualSiteId??inputs.siteId,{focus:false});
+    if(latestSceneFrame)sceneController.setFrame(latestSceneFrame);
+    byId('experience').dataset.ready='true';
+  } catch(error) {setSceneStatus({kind:'error',message:error.message});}
+}
+
+function selectVisualSite(siteId) {
+  if(!findSite(siteId)||!result)return;
+  pausePlayback();
+  byId('site').value=siteId;updateSiteDetail();evaluate();showGuidedPhase('nominal');
+  sceneController?.selectSite(siteId);
+}
+
+async function enterSurface() {
+  if(!result)return;
+  pausePlayback();
+  if(isEdited){byId('scene-status').textContent='Evaluate the updated inputs in Expert mode before entering the surface scene.';setExpert(true);return;}
+  const intent=++sceneIntent;requestedExperienceMode='surface';
+  byId('explore-site').disabled=true;
+  try {
+    if(!sceneController && sceneLoading)sceneController=await sceneLoading;
+    if(intent!==sceneIntent||requestedExperienceMode!=='surface'||isEdited)return;
+    if(sceneDisabled||!sceneController){setExpert(true);return;}
+    await sceneController.selectSite(selectedMission().siteId);
+    if(intent!==sceneIntent||isEdited)return;
+    await sceneController.setMode('surface');
+    if(latestSceneFrame)sceneController.setFrame(latestSceneFrame);
+    byId('experience').scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
+  } catch(error){setSceneStatus({kind:'error',message:error.message});}
+  finally{byId('explore-site').disabled=false;}
+}
+
+function updateExperienceFrame(site,sample,mission) {
+  latestSceneFrame=sceneFrame(site,sample,bundle.coverage);
+  if(isEdited)latestSceneFrame.states={sun:'unknown',earth:'unknown'};
+  if(visualSiteId!==site.id) {
+    visualSiteId=site.id;
+    sceneController?.selectSite(site.id);
+  }
+  byId('visual-site').value=site.id;
+  byId('visual-arrival').value=inputTime(inputs.nominal);
+  byId('visual-site-detail').textContent=`${Math.abs(site.lat).toFixed(4)}° S · ${site.lon.toFixed(4)}° E · ${site.heightM} m observer${siteCaution(site.id)?` · ${siteCaution(site.id)}`:''}`;
+  sceneController?.setFrame(latestSceneFrame);
+  byId('earth-inset').hidden=!earthReferenceRequested||latestSceneFrame.states.earth!=='visible';
+  byId('scene-clock').textContent=formatTime(sample[0]);
+  const slider=byId('hero-time');slider.max=byId('probe-slider').max;slider.value=byId('probe-slider').value;
+  slider.disabled=isEdited;
+  byId('hero-time-label').parentElement.firstChild.textContent=byId('time-scope').value==='coverage'?'November clock · 30-minute samples ':'Mission clock · 30-minute samples ';
+  slider.setAttribute('aria-valuetext',formatTime(sample[0]));
+  byId('hero-time-label').textContent=formatTime(sample[0]);
+  byId('hero-speed').value=byId('sky-speed').value;
+  byId('hero-play').disabled=isEdited||!chart||chart.samples.length<2;
+  const visibility=byId('hero-visibility');visibility.replaceChildren();
+  for(const [key,title] of [['sun','Sun'],['earth','Earth']]) {
+    const state=latestSceneFrame.states[key],label=state==='visible'?'visible':state==='blocked'?'unavailable / obstructed':'unresolved · body hidden';
+    const item=element('span','',`${title}: ${label}`);item.dataset.state=state;item.dataset.target=key;visibility.append(item);
+  }
+  for(const key of ['sun','earth']){
+    const d=latestSceneFrame.sample,az=d?.[key==='sun'?1:4],el=d?.[key==='sun'?2:5];
+    const item=visibility.querySelector(`[data-target='${key}']`);
+    if(item&&Number.isFinite(az)&&Number.isFinite(el))item.title=`Bearing ${az.toFixed(1)}° / elevation ${el.toFixed(1)}°. 30-minute cached direction; geometry only.`;
+  }
+  for(const head of document.querySelectorAll('.story-joint-playhead')){
+    const start=Number(head.dataset.start),end=Number(head.dataset.end);head.hidden=sample[0]<start||sample[0]>=end;head.style.left=`${100*(sample[0]-start)/(end-start)}%`;
+  }
+  // Small read-only evidence on the mount enables UI/data parity verification.
+  byId('scene-mount').dataset.time=sample[0];
+  byId('scene-mount').dataset.missionStart=mission.start;
+}
+
+function invalidateExperience() {
+  ++rescueAnimation;
+  cancelSceneEntry();
+  pausePlayback();
+  byId('hero-play').disabled=true;
+  byId('story-status').textContent='STALE';byId('story-status').className='status status-indeterminate';
+  byId('story-next').disabled=true;for(const button of document.querySelectorAll('[data-story]'))button.disabled=true;
+  if(latestSceneFrame){latestSceneFrame={...latestSceneFrame,states:{sun:'unknown',earth:'unknown'}};sceneController?.setFrame(latestSceneFrame);}
+  byId('story-explanation').textContent='Mission inputs changed. Evaluate them in Expert mode to refresh this story.';
+  byId('hero-visibility').textContent='Inputs changed · displayed bodies withheld until re-evaluation.';
+}
+
+function showGuidedPhase(phase) {
+  if(isEdited)return;
+  configurationsRequested=phase==='recommended';
+  byId('time-scope').value='mission';
+  guidedPhase=phase;
+  if(result?.[phase])selectDecision(phase);
+  else renderMissionStory();
+}
+
+function renderMissionStory() {
+  if(!result||isEdited)return;
+  byId('story-next').disabled=false;for(const button of document.querySelectorAll('[data-story]'))button.disabled=false;
+  const inspectedResult=typeof selected==='number'?{...result,[guidedPhase]:selectedMission()}:result;
+  const story=missionStory(inspectedResult,guidedPhase);
+  document.querySelector('.experience-intro .eyebrow').textContent=`A ${inputs.durationHours}-HOUR MISSION AT THE LUNAR SOUTH POLE`;
+  byId('mission-story').dataset.start=story.start??'';
+  byId('mission-story').dataset.site=story.siteId??'';
+  byId('mission-story').dataset.status=story.status;
+  for(const button of document.querySelectorAll('[data-story]'))button.setAttribute('aria-pressed',String(button.dataset.story===guidedPhase));
+  byId('story-title').textContent=story.heading;
+  byId('story-explanation').textContent=story.message;
+  byId('story-date').textContent=story.start!==undefined?`${shortTime(story.start)} · ${inputs.durationHours} h mission`:'No confirmed start inside the search range';
+  const status=byId('story-status');status.textContent=story.status;status.className=`status status-${{PASS:'pass',FAIL:'fail',INDETERMINATE:'indeterminate'}[story.status]??'unavailable'}`;
+  byId('story-witness').textContent=story.witness?`From ${shortTime(story.witness[0])} to ${shortTime(story.witness[1])}.` : '';
+  byId('story-next').textContent=guidedPhase==='nominal'?`Simulate ${inputs.delayHours}-hour delay`:guidedPhase==='delayed'?'Find next confirmed window':'Replay planned landing';
+  byId('story-requirements').textContent=`${inputs.durationHours} h mission. At most ${inputs.maxSunHours} h without qualified sunlight and ${inputs.maxEarthHours} h with Earth hidden.${inputs.minJointHours!==null?` At least ${inputs.minJointHours} h with both visible.`:''}${inputs.minContinuousJointHours!==null?` Including one uninterrupted ${inputs.minContinuousJointHours} h window.`:''} These geometric requirements do not establish electrical power, a radio link or landing safety.`;
+  renderStoryJoint(story);
+  void renderConfigurations();
+}
+
+function cancelSceneEntry(){++sceneIntent;requestedExperienceMode=experienceMode;if(experienceMode==='orbital')sceneController?.setMode('orbital');}
+async function runRescueAction(){
+  if(isEdited||!result)return;
+  const target=guidedPhase==='nominal'?'delayed':guidedPhase==='delayed'?'recommended':'nominal';
+  if(target==='nominal'||!result[target]){showGuidedPhase(target);return;}
+  const animation=++rescueAnimation,requestedInputs=inputs,from=currentTime??selectedMission().start,to=result[target].start;
+  byId('story-next').disabled=true;byId('rescue-transition').hidden=false;
+  byId('rescue-transition').textContent=target==='delayed'?`Advancing the landing clock by ${inputs.delayHours} hours…`:'Moving to the next confirmed mission window…';
+  try{
+    await enterSurface();
+    for(let attempt=0;attempt<100&&sceneController?.inspect().mode!=='surface';attempt++)await new Promise(r=>setTimeout(r,20));
+    if(animation!==rescueAnimation||requestedInputs!==inputs||isEdited)return;
+    if(sceneController&&sceneController.inspect().mode==='surface'&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
+      byId('time-scope').value='coverage';renderPlot(selectedMission());
+      const start=nearestSample(chart.samples,from,chart.domain)??0,end=nearestSample(chart.samples,to,chart.domain);
+      if(end!==null)for(let step=0;step<=48;step++){
+        if(animation!==rescueAnimation||requestedInputs!==inputs||isEdited)return;
+        byId('probe-slider').value=Math.round(start+(end-start)*step/48);updateProbe();
+        byId('rescue-transition').textContent=`${target==='delayed'?`${inputs.delayHours}-hour landing delay`:'Checking later arrivals'} · ${formatTime(currentTime)}`;
+        await new Promise(r=>setTimeout(r,45));
+      }
+    }
+    if(animation===rescueAnimation&&requestedInputs===inputs&&!isEdited){showGuidedPhase(target);sceneController?.focus(target==='delayed'?'sun':'earth');}
+  }catch(error){byId('scene-status').textContent=`The guided scene could not animate: ${error.message}. The evaluated mission remains available.`;}
+  finally{byId('rescue-transition').hidden=true;if(!isEdited)byId('story-next').disabled=false;}
+}
+function durationClock(seconds){const s=Math.round(seconds);return `${Math.floor(s/3600)} h ${String(Math.floor(s%3600/60)).padStart(2,'0')} min ${String(s%60).padStart(2,'0')} s`;}
+function renderStoryJoint(story){
+  const mission=typeof selected==='number'?selectedMission():result[guidedPhase];
+  const root=byId('story-joint');root.replaceChildren();if(!mission)return;
+  const summary=visibilitySummary(mission.timeline.joint,mission.start,mission.end).seconds;
+  root.append(element('p','joint-duration',`${durationClock(summary.visible)} with Sun + Earth`));
+  const track=element('div','story-joint-track');track.setAttribute('aria-label','Joint sunlight and Earth-center visibility intervals');
+  for(const [a,b,state]of mission.timeline.joint){const segment=element('span',`timeline-piece timeline-${state}`);segment.style.left=`${100*(a-mission.start)/(mission.end-mission.start)}%`;segment.style.width=`${100*(b-a)/(mission.end-mission.start)}%`;segment.title=`${state}: ${formatTime(a)} to ${formatTime(b)}`;track.append(segment);}
+  const playhead=element('span','timeline-playhead story-joint-playhead');playhead.dataset.start=mission.start;playhead.dataset.end=mission.end;track.append(playhead);root.append(track);
+  if(guidedPhase==='recommended'&&result.recommended){
+    const wait=(result.recommended.start-result.delayed.start)/3600;
+    root.append(element('p','recovery-wait',`Wait ${Math.floor(wait/24)} d ${number.format(wait%24)} h after the delayed arrival.`));
+    let counts=prefixCountCache.get(result);
+    if(!counts){counts={FAIL:0,INDETERMINATE:0,PASS:0};for(let t=result.search.from;t<result.recommended.start;t+=inputs.gridMinutes*60)for(const id of result.search.sites){counts[evaluateStart(bundle,inputs,id,t).status]++;}prefixCountCache.set(result,counts);}
+    const search=element('details');search.append(element('summary','','Why this date?'),element('p','',`Earliest confirmed on the ${inputs.gridMinutes}-minute grid. Earlier choices: ${counts.FAIL} fail, ${counts.INDETERMINATE} remain uncertain, ${counts.PASS} pass. An uncertain earlier start is not proof that no earlier window exists.`));root.append(search);
+  }
+  const detail=element('details');detail.append(element('summary','','Visibility uncertainty'),element('p','',`${durationClock(summary.uncertain+summary.unknown)} unresolved. This is center visibility, not generated power or a working radio link.`));root.append(detail);
+}
+
+async function renderConfigurations(){
+  const request=++configurationRequest,container=byId('configuration-summary');
+  configurationReport=null;container.hidden=guidedPhase!=='recommended'||!configurationsRequested;
+  if(container.hidden)return;
+  const mission=selectedMission(),requestedInputs=inputs;
+  if(mission.siteId!=='de-gerlache-rim'){container.textContent='Extra height, position and terrain checks are available only at de Gerlache Rim 1.';return;}
+  container.textContent='Checking changes in observer height, position and terrain…';
+  try{
+    const [module,height,position,terrain]=await Promise.all([import('./configurations.mjs'),...['height','position','terrain'].map(name=>fetch(`./data/${name}-study.json`).then(r=>{if(!r.ok)throw Error('Scenario data unavailable');return r.json();}))]);
+    const report=await module.evaluateConfigurations(bundle,{height,position,terrain},requestedInputs,mission);
+    if(request!==configurationRequest||requestedInputs!==inputs||mission!==selectedMission()||isEdited)return;
+    configurationReport={inputs:requestedInputs,mission,report};
+    container.replaceChildren(element('strong','',`${report.pass_count} of ${report.total} tested variations meet the limits.`));
+    const list=element('details');list.append(element('summary','','What was tested?'),element('p','','One baseline, two observer heights, two position offsets and two terrain surfaces. Each change was tested separately, not in combination. This is no guarantee for other conditions.'));
+    for(const item of report.cases){const p=element('p','',`${item.label??item.id}: ${item.status}`);if(item.source){const a=element('a','',' · source');a.href=typeof item.source==='string'?item.source:item.source.url??'#';p.append(a);}list.append(p);}container.append(list);
+  }catch(error){if(request===configurationRequest)container.textContent=`Configuration assessment unavailable: ${error.message}. No all-configuration pass is claimed.`;}
+}
+
+// Read-only snapshot for reproducible renderer/data parity tests.
+export function inspectExperience() {return sceneController?.inspect()??null;}

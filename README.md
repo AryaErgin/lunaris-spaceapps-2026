@@ -1,63 +1,72 @@
-# LUNARIS
+﻿# LUNARIS
 
-LUNARIS compares terrain-aware Sun-center visibility and Earth-center line of sight at three lunar south-pole study points. It evaluates a fixed-duration mission before and after a delay, then searches alternative starts under the same limits.
+What if a lunar landing is late? LUNARIS shows the sunlight and Earth-contact opportunities lost, which fixed requirements fail, and the next confirmed arrival at a verified south-pole study point.
 
-## Run the offline demo
+## Try it locally
 
-From the repository root, start a local server with Python 3.11 or newer.
+For automatic updates while editing (Node.js 20.19+ or 22.12+):
+
+```sh
+npm ci
+npm run dev
+```
+
+Open http://127.0.0.1:5173/. On Windows PowerShell, use `npm.cmd` if script policy blocks `npm.ps1`.
+
+For the offline app, Python 3.11+ is sufficient; no npm install or network is needed:
 
 ```sh
 python -m http.server --bind 127.0.0.1 --directory web 8000
 ```
 
-Open [LUNARIS](http://127.0.0.1:8000/) in a browser. The bundled data cover November 1 through November 30, 2026 UTC. No cookies, account, data download or external service are required to run the demo.
+Open http://127.0.0.1:8000/. All runtime code, images and data are local. A usable 2D analysis view remains available without WebGL.
 
-**de Gerlache Rim 1, November 2026.** A 12-hour mission starting Nov 1 at 06:00 UTC passes a 7-hour cap on continuous Sun-center unavailability. Moving the start 72 hours later produces a 12-hour unqualified interval from Nov 4 06:00 to 18:00 UTC. The first passing same-site start on the hourly search grid is Nov 6 at 12:00 UTC. Its conservative longest unqualified duration is 6 h 19 min. This demo isolates the solar constraint by allowing Earth-center blockage for the full 12-hour mission. The interface supports stricter Earth and joint-window limits.
+## The landing-delay story
 
-The **Communication + joint-window demo** uses a 2-hour Earth blackout cap, 6 hours total joint visibility and a 2-hour continuous joint window. It demonstrates PASS / FAIL / recovered PASS without relaxing those limits. The three-site cards compare identical nominal and delayed inputs. Visibility summaries distinguish confirmed, blocked and unresolved time; next loss/reacquisition brackets stop at unknown coverage and never promise visibility beyond the cache. These are geometric constraints, not RF link or electrical-power validation.
+The default de Gerlache Rim 1 mission lasts 12 hours. It allows at most 7 hours without qualified Sun-center visibility and 2 hours with Earth hidden, and requires 6 hours with both visible including one uninterrupted 2-hour window.
 
-Select a decision to see its timeline, hard-constraint margins and witness intervals. **Decision certificate** exports the inputs, results, search bounds, validation evidence, frame and source hashes. The default search stays at the selected study point. The prelaunch option allows comparison with the other sampled points.
+1. **Original arrival: November 1, 2026, 06:00 UTC. PASS.** At least 7 h 53 min 52 s of confirmed joint visibility.
+2. **Simulate 72-hour delay.** The surface scene and shared clock advance to November 4, 06:00 UTC. A 12-hour sunlight outage exceeds the 7-hour limit by 5 hours; joint visibility is zero. Earth visibility alone remains uncertain for that mission.
+3. **Find next confirmed window.** November 17, 03:00 UTC passes with 12 hours of joint visibility, requiring a wait of 12 days 21 hours after the delayed arrival. This is the first confirmed start on the hourly search grid: 240 earlier starts fail and 69 remain uncertain. An earlier uncertain start is not proof that no earlier physical window exists.
 
-The **mission-control console** animates the Sun and Earth centers against the curved terrain skyline, with Play, Pause, Reset, playback speed, a keyboard time slider and UTC jumping. Choose the selected mission or full November cache. Telemetry uses actual 30-minute geometry samples; trajectory lines and eased marker motion connect those samples for orientation. Playback stops at the domain's last sample. This is a schematic environment view, not a spacecraft trajectory or a scale rendering of either body's disc.
+Recovery also passes seven separately tested baseline/height/position/terrain cases. Those finite cases are not combined uncertainties, probabilities or a guarantee for other conditions. The older solar-only teaching example remains in Advanced.
 
-Live telemetry shows sampled elevations and center-trace terrain clearance. Expand **Mission duration metrics** for qualified sunlight, Earth-center LOS, joint visibility and longest unavailable/operating runs. Duration ranges enclose retained, coarse and fine interval evaluations; they are not statistical confidence intervals. Transition estimates preserve uncertainty, withhold unresolved countdowns and stop at gaps or the cache boundary. The display does not override mission-level refinement gates.
+## Explore, compare and inspect
 
-The **south-pole terrain atlas** is an offline derivative of NASA's regional LOLA DEM: a 128 km square south-polar stereographic crop reduced from 80 m source pixels to 200 m display pixels. Its artificial relief lighting does not represent sunlight at the selected UTC. Markers select the three cached study points. Clicking or entering other coordinates explores their location and reports unsupported terrain-aware calculations; valid pixels alone do not establish a validated horizon. [Map provenance](web/data/terrain-atlas.json) records the source and image hashes, frame, reduction, coverage and limitations.
+- **Explore:** select any of three published study points, change the original UTC arrival, orbit the NASA-textured Moon or enter the real LOLA surface. Play time enters the surface so the moving sky is visible. Drag or use arrow keys to look; scroll, pinch or use plus/minus to zoom. Find Earth/Sun changes camera field of view, not sky angles or observer height.
+- **Compare:** see all three sites under the same mission requirements, then select a daily calendar cell or load a site into Explore. The calendar samples 30 daily starts; recovery uses the declared candidate grid.
+- **Rescue:** return to the same selected mission's original, delayed and recovered decisions. Switching modes retains inputs and simulation time.
+- **Advanced:** edit all limits and search bounds; inspect timelines, horizon/angle plots, bounded metrics, provenance and sensitivity; download the currently inspected decision as a version 2 certificate. Its selected-plan identity is separate from the original search and frozen data generator. Unstamped local development exports honestly leave the application release SHA null.
 
-The **date/site feasibility matrix** compares all three points at 30 daily starts, using the nominal UTC time of day, fixed mission duration, unchanged hard limits and allowed start range. Select a cell for status, margins and warnings, then explicitly load that concept-study start. Missions crossing the cache boundary remain indeterminate. Certificates include this matrix, bounded metrics and the inspected geometry sample. **Explain this** panels cover polar horizons, Earth's apparent libration and delay recovery. Keyboard focus, responsive layouts and reduced-motion support are included.
+## Data and visual limits
 
-At de Gerlache Rim 1, **Observer-height sensitivity** re-evaluates the selected mission at 1 m, 2 m and 5 m above the same point. The three heights are illustrative design settings. An all-scenario pass applies only to those settings. The optional comparison leaves the Phase B recommendation intact and can be included in the downloaded certificate.
+Calculations cover only the published Connecting Ridge, Shackleton Rim and de Gerlache Rim 1 region centers, with 2 m observers, from November 1 to December 1, 2026 UTC (exclusive end). These are study coordinates, not approved landing pads. Shackleton's sampled local DEM gradient is about 31.5 degrees. Other coordinates can be located in the atlas but have no supported terrain-aware decision. Missions outside cached coverage remain indeterminate.
 
-**Landing-position sensitivity** evaluates the published point and two illustrative offsets along the lunar map’s easting axis, 25 m in either direction. It keeps the observer 2 m above the ground at each point. These settings do not represent a navigation error distribution or establish landing safety.
+The engine uses curved local/regional NASA LRO/LOLA terrain and SPICE `CN+S` in `MOON_ME_DE440_ME421`. East-positive longitude and clockwise-from-north azimuth are explicit. Its 24-direction airless topocentric Horizons comparison has a maximum separation of 0.000000482 degrees; shared JPL lineage means that comparison does not independently validate terrain. Numerical/model intervals retain gaps and refinement disagreements.
 
-**Terrain realization sensitivity** repeats the selected mission with the nominal 5 m local terrain and two correlated elevation realizations from NASA PGDA. The regional terrain and geographic coordinates are held fixed. Results describe the three evaluated surfaces. [NASA PGDA clone archive](https://pgda.gsfc.nasa.gov/products/78)
+The reduced display mesh extends 32 km with no vertical exaggeration. More distant terrain uses the nominal angular skyline projected at an artificial 200 km distance. These visuals never decide visibility. Cached sky positions are 30 minutes apart; bodies are hidden unless retained/coarse/fine intervals all confirm visibility. Fixed approximate Sun/Earth diameters are 0.53/1.9 degrees. Earth uses a historical composite with unregistered face and phase; globe lighting, display fill and local shadows are illustrative. No rocks or landing hazards are resolved.
+
+**Geometric visibility is not electrical power, thermal survival, a working radio link, safe landing or trajectory reachability.** Center tests do not establish complete-disc illumination. PASS means only the declared model constraints pass. Finite sensitivity cases establish no universal robustness.
+
+Sources and exact hashes: [offline scientific bundle](web/data/bundle.json), [Horizons comparison](web/data/horizons-validation.json), [terrain atlas](web/data/terrain-atlas.json), [display meshes](web/data/terrain-scenes.json), [rendering notes](web/data/rendering-notes.json), [visual assets](web/assets/visual-sources.json). NASA: [local LOLA](https://pgda.gsfc.nasa.gov/products/78), [regional LOLA](https://pgda.gsfc.nasa.gov/products/90), [Lunar Surface Data Book](https://ntrs.nasa.gov/citations/20250002845), [Horizons](https://ssd.jpl.nasa.gov/horizons/), [NAIF frame](https://naif.jpl.nasa.gov/pub/naif/generic_kernels/fk/satellites/moon_de440_250416.tf). The [local organizer challenge mirror](https://hackathlone.com/challenges/lunar-landing-site-navigator) lists Horizons among its resources; the [official challenge page](https://www.spaceappschallenge.org/2026/challenges/lunar-landing-site-navigator/) was unavailable during verification.
+
+Moon imagery: NASA Goddard/SVS, Ernie Wright, LRO/LROC/LOLA teams, [CGI Moon Kit](https://svs.gsfc.nasa.gov/4720/) linked by [LRO Moon models](https://svs.gsfc.nasa.gov/14959/). Earth: [NASA Blue Marble](https://svs.gsfc.nasa.gov/2915/). The small preview loads first; original 4K detail is optional. [Three.js r186](https://github.com/mrdoob/three.js/tree/r186) is bundled under its [MIT license](web/vendor/three-LICENSE.txt). NASA/third-party assets retain their publishers' terms; LUNARIS code uses MIT.
 
 ## Reproduce and verify
 
 ```sh
 python -m pip install -r requirements-build.txt pytest
-python -m science.sources --clones
-python -m science.build
-python -m science.atlas
-python -m science.height_study
-python -m science.position_study
-python -m science.terrain_study
-python -m pytest -q
+python -m pytest -q -rs
 node --test tests/*.test.mjs
 node tests/test_ui.mjs --require-recovery --height --position --terrain
+node tests/test_ui.mjs --fixture
+node tests/test_experience.mjs
 ```
 
-The source download is about 439 MB including both optional terrain realizations. The browser test uses Node.js 24 and a local Chrome or Chromium installation. Set `LUNARIS_CHROME` to its executable if it is installed in a nonstandard location. [Bundled Horizons comparison](web/data/horizons-validation.json) records the exact reference queries, observer heights and numerical results. Run `python -m science.ephemerides --help` to repeat the reference comparison online. Build and raw-data dependencies are independent of the offline app.
+Browser checks require Node.js 24 and Chrome/Chromium; set `LUNARIS_CHROME` for a nonstandard executable. The 3D test uses software ANGLE, not a real-device performance benchmark.
 
-## Model and limits
-
-- Study points are the published Connecting Ridge, Shackleton Rim and de Gerlache Rim 1 region centers, with a 2 m observer height above the sampled ground. In the DE421 mean Earth/polar axis system, longitude is east-positive and azimuth increases clockwise from north. [NASA Lunar Surface Data Book, Table A2.1-1](https://ntrs.nasa.gov/citations/20250002845)
-- The curved skyline uses nested 5 m and 80 m NASA LRO/LOLA grids. Nominal pixel spacing exceeds the effective detail in some areas because the grids include interpolated pixels. The model retains angular, range and time refinement differences and propagates coverage gaps. The exported metrics describe the DEM model at the declared scale. [Local LOLA grids](https://pgda.gsfc.nasa.gov/products/78) · [Regional LOLA grids](https://pgda.gsfc.nasa.gov/products/90) · [Barker et al.](https://doi.org/10.1016/j.pss.2020.105119)
-- Apparent Sun and Earth directions use NAIF SPICE `CN+S` in `MOON_ME_DE440_ME421` and a 1,737.4 km reference sphere. An airless topocentric JPL Horizons cross-check at all three points returned a maximum angular difference of 0.000000482° over 24 comparisons. This compares implementations with shared JPL ephemeris lineage. [NAIF lunar frame](https://naif.jpl.nasa.gov/pub/naif/generic_kernels/fk/satellites/moon_de440_250416.tf) · [JPL Horizons](https://ssd.jpl.nasa.gov/horizons/)
-- Numerical bounds overlap some visibility transitions and the modeled durations are reported with their bounds. Coarse/fine shifts above the two-minute target are flagged. A mission outside cached dates is indeterminate. PASS describes the declared surface-geometry limits. Solar-array output, complete solar-disc shadow, communications link closure, landing safety and trajectory reachability require separate analyses.
-
-NASA data and terms remain with their respective publishers. The MIT license covers LUNARIS code. Source URLs, raster metadata, validation and SHA-256 hashes are embedded in the [offline evidence bundle](web/data/bundle.json). The [challenge organizer mirror](https://hackathlone.com/challenges/lunar-landing-site-navigator) lists JPL Horizons among the challenge resources. The [official challenge Resources tab](https://www.spaceappschallenge.org/2026/challenges/lunar-landing-site-navigator/) was unavailable during verification.
+Rebuilding science additionally requires about 439 MB of NASA source files: `python -m science.sources --clones`, then `python -m science.build`, `science.atlas`, `science.scene_terrain`, `science.rendering_notes`, `science.height_study`, `science.position_study` and `science.terrain_study`. Rebuild images with `python -m science.visual_assets` (pinned npm renderer build) or `--images-only`. Runtime needs none of these build dependencies.
 
 ## AI use
 
-Arya Ergin directed the project as the sole human entrant. OpenAI Codex assisted with research, scientific implementation, tests, interface design and documentation. The offline app computes decisions deterministically from frozen NASA data products and uses no runtime AI. [NASA Space Apps AI guidance](https://github.com/nasa/spaceapps/discussions/1849)
+Arya Ergin directed the project as the sole human entrant. OpenAI Codex assisted research, scientific implementation, tests, interface design and writing. Decisions are deterministic calculations from frozen data, with no runtime AI. NASA images are source-derived, not generative artwork. [NASA Space Apps AI guidance](https://github.com/nasa/spaceapps/discussions/1849).

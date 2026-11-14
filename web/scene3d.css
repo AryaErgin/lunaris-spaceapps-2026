@@ -1,0 +1,14 @@
+.mission-scene{position:relative;overflow:hidden;isolation:isolate;background:#000;min-height:440px}
+.mission-scene-canvas{display:block;width:100%;height:100%;position:absolute;inset:0;touch-action:none;outline:none}
+.mission-scene-canvas:focus-visible{outline:2px solid #e9bc76;outline-offset:-4px}
+.mission-scene-caption{position:absolute;bottom:22px;left:25px;right:25px;display:flex;flex-direction:column;gap:7px;pointer-events:none;text-shadow:0 2px 12px #000}
+.mission-scene-location{color:#f7f2e9;font-size:12px;letter-spacing:.06em;font-weight:600}
+.mission-scene-note{font-size:10px;line-height:1.6;letter-spacing:.06em;color:#abb1ba}
+.mission-scene-body-status{position:absolute;top:22px;right:24px;display:flex;flex-direction:column;gap:7px;text-align:right;pointer-events:none;font-size:10px;letter-spacing:.05em;line-height:1.5;color:#c7ccd2;text-shadow:0 1px 8px #000}
+.mission-scene-body-status[hidden],.mission-scene-marker-label[hidden]{display:none}
+.mission-scene-body-status [data-state="visible"]{color:#e6bd7c}
+.mission-scene-body-status [data-state="uncertain"],.mission-scene-body-status [data-state="unknown"]{color:#d8c9ac}
+.mission-scene-marker-label{position:absolute;pointer-events:none;transform:translate(18px,-12px);padding:5px 8px;border-left:1px solid #e6bd7c;color:#f2d4a4;background:rgba(0,0,0,.4);font-size:10px;white-space:nowrap;letter-spacing:.08em;text-transform:uppercase}
+.mission-scene[data-mode="surface"][data-terrain-status="loading"]::after,.mission-scene[data-mode="surface"][data-terrain-status="unavailable"]::after{content:"Loading NASA LOLA surface…";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#bdc5cf;font-size:12px;text-align:center;max-width:80%;line-height:1.7;pointer-events:none}
+.mission-scene[data-mode="surface"][data-terrain-status="unavailable"]::after{content:"Surface mesh unavailable. Use the accessible terrain and mission views."}
+@media(max-width:600px){.mission-scene-caption{left:16px;right:16px;bottom:16px}.mission-scene-location{font-size:10px}.mission-scene-note{font-size:9px;max-width:290px}.mission-scene-body-status{top:15px;right:15px;font-size:9px}.mission-scene-marker-label{font-size:9px}}

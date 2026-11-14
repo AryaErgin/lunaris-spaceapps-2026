@@ -3,6 +3,8 @@
 Build-only requirements: Python 3.11+, Pillow==12.3.0, NumPy, Node 18+ and npm.
 Run ``python -m science.visual_assets`` from any directory. Downloads and npm
 packages stay in the ignored .operator folder. Use --images-only to omit npm.
+Use --derivatives-only to build the preview and inset from verified shipped
+images without downloading sources or rebuilding the original images/vendor.
 These rendering maps never enter the terrain/visibility calculation pipeline.
 """
 
@@ -202,6 +204,70 @@ def build_images() -> list[dict]:
     return products
 
 
+def render_earth_inset(color_map: Image.Image, output: Path) -> None:
+    """Project historical NASA pixels without adding light or a terminator."""
+    radius = 246
+    coordinate = np.arange(-radius - 1, radius + 1, dtype=np.float64) + 0.5
+    screen_x, screen_y = np.meshgrid(coordinate / radius, -coordinate / radius)
+    radial_squared = screen_x**2 + screen_y**2
+    normal_z = np.sqrt(np.maximum(0, 1 - radial_squared))
+    longitude, latitude = np.arctan2(screen_x, normal_z), np.arcsin(np.clip(screen_y, -1, 1))
+    texture = np.asarray(color_map.convert("RGB"), dtype=np.float64) / 255
+    height, width = texture.shape[:2]
+    source_x = (longitude / (2 * np.pi) + 0.5) * width - 0.5
+    source_y = np.clip((0.5 - latitude / np.pi) * height - 0.5, 0, height - 1)
+    x0, y0 = np.floor(source_x).astype(int) % width, np.floor(source_y).astype(int)
+    x1, y1 = (x0 + 1) % width, np.minimum(y0 + 1, height - 1)
+    wx, wy = (source_x - np.floor(source_x))[..., None], (source_y - y0)[..., None]
+    pixels = ((1 - wy) * ((1 - wx) * texture[y0, x0] + wx * texture[y0, x1])
+              + wy * ((1 - wx) * texture[y1, x0] + wx * texture[y1, x1]))
+    coverage = np.clip((1 - np.sqrt(radial_squared)) * radius + 0.5, 0, 1)[..., None]
+    pixels = np.rint(np.clip(pixels * coverage, 0, 1) * 255).astype(np.uint8)
+    inset = Image.new("RGB", (512, 512), (0, 0, 0))
+    inset.paste(Image.fromarray(pixels), (256 - radius - 1, 256 - radius - 1))
+    inset.save(output, format="JPEG", quality=82, subsampling=0, optimize=True, progressive=True)
+
+
+def build_derivatives(products: list[dict]) -> list[dict]:
+    """Keep the full-resolution image intact; derive a bounded opening view."""
+    products = [item for item in products if item["path"] not in ("assets/moon-preview.jpg", "assets/earth-inset.jpg")]
+    for parent_name, output_name in [("moon-color", "moon-preview"), ("earth-color", "earth-inset")]:
+        parent = next(item for item in products if item["path"] == f"assets/{parent_name}.jpg")
+        source_path = ROOT / "web" / parent["path"]
+        if digest(source_path) != parent["sha256"]:
+            raise ValueError(f"Shipped source checksum mismatch: {source_path}")
+        output = ASSETS / f"{output_name}.jpg"
+        with Image.open(source_path) as image:
+            if list(image.size) != parent["dimensions"]:
+                raise ValueError(f"Shipped source dimensions mismatch: {source_path}")
+            if output_name == "moon-preview":
+                image.convert("RGB").resize((2048, 1024), Image.Resampling.LANCZOS).save(
+                    output, format="JPEG", quality=80, subsampling=0, optimize=True, progressive=True,
+                )
+                recipe = "Verified shipped 4096x2048 NASA Moon JPEG decoded to RGB, resized to 2048x1024 with Pillow LANCZOS; JPEG quality=80, subsampling=0, optimize=True, progressive=True. No other pixel, gamma, meridian or lighting edits. The unchanged 4K parent remains available for explicitly requested HD."
+                role = "Opening globe preview; NASA imagery, display only"
+                limit = 700_000
+            else:
+                render_earth_inset(image, output)
+                recipe = "Verified shipped NASA Blue Marble JPEG orthographically projected to 512x512; radius=246px, center=(256,256); fixed illustrative view latitude=0 and longitude=0 degrees, bilinear equirectangular sampling, antialiased limb on black; JPEG quality=82, subsampling=0, optimize=True, progressive=True. No added illumination, shadows, atmospheric layer, clouds, terminator or color adjustment; existing source topographic shading is retained."
+                role = "Historical composite illustration; face and phase are unregistered; not current weather or a time-matched Earth view"
+                limit = 150_000
+        if output.stat().st_size >= limit:
+            raise ValueError(f"Derivative exceeds its byte budget: {output}")
+        with Image.open(output) as image:
+            dimensions = list(image.size)
+        products.append({
+            "path": output.relative_to(ROOT / "web").as_posix(),
+            "sha256": digest(output), "bytes": output.stat().st_size, "dimensions": dimensions,
+            "source": parent["source"],
+            "derived_from": {key: parent[key] for key in ("path", "sha256", "bytes", "dimensions")},
+            "conversion": recipe, "role": role,
+            "orientation": parent["orientation"] if output_name == "moon-preview" else None,
+            **({"required_display_label": "Historical NASA Blue Marble composite. Face and phase unregistered; not current weather."} if output_name == "earth-inset" else {}),
+        })
+    return products
+
+
 def build_vendor() -> dict:
     """Bundle core plus controls with no runtime npm, CDN or bare imports."""
     VENDOR_BUILD.mkdir(parents=True, exist_ok=True)
@@ -269,18 +335,31 @@ def inspect_models() -> list[dict]:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--images-only", action="store_true", help="Retain the existing vendor metadata and omit npm/esbuild")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--images-only", action="store_true", help="Retain the existing vendor metadata and omit npm/esbuild")
+    mode.add_argument("--derivatives-only", action="store_true", help="Verify shipped parent images and build only preview/inset; no downloads or vendor/original image writes")
     args = parser.parse_args()
     if pillow_version != "12.3.0":
         raise RuntimeError("Use Pillow==12.3.0 for byte-identical image reproduction")
-    products = build_images()
     manifest_path = ASSETS / "visual-sources.json"
     existing = json.loads(manifest_path.read_text(encoding="utf-8")) if manifest_path.exists() else {}
+    if args.derivatives_only:
+        if not existing.get("assets"):
+            raise RuntimeError("Build the original images once before using --derivatives-only")
+        products = build_derivatives(existing["assets"])
+        existing["assets"] = products
+        existing["pillow_version"], existing["numpy_version"] = pillow_version, np.__version__
+        existing["derivative_reproduce"] = "python -m science.visual_assets --derivatives-only"
+        manifest_path.write_text(json.dumps(existing, indent=2) + "\n", encoding="utf-8")
+        print(json.dumps({"derivatives": [item["path"] for item in products[-2:]], "derivative_bytes": sum(item["bytes"] for item in products[-2:])}, indent=2))
+        return
+    products = build_derivatives(build_images())
     vendor = existing.get("vendor") if args.images_only else build_vendor()
     manifest = {
         "schema_version": "1.0",
         "purpose": "Offline educational rendering; visual maps do not determine mission constraints or certify terrain clearance",
         "reproduce": "python -m pip install -r requirements-build.txt Pillow==12.3.0; python -m science.visual_assets",
+        "derivative_reproduce": "python -m science.visual_assets --derivatives-only",
         "pillow_version": pillow_version,
         "numpy_version": np.__version__,
         "nasa_media_usage_guidelines": NASA_TERMS,

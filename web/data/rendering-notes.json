@@ -1,0 +1,470 @@
+{
+  "aiUse": "OpenAI Codex assisted implementation, testing and writing of this presentation-only evidence derivative under sole human entrant Arya Ergin.",
+  "bundleFileSha256": "67f898ff38f66c0feb8bff7196aa78ed060dd609801dce0aca7a8927d2cc05c6",
+  "bundlePayloadSha256": "18c23c3de7cc3a61cb9fb4901c868c283cb13b789a868f074156fbabe85469a4",
+  "kind": "Presentation verification of existing NASA terrain and frozen nominal skyline witnesses",
+  "method": "For each exact published study point, select its containing native 5 m DEM cell and a 3x3 window. Convert native neighboring cell centers and radial elevations to curved lunar Cartesian positions, then the point's radial-up/east/north basis. Solve [deltaEast,deltaNorth] dot [dUp/dEast,dUp/dNorth] = deltaUp for the east-west and north-south central pairs. Slope is atan(hypot(the two gradient components)). Physical horizontal chord distances account for projection scale, actual ground radius and lunar curvature. Required masked/nonfinite samples yield INDETERMINATE, never a flat slope.",
+  "recoveryStartRayAudit": {
+    "observerHeightM": 2.0,
+    "rays": [
+      {
+        "body": "sun",
+        "cachedAzimuthDeg": 156.49678,
+        "cachedElevationDeg": 0.34568,
+        "gapCapDeg": -90.0,
+        "nominalBlocker": {
+          "latitudeDeg": -86.4875706,
+          "longitudeEastDeg": 79.989528,
+          "radialElevationM": 1092.8759766,
+          "surfaceDistanceM": 141927.5602168
+        },
+        "nominalSkylineElevationDeg": -2.623606,
+        "skylineAzimuthStartDeg": 156.4,
+        "skylineBinIndex": 1564,
+        "skylineBinWidthDeg": 0.1,
+        "skylineLowerDeg": -3.750013,
+        "skylineUpperDeg": -2.622786
+      },
+      {
+        "body": "earth",
+        "cachedAzimuthDeg": 62.57078,
+        "cachedElevationDeg": -0.1872,
+        "gapCapDeg": -90.0,
+        "nominalBlocker": {
+          "latitudeDeg": -86.3655259,
+          "longitudeEastDeg": 335.9551926,
+          "radialElevationM": 2581.8361816,
+          "surfaceDistanceM": 86004.8482191
+        },
+        "nominalSkylineElevationDeg": -0.895254,
+        "skylineAzimuthStartDeg": 62.5,
+        "skylineBinIndex": 625,
+        "skylineBinWidthDeg": 0.1,
+        "skylineLowerDeg": -3.67319,
+        "skylineUpperDeg": -0.893977
+      }
+    ],
+    "scope": "Only these exact cached azimuth samples at the Nov 17 03:00 UTC recovery start; blocker positions and ranges vary with azimuth and time. These are nominal model witnesses, not an independent rescan or a finite-disc visibility calculation.",
+    "siteId": "de-gerlache-rim",
+    "source": "Frozen bundle terrain.skyline and geometry; skyline columns retain their original meanings",
+    "status": "READ_FROM_FROZEN_CACHE",
+    "utc": "2026-11-17T03:00:00Z"
+  },
+  "referenceSphereRadiusM": 1737400.0,
+  "reproduce": "python -m science.rendering_notes --raw data/raw --bundle web/data/bundle.json --output web/data/rendering-notes.json",
+  "sites": [
+    {
+      "coordinateStatus": "Published region center",
+      "groundM": 1944.632568359375,
+      "latitudeDeg": -89.4632,
+      "longitudeEastDeg": 222.51,
+      "name": "Connecting Ridge",
+      "observerHeightM": 2.0,
+      "siteId": "connecting-ridge",
+      "slope": {
+        "centralDifferenceHorizontalSpansM": [
+          10.01097281034586,
+          10.010972955517353
+        ],
+        "gradientEast": 0.02685541456613582,
+        "gradientNorth": 0.05849524401406691,
+        "slopeDeg": 3.682786514772448,
+        "status": "COMPUTED"
+      },
+      "source": {
+        "acquiredUtc": "2026-11-14T06:14:21.992905+00:00",
+        "bytes": 40980810,
+        "citation": "https://pgda.gsfc.nasa.gov/products/78",
+        "expectedBytes": 40980810,
+        "filename": "Site01_final_adj_5mpp_surf.tif",
+        "raster": {
+          "affine": [
+            5.0,
+            0.0,
+            -19000.0,
+            0.0,
+            -5.0,
+            -4000.0
+          ],
+          "areaOrPoint": "Area",
+          "boundsM": [
+            -19000.0,
+            -20000.0,
+            -3000.0,
+            -4000.0
+          ],
+          "dimensions": [
+            3200,
+            3200
+          ],
+          "filename": "Site01_final_adj_5mpp_surf.tif",
+          "maskFlags": [
+            "nodata"
+          ],
+          "noData": "NaN",
+          "spacingM": 5.0,
+          "wkt": "PROJCRS[\"unnamed\",BASEGEOGCRS[\"unnamed ellipse\",DATUM[\"unknown\",ELLIPSOID[\"unnamed\",1737400,0,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]]]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9122]]]],CONVERSION[\"unnamed\",METHOD[\"Polar Stereographic (variant B)\",ID[\"EPSG\",9829]],PARAMETER[\"Latitude of standard parallel\",-90,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8832]],PARAMETER[\"Longitude of origin\",0,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8833]],PARAMETER[\"False easting\",0,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8806]],PARAMETER[\"False northing\",0,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8807]]],CS[Cartesian,2],AXIS[\"easting\",north,ORDER[1],LENGTHUNIT[\"metre\",1]],AXIS[\"northing\",north,ORDER[2],LENGTHUNIT[\"metre\",1]]]"
+        },
+        "sha256": "3ba7b97cb00a2bcf21189c3aeb535f65afc21207154ab9f0d43c5bdc1f7e747e",
+        "url": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/Site01/Site01_final_adj_5mpp_surf.tif"
+      },
+      "sourceFrame": "DE421 MOON_ME",
+      "stencil": {
+        "centerColumn": 1600,
+        "centerOffsetFromStudyPointProjectedM": [
+          1.6448143328379956,
+          1.7550381240853312
+        ],
+        "centerProjectedCoordinateM": [
+          -10997.5,
+          -11997.5
+        ],
+        "centerRow": 1599,
+        "elevationM": [
+          [
+            1945.0633544921875,
+            1944.51708984375,
+            1944.5037841796875
+          ],
+          [
+            1944.9676513671875,
+            1944.632568359375,
+            1944.373779296875
+          ],
+          [
+            1944.946044921875,
+            1944.76708984375,
+            1944.293212890625
+          ]
+        ],
+        "nativePixelSpacingM": 5.0,
+        "requiredCellsRowColumn": [
+          [
+            1,
+            1
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            2,
+            1
+          ]
+        ],
+        "sampleLocation": "Native raster cell containing the exact published observer point; a gradient of its neighboring cell centers, not a point-scale measured surface slope",
+        "studyPointProjectedCoordinateM": [
+          -10999.144814332838,
+          -11999.255038124085
+        ],
+        "valid": [
+          [
+            true,
+            true,
+            true
+          ],
+          [
+            true,
+            true,
+            true
+          ],
+          [
+            true,
+            true,
+            true
+          ]
+        ],
+        "windowOffsetColumnRow": [
+          1599,
+          1598
+        ]
+      },
+      "warning": "Local NASA DEM-model ground gradient; this is not a skyline elevation, landing-site approval, lander limit, hazard certification or a slope constraint in the mission engine. Nominal 5 m spacing does not imply independent 5 m measurements.",
+      "workingFrame": "MOON_ME_DE440_ME421"
+    },
+    {
+      "coordinateStatus": "Published region center",
+      "groundM": 771.043212890625,
+      "latitudeDeg": -89.7668,
+      "longitudeEastDeg": 188.13,
+      "name": "Shackleton Rim",
+      "observerHeightM": 2.0,
+      "siteId": "shackleton-rim",
+      "slope": {
+        "centralDifferenceHorizontalSpansM": [
+          10.004404868044741,
+          10.0043954003447
+        ],
+        "gradientEast": 0.6122923173385204,
+        "gradientNorth": 0.0008317968386866455,
+        "slopeDeg": 31.478839026509107,
+        "status": "COMPUTED"
+      },
+      "source": {
+        "acquiredUtc": "2026-11-14T06:14:39.661391+00:00",
+        "bytes": 40980806,
+        "citation": "https://pgda.gsfc.nasa.gov/products/78",
+        "expectedBytes": 40980806,
+        "filename": "Site04_final_adj_5mpp_surf.tif",
+        "raster": {
+          "affine": [
+            5.0,
+            0.0,
+            -9000.0,
+            0.0,
+            -5.0,
+            1000.0
+          ],
+          "areaOrPoint": "Area",
+          "boundsM": [
+            -9000.0,
+            -15000.0,
+            7000.0,
+            1000.0
+          ],
+          "dimensions": [
+            3200,
+            3200
+          ],
+          "filename": "Site04_final_adj_5mpp_surf.tif",
+          "maskFlags": [
+            "nodata"
+          ],
+          "noData": "NaN",
+          "spacingM": 5.0,
+          "wkt": "PROJCRS[\"unnamed\",BASEGEOGCRS[\"unnamed ellipse\",DATUM[\"unknown\",ELLIPSOID[\"unnamed\",1737400,0,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]]]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9122]]]],CONVERSION[\"unnamed\",METHOD[\"Polar Stereographic (variant B)\",ID[\"EPSG\",9829]],PARAMETER[\"Latitude of standard parallel\",-90,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8832]],PARAMETER[\"Longitude of origin\",0,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8833]],PARAMETER[\"False easting\",0,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8806]],PARAMETER[\"False northing\",0,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8807]]],CS[Cartesian,2],AXIS[\"easting\",north,ORDER[1],LENGTHUNIT[\"metre\",1]],AXIS[\"northing\",north,ORDER[2],LENGTHUNIT[\"metre\",1]]]"
+        },
+        "sha256": "38ff70dbdf2f066c2cfa94a646c3a59d653ce7f6b4528b15fc1b43ee397ce758",
+        "url": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/Site04/Site04_final_adj_5mpp_surf.tif"
+      },
+      "sourceFrame": "DE421 MOON_ME",
+      "stencil": {
+        "centerColumn": 1599,
+        "centerOffsetFromStudyPointProjectedM": [
+          -2.463394281059095,
+          -2.1544347295057378
+        ],
+        "centerProjectedCoordinateM": [
+          -1002.5,
+          -7002.5
+        ],
+        "centerRow": 1600,
+        "elevationM": [
+          [
+            774.5875244140625,
+            771.4742431640625,
+            768.2079467773438
+          ],
+          [
+            774.0438842773438,
+            771.043212890625,
+            767.9786376953125
+          ],
+          [
+            773.55029296875,
+            770.6162109375,
+            767.6083984375
+          ]
+        ],
+        "nativePixelSpacingM": 5.0,
+        "requiredCellsRowColumn": [
+          [
+            1,
+            1
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            2,
+            1
+          ]
+        ],
+        "sampleLocation": "Native raster cell containing the exact published observer point; a gradient of its neighboring cell centers, not a point-scale measured surface slope",
+        "studyPointProjectedCoordinateM": [
+          -1000.0366057189409,
+          -7000.345565270494
+        ],
+        "valid": [
+          [
+            true,
+            true,
+            true
+          ],
+          [
+            true,
+            true,
+            true
+          ],
+          [
+            true,
+            true,
+            true
+          ]
+        ],
+        "windowOffsetColumnRow": [
+          1598,
+          1599
+        ]
+      },
+      "warning": "Local NASA DEM-model ground gradient; this is not a skyline elevation, landing-site approval, lander limit, hazard certification or a slope constraint in the mission engine. Nominal 5 m spacing does not imply independent 5 m measurements.",
+      "workingFrame": "MOON_ME_DE440_ME421"
+    },
+    {
+      "coordinateStatus": "Published region center",
+      "groundM": 1793.7939453125,
+      "latitudeDeg": -88.6834,
+      "longitudeEastDeg": 292.0679,
+      "name": "de Gerlache Rim 1",
+      "observerHeightM": 2.0,
+      "siteId": "de-gerlache-rim",
+      "slope": {
+        "centralDifferenceHorizontalSpansM": [
+          10.009003114539063,
+          10.0090032034595
+        ],
+        "gradientEast": 0.002125004511563527,
+        "gradientNorth": 0.017705276617810458,
+        "slopeDeg": 1.0216097257626273,
+        "status": "COMPUTED"
+      },
+      "source": {
+        "acquiredUtc": "2026-11-14T06:14:33.327541+00:00",
+        "bytes": 40980806,
+        "citation": "https://pgda.gsfc.nasa.gov/products/78",
+        "expectedBytes": 40980806,
+        "filename": "Site11_final_adj_5mpp_surf.tif",
+        "raster": {
+          "affine": [
+            5.0,
+            0.0,
+            -45000.0,
+            0.0,
+            -5.0,
+            23000.0
+          ],
+          "areaOrPoint": "Area",
+          "boundsM": [
+            -45000.0,
+            7000.0,
+            -29000.0,
+            23000.0
+          ],
+          "dimensions": [
+            3200,
+            3200
+          ],
+          "filename": "Site11_final_adj_5mpp_surf.tif",
+          "maskFlags": [
+            "nodata"
+          ],
+          "noData": "NaN",
+          "spacingM": 5.0,
+          "wkt": "PROJCRS[\"unnamed\",BASEGEOGCRS[\"unnamed ellipse\",DATUM[\"unknown\",ELLIPSOID[\"unnamed\",1737400,0,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]]]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9122]]]],CONVERSION[\"unnamed\",METHOD[\"Polar Stereographic (variant B)\",ID[\"EPSG\",9829]],PARAMETER[\"Latitude of standard parallel\",-90,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8832]],PARAMETER[\"Longitude of origin\",0,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8833]],PARAMETER[\"False easting\",0,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8806]],PARAMETER[\"False northing\",0,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8807]]],CS[Cartesian,2],AXIS[\"easting\",north,ORDER[1],LENGTHUNIT[\"metre\",1]],AXIS[\"northing\",north,ORDER[2],LENGTHUNIT[\"metre\",1]]]"
+        },
+        "sha256": "58f3372c35bbd6baf38ffd5633c1c96b59bd89dbd252150581d12893a43136e5",
+        "url": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/Site11/Site11_final_adj_5mpp_surf.tif"
+      },
+      "sourceFrame": "DE421 MOON_ME",
+      "stencil": {
+        "centerColumn": 1599,
+        "centerOffsetFromStudyPointProjectedM": [
+          -1.9899770249248832,
+          2.2929048978076025
+        ],
+        "centerProjectedCoordinateM": [
+          -37002.5,
+          15002.5
+        ],
+        "centerRow": 1599,
+        "elevationM": [
+          [
+            1793.9002685546875,
+            1793.849609375,
+            1793.764404296875
+          ],
+          [
+            1793.8577880859375,
+            1793.7939453125,
+            1793.7015380859375
+          ],
+          [
+            1793.839111328125,
+            1793.7633056640625,
+            1793.6644287109375
+          ]
+        ],
+        "nativePixelSpacingM": 5.0,
+        "requiredCellsRowColumn": [
+          [
+            1,
+            1
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            2,
+            1
+          ]
+        ],
+        "sampleLocation": "Native raster cell containing the exact published observer point; a gradient of its neighboring cell centers, not a point-scale measured surface slope",
+        "studyPointProjectedCoordinateM": [
+          -37000.510022975075,
+          15000.207095102192
+        ],
+        "valid": [
+          [
+            true,
+            true,
+            true
+          ],
+          [
+            true,
+            true,
+            true
+          ],
+          [
+            true,
+            true,
+            true
+          ]
+        ],
+        "windowOffsetColumnRow": [
+          1598,
+          1598
+        ]
+      },
+      "warning": "Local NASA DEM-model ground gradient; this is not a skyline elevation, landing-site approval, lander limit, hazard certification or a slope constraint in the mission engine. Nominal 5 m spacing does not imply independent 5 m measurements.",
+      "workingFrame": "MOON_ME_DE440_ME421"
+    }
+  ],
+  "slopeMeaning": "Local finite-difference gradient of the native DEM model around the containing pixel; distinct from all apparent skyline angles. Not a landing-safety criterion and not used by the mission engine.",
+  "version": "1.0.0"
+}

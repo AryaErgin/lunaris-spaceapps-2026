@@ -367,7 +367,7 @@ try {
     assert.equal(delayTolerance.kind, 'lower-bound');
     const endpoint = new Date(delayTolerance.until * 1000).toISOString().replace('T', ' ').replace('Z', ' UTC');
     await browserEval(`(() => {
-      document.querySelector('#reset-demo').click();
+      document.querySelector('#solar-demo').click();
       document.querySelector('#nominal').value = '2026-11-06T12:02:00';
       document.querySelector('#delay').value = 0;
       document.querySelector('#evaluate').click();
@@ -414,7 +414,8 @@ try {
     await browserEval("document.querySelector('#reset-demo').click();document.querySelector('[data-decision=nominal]').click()");
     await until(()=>browserEval("document.querySelectorAll('.atlas-site-button').length===3"));
     const b=JSON.parse(await readFile(resolve(workspace,'web/data/bundle.json'),'utf8'));
-    const matrix=feasibilityMatrix(b,b.demo);
+    const {communicationDemo:defaultJointDemo}=await import('../web/overview.mjs');
+    const matrix=feasibilityMatrix(b,defaultJointDemo(b));
     const matrixCells=await browserEval(`[...document.querySelectorAll('.feasibility-cell')].map(n=>[n.dataset.site,Number(n.dataset.start),n.dataset.status])`);
     assert.deepEqual(matrixCells,matrix.rows.flatMap(row=>row.cells.map(m=>[row.siteId,m.start,m.status])));
     assert.equal(matrixCells.length,90);

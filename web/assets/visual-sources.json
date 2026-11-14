@@ -137,6 +137,77 @@
         "image_v_from_top": "(90 - latitude_deg) / 180",
         "note": "Rendering axes must be matched to these UVs; the texture does not define the application's Moon-fixed frame."
       }
+    },
+    {
+      "path": "assets/moon-preview.jpg",
+      "sha256": "c1920440fd73e638918b0a2951968055cac2478bbcc84e2f664c6a312e52c9c2",
+      "bytes": 325931,
+      "dimensions": [
+        2048,
+        1024
+      ],
+      "source": {
+        "filename": "lroc_color_16bit_srgb_4k.tif",
+        "url": "https://svs.gsfc.nasa.gov/vis/a000000/a004700/a004720/lroc_color_16bit_srgb_4k.tif",
+        "page": "https://svs.gsfc.nasa.gov/4720/",
+        "sha256": "9731fa8af425b6c2f88f277ecca82bf8c603f3743894f64ed7b25c5bfefa22ff",
+        "credit": "NASA's Scientific Visualization Studio; Ernie Wright; LRO/LROC and LOLA instrument teams",
+        "bytes": 61891324,
+        "retrieved_utc": "2026-11-14T11:22:13.238073+00:00"
+      },
+      "derived_from": {
+        "path": "assets/moon-color.jpg",
+        "sha256": "6715a52f7337803871f4334ebd8fe2a9f03df3eb5e77e5a75e1ed4c78789412e",
+        "bytes": 2559984,
+        "dimensions": [
+          4096,
+          2048
+        ]
+      },
+      "conversion": "Verified shipped 4096x2048 NASA Moon JPEG decoded to RGB, resized to 2048x1024 with Pillow LANCZOS; JPEG quality=80, subsampling=0, optimize=True, progressive=True. No other pixel, gamma, meridian or lighting edits. The unchanged 4K parent remains available for explicitly requested HD.",
+      "role": "Opening globe preview; NASA imagery, display only",
+      "orientation": {
+        "projection": "equirectangular",
+        "image_top_latitude_deg": 90,
+        "image_bottom_latitude_deg": -90,
+        "left_longitude_east_deg": -180,
+        "center_longitude_east_deg": 0,
+        "right_longitude_east_deg": 180,
+        "texture_u": "(longitude_east_deg + 180) / 360",
+        "image_v_from_top": "(90 - latitude_deg) / 180",
+        "note": "Rendering axes must be matched to these UVs; the texture does not define the application's Moon-fixed frame."
+      }
+    },
+    {
+      "path": "assets/earth-inset.jpg",
+      "sha256": "1b7b51e910ea595b9238df93edd70a893b820f81ce13a7629e602e57c5f0b51b",
+      "bytes": 40743,
+      "dimensions": [
+        512,
+        512
+      ],
+      "source": {
+        "filename": "bluemarble-2048.png",
+        "url": "https://svs.gsfc.nasa.gov/vis/a000000/a002900/a002915/bluemarble-2048.png",
+        "page": "https://svs.gsfc.nasa.gov/2915/",
+        "sha256": "ae6214b078ed0864c96f74bcb10ae3021f6eb116f8059797efe0fa9ea8b89d35",
+        "credit": "NASA/Goddard Space Flight Center Scientific Visualization Studio; Reto Stockli (NASA/GSFC); NASA Earth Observatory",
+        "bytes": 1511379,
+        "retrieved_utc": "2026-11-14T11:24:17.347455+00:00"
+      },
+      "derived_from": {
+        "path": "assets/earth-color.jpg",
+        "sha256": "2ad018f162cdfbdf58050ce07e71e74f845bdc253f72c32222d580c61204a1f7",
+        "bytes": 461845,
+        "dimensions": [
+          2048,
+          1024
+        ]
+      },
+      "conversion": "Verified shipped NASA Blue Marble JPEG orthographically projected to 512x512; radius=246px, center=(256,256); fixed illustrative view latitude=0 and longitude=0 degrees, bilinear equirectangular sampling, antialiased limb on black; JPEG quality=82, subsampling=0, optimize=True, progressive=True. No added illumination, shadows, atmospheric layer, clouds, terminator or color adjustment; existing source topographic shading is retained.",
+      "role": "Historical composite illustration; face and phase are unregistered; not current weather or a time-matched Earth view",
+      "orientation": null,
+      "required_display_label": "Historical NASA Blue Marble composite. Face and phase unregistered; not current weather."
     }
   ],
   "inspected_alternatives": [
@@ -183,5 +254,6 @@
     "external_runtime_imports": [],
     "license_file": "vendor/three-LICENSE.txt",
     "build": "science.visual_assets.build_vendor; esbuild --bundle --format=esm --platform=browser --target=es2022 --minify --legal-comments=inline --tsconfig-raw={}"
-  }
+  },
+  "derivative_reproduce": "python -m science.visual_assets --derivatives-only"
 }
