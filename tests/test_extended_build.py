@@ -172,3 +172,30 @@ def test_reference_cannot_be_a_modified_or_empty_bundle_claiming_the_stable_fing
     assert callable(getattr(module, 'load_reference', None)), 'The immutable baseline requires a source identity gate'
     with pytest.raises(ValueError, match='reference|stable|fingerprint'):
         module.load_reference(path)
+
+
+def test_motion_enclosure_requires_matching_period_observer_radius_and_current_code(tmp_path):
+    from hashlib import sha256
+    from pathlib import Path
+    module = extended()
+    verify = getattr(module, '_validated_motion', None)
+    assert callable(verify), 'Publish only after a matching kernel-model envelope is checked'
+    start, end = epoch('2026-11-01'), epoch('2028-01-01')
+    report = {'status': 'PASS', 'checks': {'example': True}, 'polynomial_interval_enclosure': True,
+              'formal_verification': False, 'physical_model_error_bounded': False,
+              'start_utc': '2026-11-01T00:00:00Z', 'end_utc': '2028-01-01T00:00:00Z',
+              'observer_radius_upper_km': 1740., 'kernels': [],
+              'code_sha256': sha256(Path('science/motion_envelope.py').read_bytes()).hexdigest(),
+              'bounds': {'sun_angular_rate_deg_min': .01, 'earth_angular_rate_deg_min': .02,
+                         'earth_range_min_km': 353000., 'earth_abs_range_rate_km_s': 1.2,
+                         'earth_light_time_max_s': 1.4, 'sun_light_time_max_s': 510.,
+                         'angular_seam_and_implementation_allowance_deg': .000001}}
+    site = {'referenceRadiusM': 1737400., 'groundM': 1944., 'heightM': 2.}
+    path = tmp_path / 'motion.json'
+    path.write_text(json.dumps(report))
+    verify(path, start, end, [site], {})
+    for key, value, expected in [('observer_radius_upper_km', 1737., 'observer'),
+                                ('code_sha256', 'old-source', 'code')]:
+        changed = deepcopy(report); changed[key] = value; path.write_text(json.dumps(changed))
+        with pytest.raises(ValueError, match=expected):
+            verify(path, start, end, [site], {})

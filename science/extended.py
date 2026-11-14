@@ -318,6 +318,37 @@ def epoch_date(value):
     return int(parsed.timestamp())
 
 
+def _validated_motion(path, start, end, sites, expected_kernel_hashes):
+    report = json.loads(path.read_bytes())
+    if (report.get('status') != 'PASS' or not report.get('checks')
+            or not all(value is True for value in report['checks'].values())
+            or report.get('polynomial_interval_enclosure') is not True
+            or report.get('formal_verification') is not False
+            or report.get('physical_model_error_bounded') is not False):
+        raise ValueError('A passing, explicitly scoped kernel-model motion enclosure is required')
+    if epoch_date(report['start_utc']) > start or epoch_date(report['end_utc']) < end:
+        raise ValueError('Motion enclosure does not span the requested date coverage')
+    maximum_radius = max((site['referenceRadiusM'] + site['groundM'] + site['heightM']) / 1000 for site in sites)
+    if report['observer_radius_upper_km'] < maximum_radius:
+        raise ValueError('The motion enclosure does not include every observer radius')
+    code = Path(__file__).with_name('motion_envelope.py')
+    if report.get('code_sha256') != sha256(code.read_bytes()).hexdigest():
+        raise ValueError('Motion-enclosure code differs from the executed source')
+    actual = {row['filename']: row['sha256'] for row in report['kernels']}
+    if any(actual.get(name) != digest for name, digest in expected_kernel_hashes.items()):
+        raise ValueError('Motion-enclosure kernel hashes differ from the build')
+    bounds = report['bounds']
+    if not (0 <= bounds['sun_angular_rate_deg_min'] < .03
+            and 0 <= bounds['earth_angular_rate_deg_min'] < .03
+            and bounds['earth_range_min_km'] > 350000
+            and 0 <= bounds['earth_abs_range_rate_km_s'] < 2
+            and 0 <= bounds['earth_light_time_max_s'] < 2
+            and 0 <= bounds['sun_light_time_max_s'] < 600
+            and 0 <= bounds['angular_seam_and_implementation_allowance_deg'] < .00001):
+        raise ValueError('The model enclosure does not establish the unchanged solver assumptions')
+    return report
+
+
 def build_extended(args):
     reference = load_reference(args.reference)
     if reference['coverage'] != [START, END]:
@@ -354,6 +385,7 @@ def build_extended(args):
                     'referenceRadiusM': nominal['referenceRadiusM']})
     domain, horizons = _validated_reports(args.domain_validation, args.horizons_validation, start, end, descriptors,
                                           expected_kernel_hashes={name: hashes[name] for name in FILES})
+    motion = _validated_motion(args.motion_enclosure, start, end, descriptors, {name: hashes[name] for name in FILES})
     args.cache.mkdir(parents=True, exist_ok=True)
     with Ephemeris(args.raw) as ephemeris:
         coverage = ephemeris.assert_coverage(start, end)
@@ -372,6 +404,7 @@ def build_extended(args):
         manifest['validation']['kernelReceptionCoverage'] = coverage
         manifest['validation']['horizons'] = horizons
         manifest['validation']['motionDomain'] = domain
+        manifest['validation']['motionEnvelope'] = motion
         manifest['validation']['extendedCoverage'] = {'coverage': [start, end], 'partitions': calendar_periods(start, end),
                                                       'codeSha256': code_hashes(), 'novemberParity': parity,
                                                       'method': 'Original coarse/fine terrain models; UTC monthly temporal grids; checked contiguous splicing.'}
@@ -393,6 +426,7 @@ def build_extended(args):
         for kind in ('height', 'position', 'terrain'):
             old = overlays[kind]
             study = deepcopy(old)
+            study['version'] = '1.1.0'
             study['coverage'] = [start, end]
             for scenario, old_scenario in zip(study['scenarios'], old['scenarios'], strict=True):
                 if scenario.get('baseline'):
@@ -437,6 +471,7 @@ def main():
     parser.add_argument('--outdir', type=Path, default=Path('web/data'))
     parser.add_argument('--domain-validation', type=Path, required=True)
     parser.add_argument('--horizons-validation', type=Path, required=True)
+    parser.add_argument('--motion-enclosure', type=Path, required=True)
     parser.add_argument('--engine-commit', required=True)
     parser.add_argument('--additional-site', action='store_true')
     args = parser.parse_args()
