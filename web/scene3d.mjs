@@ -641,6 +641,18 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     orbitalCamera.clearViewOffset();
     invalidate();
   }
+  function zoom(direction) {
+    if(disposed||lost||![-1,1].includes(direction))return;
+    if(pendingMode==='surface')commitMode('surface');
+    flight=null;
+    if(mode==='surface') {
+      surfaceFov=clamp(surfaceFov-direction*3,8,85);setSurfaceLook();updateFrame();
+    } else {
+      const offset=orbitalCamera.position.clone().sub(controls.target);
+      offset.setLength(clamp(offset.length()*(direction>0?.9:1.1),controls.minDistance,controls.maxDistance));
+      orbitalCamera.position.copy(offset).add(controls.target);controls.update();invalidate();
+    }
+  }
   function inspect() {
     const bodyInfo=(object,key,az,el)=>{
       const direction=bodyDirection(sample?.[az],sample?.[el]),framing=viewInfo(direction);
@@ -722,18 +734,17 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','=','-','_'].includes(event.key))return;
     if(pendingMode==='surface')commitMode('surface');
     event.preventDefault();flight=null;
+    if(['+','=','-','_'].includes(event.key)){zoom(['+','='].includes(event.key)?1:-1);return;}
     if(mode==='surface') {
       if(event.key==='ArrowLeft')yaw-=step;if(event.key==='ArrowRight')yaw+=step;
       if(event.key==='ArrowUp')pitch+=step;if(event.key==='ArrowDown')pitch-=step;
       pitch=clamp(pitch,-85*RAD,85*RAD);
-      if(['+','='].includes(event.key))surfaceFov=clamp(surfaceFov-3,8,85);
-      if(['-','_'].includes(event.key))surfaceFov=clamp(surfaceFov+3,8,85);
       setSurfaceLook();updateFrame();
     } else {
       const offset=orbitalCamera.position.clone().sub(controls.target),spherical=new THREE.Spherical().setFromVector3(offset);
       if(event.key==='ArrowLeft')spherical.theta-=step;if(event.key==='ArrowRight')spherical.theta+=step;
       if(event.key==='ArrowUp')spherical.phi-=step;if(event.key==='ArrowDown')spherical.phi+=step;
-      spherical.makeSafe();if(['+','='].includes(event.key))spherical.radius*=.9;if(['-','_'].includes(event.key))spherical.radius*=1.1;
+      spherical.makeSafe();
       spherical.radius=clamp(spherical.radius,controls.minDistance,controls.maxDistance);orbitalCamera.position.setFromSpherical(spherical).add(controls.target);controls.update();invalidate();
     }
   });
@@ -769,5 +780,5 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   report('ready','Interactive Moon ready. Select a cached study point or enter its surface view.');
   earthTexturePromise??=texture('earth-color.jpg',earthMapTarget,'map','earth');
   if(!mobileQuality)requestAnimationFrame(()=>{if(!disposed&&!lost)void loadHighDetail();});
-  return {selectSite,setMode,setFrame,focus,resize,dispose,inspect,loadHighDetail};
+  return {selectSite,setMode,setFrame,focus,zoom,resize,dispose,inspect,loadHighDetail};
 }

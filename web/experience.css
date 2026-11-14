@@ -43,6 +43,8 @@
 .scene-mode-switch{position:absolute;top:0;left:var(--rail);right:0;height:48px;display:flex;justify-content:flex-end;align-items:center;gap:6px;padding:6px 16px;background:#080e15;border-bottom:1px solid #263746}
 .scene-mode-switch button{background:none;border:0;border-radius:3px;padding:7px 10px;color:#adbfce;font:11px/1.4 var(--mono);cursor:pointer}
 .scene-mode-switch button[aria-pressed=true]{color:#eaf5fc;background:#263a4b}
+.scene-mode-switch #scene-zoom-in,.scene-mode-switch #scene-zoom-out{width:32px;height:32px;flex:none;padding:0;border:1px solid #526b7d;color:#eaf5fc;font-size:18px;line-height:1}
+@media(max-width:700px){.scene-mode-switch{flex-wrap:wrap}}
 .experience[data-mode=surface] #moon-hd,.experience[data-mode=surface] #reset-orbit{display:none}
 .scene-mount{position:absolute!important;left:var(--rail);right:0;top:48px;bottom:130px;min-height:0!important;overflow:hidden;background:#000}
 .scene-mount>.scene-poster{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}

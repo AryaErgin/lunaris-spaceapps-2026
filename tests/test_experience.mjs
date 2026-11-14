@@ -58,6 +58,17 @@ try{
     await until(async()=>{const c=(await inspect()).camera;return mode==='surface'?c.fov<before.camera.fov:Math.hypot(...c.position)<Math.hypot(...before.camera.position);});
     assert.equal(await evaluate('scrollY'),0,`${mode}: deliberate Ctrl+wheel zoom must retain the page position.`);
   };
+  const checkZoomButtons=async mode=>{
+    const metric=async()=>{const c=(await inspect()).camera;return mode==='surface'?c.fov:Math.hypot(...c.position);};
+    const before=await metric();await evaluate("document.querySelector('#scene-zoom-in').click()");
+    assert(await metric()<before,`${mode}: visible plus button must zoom in.`);
+    const zoomed=await metric();await evaluate("document.querySelector('#scene-zoom-out').click()");
+    assert(await metric()>zoomed,`${mode}: visible minus button must zoom out.`);
+    await evaluate("document.querySelector('#scene-mount canvas').focus()");
+    await command('Input.dispatchKeyEvent',{type:'keyDown',key:'+',code:'Equal',windowsVirtualKeyCode:187});
+    assert(await metric()<before,`${mode}: keyboard plus must zoom in.`);
+    await command('Input.dispatchKeyEvent',{type:'keyUp',key:'+',code:'Equal',windowsVirtualKeyCode:187});
+  };
   const screenshot=async name=>{const r=await command('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});await writeFile(resolve(work,name+'.png'),Buffer.from(r.data,'base64'));};
   const download=async(label,action)=>{
     const folder=resolve(work,label);await mkdir(folder,{recursive:true});await command('Page.setDownloadBehavior',{behavior:'allow',downloadPath:folder});
@@ -93,6 +104,7 @@ try{
   }
   await until(async()=>(await inspect()).orbital.earth.textured);
   await checkWheel('orbital');
+  await checkZoomButtons('orbital');
   await evaluate("document.querySelector('#focus-earth').click()");await until(async()=>(await inspect()).orbital.earth.inFrustum);
   assert.equal((await inspect()).mode,'orbital');await screenshot('orbital-earth-desktop');
   await evaluate("document.querySelector('#focus-sun').click()");await until(async()=>(await inspect()).orbital.sun.inFrustum);await screenshot('orbital-sun-desktop');
@@ -206,12 +218,13 @@ try{
   await until(async()=>JSON.stringify((await inspect()).camera.position)!==JSON.stringify(initialCamera));
   await evaluate("document.querySelector('#reset-orbit').click()");
   await until(async()=>{const camera=(await inspect()).camera;return camera.position.every((v,i)=>Math.abs(v-camera.overviewPosition[i])<1e-5);});
-  await evaluate("document.querySelector('#explore-site').click()");
+  await evaluate("document.querySelector('#explore-site').click();new Promise(resolve=>setTimeout(()=>{document.querySelector('#scene-zoom-in').click();resolve();},30))");
   await until(async()=>{const i=await inspect();return i?.mode==='surface'&&i.terrain.loaded&&i.earth.textured;});
   info=await inspect();assert.equal(info.camera.position[1],2);assert(info.terrain.vertexCount>50000);assert(info.terrain.indexCount>300000);
   const currentSite=bundle.sites.find(s=>s.id===info.siteId),sample=currentSite.geometry.find(r=>r[0]===info.time);
   await evaluate("document.querySelector('#focus-terrain').click()");await screenshot('surface-terrain-desktop');
   await checkWheel('surface');
+  await checkZoomButtons('surface');
   const pinchPoint=await evaluate("(()=>{const r=document.querySelector('#scene-mount canvas').getBoundingClientRect();return {x:r.left+r.width*.5,y:r.top+r.height*.5}})()"),pinchFov=(await inspect()).camera.fov;
   const touches=span=>[{id:1,x:pinchPoint.x-span,y:pinchPoint.y},{id:2,x:pinchPoint.x+span,y:pinchPoint.y}];
   await command('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:touches(35)});

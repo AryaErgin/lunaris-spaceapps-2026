@@ -940,6 +940,8 @@ byId('scene-fallback').addEventListener('click',()=>{setExpert(true);byId('conso
 byId('explore-site').addEventListener('click',enterSurface);
 byId('mode-surface').addEventListener('click',enterSurface);
 byId('reset-orbit').addEventListener('click',()=>sceneController?.focus('overview'));
+byId('scene-zoom-in').addEventListener('click',()=>sceneController?.zoom(1));
+byId('scene-zoom-out').addEventListener('click',()=>sceneController?.zoom(-1));
 byId('mode-orbital').addEventListener('click',()=>{++sceneIntent;requestedExperienceMode='orbital';pausePlayback();sceneController?.setMode('orbital');setExperienceMode('orbital');});
 byId('visual-site').addEventListener('change',()=>selectVisualSite(byId('visual-site').value));
 byId('hero-play').addEventListener('click',async()=>{
