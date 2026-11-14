@@ -102,7 +102,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   const canvas=document.createElement('canvas');
   canvas.className='mission-scene-canvas';canvas.tabIndex=0;
   canvas.setAttribute('role','application');
-  canvas.setAttribute('aria-label','Interactive Moon. Drag to rotate. Ctrl or Command plus scroll, pinch, or plus and minus keys zoom. Ordinary scrolling moves the page. Arrow keys rotate.');
+  canvas.setAttribute('aria-label','Interactive Moon. Drag to rotate; scroll or pinch to zoom. Arrow keys rotate; plus and minus zoom. Scroll outside the scene to move the page.');
   container.append(canvas);
   let renderer;
   try {
@@ -144,11 +144,6 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   controls.enablePan=false;controls.enableZoom=true;controls.enableRotate=true;
   controls.minDistance=1.06;controls.maxDistance=18;controls.rotateSpeed=.55;controls.zoomSpeed=.65;
   listen(controls,'change',()=>invalidate());listen(controls,'start',()=>{flight=null;});
-  // OrbitControls cancels all wheel events, including ordinary page navigation.
-  // Intercept only that path; modifier-wheel and touch pinch retain their handlers.
-  listen(canvas,'wheel',event=>{
-    if(!event.ctrlKey&&!event.metaKey)event.stopImmediatePropagation();
-  },{capture:true,passive:true});
 
   const moonMaterial=track(new THREE.MeshStandardMaterial({color:0xeeeeea,roughness:1,metalness:0}));
   const moon=new THREE.Mesh(track(new THREE.SphereGeometry(1,128,96)),moonMaterial);
@@ -560,8 +555,8 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     pendingMode=null;
     mode=next;flight=null;controls.enabled=mode==='orbital';container.dataset.mode=mode;
     if(!reducedMotion&&typeof canvas.animate==='function')canvas.animate([{opacity:.15},{opacity:1}],{duration:420,easing:'ease-out'});
-    canvas.setAttribute('aria-label',mode==='orbital'?'Interactive Moon. Drag or use arrow keys to rotate. Ctrl or Command plus scroll, pinch, or plus and minus keys zoom. Ordinary scrolling moves the page.'
-      :'Lunar surface at the recorded observer height. Drag or use arrow keys to look around. Ctrl or Command plus scroll, pinch, or plus and minus keys change field of view. Ordinary scrolling moves the page.');
+    canvas.setAttribute('aria-label',mode==='orbital'?'Interactive Moon. Drag or use arrow keys to rotate; scroll, pinch, plus and minus zoom. Scroll outside the scene to move the page.'
+      :'Lunar surface at the recorded observer height. Drag or use arrow keys to look around; scroll, pinch, plus and minus change field of view. Scroll outside the scene to move the page.');
     if(mode==='surface') {
       yaw=terrainBearingDeg*RAD;pitch=terrainPitch();surfaceFov=65;surfaceFocus='terrain';
       setSurfaceLook();updateFarHorizon();void loadTerrain();earthTexturePromise??=texture('earth-color.jpg',earthMapTarget,'map','earth');
@@ -780,5 +775,5 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   report('ready','Interactive Moon ready. Select a cached study point or enter its surface view.');
   earthTexturePromise??=texture('earth-color.jpg',earthMapTarget,'map','earth');
   if(!mobileQuality)requestAnimationFrame(()=>{if(!disposed&&!lost)void loadHighDetail();});
-  return {selectSite,setMode,setFrame,focus,zoom,resize,dispose,inspect,loadHighDetail};
+  return {selectSite,setMode,setFrame,focus,resize,dispose,inspect,loadHighDetail};
 }

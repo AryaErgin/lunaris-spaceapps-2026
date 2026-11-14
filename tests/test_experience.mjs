@@ -48,26 +48,25 @@ try{
   const checkWheel=async mode=>{
     await evaluate('scrollTo(0,0)');await sleep(200);
     const before=await inspect(),point=await evaluate("(()=>{const r=document.querySelector('#scene-mount canvas').getBoundingClientRect();return {x:r.left+r.width*.5,y:r.top+r.height*.5}})()");
-    await command('Input.dispatchMouseEvent',{type:'mouseWheel',...point,deltaX:0,deltaY:320});
-    await until(()=>evaluate('scrollY>50'));
-    const after=await inspect();
-    assert.deepEqual(after.camera.position,before.camera.position,`${mode}: ordinary wheel must scroll the page without moving the camera.`);
-    assert.equal(after.camera.fov,before.camera.fov);
-    await evaluate('scrollTo(0,0)');await sleep(100);
-    await command('Input.dispatchMouseEvent',{type:'mouseWheel',...point,deltaX:0,deltaY:-120,modifiers:2});
+    await command('Input.dispatchMouseEvent',{type:'mouseWheel',...point,deltaX:0,deltaY:-120});
     await until(async()=>{const c=(await inspect()).camera;return mode==='surface'?c.fov<before.camera.fov:Math.hypot(...c.position)<Math.hypot(...before.camera.position);});
-    assert.equal(await evaluate('scrollY'),0,`${mode}: deliberate Ctrl+wheel zoom must retain the page position.`);
+    assert.equal(await evaluate('scrollY'),0,`${mode}: ordinary wheel over the scene must zoom without scrolling the page.`);
+    const zoomed=await inspect();
+    await command('Input.dispatchMouseEvent',{type:'mouseWheel',...point,deltaX:0,deltaY:120});
+    await until(async()=>{const c=(await inspect()).camera;return mode==='surface'?c.fov>zoomed.camera.fov:Math.hypot(...c.position)>Math.hypot(...zoomed.camera.position);});
+    await command('Input.dispatchMouseEvent',{type:'mouseWheel',x:20,y:20,deltaX:0,deltaY:320});
+    await until(()=>evaluate('scrollY>50'));await evaluate('scrollTo(0,0)');
   };
-  const checkZoomButtons=async mode=>{
+  const checkZoomKeys=async mode=>{
     const metric=async()=>{const c=(await inspect()).camera;return mode==='surface'?c.fov:Math.hypot(...c.position);};
-    const before=await metric();await evaluate("document.querySelector('#scene-zoom-in').click()");
-    assert(await metric()<before,`${mode}: visible plus button must zoom in.`);
-    const zoomed=await metric();await evaluate("document.querySelector('#scene-zoom-out').click()");
-    assert(await metric()>zoomed,`${mode}: visible minus button must zoom out.`);
+    const before=await metric();
     await evaluate("document.querySelector('#scene-mount canvas').focus()");
     await command('Input.dispatchKeyEvent',{type:'keyDown',key:'+',code:'Equal',windowsVirtualKeyCode:187});
     assert(await metric()<before,`${mode}: keyboard plus must zoom in.`);
     await command('Input.dispatchKeyEvent',{type:'keyUp',key:'+',code:'Equal',windowsVirtualKeyCode:187});
+    const zoomed=await metric();await command('Input.dispatchKeyEvent',{type:'keyDown',key:'-',code:'Minus',windowsVirtualKeyCode:189});
+    assert(await metric()>zoomed,`${mode}: keyboard minus must zoom out.`);
+    await command('Input.dispatchKeyEvent',{type:'keyUp',key:'-',code:'Minus',windowsVirtualKeyCode:189});
   };
   const screenshot=async name=>{const r=await command('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});await writeFile(resolve(work,name+'.png'),Buffer.from(r.data,'base64'));};
   const download=async(label,action)=>{
@@ -104,7 +103,7 @@ try{
   }
   await until(async()=>(await inspect()).orbital.earth.textured);
   await checkWheel('orbital');
-  await checkZoomButtons('orbital');
+  await checkZoomKeys('orbital');
   await evaluate("document.querySelector('#focus-earth').click()");await until(async()=>(await inspect()).orbital.earth.inFrustum);
   assert.equal((await inspect()).mode,'orbital');await screenshot('orbital-earth-desktop');
   await evaluate("document.querySelector('#focus-sun').click()");await until(async()=>(await inspect()).orbital.sun.inFrustum);await screenshot('orbital-sun-desktop');
@@ -218,13 +217,16 @@ try{
   await until(async()=>JSON.stringify((await inspect()).camera.position)!==JSON.stringify(initialCamera));
   await evaluate("document.querySelector('#reset-orbit').click()");
   await until(async()=>{const camera=(await inspect()).camera;return camera.position.every((v,i)=>Math.abs(v-camera.overviewPosition[i])<1e-5);});
-  await evaluate("document.querySelector('#explore-site').click();new Promise(resolve=>setTimeout(()=>{document.querySelector('#scene-zoom-in').click();resolve();},30))");
+  await evaluate("document.querySelector('#explore-site').click()");await sleep(30);
+  await evaluate("document.querySelector('#scene-mount canvas').focus()");
+  await command('Input.dispatchKeyEvent',{type:'keyDown',key:'+',code:'Equal',windowsVirtualKeyCode:187});
+  await command('Input.dispatchKeyEvent',{type:'keyUp',key:'+',code:'Equal',windowsVirtualKeyCode:187});
   await until(async()=>{const i=await inspect();return i?.mode==='surface'&&i.terrain.loaded&&i.earth.textured;});
   info=await inspect();assert.equal(info.camera.position[1],2);assert(info.terrain.vertexCount>50000);assert(info.terrain.indexCount>300000);
   const currentSite=bundle.sites.find(s=>s.id===info.siteId),sample=currentSite.geometry.find(r=>r[0]===info.time);
   await evaluate("document.querySelector('#focus-terrain').click()");await screenshot('surface-terrain-desktop');
   await checkWheel('surface');
-  await checkZoomButtons('surface');
+  await checkZoomKeys('surface');
   const pinchPoint=await evaluate("(()=>{const r=document.querySelector('#scene-mount canvas').getBoundingClientRect();return {x:r.left+r.width*.5,y:r.top+r.height*.5}})()"),pinchFov=(await inspect()).camera.fov;
   const touches=span=>[{id:1,x:pinchPoint.x-span,y:pinchPoint.y},{id:2,x:pinchPoint.x+span,y:pinchPoint.y}];
   await command('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:touches(35)});
@@ -328,7 +330,7 @@ try{
   await screenshot('missing-bundle-mobile');
   await writeFile(resolve(work,'verification.json'),JSON.stringify({viewports:[[1024,768],[1366,768],[1440,900],[390,840]],
     initialStatus:'PASS',delayedStatus:'FAIL',recoveredStatus:'PASS',certificateRoles:['nominal','delayed','recommended','cross-site alternative'],
-    invalidArrivalRejected:true,exportSelectionRace:true,allSiteVisibilityGates:true,noExternalRequests:true,wheelPageScrollAndModifierZoom:['orbital','surface'],surfaceTouchPinch:true,
+    invalidArrivalRejected:true,exportSelectionRace:true,allSiteVisibilityGates:true,noExternalRequests:true,ordinaryWheelZoomAndPageScrollOutsideCanvas:['orbital','surface'],keyboardZoom:['orbital','surface'],surfaceTouchPinch:true,
     webglFallback:true,missingBundleError:true,physicalDevice:false,humanComprehension:false,
     browser:await command('Browser.getVersion'),performance:performanceEvidence},null,2));
   console.log(`3D experience passed: textured GPU Moon/Earth, real DEM meshes, camera controls, PASS/FAIL/PASS story, all-site obstruction gating, lazy/offline assets, mobile, reduced motion and lost/absent WebGL fallback. Evidence: ${work}`);

@@ -940,8 +940,6 @@ byId('scene-fallback').addEventListener('click',()=>{setExpert(true);byId('conso
 byId('explore-site').addEventListener('click',enterSurface);
 byId('mode-surface').addEventListener('click',enterSurface);
 byId('reset-orbit').addEventListener('click',()=>sceneController?.focus('overview'));
-byId('scene-zoom-in').addEventListener('click',()=>sceneController?.zoom(1));
-byId('scene-zoom-out').addEventListener('click',()=>sceneController?.zoom(-1));
 byId('mode-orbital').addEventListener('click',()=>{++sceneIntent;requestedExperienceMode='orbital';pausePlayback();sceneController?.setMode('orbital');setExperienceMode('orbital');});
 byId('visual-site').addEventListener('change',()=>selectVisualSite(byId('visual-site').value));
 byId('hero-play').addEventListener('click',async()=>{
@@ -1370,8 +1368,8 @@ function setExperienceMode(mode) {
   byId('scene-transport').hidden=false;
   byId('mission-story').hidden=false;
   byId('scene-mode-label').textContent=mode==='surface'?'NASA LOLA RELIEF · ILLUSTRATIVE GRAIN + LIGHTING':'NASA LRO / ORBITAL EXPLORATION';
-  byId('explore-site').textContent=mode==='surface'?'Drag to look · Ctrl/⌘ + scroll to zoom':'Explore this surface →';
-  if(sceneController&&!sceneDisabled)byId('scene-status').textContent=mode==='orbital'?'Drag to orbit. Ctrl/⌘ + scroll, pinch or +/− keys zoom; ordinary scrolling moves the page. Select a study point to approach the surface.':'Surface view · actual LOLA relief at the recorded observer height. Drag to look; Ctrl/⌘ + scroll, pinch or +/− keys zoom. Ordinary scrolling moves the page.';
+  byId('explore-site').textContent=mode==='surface'?'Drag to look around · scroll to zoom':'Explore this surface →';
+  if(sceneController&&!sceneDisabled)byId('scene-status').textContent=mode==='orbital'?'Drag to orbit; scroll or pinch to zoom. Scroll outside the scene to move the page. Select a study point to approach the surface.':'Surface view · actual LOLA relief at the recorded observer height. Drag to look; scroll or pinch to zoom. Scroll outside the scene to move the page.';
 }
 
 function setSceneStatus(event) {
