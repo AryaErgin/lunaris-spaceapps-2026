@@ -85,7 +85,12 @@ try{
   const desktop={width:1366,height:768,deviceScaleFactor:1,mobile:false};
   await command('Network.enable');await command('Runtime.enable');await command('Page.enable');await command('Performance.enable');await command('Emulation.setDeviceMetricsOverride',desktop);
   await command('Page.navigate',{url});
-  await until(async()=>Boolean((await inspect())?.moon.textured));
+  try{await until(async()=>Boolean((await inspect())?.moon.textured));}
+  catch(error){
+    await screenshot('initialization-failure');
+    console.error('Initial scene state:',await evaluate("({status:document.querySelector('#scene-status')?.textContent,scene:{...document.querySelector('#scene-mount')?.dataset},loadError:document.querySelector('#load-error')?.textContent,workspace:document.body.dataset.workspace,rect:document.querySelector('#scene-mount')?.getBoundingClientRect().toJSON()})"),exceptions);
+    throw error;
+  }
   await until(async()=>(await inspect()).renderedFrames>0);
   await until(()=>evaluate("!!document.querySelector('#quick-tour')"));
   const coldRequests=[...requests],coldSceneReadyMs=await evaluate('performance.now()');

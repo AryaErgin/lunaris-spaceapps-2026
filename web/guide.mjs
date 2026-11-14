@@ -175,6 +175,13 @@ export function initQuickTour(doc=document){
   trigger.addEventListener('click',()=>{demoLoaded=false;demoIdentity=null;show(0);});previous.addEventListener('click',()=>{delete panel.dataset.searched;show(stepId()==='compare'&&!demoLoaded?GUIDE_STEPS.findIndex(s=>s.id==='demo-consent'):current-1);});close.addEventListener('click',finish);
   next.addEventListener('click',()=>{if(panel.dataset.inspected===stepId()||stepId()==='opportunities'&&panel.dataset.searched==='done'){delete panel.dataset.searched;show(current+1);}else void advance();});
   keep.addEventListener('click',()=>{demoLoaded=false;demoIdentity=null;show(GUIDE_STEPS.findIndex(s=>s.id==='compare'));});
+  // The highlighted preset button and tour Next share the same consent path.
+  // Capture the current plan before its existing application handler can replace it.
+  doc.addEventListener('click',event=>{
+    if(stepId()==='demo-consent'&&!busy&&event.target.closest?.('#start-delay-demo')){
+      event.preventDefault();event.stopImmediatePropagation();void advance();
+    }
+  },true);
   restore.addEventListener('click',async()=>{if(!snapshot||busy)return;busy=true;refresh();try{const app=await import('./app.mjs');if(app.restoreOnboardingPlan(snapshot)){snapshot=null;demoLoaded=false;finish();}else note('Your saved plan could not be restored. The current plan is unchanged.');}finally{busy=false;refresh();}});
   doc.addEventListener('keydown',e=>{
     if(current<0)return;

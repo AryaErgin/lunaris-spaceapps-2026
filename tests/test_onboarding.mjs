@@ -114,7 +114,7 @@ try{
   await click('.quick-tour-close');assert.equal(await plan(),chosenPlan);
 
   // The explicit demonstration is driven by real application actions and results.
-  await click('#tour-start');await visit('demo-consent');await next();
+  await click('#tour-start');await visit('demo-consent');await click('#start-delay-demo');
   await until(async()=>await step()==='nominal','consented example');
   await until(()=>evaluate("document.querySelector('#story-status').textContent==='PASS'"),'original PASS');
   assert.equal(await evaluate("document.querySelector('#visual-duration').value"),'12');
