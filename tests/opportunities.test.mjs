@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {communicationDemo} from '../web/overview.mjs';
 import {evaluateStart} from '../web/engine.mjs';
-import {resolveAutomaticSchedule,findLandingOpportunities} from '../web/opportunities.mjs';
+import {resolveAutomaticSchedule,findLandingOpportunities,findVisibilityOpportunities,makeEnvironmentRecord} from '../web/opportunities.mjs';
 
 const bundle=JSON.parse(await readFile(new URL('../web/data/bundle.json',import.meta.url),'utf8'));
 const demo=communicationDemo(bundle),utc=s=>Date.parse(s)/1000;
@@ -49,4 +49,17 @@ test('coverage clipping keeps the requested hourly grid and search respects expl
 test('candidate limits and cancellation remain explicit rather than silently changing resolution',async()=>{
   await assert.rejects(findLandingOpportunities(bundle,{...demo,gridMinutes:1}),/exceeds.*site\/start pairs/);
   await assert.rejects(findLandingOpportunities(bundle,demo,{cancelled:()=>true}),{name:'AbortError'});
+});
+test('environment opportunities require no mission limits and contain no PASS/FAIL verdicts',async()=>{
+  const request={siteId:demo.siteId,nominal:utc('2026-11-17T03:00Z'),durationHours:12,earliest:demo.earliest,latest:demo.latest,gridMinutes:60};
+  const found=await findVisibilityOpportunities(bundle,request);
+  assert.equal(found.kind,'VISIBILITY_FOUND');assert.equal(found.requirementsApplied,false);
+  assert.equal(found.recommended.start,request.nominal);assert.equal(found.recommended.metrics.joint.visibleRangeSeconds[0],43200);
+  assert.equal(found.counts.PASS,undefined);assert(found.options.every(o=>!('status' in o)&&!('constraints' in o)));
+  const impossibleLimits=await findVisibilityOpportunities(bundle,{...request,maxSunHours:0,maxEarthHours:0,minJointHours:200,minContinuousJointHours:200});
+  assert.deepEqual(impossibleLimits.options,found.options,'Unapplied mission requirements cannot change environmental measurements or ranking.');
+  const current=evaluateStart(bundle,demo,demo.siteId,demo.nominal),record=makeEnvironmentRecord(bundle,current,{releaseSha:'fixture-release'});
+  assert.equal(record.record_type,'environment-evidence');assert.equal(record.requirements_applied,false);
+  assert(!('status' in record));assert(!('constraints' in record));assert.equal(record.site.id,demo.siteId);
+  assert.equal(record.measurements.earth.visibleRangeSeconds[0],43200);assert.equal(record.application_release_sha,'fixture-release');
 });

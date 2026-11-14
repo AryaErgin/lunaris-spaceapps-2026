@@ -123,6 +123,7 @@ try {
   await command('Page.setDownloadBehavior', { behavior: 'allow', downloadPath });
   await command('Page.navigate', { url });
   await until(() => browserEval(`Boolean(document.querySelector('#export:not([disabled])'))`));
+  await browserEval("document.querySelector('#start-delay-demo')?.click()");
   await browserEval("document.querySelector('#interval-details summary').click()");
   await until(() => browserEval("Boolean(document.querySelector('#interval-table tbody tr'))"));
 

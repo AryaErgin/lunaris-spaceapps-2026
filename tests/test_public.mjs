@@ -34,6 +34,11 @@ try{
   await command('Page.navigate',{url});await until(()=>evaluate("!!document.querySelector('#export:not([disabled])')"));
   assert.equal(await evaluate('location.href'),url,'Public app must not redirect to authentication.');
   const guided=await evaluate("!!document.querySelector('#story-next')");
+  if(await evaluate("document.querySelector('#apply-requirements')?.checked===false")){
+    assert(await evaluate("document.querySelector('#story-status').hidden&&document.querySelector('#environment-overview').childElementCount>0"));
+    await screenshot('anonymous-environment-desktop');
+    await evaluate("document.querySelector('#start-delay-demo').click()");
+  }
   if(!guided)await evaluate("document.querySelector('#communication-demo').click()");
   await screenshot('anonymous-desktop');
   const states=[],certificates=[];

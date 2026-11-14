@@ -166,6 +166,23 @@
 #opportunity-other{border-top:1px solid #3c5263;padding-top:16px;font-size:14px;line-height:1.7;color:#c5d7e4}
 #opportunity-other summary{cursor:pointer;color:#e5d1ad}#opportunity-near-misses p{margin-top:14px}
 .opportunity-limit{font-size:12px;line-height:1.7;margin-top:18px;color:#d7c297}
+.assessment-toggle{display:flex!important;align-items:center;gap:8px;margin-top:12px!important;font-size:12px!important;line-height:1.5;color:#c6d8e5;cursor:pointer}
+.assessment-toggle input{width:18px;min-height:18px;height:18px;margin:0;accent-color:#d6ad68;flex:none}
+#start-delay-demo{font-size:12px;min-height:30px;padding:5px 0;color:#b5d8eb}
+body:not(.environment-only) #start-delay-demo{display:none}
+.environment-measurements{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 16px;margin:12px 0}
+.environment-measurement{min-width:0;border-left:2px solid #536b7b;padding-left:9px}
+.environment-measurement.sun{border-color:#d1a15d}.environment-measurement.earth{border-color:#7bb9d1}.environment-measurement.joint{border-color:#90c1ac}
+.environment-measurement span{display:block;font-size:10px;line-height:1.5;color:#b7cbd9}
+.environment-measurement strong{display:block;font:14px/1.6 var(--mono);color:#eff5f8;overflow-wrap:anywhere}
+.environment-note{font-size:11px;line-height:1.6;color:#c2cddb;margin:8px 0}
+.environment-lines{display:grid;gap:6px;margin-top:14px}.environment-line{display:grid;grid-template-columns:36px minmax(0,1fr);gap:9px;align-items:center;font-size:11px;color:#c7d8e4}
+.environment-line .story-joint-track{margin:0;height:8px}.environment-line[data-channel=sun] .timeline-visible{background:#d1a15d}.environment-line[data-channel=earth] .timeline-visible{background:#7bb9d1}
+.measurement-label{display:inline-block;color:#b6d9e7;border:1px solid #4f7183;border-radius:4px;padding:4px 8px;font-size:12px}
+.environment-only #decision-list,.environment-only #decision-summary,.environment-only .constraints,.environment-only #alternatives,.environment-only .site-audit{display:none!important}
+.visibility-cell{color:#d6edf3!important;border-color:#405a6c!important}
+.environment-only .story-evidence h2{font-size:19px}.environment-only #story-explanation:empty{display:none}
+.environment-only .story-footer{border-top:0}
 @media(max-width:1000px){.opportunity-options{grid-template-columns:1fr}.opportunity-card h3{font-size:20px}}
 @media(max-width:700px){
  .experience-intro{padding:14px 20px 8px}.experience-intro h1{font-size:25px}

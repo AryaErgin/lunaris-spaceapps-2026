@@ -1,6 +1,6 @@
 # LUNARIS
 
-What if a lunar landing is late? LUNARIS shows the sunlight and Earth-contact opportunities lost, which fixed requirements fail, and the next confirmed arrival at a verified south-pole study point.
+Explore sunlight and Earth visibility at three NASA-sourced lunar south-pole study points. Compare arrivals, inspect bounded operating windows and find evaluated opportunities. Optional mission requirements and a landing-delay example explain what a changed schedule can cost.
 
 [Open the application](https://aryaergin.github.io/lunaris-spaceapps-2026/) · [Watch the actual 29-second demonstration](https://aryaergin.github.io/lunaris-spaceapps-2026/demo.html).
 
@@ -25,7 +25,7 @@ Open http://127.0.0.1:8000/. `serve.py` is a small standard-library launcher tha
 
 ## The landing-delay story
 
-The default de Gerlache Rim 1 mission lasts 12 hours. It allows at most 7 hours without qualified Sun-center visibility and 2 hours with Earth hidden, and requires 6 hours with both visible including one uninterrupted 2-hour window.
+Choose **Try the landing-delay example** to load the 12-hour de Gerlache Rim 1 mission. Its illustrative requirements allow at most 7 hours without qualified Sun-center visibility and 2 hours with Earth hidden, and require 6 hours with both visible including one uninterrupted 2-hour window. These are not NASA or lander specifications.
 
 1. **Original arrival: November 1, 2026, 06:00 UTC. PASS.** At least 7 h 53 min 52 s of confirmed joint visibility.
 2. **Simulate 72-hour delay.** The surface scene and shared clock advance to November 4, 06:00 UTC. A 12-hour sunlight outage exceeds the 7-hour limit by 5 hours; joint visibility is zero. Earth visibility alone remains uncertain for that mission.
@@ -35,9 +35,9 @@ Recovery also passes seven separately tested baseline/height/position/terrain ca
 
 ## Explore, compare and inspect
 
-- **Mission:** select a published study point, original UTC arrival and duration; explore the Moon or real LOLA surface; inspect original, delayed and recovered decisions. The open requirements strip shows each authoritative limit, bounded result, signed margin, individual status and highlighted interval. Limits are illustrative mission requirements, not lander specifications. Play time enters the surface. Drag/arrow keys look; scroll or pinch zooms over the scene, as do keyboard plus/minus. Scroll outside the scene to move the page.
-- **Compare:** two independently selectable sites and UTC arrivals share one duration, all active requirements and the original allowed start bounds. Add an optional third option. Each result explains its rule, joint time and bounded outages. **View this option** makes it the new original Mission arrival and preserves the other comparison drafts. **Explore the month** expands the 90-cell daily calendar. Schedule exclusions are distinguished from environmental failures.
-- **Advanced:** edit all limits and search bounds; inspect timelines, horizon/angle plots, bounded metrics, provenance and sensitivity; download the currently inspected decision as a version 2 certificate. Its selected-plan identity is separate from the original search and frozen data generator. Unstamped local development exports honestly leave the application release SHA null.
+- **Mission:** starts with environmental measurements and no mission verdict. Choose a study point, UTC arrival and view duration (12 hours if blank), then explore the Moon or LOLA surface. **Find landing opportunities** compares supported starts without requiring a delay. Environment searches show each site's largest confirmed joint-time lower bound on the selected grid; unresolved time can change the physical ranking. Enable illustrative requirements or evaluate your own limits in Advanced to obtain PASS/FAIL/INDETERMINATE, signed margins and decision certificates. The delay story is optional. Scroll/pinch zooms over the scene; drag/arrow keys look; keyboard plus/minus zoom. Scroll outside the scene to move the page.
+- **Compare:** two independent sites/UTC arrivals share the same view duration, allowed schedule and any explicitly enabled requirements. Add an optional third. Environmental mode shows visibility bounds without mission badges; requirements mode explains each verdict. **View this option** synchronizes Mission. **Explore the month** shows a daily, three-site visibility calendar (or feasibility against enabled requirements). Automatic schedule bounds update when arrival/duration changes; bounds edited in Advanced remain fixed. Unsupported coverage, empty schedules, failed options and unresolved options are explained separately, with evaluated near misses when requirements apply.
+- **Advanced:** edit limits and scheduling bounds; inspect timelines, horizon/angle plots, bounded metrics and provenance. Environmental records contain measurements with no mission verdict. With requirements enabled, sensitivity studies and version 2 decision certificates retain the inspected plan's identity separately from the original search and frozen generator. Unstamped local development exports leave the application release SHA null.
 
 ## Data and visual limits
 

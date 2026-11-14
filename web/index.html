@@ -57,7 +57,9 @@
           <label for="visual-arrival">Original arrival <span>UTC · November 2026 only</span></label>
           <div class="visual-date-controls"><input id="visual-arrival" type="datetime-local" step="1"><label class="visual-duration-field" for="visual-duration">Hours<input id="visual-duration" type="number" min="0.001" step="any" value="12" aria-label="Mission duration in hours"></label><button id="visual-date-go" class="outline" type="button">Apply</button></div>
           <button id="find-opportunities" class="primary find-opportunities" type="button" disabled>Find landing opportunities</button>
-          <p class="opportunity-scope">Before launch · three supported study points · same requirements</p>
+          <p class="opportunity-scope" id="opportunity-scope">Compare confirmed Sun + Earth time at three study points</p>
+          <label class="assessment-toggle"><input id="apply-requirements" type="checkbox"> <span id="assessment-label">Evaluate illustrative mission requirements</span></label>
+          <button id="start-delay-demo" class="link-button" type="button">Try the landing-delay example →</button>
         </div>
         <div id="surface-focus" class="surface-focus" role="group" aria-label="Surface camera direction" hidden>
           <button id="focus-earth" type="button">Look at Earth</button>
@@ -93,6 +95,7 @@
           <div><p class="eyebrow" id="story-date"></p><h2 id="story-title">Your planned landing</h2><p id="story-explanation"></p><p id="story-witness"></p></div>
           <div class="story-outcome"><span id="story-status" class="status"></span><button id="story-next" class="outline" type="button">Apply the landing delay →</button></div>
         </div>
+        <div id="environment-overview" class="environment-overview" aria-label="Modeled environmental measurements"></div>
         <div id="story-joint" class="story-joint" aria-label="Joint Sun and Earth visibility timeline"></div>
         <a class="decision-jump" href="#decision-evidence">See all mission requirements and proof ↓</a>
         <div id="configuration-summary" class="configuration-summary" role="status" hidden></div>
@@ -121,7 +124,7 @@
       <p id="opportunities-status" role="status"></p><p id="opportunities-basis" class="secondary"></p>
       <div id="opportunity-options" class="opportunity-options"></div>
       <details id="opportunity-other" hidden><summary>Near misses and unresolved starts</summary><div id="opportunity-near-misses"></div></details>
-      <p class="opportunity-limit">A passing surface-environment window does not establish a safe landing, spacecraft reachability, electrical power or a working radio link.</p>
+      <p class="opportunity-limit">Visibility windows do not establish a safe landing, spacecraft reachability, electrical power or a working radio link.</p>
     </section>
     <section id="compare-workspace" class="container compare-workspace" aria-labelledby="compare-workspace-title" hidden>
       <div class="section-head"><div><p class="eyebrow">Same requirements · independent arrivals</p><h1 id="compare-workspace-title">Which arrival works for this mission?</h1><p id="compare-input-summary" class="secondary"></p></div><button id="compare-return" class="outline" type="button">Return to Mission ↗</button></div>
@@ -270,7 +273,7 @@
             </details>
           </section>
 
-          <section aria-labelledby="results-title">
+          <section id="decision-records" aria-labelledby="results-title">
             <div class="section-head">
               <h2 id="results-title">Landing decisions</h2>
               <button id="export" class="outline" type="button" disabled><span aria-hidden="true">↓</span> Decision certificate</button>
