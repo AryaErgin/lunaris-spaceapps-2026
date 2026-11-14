@@ -24,13 +24,15 @@ export function comparisonConclusion(options,expectedCount=options.length){
   if(options.length!==expectedCount||options.some(o=>!o.complete))return 'Comparison incomplete. Choose valid arrivals with complete cached coverage for every option.';
   const sorted=[...options].sort((a,b)=>b.metrics.joint.visibleRangeSeconds[0]-a.metrics.joint.visibleRangeSeconds[0]);
   const best=sorted[0],others=sorted.slice(1),[lo,hi]=best.metrics.joint.visibleRangeSeconds;
+  const uniqueSiteNames=new Set(options.map(o=>o.name).filter(Boolean)).size===options.length;
+  const label=o=>uniqueSiteNames&&o.name?o.name:'Option '+o.key;
   if(lo===0)return options.some(o=>o.metrics.joint.visibleRangeSeconds[1]>0)
     ?'No option has confirmed simultaneous visibility. Unresolved time prevents a conclusive comparison.'
     :'No option has simultaneous Sun and Earth visibility in this modeled view.';
   const tied=others.filter(o=>o.metrics.joint.visibleRangeSeconds[0]===lo);
   if(tied.length===others.length)return `These options have the same confirmed simultaneous time: ${conciseDuration(lo)}. ${options.some(o=>o.metrics.joint.visibleRangeSeconds[1]>lo)?'Unresolved time may change their actual totals.':'Their timing and interruptions may still differ.'}`;
-  const leaders=[best,...tied].map(o=>`Option ${o.key}`).join(' and '),less=others.filter(o=>o.metrics.joint.visibleRangeSeconds[0]<lo);
-  const difference=less.map(o=>`${conciseDuration(lo-o.metrics.joint.visibleRangeSeconds[0])} more confirmed simultaneous visibility than Option ${o.key}`).join('; ');
+  const leaders=[best,...tied].map(label).join(' and '),less=others.filter(o=>o.metrics.joint.visibleRangeSeconds[0]<lo);
+  const difference=less.map(o=>`${conciseDuration(lo-o.metrics.joint.visibleRangeSeconds[0])} more confirmed simultaneous visibility than ${label(o)}`).join('; ');
   const overlap=less.some(o=>lo<=o.metrics.joint.visibleRangeSeconds[1]);
   return `${leaders} ${tied.length?'provide':'provides'} ${difference}. ${overlap?'The ranges overlap, so the actual total ordering remains unresolved.':'This difference is resolved within the modeled bounds.'}`;
 }
@@ -47,4 +49,20 @@ export function opportunityConclusion(report,siteName){
     return `${full.length===1?'1 site offers':`${full.length} sites offer`} ${conciseDuration(duration)} of confirmed simultaneous visibility. ${siteName(earliest.siteId)} reaches this full window earliest on the checked grid.`;
   }
   return `The largest confirmed overlap found is ${conciseDuration(best.metrics.joint.visibleRangeSeconds[0])} at ${siteName(best.siteId)}. Unresolved time may change the overall ordering.`;
+}
+
+/* The first screen needs one readable conclusion. Full precision remains in the
+   expandable measurements and exported evidence. Never round a lower bound up. */
+export function firstScreenConclusion(metrics,duration,{complete=true}={}){
+  if(!complete)return {headline:'Outside the available dates',reason:'Choose a covered arrival or a shorter viewing period.'};
+  const [lower,upper]=metrics.joint.visibleRangeSeconds;
+  if(lower>=duration)return {headline:conciseDuration(duration)+' together',reason:'Sun and Earth are visible together throughout your selected period.'};
+  if(lower>0){
+    const minutes=Math.floor(lower/60);
+    const short=minutes>=60?Math.floor(minutes/60)+' h '+(minutes%60?minutes%60+' min':''):minutes?minutes+' min':conciseDuration(lower);
+    return {headline:'At least '+short.trim(),reason:'Confirmed time when both Sun and Earth can be seen. More time may be possible.'};
+  }
+  if(upper>0)return {headline:'Visibility is uncertain',reason:'No simultaneous Sun and Earth time is confirmed. Some time may still be possible.'};
+  const detail=visibilityConclusion(metrics,duration,{complete:true});
+  return {headline:'No Sun + Earth overlap',reason:detail.reason};
 }

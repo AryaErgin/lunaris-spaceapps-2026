@@ -87,11 +87,27 @@ try{
   await command('Page.navigate',{url});
   await until(async()=>Boolean((await inspect())?.moon.textured));
   await until(async()=>(await inspect()).renderedFrames>0);
+  await until(()=>evaluate("!!document.querySelector('#quick-tour')"));
+  assert(await evaluate("document.querySelector('#quick-tour').hidden"),'Tour must never block first-time use by default.');
+  const originalInputs=await evaluate("document.querySelector('#visual-site').value+'|'+document.querySelector('#visual-arrival').value+'|'+document.querySelector('#visual-duration').value");
+  await evaluate("document.querySelector('#tour-start').click()");
+  assert(await evaluate("!document.querySelector('#quick-tour').hidden&&document.querySelector('#visual-site').classList.contains('quick-tour-target')"));
+  assert.match(await evaluate("document.querySelector('#quick-tour-title').textContent"),/place and time/i);
+  await screenshot('optional-quick-tour');
+  await evaluate("document.querySelector('.quick-tour-next').click()");
+  assert(await evaluate("document.querySelector('#mode-surface').classList.contains('quick-tour-target')"));
+  await evaluate("document.querySelector('.quick-tour-next').click()");
+  assert(await evaluate("document.querySelector('#find-opportunities').classList.contains('quick-tour-target')"));
+  await evaluate("document.querySelector('.quick-tour-next').click()");
+  assert(await evaluate("document.querySelector('#product-compare').classList.contains('quick-tour-target')"));
+  await evaluate("document.querySelector('.quick-tour-next').click()");
+  assert(await evaluate("document.querySelector('#quick-tour').hidden&&!document.querySelector('.quick-tour-target')"));
+  assert.equal(await evaluate("document.querySelector('#visual-site').value+'|'+document.querySelector('#visual-arrival').value+'|'+document.querySelector('#visual-duration').value"),originalInputs,'Tour must not change mission inputs.');
   assert(await evaluate("!!document.querySelector('#find-opportunities')"),'Mission needs a direct landing-opportunity action.');
   assert.equal(await evaluate("document.querySelector('#apply-requirements')?.checked"),false,'Cold start must explore the environment without arbitrary mission requirements.');
   assert(await evaluate("document.querySelector('#story-status').hidden&&document.querySelector('#decision-evidence').hidden"));
   assert.match(await evaluate("document.querySelector('.product-purpose').textContent"),/Choose a place and time on the Moon/);
-  assert.match(await evaluate("document.querySelector('#story-title').textContent"),/At least 7 h 53 min 52 s/);
+  assert.match(await evaluate("document.querySelector('#story-title').textContent"),/At least 7 h 53 min/);
   assert(await evaluate("[...document.querySelectorAll('#environment-overview .environment-measurement')].every(n=>n.closest('details')&&!n.closest('details').open)"),'Secondary measurements must be expandable, not six equally emphasized opening cards.');
   assert.equal(await evaluate("getComputedStyle(document.querySelector('.orbital-story-slot')).overflowY"),'visible','Mission must use normal page scrolling.');
   await evaluate("document.querySelector('#product-analyst').click()");
@@ -333,7 +349,8 @@ try{
       info=await inspect();assert.equal(info[key].state,state);assert.equal(info[key].visible,state==='visible',`${site.id} ${key} ${state}`);
       if(key==='earth'&&state==='blocked'){
         const arrivalBefore=await evaluate("document.querySelector('#visual-arrival').value"),conclusionBefore=await evaluate("document.querySelector('#story-explanation').textContent");
-        await evaluate("document.querySelector('#focus-earth').click()");await sleep(100);
+        await evaluate("document.querySelector('#focus-earth').click()");
+        await until(()=>evaluate("!document.querySelector('.mission-terrain-obstruction').hidden"));
         assert.equal((await inspect()).earth.visible,false);
         assert(await evaluate("!document.querySelector('.mission-terrain-obstruction').hidden"),'Blocked Earth needs a directional annotation, not a rendered body.');
         assert.equal(await evaluate("document.querySelector('#visual-arrival').value"),arrivalBefore);

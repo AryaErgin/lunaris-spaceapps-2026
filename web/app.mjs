@@ -7,7 +7,7 @@ import { createAtlas } from './atlas.mjs';
 import { sceneFrame, missionStory } from './scene-model.mjs';
 import {constraintEvidence,constraintSegments,evidenceTime} from './decision-evidence.mjs';
 import {resolveAutomaticSchedule,findLandingOpportunities,findVisibilityOpportunities,makeEnvironmentRecord,environmentInputs} from './opportunities.mjs';
-import {visibilityConclusion,comparisonConclusion,opportunityConclusion,conciseDuration} from './explanations.mjs';
+import {visibilityConclusion,comparisonConclusion,opportunityConclusion,conciseDuration,firstScreenConclusion} from './explanations.mjs';
 
 const byId = (id) => document.getElementById(id);
 const form = byId('mission-form');
@@ -1345,7 +1345,7 @@ function renderOptionComparison(focus){
     catch(error){card.append(element('p','notice',`${error.message} No result is claimed.`));root.append(card);continue;}
     const bounded=missionMetrics(mission,findSite(option.siteId));
     const complete=mission.start>=bundle.coverage[0]&&mission.end<=bundle.coverage[1];
-    evaluations.push({key:option.key,mission,metrics:bounded,complete});Object.assign(card.dataset,{site:option.siteId,start:option.start,end:mission.end,status:mission.status,cause:mission.startAllowed===false?'schedule':'environment'});
+    evaluations.push({key:option.key,name:findSite(option.siteId)?.name,mission,metrics:bounded,complete});Object.assign(card.dataset,{site:option.siteId,start:option.start,end:mission.end,status:mission.status,cause:mission.startAllowed===false?'schedule':'environment'});
     const status=element('p','option-status');if(requirementsEnabled){status.append(statusChip(mission.status));card.append(status);}else card.dataset.status='ENVIRONMENT';
     if(mission.startAllowed===false)card.append(element('p','schedule-exclusion','Outside allowed schedule — environmental results are separate.'));
     if(siteCaution(option.siteId))card.append(element('p','comparison-caution',siteCaution(option.siteId)));
@@ -1765,7 +1765,7 @@ function renderMissionStory() {
     Object.assign(byId('mission-story').dataset,{start:mission.start,site:mission.siteId,status:'ENVIRONMENT'});
     document.querySelector('.experience-intro .eyebrow').textContent=`${inputs.durationHours}-HOUR ENVIRONMENT VIEW`;
     byId('story-date').textContent=`${findSite(mission.siteId).name} · ${shortTime(mission.start)} · ${inputs.durationHours} h view`;
-    const conclusion=visibilityConclusion(missionMetrics(mission,findSite(mission.siteId)),mission.end-mission.start,{complete:mission.start>=bundle.coverage[0]&&mission.end<=bundle.coverage[1]});
+    const conclusion=firstScreenConclusion(missionMetrics(mission,findSite(mission.siteId)),mission.end-mission.start,{complete:mission.start>=bundle.coverage[0]&&mission.end<=bundle.coverage[1]});
     byId('story-title').textContent=conclusion.headline;byId('story-explanation').textContent=conclusion.reason;byId('story-status').textContent='';
     byId('story-joint').hidden=true;byId('configuration-summary').hidden=true;
     byId('story-requirements').textContent='Sun-center visibility: the Sun’s center clears terrain and Earth’s apparent disc. Earth-center line of sight: a geometric direction to Earth’s center. Both at once: joint visibility. Full-disc illumination, electrical power and radio performance are not established.';

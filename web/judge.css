@@ -1,0 +1,227 @@
+/* Judge-first presentation layer. It changes visual hierarchy, not lunar calculations. */
+/* The optional landing-delay demonstration already explains itself; keep its
+   decision and action above the fold instead of stacking a second introduction. */
+body:not(.environment-only) .product-purpose {display:none;}
+:root {
+  --judge-paper: #f0f5f8;
+  --judge-muted: #c1d4e1;
+  --judge-gold: #f0bf70;
+  --judge-line: #426079;
+}
+.product-purpose {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 11px 26px;
+  background: linear-gradient(110deg,#132434 0%,#0c1723 58%,#101d29 100%);
+  border-bottom: 1px solid var(--judge-line);
+}
+.product-purpose .purpose-copy {min-width: 0; flex: 1;}
+.product-purpose .purpose-copy>p:first-child {
+  color: var(--judge-paper);
+  font: 600 clamp(15px,1.25vw,17px)/1.4 system-ui,sans-serif;
+  letter-spacing: -.015em;
+  max-width: 72ch;
+}
+.product-purpose .geometry-note {
+  font: 13px/1.4 system-ui,sans-serif;
+  color: var(--judge-muted);
+  margin-top: 3px;
+}
+#tour-start {
+  flex-shrink: 0;
+  border: 1px solid #b78d51;
+  border-radius: 9px;
+  background: #1c3040;
+  color: #ffe0a8;
+  font: 700 14px/1.4 system-ui,sans-serif;
+  padding: 11px 17px;
+  min-height: 44px;
+  cursor: pointer;
+}
+#tour-start:hover,#tour-start:focus-visible {
+  background: #294359;
+  border-color: var(--judge-gold);
+}
+#tour-start span {margin-left: 8px;}
+
+.experience-intro h1 {
+  color: var(--judge-paper);
+  font: 730 clamp(24px,2.2vw,31px)/1.15 system-ui,sans-serif;
+  letter-spacing: -.035em;
+}
+.scene-site-picker label,
+.scene-site-picker .visual-duration-field {
+  font-size: 14px;
+  color: #e2edf4;
+}
+.scene-site-picker select,.visual-date-controls input {
+  font-size: 14px !important;
+  border-color: #496579;
+  background-color: #0a1825;
+}
+.visual-date-controls button {
+  font-size: 13px;
+  min-height: 41px;
+}
+.find-opportunities {
+  border-radius: 10px !important;
+  background: linear-gradient(135deg,#f4c576 0%,#e2ac57 100%) !important;
+  color: #10161c !important;
+  font-size: 16px !important;
+  font-weight: 730 !important;
+  min-height: 50px !important;
+  box-shadow: 0 5px 20px #bd873624;
+}
+.find-opportunities:hover,.find-opportunities:focus-visible {filter: brightness(1.08);}
+.scene-site-picker .opportunity-scope {
+  font-size: 13px !important;
+  color: #c7d9e6;
+  line-height: 1.4;
+}
+.assessment-toggle,#start-delay-demo {
+  font-size: 14px !important;
+  line-height: 1.5;
+}
+.scene-mode-switch button {
+  font: 600 13px/1.4 system-ui,sans-serif !important;
+  min-height: 40px;
+  border-radius: 7px;
+}
+.scene-mount>.surface-focus button {
+  font: 600 13px/1.35 system-ui,sans-serif;
+  min-height: 40px;
+  border-radius: 7px;
+  border-color: #658095;
+  background: #0b1928e8;
+}
+.experience .mission-scene-location {font-size: 14px; font-weight: 700;}
+.experience .mission-scene-body-status {
+  top: 15px; right: 16px;
+  background: #07141fdd;
+  border: 1px solid #415d72;
+  border-radius: 9px;
+  padding: 9px 12px;
+  text-align: left;
+  font-size: 13px;
+  line-height: 1.45;
+  letter-spacing: 0;
+  max-width: min(270px,36%);
+}
+.experience .mission-scene-marker-label {
+  font: 700 12px/1.3 system-ui,sans-serif;
+  letter-spacing: .025em;
+  padding: 8px 10px;
+}
+.scene-time-label,.hero-visibility,.view-clock-help {font-size: 13px;line-height: 1.5;}
+.environment-only .story-evidence h2 {
+  color: var(--judge-paper);
+  font-size: clamp(21px,2vw,26px);
+  line-height: 1.2;
+  max-width: 28ch;
+}
+.story-evidence p,.environment-note {font-size: 14px;line-height: 1.55;color: #d4e3ed;}
+.measurement-details>summary,.mission-requirements-editor>summary {
+  color: #d3eafa;
+  font: 600 14px/1.6 system-ui,sans-serif;
+  min-height: 36px;
+}
+.environment-measurement span {font-size: 13px; color: #bdcfdb;}
+.environment-measurement strong {font-size: 18px;line-height: 1.35;}
+.environment-line {font-size: 13px;}
+.option-card,.opportunity-card {
+  border-color: #45637a;
+  background: linear-gradient(145deg,#122230 0%,#0e1b28 100%);
+  border-radius: 12px;
+}
+.option-card h2,.opportunity-card h3 {font-size: 23px;letter-spacing: -.02em;}
+.option-joint,.opportunity-card .opportunity-joint {
+  font: 700 23px/1.35 system-ui,sans-serif;
+  color: #d1f0df;
+  letter-spacing: -.025em;
+}
+.option-reason,.opportunity-card .opportunity-rule {
+  color: #d9e9f2;
+  font-size: 15px;
+  line-height: 1.55;
+}
+.comparison-difference {
+  padding: 18px 22px;
+  background: linear-gradient(120deg,#1d3140 0%,#102333 100%);
+  border: 1px solid #638095;
+  border-left: 4px solid var(--judge-gold);
+  border-radius: 10px;
+}
+.comparison-difference h2 {font-size: 18px;line-height: 1.3;}
+.comparison-difference p {font-size: 17px;line-height: 1.55;color: var(--judge-paper);}
+.landing-opportunities[data-kind="VISIBILITY_FOUND"] .opportunity-card:first-child {
+  border-color: #bfa16d;
+  box-shadow: inset 0 3px 0 #d9b373;
+}
+.opportunity-card .eyebrow,.option-card .eyebrow {
+  font-size: 12px;
+  letter-spacing: .025em;
+  color: #d0dfeb;
+}
+.opportunity-date {font-size: 14px;}
+.search-evidence,.comparison-context {font-size: 14px;line-height: 1.6;}
+.science-guide p {font-size: 16px;line-height: 1.7;}
+.science-guide>details>summary {font-size: 19px;line-height: 1.45;}
+.scene-site-picker :is(button,select,input):focus-visible,
+.quick-tour button:focus-visible,#tour-start:focus-visible {
+  outline: 3px solid #f7d38c;
+  outline-offset: 3px;
+}
+
+/* An optional tour: short, interactive and non-blocking, never an automatic modal. */
+.quick-tour[hidden] {display:none !important;}
+.quick-tour {
+  position: fixed;
+  z-index: 9999;
+  right: 22px;
+  bottom: 22px;
+  width: min(405px,calc(100vw - 34px));
+  max-height: min(420px,72svh);
+  overflow: auto;
+  padding: 20px 22px;
+  color: #f0f6fb;
+  background: linear-gradient(150deg,#1d3446 0%,#0e1c2a 72%);
+  border: 1px solid #98aec1;
+  border-radius: 15px;
+  box-shadow: 0 24px 80px #000b,0 0 0 1px #ffffff0d inset;
+}
+.quick-tour-top {display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.quick-tour-progress {color: #f1c476;font: 700 13px/1.4 system-ui,sans-serif;letter-spacing:.06em;}
+.quick-tour-close {background:transparent;border:0;color:#c9dbe7;cursor:pointer;font:600 14px/1.4 system-ui,sans-serif;padding:7px;}
+.quick-tour h2 {font:750 24px/1.2 system-ui,sans-serif;margin:15px 0 9px;color:#fff;letter-spacing:-.03em;}
+.quick-tour p {font: 16px/1.55 system-ui,sans-serif;color:#dbe7f0;margin:0 0 20px;}
+.quick-tour-actions {display:flex;gap:10px;justify-content:flex-end;}
+.quick-tour-actions button {border:1px solid #7190a4;border-radius:8px;min-height:44px;padding:9px 16px;cursor:pointer;font:700 14px/1.3 system-ui,sans-serif;}
+.quick-tour-back {background:#172a39;color:#dcebf5;}
+.quick-tour-next {background:#f3c275;color:#15202c;border-color:#f3c275 !important;}
+.quick-tour-target {
+  outline: 3px solid #fac978 !important;
+  outline-offset: 5px;
+  border-radius: 8px;
+  scroll-margin-top: 125px;
+}
+@media(max-width:700px){
+  .product-purpose{padding:10px 16px;align-items:flex-start;flex-wrap:wrap;gap:9px;}
+  .product-purpose .purpose-copy>p:first-child{font-size:15px;}
+  .product-purpose .geometry-note{font-size:13px;}
+  #tour-start{min-height:42px;padding:8px 13px;}
+  .experience .mission-scene-caption{top:10px;left:12px;right:auto;max-width:46%;width:46%;}
+  .experience .mission-scene-body-status{top:10px;bottom:auto;right:8px;font-size:12px;line-height:1.35;max-width:46%;padding:5px 7px;}
+  .scene-site-picker label{font-size:14px;}
+  .scene-site-picker .opportunity-scope{font-size:13px !important;}
+  .scene-mode-switch button{font-size:12px !important;}
+  .comparison-difference p{font-size:15px;}
+  .option-joint,.opportunity-card .opportunity-joint{font-size:20px;}
+  .quick-tour{right:10px;bottom:10px;width:calc(100vw - 20px);max-height:48svh;padding:16px;}
+  .quick-tour h2{font-size:21px;}
+  .quick-tour p{font-size:15px;margin-bottom:14px;}
+}
+@media(prefers-reduced-motion:reduce){
+  .quick-tour *,#tour-start{transition:none !important;animation:none !important;}
+}
