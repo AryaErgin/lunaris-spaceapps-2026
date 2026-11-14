@@ -24,9 +24,8 @@
           <span>LUNARIS</span>
         </a>
         <nav class="main-nav" aria-label="Main navigation">
-          <button id="product-explore" class="nav-link" type="button" data-workspace="explore" aria-pressed="true">Explore</button>
+          <button id="product-explore" class="nav-link" type="button" data-workspace="explore" aria-pressed="true">Mission</button>
           <button id="product-compare" class="nav-link" type="button" data-workspace="compare" aria-pressed="false">Compare</button>
-          <button id="product-rescue" class="nav-link" type="button" data-workspace="rescue" aria-pressed="false">Rescue</button>
           <button id="product-analyst" class="nav-link" type="button" data-workspace="analyst" aria-pressed="false">Advanced</button>
         </nav>
         <button id="expert-toggle" class="outline expert-toggle" type="button" aria-expanded="false" aria-controls="top" hidden>Analyst mode</button>
@@ -57,7 +56,7 @@
           <select id="visual-site" disabled aria-describedby="visual-site-detail"></select>
           <p id="visual-site-detail">Three supported south-pole study points.</p>
           <label for="visual-arrival">Original arrival <span>UTC · November 2026 only</span></label>
-          <div class="visual-date-controls"><input id="visual-arrival" type="datetime-local" step="1"><button id="visual-date-go" class="outline" type="button">Apply date</button></div>
+          <div class="visual-date-controls"><input id="visual-arrival" type="datetime-local" step="1"><label class="visual-duration-field" for="visual-duration">Hours<input id="visual-duration" type="number" min="0.001" step="any" value="12" aria-label="Mission duration in hours"></label><button id="visual-date-go" class="outline" type="button">Apply</button></div>
         </div>
         <div id="surface-focus" class="surface-focus" role="group" aria-label="Surface camera direction" hidden>
           <button id="focus-earth" type="button">Find Earth</button>
@@ -117,8 +116,12 @@
     </section>
 
     <section id="compare-workspace" class="container compare-workspace" aria-labelledby="compare-workspace-title" hidden>
-      <div class="section-head"><div><p class="eyebrow">One mission · identical hard limits</p><h1 id="compare-workspace-title">Compare landing opportunities.</h1><p id="compare-input-summary" class="secondary"></p></div><button id="compare-return" class="outline" type="button">Return to lunar scene ↗</button></div>
-      <div id="comparison-panels"></div>
+      <div class="section-head"><div><p class="eyebrow">Same requirements · independent arrivals</p><h1 id="compare-workspace-title">Which arrival works for this mission?</h1><p id="compare-input-summary" class="secondary"></p></div><button id="compare-return" class="outline" type="button">Return to Mission ↗</button></div>
+      <div class="comparison-shared"><label for="comparison-duration">Shared mission duration <span>hours</span><input id="comparison-duration" type="number" min="0.001" step="any" value="12"></label><p id="comparison-shared-limits"></p><button id="comparison-edit-limits" class="link-button" type="button">Edit these requirements in Advanced ↗</button></div>
+      <div id="option-comparison" class="option-comparison"></div>
+      <div class="comparison-actions"><button id="add-comparison-option" class="outline" type="button">Add a third option</button><button id="remove-comparison-option" class="link-button" type="button" hidden>Remove third option</button></div>
+      <section class="comparison-difference" aria-labelledby="comparison-difference-title"><h2 id="comparison-difference-title">What is the difference?</h2><p id="comparison-difference"></p><p>Joint = both visibility conditions at once. Geometric center visibility does not establish electrical power or a working radio link. Cross-site options are prelaunch concepts.</p></section>
+      <details id="month-explorer" class="month-explorer"><summary>Explore the month · daily start samples</summary><div id="comparison-panels"></div></details>
     </section>
 
     <main id="top" class="container engineering" hidden>

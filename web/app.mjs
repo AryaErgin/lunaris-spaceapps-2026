@@ -72,6 +72,7 @@ let telemetryMission;
 let renderingNotes;
 let evidenceMission;
 let highlightedConstraintId;
+let comparisonOptions;
 const SENSITIVITY_STUDY_SITE = 'de-gerlache-rim';
 const studies = [
   { id: 'height', cases: 'heights', evaluator: 'evaluateHeights' },
@@ -911,15 +912,26 @@ byId('solar-demo').addEventListener('click',()=>{setExpert(true);loadDemo(false)
 byId('expert-toggle').addEventListener('click',()=>setExpert(byId('top').hidden));
 for(const button of document.querySelectorAll('[data-workspace]'))button.addEventListener('click',()=>setProductMode(button.dataset.workspace));
 byId('compare-return').addEventListener('click',()=>setProductMode('explore'));
+byId('comparison-edit-limits').addEventListener('click',()=>{setExpert(true);byId('max-sun').focus();});
+byId('comparison-duration').addEventListener('change',()=>{
+  const hours=Number(byId('comparison-duration').value);
+  if(!Number.isFinite(hours)||hours<=0){byId('comparison-duration').value=inputs.durationHours;byId('comparison-difference').textContent='Duration not changed. Choose a positive shared mission duration.';return;}
+  byId('duration').value=hours;evaluate();
+});
+byId('add-comparison-option').addEventListener('click',()=>{if(comparisonOptions?.length===2){comparisonOptions.push({...comparisonOptions[1],key:'C'});renderOptionComparison();}});
+byId('remove-comparison-option').addEventListener('click',()=>{comparisonOptions=comparisonOptions?.slice(0,2);renderOptionComparison();});
 byId('visual-date-go').addEventListener('click',()=>{
   const field=byId('visual-arrival');
   if(!field.value||!Number.isFinite(Date.parse(`${field.value}Z`))){
     field.setCustomValidity('Choose a valid original arrival in UTC.');field.reportValidity();
     byId('workspace-notice').hidden=false;byId('workspace-notice').textContent='Arrival not changed. Choose a valid UTC date and time, then apply it.';return;
   }
+  const duration=Number(byId('visual-duration').value);
+  if(!Number.isFinite(duration)||duration<=0){byId('workspace-notice').hidden=false;byId('workspace-notice').textContent='Choose a positive mission duration. Arrival and mission have not changed.';return;}
   field.setCustomValidity('');byId('workspace-notice').hidden=true;
-  byId('nominal').value=field.value;if(evaluate())showGuidedPhase('nominal');
+  byId('nominal').value=field.value;byId('duration').value=duration;selected='nominal';if(evaluate())showGuidedPhase('nominal');
 });
+document.querySelector('.scene-site-picker').addEventListener('focusin',()=>pausePlayback());
 byId('visual-arrival').addEventListener('input',()=>byId('visual-arrival').setCustomValidity(''));
 for(const link of document.querySelectorAll('.main-nav a'))link.addEventListener('click',()=>{
   if(link.getAttribute('href')!=='#experience')setExpert(true);
@@ -1091,6 +1103,75 @@ function renderComparison() {
   card.append(details);
   root.append(card);
  }
+ renderOptionComparison();
+}
+
+function optionDecisionText(mission){
+  if(mission.startAllowed===false)return 'Outside the allowed start schedule. Inspect environmental rules separately; this is not a lunar-condition verdict.';
+  const rule=mission.constraints.find(c=>c.status==='FAIL')??mission.constraints.find(c=>c.status==='INDETERMINATE')??mission.constraints.slice().sort((a,b)=>a.margin-b.margin)[0];
+  if(!rule)return 'No supported requirement evidence is available.';
+  const v=constraintEvidence(rule);
+  return `${mission.status==='PASS'?'Closest passing limit':rule.status==='FAIL'?'Broken rule':'Unresolved rule'}: ${v.title.toLowerCase()} ${v.metricText}; required ${v.requirementText}. Signed margin ${v.marginText}.`;
+}
+
+function renderOptionComparison(focus){
+  if(!inputs)return;
+  byId('compare-input-summary').textContent=`Independent sites and UTC arrivals · one shared ${inputs.durationHours} h mission. Requirements and allowed start bounds stay the same for every option.`;
+  comparisonOptions??=[{key:'A',siteId:inputs.siteId,start:inputs.nominal},{key:'B',siteId:inputs.siteId,start:inputs.nominal+inputs.delayHours*3600}];
+  const root=byId('option-comparison');root.replaceChildren();root.dataset.count=comparisonOptions.length;
+  if(isEdited){root.append(element('p','notice','Shared settings have unevaluated changes. Evaluate them in Advanced before comparing options.'));byId('comparison-difference').textContent='No updated comparison is established.';return;}
+  byId('comparison-duration').value=inputs.durationHours;
+  const reference=evaluateStart(bundle,inputs,inputs.siteId,inputs.nominal);
+  const shortRuleNames={max_sun_block:'Sun gap',max_earth_block:'Earth gap',min_joint_total:'Together',min_joint_continuous:'Uninterrupted'};
+  byId('comparison-shared-limits').textContent=`Illustrative, not lander specifications: ${reference.constraints.map(c=>`${shortRuleNames[c.id]??c.id} ${constraintEvidence(c).requirementText}`).join(' · ')}.`;
+  const evaluations=[];
+  for(const option of comparisonOptions){
+    const card=element('article','option-card');card.dataset.option=option.key;
+    card.append(element('h2','',`Option ${option.key}`));
+    const siteLabel=element('label','',`Landing study point`),siteSelect=element('select');siteSelect.id=`comparison-site-${option.key}`;
+    for(const site of bundle.sites){const entry=element('option','',site.name);entry.value=site.id;siteSelect.append(entry);}siteSelect.value=option.siteId;
+    siteSelect.addEventListener('change',()=>{option.siteId=siteSelect.value;renderOptionComparison({key:option.key,field:'site'});});siteLabel.htmlFor=siteSelect.id;siteLabel.append(siteSelect);
+    const dateLabel=element('label','','Arrival · UTC'),date=element('input');date.type='datetime-local';date.step='1';date.id=`comparison-arrival-${option.key}`;date.value=Number.isFinite(option.start)?inputTime(option.start):'';
+    date.addEventListener('change',()=>{option.start=Date.parse(`${date.value}Z`)/1000;renderOptionComparison({key:option.key,field:'arrival'});});dateLabel.htmlFor=date.id;dateLabel.append(date);
+    const selectors=element('div','option-selectors');selectors.append(siteLabel,dateLabel);card.append(selectors);
+    let mission;
+    try{if(!Number.isFinite(option.start))throw Error('Choose a valid UTC arrival.');mission=evaluateStart(bundle,inputs,option.siteId,option.start);}
+    catch(error){card.append(element('p','notice',`${error.message} No result is claimed.`));root.append(card);continue;}
+    evaluations.push({key:option.key,mission});Object.assign(card.dataset,{site:option.siteId,start:option.start,end:mission.end,status:mission.status,cause:mission.startAllowed===false?'schedule':'environment'});
+    const status=element('p','option-status');status.append(statusChip(mission.status));card.append(status);
+    if(mission.startAllowed===false)card.append(element('p','schedule-exclusion','Outside allowed schedule — environmental results are separate.'));
+    if(siteCaution(option.siteId))card.append(element('p','comparison-caution',siteCaution(option.siteId)));
+    const bounded=missionMetrics(mission,findSite(option.siteId));
+    const joint=mission.constraints.find(c=>c.id==='min_joint_total');
+    const jointSeconds=joint?joint.range[0]*3600:bounded.joint.visibleRangeSeconds[0];
+    card.append(element('p','option-joint',`${durationClock(jointSeconds)} confirmed Sun + Earth`));
+    for(const [id,label]of [['max_sun_block','Longest Sun unavailability'],['max_earth_block','Longest Earth obstruction']]){
+      const rule=mission.constraints.find(c=>c.id===id),view=constraintEvidence(rule);
+      card.append(element('p','option-outage',`${label}: ${rule.range[0]===rule.range[1]?evidenceTime(rule.metric):view.rangeText}${rule.status==='INDETERMINATE'?' · unresolved':''}.`));
+    }
+    card.append(element('p','option-reason',optionDecisionText(mission)));
+    const viewButton=element('button','primary','View this option →');viewButton.id=`comparison-view-${option.key}`;viewButton.type='button';viewButton.disabled=isEdited;
+    viewButton.addEventListener('click',()=>{
+      if(isEdited){byId('comparison-difference').textContent='Evaluate pending shared settings in Advanced before loading an option.';return;}
+      byId('site').value=option.siteId;byId('nominal').value=inputTime(option.start);selected='nominal';updateSiteDetail();
+      if(evaluate()){showGuidedPhase('nominal');setProductMode('explore');byId('workspace-notice').hidden=false;byId('workspace-notice').textContent=`Option ${option.key} is now the original planned arrival. Delay/recovery and exports use this new plan.`;}
+    });
+    card.append(viewButton,element('p','option-load-note','Use as the new Mission arrival.'));
+    const rules=element('div','compact-requirements');renderRequirementCards(rules,mission,true);
+    const ruleDetails=element('details','option-rules');ruleDetails.append(element('summary','',`${mission.constraints.length} requirement results`),rules);card.append(ruleDetails);root.append(card);
+  }
+  byId('add-comparison-option').hidden=comparisonOptions.length===3;byId('remove-comparison-option').hidden=comparisonOptions.length!==3;
+  const pass=evaluations.filter(({mission})=>mission.status==='PASS'),uncertain=evaluations.filter(({mission})=>mission.status==='INDETERMINATE'),excluded=evaluations.filter(({mission})=>mission.startAllowed===false);
+  let difference;
+  if(evaluations.length!==comparisonOptions.length)difference='Complete a supported site and valid arrival for each option before comparing them.';
+  else if(excluded.length===evaluations.length)difference='No option fits the allowed start schedule. That is a scheduling exclusion, not proof of unfavorable lunar conditions.';
+  else if(!pass.length)difference=`${evaluations.length===2?'Neither option passes.':'No option passes.'} ${uncertain.length?'Uncertainty prevents a confirmed passing comparison.':'The selected rules or start schedule reject these options.'} Read each option’s specific rule and margin above.`;
+  else{
+    const failed=evaluations.filter(({mission})=>mission.status==='FAIL'&&mission.startAllowed!==false);
+    difference=`${pass.map(x=>`Option ${x.key}`).join(' and ')} ${pass.length>1?'pass':'passes'} the same requirements. ${failed.map(({key,mission})=>{const c=mission.constraints.find(c=>c.status==='FAIL');if(!c)return `Option ${key} fails a mission-level check.`;const v=constraintEvidence(c);return `Option ${key} breaks ${v.title.toLowerCase()}: ${v.metricText}, required ${v.requirementText}.`;}).join(' ')}${uncertain.length?` ${uncertain.map(x=>`Option ${x.key}`).join(' and ')} remains unresolved; that is not a proven environmental failure.`:''}${excluded.length?` ${excluded.map(x=>`Option ${x.key}`).join(' and ')} is outside the allowed schedule.`:''} ${pass.length>1?evaluations.map(({key,mission})=>{const c=mission.constraints.find(c=>c.id==='min_joint_total');return c?`${key}: ${evidenceTime(c.range[0])} confirmed joint time.`:'';}).join(' '):''} No general landing-safety ranking is established.`;
+  }
+  byId('comparison-difference').textContent=difference;
+  if(focus)byId(`comparison-${focus.field}-${focus.key}`)?.focus({preventScroll:true});
 }
 function renderVisibilityOverview() {
  if(!result || isEdited) return;
@@ -1278,7 +1359,7 @@ function setProductMode(mode,scroll=true){
   byId('experience').dataset.workspace=mode;
   for(const button of document.querySelectorAll('[data-workspace]'))button.setAttribute('aria-pressed',String(button.dataset.workspace===mode));
   if(mode==='analyst'&&result)renderPlot(selectedMission());
-  if(mode==='compare'&&inputs)byId('compare-input-summary').textContent=`Illustrative mission requirements, not real lander specifications. ${inputs.durationHours} h mission · original ${shortTime(inputs.nominal)} · delayed ${shortTime(inputs.nominal+inputs.delayHours*3600)}. Same requirements at all sites. Calendar starts are sampled daily; recovery starts every ${inputs.gridMinutes} minutes.`;
+  if(mode==='compare'&&inputs)renderOptionComparison();
   if(scroll)scrollTo({top:0,behavior:'instant'});
 }
 
@@ -1309,7 +1390,8 @@ function setSceneStatus(event) {
 async function initializeExperience() {
   byId('orbital-story-slot').append(byId('mission-story'));
   byId('experience').insertBefore(byId('decision-evidence'),document.querySelector('.experience-status'));
-  byId('comparison-panels').append(byId('compare'),byId('feasibility'));
+  byId('comparison-panels').append(byId('feasibility'));
+  const audit=element('details','site-audit');audit.append(element('summary','','Three-site original/delayed audit'),byId('compare'));byId('top').append(audit);
   byId('scene-mount').append(byId('scene-poster'));
   byId('scene-mount').append(byId('earth-inset'));
   byId('scene-mount').append(byId('surface-focus'),byId('rescue-transition'));
@@ -1368,7 +1450,8 @@ function updateExperienceFrame(site,sample,mission) {
     sceneController?.selectSite(site.id);
   }
   byId('visual-site').value=site.id;
-  byId('visual-arrival').value=inputTime(inputs.nominal);
+  if(document.activeElement!==byId('visual-arrival'))byId('visual-arrival').value=inputTime(inputs.nominal);
+  if(document.activeElement!==byId('visual-duration'))byId('visual-duration').value=inputs.durationHours;
   byId('visual-site-detail').textContent=`${Math.abs(site.lat).toFixed(4)}° S · ${site.lon.toFixed(4)}° E · ${site.heightM} m observer${siteCaution(site.id)?` · ${siteCaution(site.id)}`:''}`;
   sceneController?.setFrame(latestSceneFrame);
   byId('earth-inset').hidden=!earthReferenceRequested||latestSceneFrame.states.earth!=='visible';
@@ -1408,6 +1491,7 @@ function invalidateExperience() {
   if(latestSceneFrame){latestSceneFrame={...latestSceneFrame,states:{sun:'unknown',earth:'unknown'}};sceneController?.setFrame(latestSceneFrame);}
   byId('story-explanation').textContent='Mission inputs changed. Evaluate them in Expert mode to refresh this story.';
   byId('hero-visibility').textContent='Inputs changed · displayed bodies withheld until re-evaluation.';
+  if(inputs)renderOptionComparison();
   evidenceMission=null;highlightedConstraintId=null;
   byId('evidence-summary').textContent='Inputs changed. No current mission decision is established until re-evaluation.';
   byId('decision-requirements').replaceChildren();byId('decision-timeline').replaceChildren();
@@ -1461,14 +1545,13 @@ function renderRequirementCards(root,mission,compact=false){
     const heading=element(compact?'strong':'button','requirement-name',view.title);
     if(!compact){heading.type='button';heading.setAttribute('aria-controls','decision-timeline');heading.addEventListener('click',()=>{highlightedConstraintId=item.id;renderDecisionEvidence(mission);});}
     const head=element('div','requirement-head');head.append(heading,statusChip(item.status));card.append(head);
-    const values=element(compact?'div':'dl',compact?'compact-requirement-values':'requirement-values');
+    const values=element('div',compact?'compact-requirement-values':'requirement-values');
     for(const [label,value]of [['Limit',view.requirementText],['Result',view.metricText],['Margin',view.marginText]]){
-      if(compact){const pair=element('div');pair.append(element('span','',label),element('strong','',value));values.append(pair);}
-      else values.append(element('dt','',label),element('dd','',value));
+      const pair=element('div');pair.append(element('span','',label),element('strong','',value));values.append(pair);
     }
     card.append(values);
-    if(item.range?.[0]!==item.range?.[1])card.append(element('p','requirement-range',`Supported result: ${view.rangeText}. Margin: ${view.marginRangeText}.`));
-    if(!compact){card.append(element('p','requirement-proof',view.explanation));card.title=`${item.metricBasis??'Model result'}. ${item.uncertainty??''}`;}
+    if(item.status==='INDETERMINATE')card.append(element('p','requirement-range',`Unresolved result: ${view.rangeText}. Margin: ${view.marginRangeText}.`));
+    if(!compact)card.title=`${view.explanation} Supported result ${view.rangeText}; margin ${view.marginRangeText}. ${item.metricBasis??'Model result'}. ${item.uncertainty??''}`;
     card.dataset.selected=String(!compact&&highlightedConstraintId===item.id);
     root.append(card);
   }

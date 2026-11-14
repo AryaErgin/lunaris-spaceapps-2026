@@ -33,9 +33,8 @@ Recovery also passes seven separately tested baseline/height/position/terrain ca
 
 ## Explore, compare and inspect
 
-- **Explore:** select any of three published study points, change the original UTC arrival, orbit the NASA-textured Moon or enter the real LOLA surface. Play time enters the surface so the moving sky is visible. Drag or use arrow keys to look; scroll, pinch or use plus/minus to zoom. Find Earth/Sun changes camera field of view, not sky angles or observer height.
-- **Compare:** see all three sites under the same mission requirements, then select a daily calendar cell or load a site into Explore. The calendar samples 30 daily starts; recovery uses the declared candidate grid.
-- **Rescue:** return to the same selected mission's original, delayed and recovered decisions. Switching modes retains inputs and simulation time.
+- **Mission:** select a published study point, original UTC arrival and duration; explore the Moon or real LOLA surface; inspect original, delayed and recovered decisions. The open requirements strip shows each authoritative limit, bounded result, signed margin, individual status and highlighted interval. Limits are illustrative mission requirements, not lander specifications. Play time enters the surface; drag/arrow keys look and scroll/pinch/plus/minus zoom.
+- **Compare:** two independently selectable sites and UTC arrivals share one duration, all active requirements and the original allowed start bounds. Add an optional third option. Each result explains its rule, joint time and bounded outages. **View this option** makes it the new original Mission arrival and preserves the other comparison drafts. **Explore the month** expands the 90-cell daily calendar. Schedule exclusions are distinguished from environmental failures.
 - **Advanced:** edit all limits and search bounds; inspect timelines, horizon/angle plots, bounded metrics, provenance and sensitivity; download the currently inspected decision as a version 2 certificate. Its selected-plan identity is separate from the original search and frozen data generator. Unstamped local development exports honestly leave the application release SHA null.
 
 ## Data and visual limits

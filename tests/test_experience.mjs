@@ -64,6 +64,7 @@ try{
   await command('Page.navigate',{url});
   await until(async()=>Boolean((await inspect())?.moon.textured));
   await until(async()=>(await inspect()).renderedFrames>0);
+  assert.deepEqual(await evaluate("[...document.querySelectorAll('.main-nav button')].map(n=>n.textContent)"),['Mission','Compare','Advanced']);
   assert(await evaluate("getComputedStyle(document.querySelector('#scene-poster')).display==='none'"),'Loaded GPU scene must remove the Moon poster, including in surface mode.');
   let info=await inspect();assert.equal(info.mode,'orbital');assert(info.moon.vertices>10000);
   const performanceEvidence={softwareGpu:true,initialTexturedSceneObservedMs:await evaluate('performance.now()'),
@@ -128,17 +129,35 @@ try{
   }
   const sharedBefore=await evaluate("[...document.querySelectorAll('#mission-form input,#mission-form select')].map(n=>[n.id,n.value,n.checked])");
   const timeBeforeModes=(await inspect()).time;
-  for(const mode of ['compare','analyst','rescue','explore'])await evaluate(`document.querySelector('#product-${mode}').click()`);
+  for(const mode of ['compare','analyst','explore'])await evaluate(`document.querySelector('#product-${mode}').click()`);
   assert.deepEqual(await evaluate("[...document.querySelectorAll('#mission-form input,#mission-form select')].map(n=>[n.id,n.value,n.checked])"),sharedBefore);
   assert.equal((await inspect()).time,timeBeforeModes);
   await evaluate("document.querySelector('#product-compare').click()");
+  assert.equal(await evaluate("document.querySelectorAll('#option-comparison [data-option]').length"),2);
+  const optionA=await evaluate("document.querySelector('#comparison-arrival-A').value");
+  await evaluate("document.querySelector('#comparison-duration').value=6;document.querySelector('#comparison-duration').dispatchEvent(new Event('change'))");
+  assert(await evaluate("[...document.querySelectorAll('#option-comparison [data-option]')].every(n=>Number(n.dataset.end)-Number(n.dataset.start)===21600)"),'Both options must use the same edited duration.');
+  assert.equal(await evaluate("document.querySelector('#comparison-arrival-A').value"),optionA);
+  await evaluate("document.querySelector('#comparison-duration').value=12;document.querySelector('#comparison-duration').dispatchEvent(new Event('change'))");
+  await evaluate("document.querySelector('#comparison-site-B').value='shackleton-rim';document.querySelector('#comparison-site-B').dispatchEvent(new Event('change'));document.querySelector('#comparison-arrival-B').value='2026-11-20T06:00';document.querySelector('#comparison-arrival-B').dispatchEvent(new Event('change'))");
+  assert.equal(await evaluate("document.querySelector('#comparison-arrival-A').value"),optionA,'Editing B must preserve A.');
+  assert.equal((await inspect()).siteId,'de-gerlache-rim','Comparison edits must not silently change the active scene.');
+  await evaluate("document.querySelector('#add-comparison-option').click()");
+  assert.equal(await evaluate("document.querySelectorAll('#option-comparison [data-option]').length"),3);
+  await evaluate("document.querySelector('#remove-comparison-option').click()");
+  assert.equal(await evaluate("document.querySelectorAll('#option-comparison [data-option]').length"),2);
   assert.equal(await evaluate("document.querySelectorAll('#site-comparison article').length"),3);
   assert.equal(await evaluate("document.querySelectorAll('.feasibility-cell').length"),90);
   assert.equal(await evaluate("document.querySelectorAll('#site-comparison .compact-requirements [data-constraint]').length"),24,'Every original/delayed compared site must show the same four rules.');
-  assert(await evaluate("[...document.querySelectorAll('#site-comparison article')].every(n=>{const r=n.getBoundingClientRect();return r.left>=0&&r.right<=innerWidth})"),'All three comparison sites must fit horizontally.');
+  assert(await evaluate("[...document.querySelectorAll('#option-comparison>article')].every(n=>{const r=n.getBoundingClientRect();return r.width>0&&r.left>=0&&r.right<=innerWidth})"),'Independent comparison cards must be visible without horizontal clipping.');
   await screenshot('compare-desktop');
-  await evaluate("document.querySelector('#site-comparison article:nth-child(2) button').click()");
+  await evaluate("document.querySelector('#comparison-view-B').click()");
   assert.equal((await inspect()).siteId,bundle.sites[1].id);
+  const optionInputs={...communicationDemo(bundle),siteId:'shackleton-rim',nominal:Date.parse('2026-11-20T06:00Z')/1000};
+  checkCertificate(await download('view-comparison-option'),runMission(bundle,optionInputs).nominal,'nominal');
+  await evaluate("document.querySelector('#product-compare').click()");
+  assert.equal(await evaluate("document.querySelector('#comparison-arrival-A').value"),optionA);
+  await evaluate("document.querySelector('#product-explore').click()");
   await evaluate("document.querySelector('#visual-arrival').value='2026-11-20T06:00:00';document.querySelector('#visual-date-go').click()");
   assert.equal((await inspect()).time,Date.parse('2026-11-20T06:00:00Z')/1000);
   const validTime=(await inspect()).time;
@@ -215,7 +234,7 @@ try{
   await until(async()=>{const i=await inspect();return i.mode==='surface'&&i.terrain.siteId===bundle.demo.siteId;});
   await command('Emulation.setDeviceMetricsOverride',{width:390,height:840,deviceScaleFactor:1,mobile:false});
   await evaluate("document.querySelector('#product-compare').click()");
-  assert(await evaluate("[...document.querySelectorAll('#site-comparison article')].every(n=>{const r=n.getBoundingClientRect();return r.left>=0&&r.right<=innerWidth})"),'All mobile comparison sites must stack without clipping.');
+  assert(await evaluate("[...document.querySelectorAll('#option-comparison>article')].every(n=>{const r=n.getBoundingClientRect();return r.width>0&&r.left>=0&&r.right<=innerWidth})"),'Mobile comparison options must stack without clipping.');
   await screenshot('compare-mobile');
   await evaluate("document.querySelector('#product-explore').click()");
   await evaluate("document.querySelector('#focus-earth').click();scrollTo(0,0)");await screenshot('surface-mobile');

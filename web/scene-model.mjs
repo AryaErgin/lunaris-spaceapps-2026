@@ -10,6 +10,14 @@ export function moonPoint(lat,lon,radius=1) {
   const phi=lat*RAD,lambda=lon*RAD;
   return [radius*Math.cos(phi)*Math.cos(lambda),radius*Math.sin(phi),-radius*Math.cos(phi)*Math.sin(lambda)];
 }
+export function localToMoonDirection(site,local){
+  if(!Number.isFinite(site?.lat)||Math.abs(site.lat)>90||!Number.isFinite(site?.lon)||
+    !Array.isArray(local)||local.length!==3||!local.every(Number.isFinite)||!Math.hypot(...local))return null;
+  const p=site.lat*RAD,l=site.lon*RAD,length=Math.hypot(...local),[e,u,z]=local.map(v=>v/length);
+  // Local z is minus-north; globe world is conventional Moon-fixed [X,Z,-Y].
+  return [-e*Math.sin(l)+u*Math.cos(p)*Math.cos(l)+z*Math.sin(p)*Math.cos(l),
+    u*Math.sin(p)-z*Math.cos(p),-e*Math.cos(l)-u*Math.cos(p)*Math.sin(l)-z*Math.sin(p)*Math.sin(l)];
+}
 function stateAt(timeline,time) {
   return timeline?.find(([a,b])=>a<=time&&time<b)?.[2]??'unknown';
 }
