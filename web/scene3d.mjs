@@ -20,7 +20,7 @@ export function surfaceLightState(sunState,hasDirection,enhanced=false){
     skylineLevel:lit?1:(enhanced? .5:0),skylineFloor:(lit||enhanced)? .02:.001,enhanced:Boolean(enhanced)};
 }
 // Display framing only: a zoomed, lifted overview. Directions and sizes in the scene are unchanged.
-const ORBITAL_CINEMATIC_ZOOM=1.3,ORBITAL_CINEMATIC_LIFT=.24;
+const ORBITAL_CINEMATIC_ZOOM=1.08,ORBITAL_CINEMATIC_LIFT=.03;
 export function orbitalOverviewDistance(width,height) {
   if(width>900)return 3.3;
   const horizontalHalfFov=Math.atan(Math.tan(39*RAD/2)*Math.max(1,width)/Math.max(1,height));
@@ -725,7 +725,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     // Earth and Sun focus keep the plain projection so the body stays framed beside the limb.
     const cinematic=width>=640&&!['earth','sun'].includes(orbitalFocus);
     orbitalCamera.zoom=cinematic?ORBITAL_CINEMATIC_ZOOM:1;
-    if(cinematic)orbitalCamera.setViewOffset(width,height,0,Math.round(height*ORBITAL_CINEMATIC_LIFT),width,height);else orbitalCamera.clearViewOffset();
+    if(cinematic)orbitalCamera.setViewOffset(width,height,-Math.round(width*.18),Math.round(height*ORBITAL_CINEMATIC_LIFT),width,height);else orbitalCamera.clearViewOffset();
     orbitalCamera.updateProjectionMatrix();needsRender=true;
   }
   function resize() {

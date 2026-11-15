@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#060C16">
+    <meta name="theme-color" content="#030609">
     <meta name="description" content="Explore 426 days at four NASA-sourced lunar south-pole study points. Compare terrain-aware Sun and Earth visibility and replan landing delays.">
     <title>LUNARIS · Lunar Landing Site Navigator</title>
     <link rel="preload" href="./fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
@@ -33,7 +33,7 @@
           <button id="product-compare" class="nav-link" type="button" data-workspace="compare" aria-pressed="false">Compare</button>
           <button id="product-analyst" class="nav-link" type="button" data-workspace="analyst" aria-pressed="false">Advanced</button>
         </nav>
-        <div class="product-purpose"><div class="purpose-copy"><p class="geometry-note">Visibility geometry does not prove power, radio-link performance or landing safety.</p></div><button id="delay-shortcut" type="button">Try a 72-hour landing delay</button><button id="tour-start" type="button">Show me how <span aria-hidden="true">→</span></button></div>
+        <div class="product-purpose"><button id="delay-shortcut" class="link-button" type="button">Try a landing delay</button><button id="tour-start" class="outline" type="button">Show me how</button></div>
         <button id="expert-toggle" class="outline expert-toggle" type="button" aria-expanded="false" aria-controls="top" hidden>Analyst mode</button>
       </div>
     </header>
@@ -41,63 +41,52 @@
     <p id="workspace-notice" class="workspace-notice" role="status" hidden></p>
     <section id="experience" class="experience" aria-labelledby="experience-title">
       <div class="scene-stage">
-        <img id="scene-poster" class="scene-poster" src="./assets/moon-poster.jpg" width="1920" height="1080" fetchpriority="high" alt="NASA LRO-derived view of the cratered Moon, shown while the interactive model loads.">
-        <div id="scene-mount" class="scene-mount" aria-label="Interactive Moon and lunar surface visualization"></div>
-        <div id="rescue-transition" class="rescue-transition" role="status" hidden></div>
+        <div id="scene-mount" class="scene-mount" aria-label="Interactive Moon and lunar surface visualization">
+          <img id="scene-poster" class="scene-poster" src="./assets/moon-poster.jpg" width="1920" height="1080" fetchpriority="high" alt="NASA LRO-derived cratered Moon, shown while the interactive model loads.">
+        </div>
         <div class="scene-vignette" aria-hidden="true"></div>
         <div class="experience-intro">
-          <p class="eyebrow">A 12-HOUR MISSION AT THE LUNAR SOUTH POLE</p>
+          <p class="eyebrow">Lunar Landing Site Navigator</p>
           <h1 id="experience-title">Explore the Moon. Find a landing window.</h1>
-          <p class="hero-support">Choose a location and date. Discover when sunlight and Earth are visible.</p>
-          <button id="explore-site" class="link-button explore-site" type="button" disabled>Explore this surface →</button>
+          <p class="hero-support">Choose a location and date.</p>
         </div>
-        <div id="orbital-story-slot" class="orbital-story-slot"></div>
+        <div class="scene-site-picker" aria-label="Plan your exploration">
+          <div class="mission-site-field"><div class="site-label-row"><label for="visual-site">Landing site</label><button id="more-sites" class="link-button" type="button">Other locations</button></div>
+          <select id="visual-site" disabled aria-describedby="visual-site-detail"></select><p id="visual-site-detail">NASA terrain-aware study points.</p></div>
+          <div class="mission-arrival-field"><label for="visual-arrival">Arrival <span>UTC</span></label>
+          <input id="visual-arrival" type="datetime-local" step="1" autocomplete="off"></div>
+          <div class="visual-duration-field"><label for="visual-duration">Duration <span>hours</span></label><input id="visual-duration" type="number" min="0.001" step="any" value="12" aria-label="Mission duration in hours" autocomplete="off"></div>
+          <button id="visual-date-go" type="button" hidden tabindex="-1" aria-hidden="true">Apply</button>
+        </div>
         <div class="scene-mode-switch" role="group" aria-label="Scene view">
-          <button id="mode-orbital" type="button" aria-pressed="true">Orbital view</button>
-          <button id="mode-surface" type="button" aria-pressed="false" disabled>Surface view</button>
-          <button id="night-visibility" type="button" aria-pressed="false" title="Artificial illumination to inspect dark terrain. No sunlight, Earthshine or cast-shadow model is implied." hidden>Night assist</button>
-          <button id="reset-orbit" type="button" title="Restore the familiar near-side Moon view">Reset view ↺</button>
+          <button id="mode-orbital" type="button" aria-pressed="true">Orbit</button>
+          <button id="mode-surface" type="button" aria-pressed="false" disabled>Surface</button>
+          <button id="night-visibility" type="button" aria-pressed="false" title="Artificial illumination only; not sunlight or a shadow calculation." hidden>Night assist</button>
+          <button id="reset-orbit" type="button" aria-label="Reset Moon camera" title="Reset Moon camera">Reset view</button>
         </div>
-        <div class="scene-site-picker">
-          <p class="rail-heading"><span>01</span> Mission</p>
-          <div class="site-label-row"><label for="visual-site">Landing site <span>Study coordinates</span></label><button id="more-sites" class="link-button" type="button">Apollo, CLPS, custom ↓</button></div>
-          <select id="visual-site" disabled aria-describedby="visual-site-detail"></select>
-          <p id="visual-site-detail">Supported south-pole study points.</p>
-          <label for="visual-arrival">Arrival <span id="visual-coverage">UTC · cached dates loading</span></label>
-          <div class="visual-date-controls"><input id="visual-arrival" type="datetime-local" step="1" autocomplete="off"><label class="visual-duration-field" for="visual-duration">Hours<input id="visual-duration" type="number" min="0.001" step="any" value="12" aria-label="Mission duration in hours" autocomplete="off"></label><button id="visual-date-go" class="outline" type="button" hidden tabindex="-1" aria-hidden="true">Apply</button></div>
-          <button id="find-opportunities" class="primary find-opportunities" type="button" disabled>Find landing opportunities</button>
-          <p class="opportunity-scope" id="opportunity-scope">Compare confirmed Sun + Earth time at the supported study points</p>
-          <label class="assessment-toggle"><input id="apply-requirements" type="checkbox"> <span id="assessment-label">Evaluate illustrative mission requirements</span></label>
-          <details id="mission-requirements-editor" class="mission-requirements-editor"><summary>Edit optional mission requirements</summary>
-            <p>These are user-editable assumptions, not NASA specifications. All values are hours.</p>
-            <div class="requirement-edit-fields">
-              <label for="quick-max-sun">Maximum Sun outage<input id="quick-max-sun" type="number" min="0" step="any" autocomplete="off"></label>
-              <label for="quick-max-earth">Maximum Earth blockage<input id="quick-max-earth" type="number" min="0" step="any" autocomplete="off"></label>
-              <label for="quick-min-total">Minimum total overlap<input id="quick-min-total" type="number" min="0" step="any" placeholder="Optional, e.g. 6…" autocomplete="off"></label>
-              <label for="quick-min-continuous">Minimum continuous overlap<input id="quick-min-continuous" type="number" min="0" step="any" placeholder="Optional, e.g. 6…" autocomplete="off"></label>
-            </div><button id="apply-quick-requirements" class="outline" type="button">Apply these requirements</button><p id="quick-requirements-status" role="status"></p>
-          </details>
-          <button id="start-delay-demo" class="link-button" type="button">Try the landing-delay example →</button>
-        </div>
-        <div id="surface-focus" class="surface-focus" role="group" aria-label="Surface camera direction" hidden>
-          <button id="focus-earth" type="button">Look at Earth</button>
-          <button id="focus-sun" type="button">Look at Sun</button>
-          <button id="focus-terrain" type="button">Explore terrain</button>
-        </div>
-        <figure id="earth-inset" class="earth-inset" hidden><img src="./assets/earth-inset.jpg" width="512" height="512" loading="lazy" alt="Historical NASA Blue Marble globe composite; the geographic face is not registered to the simulated time."><figcaption>Historical Blue Marble composite.<br>Face unregistered; not current weather.</figcaption><button id="close-earth-inset" type="button" aria-label="Close Earth image inset">×</button></figure>
-        <aside id="telemetry-rail" class="telemetry-rail" aria-label="Sun and Earth telemetry">
-          <p class="rail-heading"><span>03</span> Sun and Earth now</p>
+        <aside id="telemetry-rail" class="scene-conditions" aria-label="Sun and Earth at the view clock">
           <div id="hero-visibility" class="hero-visibility" aria-label="Sun and Earth at the time shown"></div>
-          <p class="rail-heading"><span>04</span> This stay</p>
-          <div id="environment-overview" class="environment-overview" aria-label="Modeled environmental measurements"></div>
-          <p class="rail-note">Visibility is geometry. It does not prove power, a radio link or a safe landing.</p>
         </aside>
-        <div class="scene-caption"><span id="scene-mode-label">NASA LRO / ORBITAL EXPLORATION</span><span id="scene-clock">OFFLINE EVIDENCE</span></div>
-      </div>
-      <div class="experience-status">
-        <p id="scene-status" role="status">Loading the locally bundled NASA Moon model…</p>
-        <button id="scene-fallback" class="link-button" type="button">Use the accessible 2D planner ↗</button>
-      </div>
+        <div id="orbital-story-slot" class="orbital-story-slot">      <section id="mission-story" class="mission-story" aria-labelledby="story-title" hidden>
+
+        <div class="story-progress" role="group" aria-label="Mission demonstration steps">
+          <button id="story-nominal" type="button" data-story="nominal" aria-pressed="true">Original</button>
+          <button id="story-delayed" type="button" data-story="delayed" aria-pressed="false">Delayed</button>
+          <button id="story-recovered" type="button" data-story="recommended" aria-pressed="false">Recovered</button>
+        </div>
+        <div class="story-evidence">
+          <div><p class="eyebrow" id="story-date"></p><h2 id="story-title">Your planned landing</h2><p id="story-explanation"></p><p id="story-durations" class="story-durations" hidden></p><p id="story-witness"></p></div>
+          <div class="story-outcome"><span id="story-status" class="status"></span><button id="story-next" class="outline" type="button">Apply the landing delay →</button></div>
+        </div>
+        <div id="mission-actions" class="mission-actions"></div>
+        <div id="story-joint" class="story-joint" aria-label="Joint Sun and Earth visibility timeline"></div>
+        <a class="decision-jump" href="#decision-evidence">See the evidence</a>
+      </section>
+</div>
+        <div id="surface-focus" class="surface-focus" role="group" aria-label="Camera direction" hidden>
+          <button id="focus-earth" type="button">Look at Earth</button><button id="focus-sun" type="button">Look at Sun</button><button id="focus-terrain" type="button">Study sites</button>
+        </div>
+        <div class="scene-caption"><span id="scene-mode-label">NASA LRO / ORBITAL EXPLORATION</span><span id="scene-clock">Loading UTC…</span></div>
       <div id="scene-transport" class="scene-transport" hidden>
         <div class="scene-play-buttons">
           <button id="hero-play" class="outline" type="button" aria-label="Play time"><span aria-hidden="true">▶</span> Play</button>
@@ -107,7 +96,7 @@
           <div class="hero-scope" role="group" aria-label="Playback range"><button id="hero-scope-stay" type="button" aria-pressed="true">This stay</button><button id="hero-scope-month" type="button" aria-pressed="false">All cached dates</button></div>
           <label for="hero-speed">Speed <select id="hero-speed"><option value="1">30 min/s</option><option value="4" selected>2 h/s</option><option value="12">6 h/s</option><option value="48">24 h/s</option></select></label>
         </div>
-        <div class="timeline-clock"><span class="timeline-clock-label">Mission clock</span><output id="hero-time-label" for="hero-time"></output></div>
+        <div class="timeline-clock"><span class="timeline-clock-label">View clock · UTC</span><output id="hero-time-label" for="hero-time"></output></div>
         <div class="clock-track">
           <input id="hero-time" type="range" min="0" max="1" step="1" value="0" aria-label="Move through the selected stay. This does not change your arrival.">
           <div id="hero-lanes" class="hero-lanes" aria-hidden="true"></div>
@@ -115,24 +104,32 @@
         </div>
         <p id="hero-scope-note" class="hero-scope-note" hidden>Playback covers the cached date range at the selected speed. At the pole the Sun circles low around the horizon.</p>
       </div>
-      <section id="mission-story" class="mission-story" aria-labelledby="story-title" hidden>
-        <p class="rail-heading"><span>02</span> Result</p>
-        <div class="story-progress" role="group" aria-label="Mission demonstration steps">
-          <button id="story-nominal" type="button" data-story="nominal" aria-pressed="true"><span>01</span> Original</button>
-          <button id="story-delayed" type="button" data-story="delayed" aria-pressed="false"><span>02</span> Delayed</button>
-          <button id="story-recovered" type="button" data-story="recommended" aria-pressed="false"><span>03</span> Recovered</button>
-        </div>
-        <div class="story-evidence">
-          <div><p class="eyebrow" id="story-date"></p><h2 id="story-title">Your planned landing</h2><p id="story-explanation"></p><p id="story-durations" class="story-durations" hidden></p><p id="story-witness"></p></div>
-          <div class="story-outcome"><span id="story-status" class="status"></span><button id="story-next" class="outline" type="button">Apply the landing delay →</button></div>
-        </div>
-        <div id="mission-actions" class="mission-actions"></div>
+      </div>
+      <div id="scene-coordinate-caption" class="scene-coordinate-caption" aria-label="Selected study point and coordinates"><p id="visual-coverage" class="coverage-range">UTC · cached dates loading</p></div>
+      <p class="geometry-note mission-qualification">Geometric visibility only. Electrical power, radio performance and landing safety are not modeled.</p>
+      <div class="experience-status"><p id="scene-status" role="status">Loading the locally bundled NASA Moon model…</p><button id="scene-fallback" class="link-button" type="button">Scientific 2D view</button></div>
+      <div class="mission-disclosures">
         <details id="mission-options" class="mission-options"><summary>Mission requirements &amp; delay example</summary><div id="mission-options-content"></div></details>
-        <div id="story-joint" class="story-joint" aria-label="Joint Sun and Earth visibility timeline"></div>
-        <a class="decision-jump" href="#decision-evidence">See all mission requirements and proof ↓</a>
         <div id="configuration-summary" class="configuration-summary" role="status" hidden></div>
-        <div class="story-footer"><details><summary>Mission requirements</summary><p id="story-requirements"></p></details><button id="verified-demo" class="link-button" type="button">Restart joint demo ↗</button></div>
-      </section>
+        <div id="story-uncertainty"></div>
+        <div id="environment-overview" class="environment-overview" aria-label="Modeled environmental measurements"></div>
+      </div>
+      <div id="rescue-transition" class="rescue-transition" role="status" hidden></div>
+      <figure id="earth-inset" class="earth-inset" hidden><img src="./assets/earth-inset.jpg" width="512" height="512" loading="lazy" alt="Historical NASA Blue Marble composite; geographic face is not registered to the simulated time."><figcaption>Historical Blue Marble. Face unregistered.</figcaption><button id="close-earth-inset" type="button" aria-label="Close Earth image inset">×</button></figure>
+      <div class="mission-hidden-controls" hidden><button id="explore-site" type="button" disabled>Explore surface</button><button id="find-opportunities" type="button" class="primary" disabled>Find landing opportunities</button><p id="opportunity-scope"></p>
+      <label class="assessment-toggle"><input id="apply-requirements" type="checkbox"><span id="assessment-label">Evaluate illustrative mission requirements</span></label>
+          <details id="mission-requirements-editor" class="mission-requirements-editor"><summary>Edit optional mission requirements</summary>
+            <p>These are user-editable assumptions, not NASA specifications. All values are hours.</p>
+            <div class="requirement-edit-fields">
+              <label for="quick-max-sun">Maximum Sun outage<input id="quick-max-sun" type="number" min="0" step="any" autocomplete="off"></label>
+              <label for="quick-max-earth">Maximum Earth blockage<input id="quick-max-earth" type="number" min="0" step="any" autocomplete="off"></label>
+              <label for="quick-min-total">Minimum total overlap<input id="quick-min-total" type="number" min="0" step="any" placeholder="Optional, e.g. 6…" autocomplete="off"></label>
+              <label for="quick-min-continuous">Minimum continuous overlap<input id="quick-min-continuous" type="number" min="0" step="any" placeholder="Optional, e.g. 6…" autocomplete="off"></label>
+            </div><button id="apply-quick-requirements" class="outline" type="button">Apply these requirements</button><p id="quick-requirements-status" role="status"></p>
+          </details>
+      <button id="start-delay-demo" class="outline" type="button">Load the 12-hour landing-delay example</button></div>
+      <div class="story-footer">        <details><summary>Mission requirements</summary><p id="story-requirements"></p></details><button id="verified-demo" class="link-button" type="button">Restart joint demo ↗</button>
+</div>
       <section id="decision-evidence" class="decision-evidence" aria-labelledby="decision-title">
         <div class="decision-heading"><div><h2 id="decision-title">Requirements for this selected plan</h2><p class="illustrative-requirements">Illustrative mission requirements — not real lander specifications.</p></div><p id="evidence-plan"></p></div>
         <p id="evidence-summary"></p>
@@ -147,7 +144,7 @@
         <p id="recovery-choice" class="recovery-choice" hidden></p>
         <div class="visibility-definitions"><p><strong>Sun-center visibility:</strong> the Sun’s center clears terrain and is outside Earth’s apparent disc.</p><p><strong>Earth-center LOS:</strong> an unobstructed geometric line to Earth’s center.</p><p><strong>Joint visibility:</strong> both conditions hold at the same time.</p></div>
       </section>
-      <details id="any-site" class="any-site" open>
+      <details id="any-site" class="any-site">
         <summary>Compare with Apollo, CLPS, other nations or any coordinate <span>level horizon only, no terrain</span></summary>
         <p class="any-site-intro">See where the Sun and Earth sit in the sky anywhere on the Moon at the time shown above. Angles are measured from the level horizon; terrain is not included here.</p>
         <div class="any-site-controls">
@@ -178,7 +175,7 @@
     </section>
     <section id="compare-workspace" class="container compare-workspace" aria-labelledby="compare-workspace-title" hidden>
       <div class="section-head"><div><p class="eyebrow">Same requirements · independent arrivals</p><h1 id="compare-workspace-title">Which arrival works for this mission?</h1><p id="compare-input-summary" class="secondary"></p></div><button id="compare-return" class="outline" type="button">Return to Mission ↗</button></div>
-      <div class="comparison-shared"><label for="comparison-duration">Shared mission duration <span>hours</span><input id="comparison-duration" type="number" min="0.001" step="any" value="12" autocomplete="off"></label><p id="comparison-shared-limits"></p><button id="comparison-edit-limits" class="link-button" type="button">Edit these requirements in Advanced ↗</button></div>
+      <div class="comparison-shared"><label for="comparison-duration">Shared mission duration <span>hours</span><input id="comparison-duration" type="number" min="0.001" step="any" value="12" autocomplete="off"></label><details class="comparison-shared-details"><summary>Shared requirements</summary><p id="comparison-shared-limits"></p><button id="comparison-edit-limits" class="link-button" type="button">Edit these requirements in Advanced ↗</button></details></div>
       <section class="comparison-difference" aria-labelledby="comparison-difference-title"><h2 id="comparison-difference-title">What is the difference?</h2><p id="comparison-difference"></p><details class="comparison-context"><summary>What is being compared?</summary><p>Joint means both center-visibility conditions at once. Site changes are prelaunch concepts. The duration and any enabled requirements stay the same.</p></details></section>
       <div id="option-comparison" class="option-comparison"></div>
       <div class="comparison-actions"><button id="add-comparison-option" class="outline" type="button">Add a third option</button><button id="remove-comparison-option" class="link-button" type="button" hidden>Remove third option</button><button id="compare-more-sites" class="link-button" type="button">Apollo, CLPS or a custom coordinate: Sun and Earth angles without terrain →</button></div>

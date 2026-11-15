@@ -46,114 +46,32 @@
 }
 
 :root {
-  color-scheme: dark;
-
-  /* ---- Typography ------------------------------------------------------ */
-  --font-display: 'Space Grotesk', 'Inter', 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif; /* headings, brand, key results */
-  --font-body: 'Inter', 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;                     /* body copy and controls */
-  --font-mono: 'IBM Plex Mono', 'Cascadia Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;            /* values, coordinates, timestamps, micro-labels */
-
-  --weight-regular: 400;
-  --weight-medium: 500;
-  --weight-semibold: 600;
-  --weight-bold: 700;
-
-  --text-xs: 13px;    /* micro-labels and dense reference grids only */
-  --text-sm: 14px;    /* secondary labels, captions */
-  --text-md: 15px;    /* compact body and controls */
-  --text-base: 16px;  /* body copy */
-  --text-lg: 18px;    /* lead text, card titles */
-  --text-xl: 20px;    /* section headings, key values */
-  --text-2xl: 24px;   /* panel headings */
-  --text-3xl: 30px;   /* primary result */
-  --text-4xl: 36px;   /* page titles */
-  --text-5xl: 46px;   /* hero */
-
-  --leading-tight: 1.12;
-  --leading-snug: 1.35;
-  --leading-normal: 1.55;
-  --tracking-tight: -0.02em;  /* display type */
-  --tracking-label: 0.1em;    /* uppercase mono micro-labels */
-
-  /* ---- Colour: structure ------------------------------------------------ */
-  --color-black: #000000;            /* airless sky behind the 3D scene */
-  --color-bg: #060C16;               /* page background */
-  --color-surface: #101D2B;          /* panels, sidebar, cards */
-  --color-surface-elevated: #1A2B3C; /* raised cards, pressed controls, popovers */
-  --color-track: #2B4257;            /* slider and timeline tracks, unconfirmed time */
-  --color-border-subtle: #2C4154;    /* thin structural separators */
-  --color-border: #496479;           /* control and card outlines */
-  --color-border-strong: #86A1B6;    /* input outlines, emphasised edges (3:1 on surfaces) */
-
-  /* ---- Colour: text ------------------------------------------------------ */
-  --color-text: #F6F9FC;             /* primary text */
-  --color-text-secondary: #C3D2E1;   /* supporting text */
-  --color-text-muted: #A9BBCB;       /* labels and captions; still above 4.5:1 on surfaces */
-  --color-on-accent: #0B1622;        /* text on solid accent fills */
-
-  /* ---- Colour: meaning --------------------------------------------------- */
-  --color-sun: #F4C36F;              /* Sun, solar geometry, primary action */
-  --color-earth: #7BDDF2;            /* Earth, line of sight, links */
-  --color-pass: #A2E4C5;             /* PASS, confirmed visibility */
-  --color-fail: #FF9E98;             /* FAIL, blocked */
-  --color-indeterminate: #F1D28B;    /* INDETERMINATE, unresolved, cautions */
-
-  --color-sun-border: color-mix(in srgb, var(--color-sun) 58%, var(--color-bg));
-  --color-earth-border: color-mix(in srgb, var(--color-earth) 55%, var(--color-bg));
-  --color-pass-border: color-mix(in srgb, var(--color-pass) 55%, var(--color-bg));
-  --color-fail-border: color-mix(in srgb, var(--color-fail) 58%, var(--color-bg));
-  --color-indeterminate-border: color-mix(in srgb, var(--color-indeterminate) 55%, var(--color-bg));
-
-  --color-sun-surface: color-mix(in srgb, var(--color-sun) 13%, var(--color-bg));
-  --color-earth-surface: color-mix(in srgb, var(--color-earth) 12%, var(--color-bg));
-  --color-pass-surface: color-mix(in srgb, var(--color-pass) 13%, var(--color-bg));
-  --color-fail-surface: color-mix(in srgb, var(--color-fail) 15%, var(--color-bg));
-  --color-indeterminate-surface: color-mix(in srgb, var(--color-indeterminate) 13%, var(--color-bg));
-
-  --color-accent: var(--color-sun);  /* primary buttons and selected navigation */
-  --color-link: var(--color-earth);
-  --color-focus: var(--color-sun);
-
-  /* ---- Space, shape, depth ----------------------------------------------- */
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 24px;
-  --space-6: 32px;
-  --space-7: 48px;
-  --space-8: 64px;
-
-  --radius-sm: 3px;    /* chips, inputs, tracks */
-  --radius-md: 6px;    /* buttons, cards */
-  --radius-lg: 10px;   /* large panels, popovers */
-  --radius-pill: 999px;
-
-  --shadow-1: 0 1px 2px color-mix(in srgb, var(--color-black) 45%, transparent);
-  --shadow-2: 0 10px 30px color-mix(in srgb, var(--color-black) 55%, transparent);
-
-  /* ---- Motion and focus --------------------------------------------------- */
-  --duration-fast: 120ms;
-  --duration-base: 220ms;
-  --duration-slow: 420ms;
-  --ease-standard: cubic-bezier(0.2, 0.7, 0.2, 1);
-  --focus-ring: 2px solid var(--color-focus);
-  --focus-offset: 3px;
-
-  /* ---- Layout ------------------------------------------------------------- */
-  --header-height: 52px;                     /* thin top bar */
-  --console-width: 320px;                    /* mission console, left of the viewport */
-  --telemetry-width: 300px;                  /* Sun and Earth telemetry, right of the viewport */
-  --content-max: 1280px;                     /* reading width for Compare and Advanced */
-  --control-height: 44px;                    /* minimum touch target */
-  --scene-toolbar-height: 44px;              /* view switch above the 3D viewport */
-  --timeline-height: 118px;                  /* bottom mission timeline */
-
-  font: var(--weight-regular) var(--text-base)/var(--leading-normal) var(--font-body);
-  font-synthesis: none;
-  font-optical-sizing: auto;
-  font-variant-numeric: tabular-nums;
-  color: var(--color-text);
-  background: var(--color-bg);
-  -webkit-text-size-adjust: 100%;
+ color-scheme:dark;
+ --font-display:'Space Grotesk','Inter',system-ui,sans-serif;
+ --font-body:'Inter',system-ui,sans-serif;
+ --font-mono:'IBM Plex Mono',Consolas,monospace;
+ --weight-regular:400;--weight-medium:500;--weight-semibold:600;--weight-bold:700;
+ --text-xs:13px;--text-sm:14px;--text-md:15px;--text-base:16px;--text-lg:18px;--text-xl:20px;--text-2xl:24px;--text-3xl:32px;--text-4xl:40px;--text-5xl:44px;
+ --leading-tight:1.08;--leading-snug:1.35;--leading-normal:1.55;--tracking-tight:-.035em;--tracking-label:.08em;
+ --color-black:#000;--color-bg:#030609;--color-surface:#0b1118;--color-surface-elevated:#14202a;--color-track:#344650;
+ --color-border-subtle:#2a3a45;--color-border:#6d8291;--color-border-strong:#a0b5c3;
+ --color-text:#f3f5f7;--color-text-secondary:#cbd3d9;--color-text-muted:#b3bfc8;--color-on-accent:#19140d;
+ --color-sun:#efbd70;--color-earth:#8bd8eb;--color-pass:#a2dfbd;--color-fail:#ffa69f;--color-indeterminate:#edcf90;
+ --color-accent:var(--color-sun);--color-link:var(--color-earth);--color-focus:var(--color-sun);
+ --color-sun-border:color-mix(in srgb,var(--color-sun) 60%,var(--color-bg));--color-earth-border:color-mix(in srgb,var(--color-earth) 60%,var(--color-bg));
+ --color-pass-border:color-mix(in srgb,var(--color-pass) 60%,var(--color-bg));--color-fail-border:color-mix(in srgb,var(--color-fail) 60%,var(--color-bg));--color-indeterminate-border:color-mix(in srgb,var(--color-indeterminate) 60%,var(--color-bg));
+ --color-sun-surface:color-mix(in srgb,var(--color-sun) 12%,var(--color-bg));--color-earth-surface:color-mix(in srgb,var(--color-earth) 12%,var(--color-bg));
+ --color-pass-surface:color-mix(in srgb,var(--color-pass) 12%,var(--color-bg));--color-fail-surface:color-mix(in srgb,var(--color-fail) 12%,var(--color-bg));--color-indeterminate-surface:color-mix(in srgb,var(--color-indeterminate) 12%,var(--color-bg));
+ --surface-overlay:color-mix(in srgb,var(--color-bg) 96%,transparent);--surface-control:color-mix(in srgb,var(--color-surface) 93%,transparent);
+ --space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:24px;--space-6:32px;--space-7:48px;--space-8:64px;
+ --radius-sm:4px;--radius-md:8px;--radius-lg:16px;--radius-pill:999px;
+ --shadow-1:0 2px 8px color-mix(in srgb,var(--color-black) 20%,transparent);--shadow-2:0 20px 64px color-mix(in srgb,var(--color-black) 65%,transparent);
+ --duration-fast:120ms;--duration-base:220ms;--duration-slow:420ms;--ease-standard:cubic-bezier(.2,.7,.2,1);--focus-ring:2px solid var(--color-focus);--focus-offset:4px;
+ --header-height:72px;--content-max:1280px;--control-height:44px;--timeline-height:132px;--scene-inset:32px;--result-width:420px;
+ font:var(--weight-regular) var(--text-base)/var(--leading-normal) var(--font-body);font-synthesis:none;font-optical-sizing:auto;font-variant-numeric:tabular-nums;
+ color:var(--color-text);background:var(--color-bg);-webkit-text-size-adjust:100%;
 }
+@media(min-width:1700px){:root{--scene-inset:56px;--result-width:460px;--text-5xl:60px;--timeline-height:148px;}}
+@media(max-width:740px){:root{--header-height:106px;--scene-inset:20px;--text-5xl:32px;--result-width:100%;}}
+
+@media(min-width:741px) and (max-width:1200px){:root{--timeline-height:192px;--result-width:380px}}

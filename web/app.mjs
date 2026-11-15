@@ -161,8 +161,7 @@ function statusChip(status, className = '') {
 function syncAssessment(){
   document.body.dataset.delayStory=String(delayStoryEnabled);
   const actions=byId('mission-actions');
-  const actionAnchor=delayStoryEnabled?byId('story-joint'):document.querySelector('.story-evidence');
-  if(actionAnchor.nextElementSibling!==actions)actionAnchor.after(actions);
+  // Mission actions have a stable place in the scene, independent of assessment mode.
   document.body.classList.toggle('environment-only',!requirementsEnabled);
   byId('apply-requirements').checked=requirementsEnabled;
   byId('assessment-label').textContent=requirementsSource==='custom'?'Evaluate my mission requirements':'Evaluate illustrative mission requirements';
@@ -170,6 +169,7 @@ function syncAssessment(){
   byId('opportunity-scope').textContent=requirementsEnabled?`Before launch · ${bundle?.sites?.length??'supported'} study points · unchanged selected limits`:'Compare confirmed Sun + Earth time · no mission limits applied';
   byId('decision-evidence').hidden=!requirementsEnabled;
   byId('environment-overview').hidden=requirementsEnabled;
+  byId('story-uncertainty').hidden=!requirementsEnabled;
   document.querySelector('.story-progress').hidden=!requirementsEnabled||!delayStoryEnabled;
   byId('story-status').hidden=!requirementsEnabled;byId('story-next').hidden=!requirementsEnabled;byId('story-witness').hidden=!requirementsEnabled;
   const jump=document.querySelector('.decision-jump');jump.href=requirementsEnabled?'#decision-evidence':'#explain';jump.textContent=requirementsEnabled?'See all mission requirements and proof ↓':'How to read these measurements ↓';
@@ -1777,15 +1777,16 @@ async function initializeExperience() {
   byId('mission-actions').append(byId('find-opportunities'),byId('explore-site'));
   byId('mission-options-content').append(byId('apply-requirements').closest('label'),byId('mission-requirements-editor'),byId('start-delay-demo'));
   byId('orbital-story-slot').append(byId('mission-story'));
-  byId('experience').insertBefore(byId('decision-evidence'),document.querySelector('.experience-status'));
+  // Evidence stays below the scene in normal document flow.
   byId('comparison-panels').append(byId('feasibility'));
   const audit=element('details','site-audit');audit.append(element('summary','',`${bundle.sites.length}-site original/delayed audit`),byId('compare'));byId('top').append(audit);
-  byId('scene-mount').append(byId('scene-poster'));
+  byId('scene-mount').append(byId('scene-poster'),document.querySelector('.scene-mode-switch'));
   byId('scene-mount').append(byId('earth-inset'));
   byId('scene-mount').append(byId('surface-focus'),byId('rescue-transition'));
-  document.querySelector('.scene-stage').append(byId('scene-transport'));
+  // Transport is part of the scene composition in the source markup.
   document.querySelector('.story-footer details').append(byId('verified-demo'));
   if(byId('explain'))byId('experience').append(byId('explain'));
+
   const options=bundle.sites.map(site=>{const option=element('option','',site.name);option.value=site.id;return option;});
   byId('visual-site').replaceChildren(...options);
   byId('visual-site').disabled=false;
@@ -1802,6 +1803,8 @@ async function initializeExperience() {
   try {
     sceneController=await sceneLoading;
     if(sceneDisabled){sceneController.dispose();return;}
+    const coordinateCaption=byId('scene-mount').querySelector('.mission-scene-caption');
+    if(coordinateCaption)byId('scene-coordinate-caption').append(coordinateCaption);
     sceneController.selectSite(visualSiteId??inputs.siteId,{focus:false});
     if(latestSceneFrame)sceneController.setFrame(latestSceneFrame);
     byId('experience').dataset.ready='true';
@@ -1892,7 +1895,7 @@ function updateExperienceFrame(site,sample,mission) {
       if(countdown.kind==='bounded')next=`${name} in ${durationRange(countdown.remaining)}`;
       else if(countdown.kind==='unresolved'){
         const from=minute(Math.floor(countdown.interval[0]/60)*60),to=minute(Math.ceil(countdown.interval[1]/60)*60);
-        next=`${name} ${from}–${from.slice(0,6)===to.slice(0,6)?to.slice(7):to} UTC`;
+        next=`${name} unresolved: ${from}–${from.slice(0,6)===to.slice(0,6)?to.slice(7):to} UTC`;
       }
       eventNotes[key]=countdown.kind==='bounded'?''
         :countdown.kind==='unresolved'?` The ${name} time cannot be pinned down more closely than ${shortTime(countdown.interval[0])} to ${shortTime(countdown.interval[1])}.`
@@ -2110,7 +2113,7 @@ async function runRescueAction(){
 function durationClock(seconds){const s=Math.round(seconds);return `${Math.floor(s/3600)} h ${String(Math.floor(s%3600/60)).padStart(2,'0')} min ${String(s%60).padStart(2,'0')} s`;}
 function renderStoryJoint(story){
   const mission=typeof selected==='number'?selectedMission():result[guidedPhase];
-  const root=byId('story-joint');root.replaceChildren();if(!mission)return;
+  const root=byId('story-joint');root.replaceChildren();byId('story-uncertainty').replaceChildren();if(!mission)return;
   const summary=visibilitySummary(mission.timeline.joint,mission.start,mission.end).seconds;
   root.append(element('p','joint-duration',`${durationClock(summary.visible)} with Sun + Earth`));
   const track=element('div','story-joint-track');track.setAttribute('aria-label','Joint sunlight and Earth-center visibility intervals');
@@ -2120,7 +2123,7 @@ function renderStoryJoint(story){
     const wait=(result.recommended.start-result.delayed.start)/3600;
     root.prepend(element('p','recovery-wait',`Wait after delay: ${Math.floor(wait/24)} d ${number.format(wait%24)} h.`));
   }
-  const detail=element('details');detail.append(element('summary','','Visibility uncertainty'),element('p','',`${durationClock(summary.uncertain+summary.unknown)} unresolved. This is center visibility, not generated power or a working radio link.`));root.append(detail);
+  const detail=element('details');detail.append(element('summary','','Visibility uncertainty'),element('p','',`${durationClock(summary.uncertain+summary.unknown)} unresolved. This is center visibility, not generated power or a working radio link.`));byId('story-uncertainty').replaceChildren(detail);
 }
 
 async function renderConfigurations(){
