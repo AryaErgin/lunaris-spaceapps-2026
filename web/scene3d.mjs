@@ -635,7 +635,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     if(!moonHighDetailPromise) {
       report('loading','Loading the original 4K NASA LROC Moon texture.');
       moonHighDetailPromise=texture('moon-color.jpg',moonMaterial,'map','moon','high').then(ok=>{
-        if(ok)report('ready','Original 4K NASA LROC Moon texture loaded. Globe lighting remains illustrative.');
+        if(ok)report('ready','');
         else moonHighDetailPromise=null;
         return ok;
       });
@@ -673,7 +673,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
       if(disposed||request!==terrainRequest)return;
       terrainMesh=cached.mesh;terrainRecord=record;terrainSiteId=requestedSite.id;surfaceScene.add(terrainMesh);
       container.dataset.terrainStatus='ready';container.dataset.terrainVertices=String(record.vertexCount);container.dataset.terrainIndices=String(record.indexCount);
-      report('ready','NASA LOLA surface loaded. Visibility remains controlled by the authoritative interval model.');
+      report('ready','');
       invalidate();
     } catch(error) {
       if(disposed||request!==terrainRequest)return;

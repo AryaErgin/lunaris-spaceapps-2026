@@ -99,7 +99,7 @@ try{
   await until(()=>evaluate("!!document.querySelector('#quick-tour')"),'first-visit offer');
   await evaluate("document.querySelector('.quick-tour-close').click();scrollTo(0,0)");
   await evaluate('document.fonts.ready');
-  for(const [selector,family] of [['#experience-title','Space Grotesk'],['.hero-support','Inter'],['#hero-time-label','IBM Plex Mono']]){
+  for(const [selector,family] of [['#experience-title','Space Grotesk'],['label[for="visual-site"]','Inter'],['#hero-time-label','IBM Plex Mono']]){
     const documentNode=await command('DOM.getDocument');
     const node=await command('DOM.querySelector',{nodeId:documentNode.root.nodeId,selector});
     const actual=node.nodeId?await command('CSS.getPlatformFontsForNode',{nodeId:node.nodeId}):{fonts:[]};

@@ -166,7 +166,7 @@ try{
   assert(await evaluate("!!document.querySelector('#find-opportunities')"),'Mission needs a direct landing-opportunity action.');
   assert.equal(await evaluate("document.querySelector('#apply-requirements')?.checked"),false,'Cold start must explore the environment without arbitrary mission requirements.');
   assert(await evaluate("document.querySelector('#story-status').hidden&&document.querySelector('#decision-evidence').hidden"));
-  assert.match(await evaluate("document.querySelector('.hero-support').textContent"),/Choose a location and date/);
+  assert.match(await evaluate("document.querySelector('label[for=visual-site]').textContent"),/Landing site/);
   assert.match(await evaluate("document.querySelector('#story-title').textContent"),/At least 7 h 53 min/);
   assert(await evaluate("[...document.querySelectorAll('#environment-overview .environment-measurement')].every(n=>n.closest('details')&&!n.closest('details').open)"),'Secondary measurements must be expandable, not six equally emphasized opening cards.');
   assert.equal(await evaluate("getComputedStyle(document.querySelector('.orbital-story-slot')).overflowY"),'visible','Mission must use normal page scrolling.');
@@ -471,7 +471,7 @@ try{
     await evaluate("document.querySelector('#hero-scope-stay').click();document.querySelector('#find-opportunities').click()");
     await until(()=>evaluate("document.querySelector('#landing-opportunities').getAttribute('aria-busy')==='false'&&!document.querySelector('#landing-opportunities').hidden"));
     assert(['PASS_FOUND','NO_PASS','UNRESOLVED'].includes(await evaluate("document.querySelector('#landing-opportunities').dataset.kind")),'A fully covered extended request must distinguish actual failed/unresolved candidates from missing data.');
-    if(bundle.coverage[1]-43200-first>30*86400)assert.match(await evaluate("document.querySelector('#opportunities-basis').textContent"),/later dates remain unsearched/i);
+    if(bundle.coverage[1]-43200-first>30*86400)assert.match(await evaluate("document.querySelector('#opportunities-ranking').textContent"),/later dates remain unsearched/i);
     await screenshot('extended-opportunities');
   }
   if(extraSite){

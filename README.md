@@ -120,6 +120,7 @@ node tests/test_onboarding.mjs
 node tests/test_southpole_browser.mjs
 node tests/test_site_browser.mjs
 node tests/test_reconstruction.mjs
+node tests/test_opportunity_range_browser.mjs
 node tests/test_extended_planning_grid.mjs
 ```
 
@@ -131,7 +132,9 @@ Historical four-site local headless Chrome measurements at 1366×768 and 390×84
 
 Ten-site cinematic integration checks: **155 Node tests passed; 175 Python tests passed and three native-source checks skipped because the six added raw rasters are absent in this checkout**. The real-data analysis, 17-step onboarding, complete 3D/fallback journey, registry browser and ten-site browser checks passed. The latter checked all ten own mesh hashes, actual globe selections and comparison results at 1366, 1920, 390 and 320 px, plus actual certificate downloads. These are executed browser tests, not uncoached human or physical-phone validation. The public release remains unchanged pending approval.
 
-The ten-site primary JSON is **17,505,789 bytes**; ten lazy-loaded terrain meshes total **32,957,880 bytes**. Fresh local software-Chrome readiness measured 1.54?1.86 s across those four viewports; observed heaps after the ten-site workflows were approximately 143?162 MB. These local measurements are not Internet-load, hardware-GPU or physical-mobile guarantees.
+The ten-site primary JSON is **17,505,789 bytes**; ten lazy-loaded terrain meshes total **32,957,880 bytes**. Fresh local software-Chrome readiness measured 1.54–1.86 s across those four viewports; observed heaps after the ten-site workflows were approximately 143–162 MB. These local measurements are not Internet-load, hardware-GPU or physical-mobile guarantees.
+
+Landing opportunities accepts a From/To UTC range and a sampling interval. Results list confirmed sampled arrivals, ten per desktop page or five per mobile page. Explicit schedule limits remain binding; the 10,000-candidate guard asks for a shorter range or a coarser interval. Searching does not change the inspected mission. Range/pagination regression: **162 Node tests passed**, plus real-data browser checks at 1366, 390 and 320 px, including schedule, missing-data, keyboard, cancellation and certificate identity.
 
 Set `LUNARIS_REQUIRE_EXTENDED=1` for strict annual unit checks (PowerShell: `$env:LUNARIS_REQUIRE_EXTENDED='1'`). Actual annual tests must not silently pass against a November-only fallback. Raw assets are optional for runtime; raw-dependent Python checks report skips when absent.
 
@@ -147,8 +150,6 @@ python -m science.validate_extension --bundle web/data/bundle.json --reference d
 
 The builder verifies raw/kernel/code fingerprints, interval continuity and exact November parity before publishing. Intermediate source-checked caches live under ignored `data/cache/extended`; rebuilding all months takes substantial computation. [Dense domain checks](web/data/domain-validation.json), [kernel-model enclosure](web/data/motion-envelope.json) and [Horizons evidence](web/data/horizons-validation.json) record executed methods, versions, hashes and limitations. Rebuild visual assets with `python -m science.visual_assets` or `--images-only`. Runtime needs none of these build dependencies.
 
-## AI use
+## Contributors
 
-Human teammates: Arya Ergin and Aras. Arya directed development with OpenAI Codex; Aras contributed through Anthropic Claude (Claude Code). AI assisted research, scientific implementation, rendering, tests, interface design and writing. Decisions are deterministic calculations from frozen data, with no runtime AI. NASA images are source-derived, not generative artwork. Frozen data notices describe their original generation; the current team and release disclosure are recorded in [attribution metadata](web/attribution.json). [NASA Space Apps AI guidance](https://github.com/nasa/spaceapps/discussions/1849).
-
-For this ten-site branch, **178 Python and 151 Node tests passed with zero failures/skips**, together with the original T14 workflow and all-site desktop/mobile-width Chrome checks. The bundle is 17,505,789 bytes (gzip estimate 5,547,034); six added meshes total 19,774,728 bytes before compression. Current local SwiftShader fast-playback measurement is 16?19 renderer-counted frames/s; no new hardware-GPU or physical-phone performance result is claimed. Detailed bounds, provenance, measurement scope and integration instructions are in [the scientific handoff](science/SOUTHPOLE_INTEGRATION.md).
+Arya Ergin and Aras directed AI-assisted research, implementation, tests and writing with OpenAI Codex and Anthropic Claude. [Contribution metadata](web/attribution.json) · [NASA disclosure guidance](https://github.com/nasa/spaceapps/discussions/1849).
