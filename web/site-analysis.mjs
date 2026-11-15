@@ -1,4 +1,4 @@
-﻿// Capability-gated adapter for the frontend. Scientific decisions stay in engine.mjs.
+// Capability-gated adapter for the frontend. Scientific decisions stay in engine.mjs.
 import {createSiteRegistry,resolveLocation,normalizeLongitudeEast} from './site-registry.mjs';
 import {referenceDirections,skyAt,EARTH_DIRECTION_TOLERANCE_DEG} from './anysite.mjs';
 import {evaluateStart,runMission} from './engine.mjs';
@@ -60,6 +60,16 @@ export function createAnalysisContext(bundle){
   }
   function analyzeSite({siteId,coordinates,time,range,inputs,includeSeries=false}={}){
     const site=resolveLocation(bundle,coordinates??siteId??inputs?.siteId);
+    // Reuse engine validation before dispatch, including historical-only comparisons.
+    if(inputs){
+      const validator=bundle.sites?.find(s=>registry.some(r=>r.id===s.id&&r.capabilities.missionEvaluation));
+      if(validator)evaluateStart(bundle,inputs,validator.id);
+      else {
+        // No terrain means unknown intervals, still sufficient for engine input validation.
+        const validationBundle={...bundle,sites:[{id:'input-validation'}]};
+        evaluateStart(validationBundle,inputs,'input-validation');
+      }
+    }
     const from=inputs?.nominal??range?.[0]??bundle.coverage[0];
     const end=inputs?from+inputs.durationHours*HOUR:range?.[1]??bundle.coverage[1];
     windowCheck(from,end);
@@ -84,7 +94,7 @@ export function createAnalysisContext(bundle){
         cadenceSeconds:data.cadenceSeconds,referenceSite:data.referenceSite,
         scope:'Sampled implementation tolerances, not a physical accuracy guarantee or event-time bound. Mean Earth range; zero-altitude reference sphere at this coordinate.'},
       levelGeometry:{scope:SCOPE,sun:summarizeLevelWindow(data.series,'sun',from,end,data),
-        earth:summarizeLevelWindow(data.series,'earth',from,end,data),...(includeSeries?{series:data.series.filter(r=>r.time>=from&&r.time<=end)}:{})},
+        earth:summarizeLevelWindow(data.series,'earth',from,end,data),...(includeSeries?{series:data.series.filter(r=>r.time>=from&&r.time<=end).map(row=>({...row}))}:{})},
       decision:inputs&&terrain?evaluated:null,
       terrainMetrics:terrain?missionMetrics(evaluated,bundle.sites.find(s=>s.id===site.id)):null};
   }

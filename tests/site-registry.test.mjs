@@ -112,3 +112,35 @@ test('damaged terrain metadata, missing timelines, and duplicate identities fail
   assert.throws(()=>createSiteRegistry({...bundle,sites:[{...bundle.sites[0],id:'apollo-11'}]}),/collision/i);
   assert.throws(()=>createSiteRegistry({...bundle,coverage:[1,1]}),/coverage/i);
 });
+
+test('returned catalog metadata and sampled series cannot mutate future scientific reports',()=>{
+  const options={siteId:'apollo-11',range:[inputs.nominal,inputs.nominal+3600],includeSeries:true};
+  const original=context.analyzeSite(options),before=structuredClone(original);
+  for(const row of original.levelGeometry.series)row.sun=90;
+  original.site.coordinateEvidence[0].url='https://invalid.example/';
+  original.site.terrainAssessment.regional.pixelsPerDegree=1;
+  const after=context.analyzeSite(options);
+  assert.deepEqual(after,before);
+  assert.notEqual(createSiteRegistry(bundle).find(s=>s.id==='apollo-11').coordinateEvidence[0].url,'https://invalid.example/');
+});
+
+test('partial terrain metadata and frame/radius mismatch cannot retain terrain capability',()=>{
+  for(const [level,field] of [['coarse','local'],['coarse','regional'],['fine','local'],['fine','regional']]){
+    const site=structuredClone(bundle.sites.find(s=>s.id===inputs.siteId));delete site.terrain[level][field];
+    const damaged={...bundle,sites:[site]};
+    assert.equal(createSiteRegistry(damaged)[0].capability,'geometry-only',`${level}.${field}`);
+    assert.equal(createAnalysisContext(damaged).analyzeSite({siteId:site.id,inputs}).decision,null);
+  }
+  for(const patch of [{workingFrame:'IAU_MOON'},{referenceRadiusM:6371000},{heightM:5}]){
+    const site={...bundle.sites[0],...patch};
+    assert.equal(createSiteRegistry({...bundle,sites:[site]})[0].capability,'geometry-only');
+  }
+});
+
+test('geometry-only requirement comparisons use the same input validation as terrain decisions',()=>{
+  for(const patch of [{maxSunHours:-1},{maxSunHours:NaN},{mode:'garbage'},{gridMinutes:0},{delayHours:-72}]){
+    const invalid={...inputs,...patch};
+    assert.throws(()=>context.analyzeSite({siteId:'apollo-11',inputs:invalid}));
+    assert.throws(()=>context.compareSites({siteIds:['apollo-11','apollo-12'],inputs:invalid}));
+  }
+});
