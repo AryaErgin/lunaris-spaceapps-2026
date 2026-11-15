@@ -14,8 +14,12 @@ import numpy as np
 import rasterio
 from rasterio.windows import Window
 
-from science.scene_terrain import local_positions
-from science.sources import ACQUIRED_UTC, FILES, SHA256, SITES, _sha256
+from science.scene_terrain import (
+    _scene_site_row,
+    checked_terrain_source,
+    local_positions,
+    scene_site_rows,
+)
 from science.terrain import RADIUS_M, _raster_description, project, unproject
 
 RAY_AUDIT_UTC = "2026-11-17T03:00:00Z"
@@ -49,11 +53,11 @@ def central_difference_slope(positions, valid):
 
 
 def _site_note(raw, site, tile):
+    if _scene_site_row(site)[5] != tile:
+        raise ValueError(f'Wrong native source tile for study point: {site["id"]}')
     filename = f"{tile}_final_adj_5mpp_surf.tif"
     path = raw / filename
-    digest = _sha256(path)
-    if digest != SHA256[filename]:
-        raise ValueError(f"Native DEM differs from pinned NASA source: {filename}")
+    source = checked_terrain_source(raw, filename)
     with rasterio.open(path) as dataset:
         x, y = project(site["lat"], site["lon"])
         row, col = dataset.index(x, y)
@@ -74,7 +78,6 @@ def _site_note(raw, site, tile):
         result = central_difference_slope(positions, valid)
         description = _raster_description(dataset)
         center_x, center_y = dataset.xy(row, col)
-    url, expected_bytes, citation = FILES[filename]
     return {"siteId": site["id"], "name": site["name"], "latitudeDeg": site["lat"],
             "longitudeEastDeg": site["lon"], "coordinateStatus": site["coordinateStatus"],
             "groundM": site["groundM"], "observerHeightM": site["heightM"],
@@ -90,15 +93,16 @@ def _site_note(raw, site, tile):
                         "valid": valid.tolist(),
                         "requiredCellsRowColumn": [[1, 1], [1, 0], [1, 2], [0, 1], [2, 1]],
                         "sampleLocation": "Native raster cell containing the exact published observer point; a gradient of its neighboring cell centers, not a point-scale measured surface slope"},
-            "source": {"filename": filename, "sha256": digest, "bytes": path.stat().st_size,
-                       "expectedBytes": expected_bytes, "url": url, "citation": citation,
-                       "acquiredUtc": ACQUIRED_UTC[filename], "raster": description},
+            "source": source,
             "warning": "Local NASA DEM-model ground gradient; this is not a skyline elevation, landing-site approval, lander limit, hazard certification or a slope constraint in the mission engine. Nominal 5 m spacing does not imply independent 5 m measurements."}
 
 
 def _ray_audit(bundle):
     timestamp = datetime.fromisoformat(RAY_AUDIT_UTC.replace("Z", "+00:00")).astimezone(timezone.utc).timestamp()
-    site = next(item for item in bundle["sites"] if item["id"] == "de-gerlache-rim")
+    site = next((item for item in bundle["sites"] if item["id"] == "de-gerlache-rim"), None)
+    if site is None:
+        return {"siteId": "de-gerlache-rim", "utc": RAY_AUDIT_UTC, "rays": [], "status": "INDETERMINATE",
+                "reason": "The recovery demonstration study point is not present in this bundle"}
     sample = next((row for row in site.get("geometry", []) if row[0] == timestamp), None)
     report = {"siteId": site["id"], "utc": RAY_AUDIT_UTC, "observerHeightM": site["heightM"],
               "scope": "Only these exact cached azimuth samples at the Nov 17 03:00 UTC recovery start; blocker positions and ranges vary with azimuth and time. These are nominal model witnesses, not an independent rescan or a finite-disc visibility calculation.",
@@ -127,6 +131,7 @@ def build_notes(raw, bundle_path, output):
     raw, bundle_path, output = Path(raw), Path(bundle_path), Path(output)
     bundle_bytes = bundle_path.read_bytes()
     bundle = json.loads(bundle_bytes)
+    rows = scene_site_rows(bundle)
     sites = {site["id"]: site for site in bundle["sites"]}
     notes = {"version": "1.0.0", "kind": "Presentation verification of existing NASA terrain and frozen nominal skyline witnesses",
              "bundleFileSha256": sha256(bundle_bytes).hexdigest(),
@@ -134,7 +139,7 @@ def build_notes(raw, bundle_path, output):
              "referenceSphereRadiusM": RADIUS_M,
              "method": "For each exact published study point, select its containing native 5 m DEM cell and a 3x3 window. Convert native neighboring cell centers and radial elevations to curved lunar Cartesian positions, then the point's radial-up/east/north basis. Solve [deltaEast,deltaNorth] dot [dUp/dEast,dUp/dNorth] = deltaUp for the east-west and north-south central pairs. Slope is atan(hypot(the two gradient components)). Physical horizontal chord distances account for projection scale, actual ground radius and lunar curvature. Required masked/nonfinite samples yield INDETERMINATE, never a flat slope.",
              "slopeMeaning": "Local finite-difference gradient of the native DEM model around the containing pixel; distinct from all apparent skyline angles. Not a landing-safety criterion and not used by the mission engine.",
-             "sites": [_site_note(raw, sites[row[0]], row[5]) for row in SITES],
+             "sites": [_site_note(raw, sites[row[0]], row[5]) for row in rows],
              "recoveryStartRayAudit": _ray_audit(bundle),
              "reproduce": "python -m science.rendering_notes --raw data/raw --bundle web/data/bundle.json --output web/data/rendering-notes.json",
              "aiUse": "OpenAI Codex and Anthropic Claude assisted implementation, testing and writing of this presentation-only evidence derivative under human teammates Arya Ergin and Aras."}

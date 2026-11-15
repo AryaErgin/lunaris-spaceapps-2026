@@ -7,6 +7,7 @@ derivatives; the full independently computed skyline remains authoritative.
 import argparse
 import json
 from hashlib import sha256
+from math import isfinite
 from pathlib import Path
 
 import numpy as np
@@ -14,10 +15,106 @@ import rasterio
 from rasterio.windows import Window
 
 from science.ephemerides import FRAME, enu_basis
-from science.sources import ACQUIRED_UTC, FILES, REGIONAL, SHA256, SITES, _sha256
+from science.sources import (
+    ACQUIRED_UTC,
+    FILES,
+    REGIONAL,
+    SHA256,
+    SITE_SOURCE,
+    SITES,
+    _sha256,
+)
 from science.terrain import RADIUS_M, _raster_description, project
 
 LEVELS = ((250., 101), (4000., 129), (32000., 257))
+
+
+def terrain_source_spec(filename):
+    """Resolve only explicitly pinned native DEMs, never a substitute tile.
+
+    Extended-site imports stay lazy: extended_sites itself uses rendering_notes
+    and local_positions for its raw coverage/slope gate.
+    """
+    if filename in FILES and filename.lower().endswith('.tif'):
+        url, expected_bytes, citation = FILES[filename]
+        return {'filename': filename, 'sha256': SHA256[filename], 'expectedBytes': expected_bytes,
+                'url': url, 'citation': citation, 'acquiredUtc': ACQUIRED_UTC[filename]}
+    from science.extended_sites import EXTENDED_FILES
+
+    if filename not in EXTENDED_FILES:
+        raise ValueError(f'Unsupported native terrain source: {filename}')
+    pin = EXTENDED_FILES[filename]
+    return {'filename': filename, 'sha256': pin['sha256'], 'expectedBytes': pin['bytes'],
+            'url': pin['url'], 'citation': pin['citation'], 'acquiredUtc': pin['pinnedAcquisitionUtc'],
+            'publisherChecksumAvailable': pin['publisherChecksumAvailable'], 'checksumOrigin': pin['checksumOrigin']}
+
+
+def checked_terrain_source(raw, filename):
+    """Verify native bytes/hash before exposing source/raster metadata."""
+    spec = terrain_source_spec(filename)
+    path = Path(raw) / filename
+    size = path.stat().st_size
+    if size != spec['expectedBytes']:
+        raise ValueError(f'NASA DEM bytes differ from source pin: {filename}')
+    digest = _sha256(path)
+    if digest != spec['sha256']:
+        raise ValueError(f'NASA DEM SHA-256 differs from source pin: {filename}')
+    with rasterio.open(path) as dataset:
+        raster = _raster_description(dataset)
+    return {**spec, 'bytes': size, 'sha256': digest, 'raster': raster}
+
+
+def _scene_site_row(site):
+    from science.extended_sites import EXTENDED_SITES
+
+    registry = {row[0]: row for row in (*SITES, *EXTENDED_SITES)}
+    identifier = site.get('id')
+    if not isinstance(identifier, str) or identifier not in registry:
+        raise ValueError(f'Unsupported terrain-aware display study point: {identifier}')
+    row = registry[identifier]
+    if (site.get('lat'), site.get('lon'), site.get('heightM'), site.get('referenceRadiusM')) != (row[3], row[4], 2., RADIUS_M):
+        raise ValueError(f'Changed exact study-point observer identity: {identifier}')
+    if (site.get('source') != SITE_SOURCE or site.get('sourceFrame') != 'DE421 MOON_ME'
+            or site.get('workingFrame') != FRAME or site.get('coordinateStatus') != 'Published region center'):
+        raise ValueError(f'Changed study-point coordinate source or reference frame: {identifier}')
+    ground = site.get('groundM')
+    if not isinstance(ground, (int, float)) or not isfinite(ground):
+        raise ValueError(f'Missing finite native observer ground: {identifier}')
+    local_name = f'{row[5]}_final_adj_5mpp_surf.tif'
+    for level in ('coarse', 'fine'):
+        terrain = site.get('terrain', {}).get(level, {})
+        if (terrain.get('local', {}).get('filename') != local_name
+                or terrain.get('regional', {}).get('filename') != REGIONAL
+                or terrain.get('groundM') != ground
+                or terrain.get('observerRadiusM') != RADIUS_M + ground + site['heightM']):
+            raise ValueError(f'Terrain model or observer differs from own study-point source: {identifier}/{level}')
+    return row
+
+
+def scene_site_rows(bundle):
+    """Validate actual bundle sites against known native sources in bundle order."""
+    sites = bundle.get('sites')
+    if not isinstance(sites, list) or not sites:
+        raise ValueError('Display bundle requires at least one supported study point')
+    rows, identifiers = [], set()
+    for site in sites:
+        if not isinstance(site, dict):
+            raise TypeError('Invalid display study-point identity')
+        row = _scene_site_row(site)
+        if row[0] in identifiers:
+            raise ValueError(f'Duplicate display study-point identity: {row[0]}')
+        identifiers.add(row[0])
+        rows.append(row)
+    if bundle.get('manifest', {}).get('frame', {}).get('working') != FRAME:
+        raise ValueError('Display bundle working lunar frame differs from the scientific model')
+    records = bundle.get('manifest', {}).get('files', [])
+    for filename in (REGIONAL, *(f'{row[5]}_final_adj_5mpp_surf.tif' for row in rows)):
+        pin = terrain_source_spec(filename)
+        matches = [record for record in records if record.get('filename') == filename]
+        if (len(matches) != 1 or matches[0].get('sha256') != pin['sha256']
+                or matches[0].get('bytes') != pin['expectedBytes']):
+            raise ValueError(f'Display bundle terrain source pin differs: {filename}')
+    return tuple(rows)
 
 
 def local_positions(lat, lon, ground, sample_lat, sample_lon, heights):
@@ -230,19 +327,10 @@ def build_scenes(raw, bundle_path, output):
     raw, output = Path(raw), Path(output)
     bundle_bytes = Path(bundle_path).read_bytes()
     bundle = json.loads(bundle_bytes)
+    rows = scene_site_rows(bundle)
     sites = {site["id"]: site for site in bundle["sites"]}
-    source_metadata = []
-    for filename in (REGIONAL, *(f"{row[5]}_final_adj_5mpp_surf.tif" for row in SITES)):
-        path = raw / filename
-        digest = _sha256(path)
-        if digest != SHA256[filename]:
-            raise ValueError(f"NASA DEM SHA-256 differs from pin: {filename}")
-        with rasterio.open(path) as dataset:
-            raster = _raster_description(dataset)
-        url, expected_bytes, citation = FILES[filename]
-        source_metadata.append({"filename": filename, "sha256": digest, "bytes": path.stat().st_size,
-                                "expectedBytes": expected_bytes, "url": url, "citation": citation,
-                                "acquiredUtc": ACQUIRED_UTC[filename], "raster": raster})
+    source_metadata = [checked_terrain_source(raw, filename)
+                       for filename in (REGIONAL, *(f'{row[5]}_final_adj_5mpp_surf.tif' for row in rows))]
     output.mkdir(parents=True, exist_ok=True)
     metadata = {"version": "1.0.0", "kind": "Physical-scale NASA LOLA display meshes",
                 "binaryFormat": "little-endian contiguous Float32 XYZ, followed by Uint32 triangle indices",
@@ -262,10 +350,8 @@ def build_scenes(raw, bundle_path, output):
                 "reproduce": "python -m science.scene_terrain --raw data/raw --bundle web/data/bundle.json --output web/data",
                 "aiUse": "OpenAI Codex and Anthropic Claude assisted implementation, tests and writing under human teammates Arya Ergin and Aras. Mesh vertices are deterministic NASA DEM derivatives, not generative artwork."}
     with rasterio.open(raw / REGIONAL) as regional:
-        for site_id, _, _, expected_lat, expected_lon, tile in SITES:
+        for site_id, _, _, _expected_lat, _expected_lon, tile in rows:
             site = sites[site_id]
-            if site["lat"] != expected_lat or site["lon"] != expected_lon:
-                raise ValueError(f"Bundle coordinates differ from exact study-point pin: {site_id}")
             with rasterio.open(raw / f"{tile}_final_adj_5mpp_surf.tif") as local:
                 sampler = TerrainSampler(local, regional, site)
                 ground, valid = sampler.sample(np.array([0.]), np.array([0.]))
