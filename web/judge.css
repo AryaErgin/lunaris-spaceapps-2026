@@ -615,3 +615,9 @@ body[data-delay-story="true"] #mission-story[data-status=FAIL] #story-explanatio
 }
 @media(max-width:1100px){body[data-delay-story="true"] .story-progress button{min-height:46px;padding-block:var(--space-1)}}
 @media(max-width:700px){.product-purpose{gap:var(--space-2)}.product-purpose .purpose-copy{flex:1 0 100%}#delay-shortcut,#tour-start{min-height:var(--control-height);padding:var(--space-2);font-size:var(--text-xs)}#delay-shortcut::before{margin-right:var(--space-1)}}
+
+/* Web Interface Guidelines pass: balanced headings, deliberate touch behaviour, safe areas. */
+html{-webkit-tap-highlight-color:transparent}
+button,a,select,summary,input:not([type="range"]){touch-action:manipulation}
+h1,h2,h3{text-wrap:balance}
+@media(max-width:700px){.mission-actions .find-opportunities{bottom:max(12px,env(safe-area-inset-bottom))}}
