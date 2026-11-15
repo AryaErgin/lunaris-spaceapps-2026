@@ -1126,8 +1126,13 @@ function downloadJson(record,filename){
 form.addEventListener('submit', (event) => {
   event.preventDefault();
   requirementsEnabled=true;syncAssessment();
-  evaluate();
+  if(evaluate())revealMissionResult();
 });
+function revealMissionResult(){
+  setProductMode('explore');
+  scrollTo({top:0,behavior:'instant'});
+  byId('story-status').focus({preventScroll:true});
+}
 form.addEventListener('input', () => {
   if (!result) return;
   isEdited = true;
@@ -1153,7 +1158,10 @@ byId('apply-quick-requirements').addEventListener('click',()=>{
   for(const key of keys){const field=byId(`quick-${key}`);field.required=key.startsWith('max-');if(!field.reportValidity())return;}
   for(const key of keys)byId(key).value=byId(`quick-${key}`).value;
   requirementsEnabled=true;requirementsSource='custom';
-  if(evaluate())byId('quick-requirements-status').textContent='Your requirements are applied to Mission, Compare and the next search.';
+  if(evaluate()){
+    byId('quick-requirements-status').textContent='Your requirements are applied to Mission, Compare and the next search.';
+    revealMissionResult();
+  }
 });
 byId('comparison-duration').addEventListener('change',()=>{
   const hours=Number(byId('comparison-duration').value);
@@ -1197,7 +1205,7 @@ byId('apply-requirements').addEventListener('change',()=>{
   if(!requirementsEnabled)delayStoryEnabled=false;
   if(!requirementsEnabled&&selected!=='nominal'){
     const current=selectedMission();byId('site').value=current.siteId;byId('nominal').value=inputTime(current.start);selected='nominal';guidedPhase='nominal';evaluate();
-  }else evaluate();
+  }else if(evaluate()&&requirementsEnabled)revealMissionResult();
 });
 byId('start-delay-demo').addEventListener('click',()=>{loadDemo();setProductMode('explore');});
 for(const id of ['max-sun','max-earth','min-total','min-continuous'])byId(id).addEventListener('input',()=>{requirementsSource='custom';syncAssessment();});
@@ -1907,7 +1915,7 @@ function renderLandingAssessment(siteId,time,{pending=false}={}) {
     :pending?{status:'INDETERMINATE',reason:'Inputs changed. Apply your changes to refresh this assessment.'}
       :landingAssessment.assess(inputs,siteId,time,{requirementsApplied:true});
   Object.assign(root.dataset,{status:view.status??'NOT_APPLIED',start:Number.isFinite(time)?String(time):'',site:siteId??''});
-  root.replaceChildren(element('span','hero-landing-verdict-label','If landing at this time:'));
+  root.replaceChildren(element('span','hero-landing-verdict-label','If landing now:'));
   if(view.status)root.append(statusChip(view.status));
   else root.append(element('strong','','Requirements not applied'));
   root.append(element('span','hero-landing-verdict-detail',view.status
