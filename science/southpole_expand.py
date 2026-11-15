@@ -15,7 +15,7 @@ from pathlib import Path
 
 import numpy as np
 import rasterio
-from pyproj import Transformer
+from pyproj import CRS, Transformer
 from rasterio.windows import Window
 
 from science.build import _bounds_report, _canonical, _site, _write_bundle
@@ -73,7 +73,7 @@ def build_skyline(raw, row, *, count=3600, radius_m=240000):
         if np.ma.is_masked(cell) or not np.isfinite(cell):
             raise ValueError('Native observer ground is missing; no height or horizon can be inferred')
         ground=float(cell);observer=RADIUS_M+ground+2.
-        forward=Transformer.from_crs(local.crs.geodetic_crs,local.crs,always_xy=True)
+        forward=Transformer.from_crs(CRS.from_wkt(local.crs.to_wkt()).geodetic_crs,local.crs,always_xy=True)
         oracle_x,oracle_y=forward.transform(lon,lat)
         coordinate_error=float(np.hypot(oracle_x-x,oracle_y-y)/local.res[0])
         if coordinate_error>=.1:raise ValueError('Independent native coordinate check failed')

@@ -144,3 +144,18 @@ test('geometry-only requirement comparisons use the same input validation as ter
     assert.throws(()=>context.compareSites({siteIds:['apollo-11','apollo-12'],inputs:invalid}));
   }
 });
+
+test('nonfinite observer radius or missing outer-ring source cannot advertise terrain support',()=>{
+  const base=structuredClone(bundle.sites[0]);
+  base.terrain.coarse.observerRadiusM=NaN;
+  assert.equal(createSiteRegistry({...bundle,sites:[base]})[0].capability,'geometry-only');
+  const expanded=structuredClone(bundle);const site=expanded.sites[0];
+  expanded.manifest.files.push({filename:'outer.tif',sha256:'a'.repeat(64)});
+  for(const level of ['coarse','fine'])site.terrain[level].outerRegional={...site.terrain[level].regional,
+    filename:'outer.tif',spacingM:240,activeInnerM:180000,activeOuterM:240000};
+  assert.equal(createSiteRegistry(expanded)[0].capability,'terrain-aware');
+  const missing=structuredClone(expanded);delete missing.sites[0].terrain.fine.outerRegional;
+  assert.equal(createSiteRegistry(missing)[0].capability,'geometry-only');
+  const unpinned=structuredClone(expanded);unpinned.manifest.files=unpinned.manifest.files.filter(r=>r.filename!=='outer.tif');
+  assert.equal(createSiteRegistry(unpinned)[0].capability,'geometry-only');
+});

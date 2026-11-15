@@ -1,4 +1,4 @@
-﻿import importlib
+import importlib
 from copy import deepcopy
 
 import pytest
@@ -24,3 +24,24 @@ def test_projection_window_bound_encloses_complete_far_field_at_all_six_points()
         assert m.projection_window_bound(lat,240000,240)<=1.015*240000+480
     with pytest.raises(ValueError,match='projection'):
         m.projection_window_bound(-70,240000,240)
+
+def test_native_rasterio_crs_converts_to_independent_pyproj_frame(monkeypatch):
+    from pathlib import Path
+
+    import numpy as np
+
+    from science.southpole_sites import OUTER_REGIONAL, SOUTHPOLE_SITES
+    raw=Path('data/raw')
+    if not (raw/OUTER_REGIONAL).is_file():pytest.skip('Native NASA inputs unavailable')
+    m=module()
+    def scan(dataset,lat,lon,observer,inner,outer,count,state):
+        upper,lower,_gap,nominal,_blockers=state
+        upper[:]=1.;lower[:]=0.;nominal[:]=.5
+        return {'sampledValidCells':1,'sampledMaskedCells':0}
+    monkeypatch.setattr(m,'_scan',scan)
+    for identifier in ['nobile-rim-1','haworth']:
+        row=next(row for row in SOUTHPOLE_SITES if row[0]==identifier)
+        sky=m.build_skyline(raw,row,count=36,radius_m=200000)
+        assert sky.info['nativeRasterRoundTripErrorPixels']<.1
+        assert np.isfinite(sky.upper).all()
+        assert len(sky.info['scanRings'])==(2 if identifier=='haworth' else 3)

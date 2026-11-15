@@ -23,9 +23,12 @@ function terrainAvailable(site,bundle){
   const pins=new Set((bundle.manifest.files??[]).filter(file=>/^[a-f0-9]{64}$/.test(file.sha256)).map(file=>file.filename));
   for(const level of ['coarse','fine']){
     const geometry=model[level];
-    if(!geometry||geometry.groundM!==site.groundM||
+    if(!geometry||geometry.groundM!==site.groundM||!Number.isFinite(geometry.observerRadiusM)||
       Math.abs(geometry.observerRadiusM-(site.referenceRadiusM+site.groundM+site.heightM))>1e-6)return false;
-    for(const role of ['local','regional']){
+    const hasOuter=Boolean(model.coarse?.outerRegional||model.fine?.outerRegional);
+    if(hasOuter&&(!geometry.outerRegional||!Number.isFinite(geometry.outerRegional.activeInnerM)||
+      !Number.isFinite(geometry.outerRegional.activeOuterM)||geometry.outerRegional.activeOuterM<geometry.outerRegional.activeInnerM))return false;
+    for(const role of (hasOuter?['local','regional','outerRegional']:['local','regional'])){
       const raster=geometry[role];
       if(!raster?.filename||!pins.has(raster.filename)||!Number.isFinite(raster.spacingM)||raster.spacingM<=0||!raster.wkt)return false;
     }
