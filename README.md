@@ -73,6 +73,26 @@ Sources and exact hashes: [offline scientific bundle](web/data/bundle.json), [Ho
 
 Moon imagery: NASA Goddard/SVS, Ernie Wright, LRO/LROC/LOLA teams, [CGI Moon Kit](https://svs.gsfc.nasa.gov/4720/) linked by [LRO Moon models](https://svs.gsfc.nasa.gov/14959/). Earth: [NASA Blue Marble](https://svs.gsfc.nasa.gov/2915/). The small preview loads first; desktop 4K detail loads automatically, with a smaller mobile texture. [Three.js r186](https://github.com/mrdoob/three.js/tree/r186) is bundled under its [MIT license](web/vendor/three-LICENSE.txt). NASA/third-party assets retain their publishers' terms; LUNARIS code uses MIT.
 
+## Design system
+
+All visual values come from [`web/tokens.css`](web/tokens.css), loaded before every other stylesheet. `styles.css`, `experience.css`, `judge.css` and `scene3d.css` contain no colour literals, font stacks or `:root` blocks of their own; change a token and the whole interface follows.
+
+| Token group | Tokens | Purpose |
+|---|---|---|
+| Typefaces | `--font-display`, `--font-body`, `--font-mono` | Space Grotesk for headings and key results, Inter for body and controls, IBM Plex Mono for coordinates, timestamps and micro-labels |
+| Type scale | `--text-xs` (13px) to `--text-5xl` (46px), `--weight-*`, `--leading-*`, `--tracking-*` | Nothing a visitor reads is below 13px; body copy is 15–16px |
+| Structure | `--color-bg`, `--color-surface`, `--color-surface-elevated`, `--color-track`, `--color-border-subtle`, `--color-border`, `--color-border-strong` | Page, panels, raised cards, tracks and outlines |
+| Text | `--color-text`, `--color-text-secondary`, `--color-text-muted`, `--color-on-accent` | All at or above WCAG AA on the surfaces they are used on |
+| Meaning | `--color-sun`, `--color-earth`, `--color-pass`, `--color-fail`, `--color-indeterminate`, each with `-border` and `-surface` variants | Amber is always the Sun, cyan always Earth; statuses also carry an icon and a word |
+| Roles | `--color-accent`, `--color-link`, `--color-focus` | Primary action, links and the keyboard focus ring |
+| Shape and depth | `--space-1` to `--space-8`, `--radius-sm/md/lg/pill`, `--shadow-1/2` | Spacing scale, corner radii and elevation |
+| Motion and focus | `--duration-fast/base/slow`, `--ease-standard`, `--focus-ring`, `--focus-offset` | Transitions and focus treatment; reduced motion is honoured |
+| Layout | `--header-height`, `--rail-width`, `--content-max`, `--control-height`, `--scene-toolbar-height`, `--scene-height` | Sidebar, 3D viewport and touch-target sizing |
+
+Fonts are self-hosted WOFF2 files in [`web/fonts`](web/fonts) (about 100 KB for the Latin sets) with `font-display: swap`; no font CDN is contacted. Inter, Space Grotesk and IBM Plex Mono are licensed under the SIL Open Font License 1.1; the notices are `web/fonts/LICENSE-*.txt`. Files come from the Fontsource 5.3.0 packages of each family.
+
+Scientific colours drawn by scripts (the terrain atlas map and the month calendar shading) and the Three.js materials are not tokenised.
+
 ## Reproduce and verify
 
 ```sh

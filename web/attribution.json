@@ -6,6 +6,7 @@
   ],
   "ai_assistance": "Research, scientific implementation, rendering, tests, interface design and writing. No runtime AI is used for mission decisions.",
   "data_generation_notices": "Frozen scientific artifacts retain their original-generation notices and hashes. This release-level record identifies the current human team and AI assistance.",
+  "typefaces": "Inter (The Inter Project Authors), Space Grotesk (The Space Grotesk Project Authors) and IBM Plex Mono (IBM Corp.), self-hosted under the SIL Open Font License 1.1; notices in fonts/LICENSE-*.txt.",
   "visual_media": "NASA source imagery and deterministic terrain/rendering derivatives; no generative image or video model.",
   "nasa_endorsement": false,
   "sources": "assets/visual-sources.json and data/bundle.json manifest",

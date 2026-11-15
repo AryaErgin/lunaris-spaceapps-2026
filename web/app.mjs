@@ -1960,7 +1960,7 @@ function renderMissionStory() {
   byId('mission-story').dataset.start=story.start??'';
   byId('mission-story').dataset.site=story.siteId??'';
   byId('mission-story').dataset.status=story.status;
-  for(const button of document.querySelectorAll('[data-story]'))button.setAttribute('aria-pressed',String(button.dataset.story===guidedPhase));
+  for(const button of document.querySelectorAll('[data-story]')){button.setAttribute('aria-pressed',String(button.dataset.story===guidedPhase));button.dataset.status=result[button.dataset.story]?.status??'NONE';}
   byId('story-title').textContent=story.heading;
   if(!delayStoryEnabled)byId('story-title').textContent='Arrival assessment';
   byId('story-explanation').textContent=story.message;

@@ -23,6 +23,7 @@ TYPES = {
     ".png": "image/png",
     ".jpg": "image/jpeg",
     ".mesh": "application/octet-stream",
+    ".woff2": "font/woff2",
 }
 
 

@@ -1,0 +1,158 @@
+/*
+ * LUNARIS design tokens — the single source of truth for the interface.
+ * Loaded before styles.css, experience.css, judge.css and scene3d.css.
+ * Those files must reference these variables and never redefine them.
+ *
+ * Fonts are self-hosted WOFF2 files under ./fonts (SIL Open Font License 1.1,
+ * notices in ./fonts/LICENSE-*.txt). No font CDN is contacted at run time.
+ */
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('./fonts/inter-latin-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('./fonts/inter-latin-ext-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url('./fonts/space-grotesk-latin-wght-normal.woff2') format('woff2-variations');
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./fonts/ibm-plex-mono-latin-400-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('./fonts/ibm-plex-mono-latin-500-normal.woff2') format('woff2');
+}
+
+:root {
+  color-scheme: dark;
+
+  /* ---- Typography ------------------------------------------------------ */
+  --font-display: 'Space Grotesk', 'Inter', 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif; /* headings, brand, key results */
+  --font-body: 'Inter', 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;                     /* body copy and controls */
+  --font-mono: 'IBM Plex Mono', 'Cascadia Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;            /* values, coordinates, timestamps, micro-labels */
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  --text-xs: 13px;    /* micro-labels and dense reference grids only */
+  --text-sm: 14px;    /* secondary labels, captions */
+  --text-md: 15px;    /* compact body and controls */
+  --text-base: 16px;  /* body copy */
+  --text-lg: 18px;    /* lead text, card titles */
+  --text-xl: 20px;    /* section headings, key values */
+  --text-2xl: 24px;   /* panel headings */
+  --text-3xl: 30px;   /* primary result */
+  --text-4xl: 36px;   /* page titles */
+  --text-5xl: 46px;   /* hero */
+
+  --leading-tight: 1.12;
+  --leading-snug: 1.35;
+  --leading-normal: 1.55;
+  --tracking-tight: -0.02em;  /* display type */
+  --tracking-label: 0.1em;    /* uppercase mono micro-labels */
+
+  /* ---- Colour: structure ------------------------------------------------ */
+  --color-black: #000000;            /* airless sky behind the 3D scene */
+  --color-bg: #060C16;               /* page background */
+  --color-surface: #101D2B;          /* panels, sidebar, cards */
+  --color-surface-elevated: #1A2B3C; /* raised cards, pressed controls, popovers */
+  --color-track: #2B4257;            /* slider and timeline tracks, unconfirmed time */
+  --color-border-subtle: #2C4154;    /* thin structural separators */
+  --color-border: #496479;           /* control and card outlines */
+  --color-border-strong: #86A1B6;    /* input outlines, emphasised edges (3:1 on surfaces) */
+
+  /* ---- Colour: text ------------------------------------------------------ */
+  --color-text: #F6F9FC;             /* primary text */
+  --color-text-secondary: #C3D2E1;   /* supporting text */
+  --color-text-muted: #A9BBCB;       /* labels and captions; still above 4.5:1 on surfaces */
+  --color-on-accent: #0B1622;        /* text on solid accent fills */
+
+  /* ---- Colour: meaning --------------------------------------------------- */
+  --color-sun: #F4C36F;              /* Sun, solar geometry, primary action */
+  --color-earth: #7BDDF2;            /* Earth, line of sight, links */
+  --color-pass: #A2E4C5;             /* PASS, confirmed visibility */
+  --color-fail: #FF9E98;             /* FAIL, blocked */
+  --color-indeterminate: #F1D28B;    /* INDETERMINATE, unresolved, cautions */
+
+  --color-sun-border: color-mix(in srgb, var(--color-sun) 58%, var(--color-bg));
+  --color-earth-border: color-mix(in srgb, var(--color-earth) 55%, var(--color-bg));
+  --color-pass-border: color-mix(in srgb, var(--color-pass) 55%, var(--color-bg));
+  --color-fail-border: color-mix(in srgb, var(--color-fail) 58%, var(--color-bg));
+  --color-indeterminate-border: color-mix(in srgb, var(--color-indeterminate) 55%, var(--color-bg));
+
+  --color-sun-surface: color-mix(in srgb, var(--color-sun) 13%, var(--color-bg));
+  --color-earth-surface: color-mix(in srgb, var(--color-earth) 12%, var(--color-bg));
+  --color-pass-surface: color-mix(in srgb, var(--color-pass) 13%, var(--color-bg));
+  --color-fail-surface: color-mix(in srgb, var(--color-fail) 15%, var(--color-bg));
+  --color-indeterminate-surface: color-mix(in srgb, var(--color-indeterminate) 13%, var(--color-bg));
+
+  --color-accent: var(--color-sun);  /* primary buttons and selected navigation */
+  --color-link: var(--color-earth);
+  --color-focus: var(--color-sun);
+
+  /* ---- Space, shape, depth ----------------------------------------------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  --radius-sm: 3px;    /* chips, inputs, tracks */
+  --radius-md: 6px;    /* buttons, cards */
+  --radius-lg: 10px;   /* large panels, popovers */
+  --radius-pill: 999px;
+
+  --shadow-1: 0 1px 2px color-mix(in srgb, var(--color-black) 45%, transparent);
+  --shadow-2: 0 10px 30px color-mix(in srgb, var(--color-black) 55%, transparent);
+
+  /* ---- Motion and focus --------------------------------------------------- */
+  --duration-fast: 120ms;
+  --duration-base: 220ms;
+  --duration-slow: 420ms;
+  --ease-standard: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --focus-ring: 2px solid var(--color-focus);
+  --focus-offset: 3px;
+
+  /* ---- Layout ------------------------------------------------------------- */
+  --header-height: 64px;
+  --rail-width: clamp(380px, 29vw, 480px);  /* mission-control sidebar */
+  --content-max: 1280px;                     /* reading width for Compare and Advanced */
+  --control-height: 44px;                    /* minimum touch target */
+  --scene-toolbar-height: 48px;              /* view switch above the 3D viewport */
+  --scene-height: clamp(330px, calc(100svh - 394px), 860px); /* 3D viewport; leaves room for the timeline */
+
+  font: var(--weight-regular) var(--text-base)/var(--leading-normal) var(--font-body);
+  font-synthesis: none;
+  font-optical-sizing: auto;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+  background: var(--color-bg);
+  -webkit-text-size-adjust: 100%;
+}
