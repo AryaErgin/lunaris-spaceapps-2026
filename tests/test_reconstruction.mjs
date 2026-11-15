@@ -116,6 +116,23 @@ try{
     probe.remove();return rows;
   })()`);
   for(const row of evidence.contrast)gate(row.ratio>=4.5,'Ordinary text semantic color pair must reach WCAG AA4.5:1.',row);
+  // The keyboard skip link has an amber background. Check its real combined
+  // focus + pointer-hover state, which the general link hover rule can override.
+  await command('Page.bringToFront');
+  await evaluate("document.querySelector('.skip').focus()");
+  await sleep(100);
+  const skipBox=await evaluate("document.querySelector('.skip').getBoundingClientRect().toJSON()");
+  await command('Input.dispatchMouseEvent',{type:'mouseMoved',x:skipBox.x+skipBox.width/2,y:skipBox.y+skipBox.height/2});
+  await sleep(150);
+  evidence.skipLinkContrast=await evaluate(`(()=>{
+    const n=document.querySelector('.skip'),s=getComputedStyle(n);
+    const lum=color=>color.match(/[\\d.]+/g).slice(0,3).map(Number).map(c=>c/255).map(c=>c<=.04045?c/12.92:((c+.055)/1.055)**2.4).reduce((sum,c,i)=>sum+c*[.2126,.7152,.0722][i],0);
+    const a=lum(s.color),b=lum(s.backgroundColor);
+    return{hovered:n.matches(':hover'),focused:document.activeElement===n,foreground:s.color,background:s.backgroundColor,ratio:(Math.max(a,b)+.05)/(Math.min(a,b)+.05)};
+  })()`);
+  gate(evidence.skipLinkContrast.hovered&&evidence.skipLinkContrast.focused&&evidence.skipLinkContrast.ratio>=4.5,'Focused skip link must retain AA contrast while hovered.',evidence.skipLinkContrast);
+  await evaluate("document.activeElement.blur();scrollTo(0,0)");
+  await command('Input.dispatchMouseEvent',{type:'mouseMoved',x:1,y:1});
   const cases=[{width:1366,height:768,name:'laptop'},{width:1920,height:1080,name:'desktop'},{width:768,height:1024,name:'tablet-768'},{width:900,height:768,name:'tablet-900'},{width:1024,height:768,name:'tablet-1024'},{width:390,height:844,name:'mobile'},{width:320,height:740,name:'mobile-320'},{width:1366,height:600,name:'short-laptop'},{width:683,height:384,name:'zoom-equivalent'}];
   const inside=(box,v)=>box?.visible&&box.width>0&&box.height>0&&box.x>=-1&&box.right<=v.width+1&&box.y>=-1&&box.bottom<=v.height+1;
   const checkSceneControls=(layout,viewport)=>{
@@ -348,6 +365,10 @@ try{
         for(const body of data.bodies){assert(Number.isFinite(Number(body.azimuth)));assert(Number.isFinite(Number(body.elevation)));}
         assert.equal(data.paths.length,4,'The explorer must draw Sun and Earth for the selected context and the study-point comparison.');
         for(const path of data.paths){assert.equal(path.fill,'none','Elevation curves must never become opaque filled polygons.');assert.notEqual(path.stroke,'none');assert(path.points>100);}
+        data.axisClearance=await evaluate(`(()=>{const left=document.querySelector('#any-site-chart').getBoundingClientRect().left;return[...document.querySelectorAll('.any-site-axis')].map(n=>{const range=document.createRange();range.selectNodeContents(n);return{text:n.textContent,clearance:left-range.getBoundingClientRect().right}})})()`);
+        assert(data.axisClearance.every(axis=>axis.clearance>=4),'Elevation labels must remain outside the plotted Sun/Earth curves with readable separation.');
+        data.dateAxisAlignment=await evaluate(`(()=>{const plot=document.querySelector('#any-site-chart').getBoundingClientRect(),first=document.querySelector('.any-site-days>span:first-child').getBoundingClientRect(),last=document.querySelector('.any-site-days>span:last-child').getBoundingClientRect();return{start:Math.abs(first.left-plot.left),end:Math.abs(last.right-plot.right)}})()`);
+        assert(data.dateAxisAlignment.start<=1&&data.dateAxisAlignment.end<=1,'Date labels must align with the actual chart range after reserving elevation-label space.');
         assert(data.controls.every(c=>c.clear&&c.rect.height>=44),'Location and coordinate controls must be readable, inside the page and unobscured.');assert.equal(data.overflow,false);
         assert.equal(await terrainPlan(),beforeContext,'Apollo/international context selection must preserve every terrain-aware mission input and decision identity.');
         await screenshot('anysite-'+id+'-'+viewport.name);await captureContextSection('anysite-'+id+'-'+viewport.name);
