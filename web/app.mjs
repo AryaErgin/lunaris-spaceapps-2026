@@ -46,7 +46,6 @@ const stateNames = {
 
 let bundle;
 let landingAssessment;
-let inspectClockArrival=false;
 let inputs;
 let result;
 let selected = 'nominal';
@@ -307,7 +306,6 @@ function selectedMission() {
 }
 
 function selectDecision(value) {
-  inspectClockArrival=false;
   pausePlayback();
   selected = value;
   for (const button of document.querySelectorAll('[data-decision]')) {
@@ -674,7 +672,7 @@ function renderPlot(mission) {
   const [azimuth, elevation, horizon] = target === 'sun' ? [1, 2, 3] : [4, 5, 6];
   byId('plot-subtitle').textContent = `${site?.name ?? mission.siteId} · ${shortTime(mission.start)} to ${shortTime(mission.end)}`;
   if (samples.length === 0) {
-    renderLandingAssessment(mission.siteId,mission.start);
+    renderLandingAssessment();
     pausePlayback();
     plot.append(element('p', 'plot-empty', 'This mission does not contain enough cached geometry samples for a curve. Inspect the computed intervals below.'));
     byId('live-telemetry').replaceChildren(element('p','secondary','No sampled geometry inside this mission and cache intersection. Interval-based mission evidence remains below.'));
@@ -893,7 +891,6 @@ function studyCertificate(record) {
 }
 
 function evaluate() {
-  inspectClockArrival=false;
   if (!form.reportValidity()) {isEdited=true;invalidateExperience();exportButton.disabled=true;return false;}
   try {
     const nextInputs = readInputs();
@@ -1269,7 +1266,7 @@ byId('hero-speed').addEventListener('change',()=>{
   byId('sky-speed').value=byId('hero-speed').value;
   if(playing){pausePlayback();startPlayback();}
 });
-byId('hero-time').addEventListener('input',()=>{pausePlayback();inspectClockArrival=true;byId('probe-slider').value=byId('hero-time').value;updateProbe();});
+byId('hero-time').addEventListener('input',()=>{pausePlayback();byId('probe-slider').value=byId('hero-time').value;updateProbe();});
 for(const [id,target] of [['focus-earth','earth'],['focus-sun','sun'],['focus-terrain','site']])byId(id).addEventListener('click',()=>sceneController?.focus(target));
 byId('focus-earth').addEventListener('click',()=>{byId('earth-inset').hidden=true;});
 byId('close-earth-inset').addEventListener('click',()=>{earthReferenceRequested=false;byId('earth-inset').hidden=true;});
@@ -1284,7 +1281,7 @@ byId('reset-demo').addEventListener('click', () => {
 });
 byId('view-sun').addEventListener('click', () => chooseTarget('sun'));
 byId('view-earth').addEventListener('click', () => chooseTarget('earth'));
-byId('probe-slider').addEventListener('input', () => {pausePlayback();inspectClockArrival=true;updateProbe();});
+byId('probe-slider').addEventListener('input', () => {pausePlayback();updateProbe();});
 byId('sky-play').addEventListener('click',startPlayback);
 byId('sky-pause').addEventListener('click',() => pausePlayback());
 byId('sky-reset').addEventListener('click',() => {pausePlayback('Reset to the first cached sample in this domain.');byId('probe-slider').value=0;updateProbe();});
@@ -1533,7 +1530,6 @@ function pausePlayback(message) {
 
 function startPlayback() {
   if(!chart || isEdited || chart.samples.length<2) return;
-  inspectClockArrival=true;
   pausePlayback();
   const slider=byId('probe-slider');
   if(Number(slider.value)>=chart.samples.length-1) slider.value=0;
@@ -1559,7 +1555,7 @@ function jumpPlayback() {
   if(index===null) {
     byId('playback-status').textContent='This UTC time is outside the selected cached domain. No extrapolated positions are available.';return;
   }
-  inspectClockArrival=true;byId('probe-slider').value=index;updateProbe();
+  byId('probe-slider').value=index;updateProbe();
   byId('playback-status').textContent=`Jumped to nearest actual cached sample: ${formatTime(currentTime)}. Ties choose the earlier sample; geometry cadence is 30 minutes.`;
 }
 
@@ -1916,27 +1912,27 @@ async function enterSurface() {
   finally{byId('mode-surface').disabled=false;}
 }
 
-function renderLandingAssessment(siteId,time,{pending=false}={}) {
+function renderLandingAssessment({pending=false}={}) {
   if(!inputs||delayStoryEnabled)return;
   const status=byId('story-status');
   // Normal Mission always assesses the existing illustrative limits (or applied custom
   // limits) for the proposed landing start. This does not enable the separate delay demo.
   pending ||= isEdited;
-  const start=inspectClockArrival?time:selectedMission().start;
+  const mission=selectedMission(),start=mission.start;
   const view=pending?{status:'INDETERMINATE'}
-      :landingAssessment.assess(inputs,siteId,start,{requirementsApplied:true});
+      :landingAssessment.assess(inputs,mission.siteId,start,{requirementsApplied:true});
   const root=byId('mission-story');
-  Object.assign(root.dataset,{presentation:inspectClockArrival?'hypothetical':'selected',displayStart:String(start),displayStatus:view.status});
+  Object.assign(root.dataset,{presentation:'selected',displayStart:String(start),displayStatus:view.status});
   const resolved=(view.status==='PASS'||view.status==='FAIL')&&!view.scheduleExcluded;
   status.hidden=!resolved;status.textContent=resolved?view.status:'';
   status.dataset.assessmentBasis=requirementsEnabled?'applied-requirements':'illustrative-requirements';
   status.dataset.assessmentStart=String(start);
-  status.setAttribute('aria-label',inspectClockArrival?'Hypothetical landing result at the view clock':'Selected arrival result');
+  status.setAttribute('aria-label','Selected arrival result');
   status.className=resolved?`status status-${view.status.toLowerCase()}`:'status';
 }
 
 function updateExperienceFrame(site,sample,mission) {
-  renderLandingAssessment(site.id,sample[0]);
+  renderLandingAssessment();
   latestSceneFrame=sceneFrame(site,sample,bundle.coverage);
   if(isEdited)latestSceneFrame.states={sun:'unknown',earth:'unknown'};
   if(visualSiteId!==site.id) {
@@ -2062,7 +2058,7 @@ function updateExperienceFrame(site,sample,mission) {
 }
 
 function invalidateExperience() {
-  renderLandingAssessment(inputs?.siteId,currentTime,{pending:true});
+  renderLandingAssessment({pending:true});
   clearOpportunities();
   ++rescueAnimation;
   cancelSceneEntry();
@@ -2084,7 +2080,6 @@ function invalidateExperience() {
 
 function showGuidedPhase(phase) {
   if(isEdited)return;
-  inspectClockArrival=false;
   configurationsRequested=phase==='recommended';
   byId('time-scope').value='mission';
   guidedPhase=phase;
@@ -2104,7 +2099,7 @@ function renderMissionStory() {
     byId('story-date').textContent=`${findSite(mission.siteId).name} · ${shortTime(mission.start)} · ${inputs.durationHours} h view`;
     const conclusion=firstScreenConclusion(missionMetrics(mission,findSite(mission.siteId)),mission.end-mission.start,{complete:mission.start>=bundle.coverage[0]&&mission.end<=bundle.coverage[1]});
     byId('story-title').textContent=conclusion.headline;byId('story-explanation').textContent=conclusion.reason;
-    renderLandingAssessment(mission.siteId,currentTime??mission.start);
+    renderLandingAssessment();
     // Each body's own time in view, as a confirmed minimum, beside the joint headline.
     const own=missionMetrics(mission,findSite(mission.siteId)),stay=mission.end-mission.start,durations=byId('story-durations');
     const inView=range=>{const lo=Math.floor(range[0]/60)*60;return lo>=stay?'whole stay':lo<60?(range[1]>=60?'not confirmed':'none'):`${range[1]-range[0]>=60?'at least ':''}${conciseDuration(lo)}`;};
