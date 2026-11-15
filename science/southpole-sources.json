@@ -1,0 +1,86 @@
+[
+  {
+    "filename": "Site06_final_adj_5mpp_surf.tif",
+    "url": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/Site06/Site06_final_adj_5mpp_surf.tif",
+    "bytes": 64025603,
+    "sha256": "cca17e8067601dd659b583f889204db6bce685bc30c60a9e62427a8bce36b03d",
+    "acquiredUtc": "2026-11-15T11:52:53.771509+00:00",
+    "lastModified": "Fri, 12 Feb 2021 13:33:34 GMT",
+    "etag": "W/\"3d0f403-17796725fb0\"",
+    "publisherChecksumAvailable": false,
+    "checksumOrigin": "Locally computed HTTPS retrieval pin, not a NASA-published checksum",
+    "citation": "https://pgda.gsfc.nasa.gov/products/78"
+  },
+  {
+    "filename": "Site23_final_adj_5mpp_surf.tif",
+    "url": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/Site23/Site23_final_adj_5mpp_surf.tif",
+    "bytes": 70586804,
+    "sha256": "12d280a59cd7580415f6bada638d0abe025ce6727541fddf68d5dc371a6c94cf",
+    "acquiredUtc": "2026-11-15T11:53:29.041641+00:00",
+    "lastModified": "Fri, 12 Jun 2020 11:39:15 GMT",
+    "etag": "W/\"43511b4-172a853aab8\"",
+    "publisherChecksumAvailable": false,
+    "checksumOrigin": "Locally computed HTTPS retrieval pin, not a NASA-published checksum",
+    "citation": "https://pgda.gsfc.nasa.gov/products/78"
+  },
+  {
+    "filename": "Site20_final_adj_5mpp_surf.tif",
+    "url": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/Site20/Site20_final_adj_5mpp_surf.tif",
+    "bytes": 40980802,
+    "sha256": "e51451f3629ba7cd5cfc1b32c8c0ee3c5c454607488b00ea00cd06a9e301a892",
+    "acquiredUtc": "2026-11-15T11:53:54.893245+00:00",
+    "lastModified": "Fri, 12 Jun 2020 11:38:58 GMT",
+    "etag": "W/\"2715142-172a8536850\"",
+    "publisherChecksumAvailable": false,
+    "checksumOrigin": "Locally computed HTTPS retrieval pin, not a NASA-published checksum",
+    "citation": "https://pgda.gsfc.nasa.gov/products/78"
+  },
+  {
+    "filename": "Site42_final_adj_5mpp_surf.tif",
+    "url": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/Site42/Site42_final_adj_5mpp_surf.tif",
+    "bytes": 64025611,
+    "sha256": "5af35ddca6ee9d7b10348610cb6714fd6d04dcce08d4e8cb6fb1113f4c1839cf",
+    "acquiredUtc": "2026-11-15T11:54:31.504256+00:00",
+    "lastModified": "Sun, 21 Mar 2021 17:38:04 GMT",
+    "etag": "W/\"3d0f40b-17855dd8460\"",
+    "publisherChecksumAvailable": false,
+    "checksumOrigin": "Locally computed HTTPS retrieval pin, not a NASA-published checksum",
+    "citation": "https://pgda.gsfc.nasa.gov/products/78"
+  },
+  {
+    "filename": "Haworth_final_adj_5mpp_surf.tif",
+    "url": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/Haworth/Haworth_final_adj_5mpp_surf.tif",
+    "bytes": 142123767,
+    "sha256": "387fd6e99bca266f4982f7256c4c185921105313882b4c2eee5b5ff1ef75016b",
+    "acquiredUtc": "2026-11-15T11:55:35.430538+00:00",
+    "lastModified": "Wed, 25 Nov 2020 00:39:20 GMT",
+    "etag": "W/\"878a2f7-175fcd726c0\"",
+    "publisherChecksumAvailable": false,
+    "checksumOrigin": "Locally computed HTTPS retrieval pin, not a NASA-published checksum",
+    "citation": "https://pgda.gsfc.nasa.gov/products/78"
+  },
+  {
+    "filename": "DM2_final_adj_5mpp_surf.tif",
+    "url": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/DM2/DM2_final_adj_5mpp_surf.tif",
+    "bytes": 64025607,
+    "sha256": "d88677c21633683061117db0a577f0510e0948fe9db315d13be28782407ff604",
+    "acquiredUtc": "2026-11-15T11:56:03.756472+00:00",
+    "lastModified": "Mon, 08 Feb 2021 18:59:33 GMT",
+    "etag": "W/\"3d0f407-17783036208\"",
+    "publisherChecksumAvailable": false,
+    "checksumOrigin": "Locally computed HTTPS retrieval pin, not a NASA-published checksum",
+    "citation": "https://pgda.gsfc.nasa.gov/products/78"
+  },
+  {
+    "filename": "LDEM_60S_240MPP_ADJ.TIF",
+    "url": "https://pgda.gsfc.nasa.gov/data/LOLA_20mpp/LDEM_60S_240MPP_ADJ.TIF",
+    "bytes": 218961039,
+    "sha256": "3f9663257b63022f2b0d5a623482ff3cadddceb91594a4e4ca14a94d8cec8b34",
+    "acquiredUtc": "2026-11-15T11:57:35.207642+00:00",
+    "lastModified": "Fri, 07 Jul 2023 22:04:03 GMT",
+    "etag": "W/\"d0d148f-18932623038\"",
+    "publisherChecksumAvailable": false,
+    "checksumOrigin": "Locally computed HTTPS retrieval pin, not a NASA-published checksum",
+    "citation": "https://pgda.gsfc.nasa.gov/products/90"
+  }
+]

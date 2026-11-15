@@ -38,7 +38,10 @@ export function initQuickTour(doc=document){
   const keep=node('button','quick-tour-keep','Keep my plan'),restore=node('button','quick-tour-restore','Restore my plan & exit');
   keep.id='quick-tour-keep-plan';restore.id='quick-tour-restore';keep.hidden=restore.hidden=true;
   for(const button of [previous,next,close,keep,restore])button.type='button';
-  actions.append(previous,next);panel.append(top,title,description,feedback,actions,keep,restore);doc.body.append(panel);
+  const content=node('div','quick-tour-content'),footer=node('div','quick-tour-footer');
+  content.tabIndex=0;content.setAttribute('aria-label','Walkthrough explanation');
+  content.append(title,description,feedback);actions.append(previous,next);footer.append(actions,keep,restore);
+  panel.append(top,content,footer);doc.body.append(panel);
   let current=-1,targets=[],positionRequest=0,busy=false,snapshot=null,demoLoaded=false,demoIdentity=null,offered=false,operation=0;
   const visible=n=>n&&!n.disabled&&n.getClientRects().length>0;
   const setText=(n,value)=>{if(n.textContent!==value)n.textContent=value;};
@@ -54,11 +57,15 @@ export function initQuickTour(doc=document){
   function position(){
     positionRequest=0;if(panel.hidden)return;
     const margin=12,w=panel.offsetWidth,h=panel.offsetHeight,width=doc.documentElement.clientWidth,height=win.innerHeight;
-    const corners=[[width-w-margin,height-h-margin],[margin,height-h-margin],[width-w-margin,margin],[margin,margin]];
+    const corners=[{x:width-w-margin,y:height-h-margin,bottom:true},{x:margin,y:height-h-margin,bottom:true},{x:width-w-margin,y:margin,bottom:false},{x:margin,y:margin,bottom:false}];
     const rects=targets.slice(0,2).map(n=>n.getBoundingClientRect());
-    const overlap=([x,y])=>rects.reduce((sum,r)=>sum+Math.max(0,Math.min(x+w,r.right)-Math.max(x,r.left))*Math.max(0,Math.min(y+h,r.bottom)-Math.max(y,r.top)),0);
+    const overlap=({x,y})=>rects.reduce((sum,r)=>sum+Math.max(0,Math.min(x+w,r.right)-Math.max(x,r.left))*Math.max(0,Math.min(y+h,r.bottom)-Math.max(y,r.top)),0);
     const best=corners.map(p=>({p,score:overlap(p)})).sort((a,b)=>a.score-b.score)[0].p;
-    panel.style.left=Math.max(margin,best[0])+'px';panel.style.top=Math.max(margin,best[1])+'px';panel.style.right='auto';panel.style.bottom='auto';
+    // Anchor to a viewport edge instead of caching an absolute top. Feedback,
+    // translated labels or the restore action can grow the panel before the
+    // next animation frame; bottom anchoring keeps Next on screen immediately.
+    panel.style.left=Math.max(margin,best.x)+'px';panel.style.right='auto';
+    panel.style.top=best.bottom?'auto':margin+'px';panel.style.bottom=best.bottom?margin+'px':'auto';
   }
   function requestPosition(){if(!positionRequest&&!panel.hidden)positionRequest=win.requestAnimationFrame(position);}
   function graphicsUnavailable(){return ['unavailable','lost'].includes($('scene-mount')?.dataset.webgl)||$('scene-mount')?.dataset.terrainStatus==='unavailable';}
@@ -105,7 +112,7 @@ export function initQuickTour(doc=document){
     if(graphicsUnavailable()&&['views','geometry','playback'].includes(step.id)){click('product-analyst');$('analysis-tools').open=true;}
     // Back selects the already evaluated demonstration stage; it never reloads a preset or repeats a search.
     if(demoLoaded&&['nominal','delay','recovery'].includes(step.id))click({nominal:'story-nominal',delay:'story-delayed',recovery:'story-recovered'}[step.id]);
-    setText(progress,`STEP ${index+1} OF ${GUIDE_STEPS.length}`);setText(title,step.title);setText(description,step.description);
+    setText(progress,`STEP ${index+1} OF ${GUIDE_STEPS.length}`);setText(title,step.title);setText(description,step.description);content.scrollTop=0;
     previous.hidden=index===0;trigger.setAttribute('aria-expanded','true');
     for(const selector of step.selectors)reveal(doc.querySelector(selector));
     doc.body.append(panel);refresh();

@@ -166,7 +166,7 @@ try{
   assert(await evaluate("!!document.querySelector('#find-opportunities')"),'Mission needs a direct landing-opportunity action.');
   assert.equal(await evaluate("document.querySelector('#apply-requirements')?.checked"),false,'Cold start must explore the environment without arbitrary mission requirements.');
   assert(await evaluate("document.querySelector('#story-status').hidden&&document.querySelector('#decision-evidence').hidden"));
-  assert.match(await evaluate("document.querySelector('.hero-support').textContent"),/Choose a location and date/);
+  assert.match(await evaluate("document.querySelector('label[for=visual-site]').textContent"),/Landing site/);
   assert.match(await evaluate("document.querySelector('#story-title').textContent"),/At least 7 h 53 min/);
   assert(await evaluate("[...document.querySelectorAll('#environment-overview .environment-measurement')].every(n=>n.closest('details')&&!n.closest('details').open)"),'Secondary measurements must be expandable, not six equally emphasized opening cards.');
   assert.equal(await evaluate("getComputedStyle(document.querySelector('.orbital-story-slot')).overflowY"),'visible','Mission must use normal page scrolling.');
@@ -209,7 +209,7 @@ try{
   const performanceEvidence={softwareGpu:true,initialTexturedSceneObservedMs:coldSceneReadyMs,
     resources:await evaluate("performance.getEntriesByType('resource').map(r=>({name:r.name.split('/').pop(),bytes:r.transferSize,durationMs:r.duration}))")};
   assert(await evaluate("document.querySelector('#top').hidden"),'Opening experience must not show the engineering form wall.');
-  assert(await evaluate("(()=>{const canvas=document.querySelector('#scene-mount').getBoundingClientRect();return document.querySelector('.experience-intro').getBoundingClientRect().right<=canvas.left&&document.querySelector('.scene-mode-switch').getBoundingClientRect().bottom<=canvas.top+1})()"),'Desktop orbital copy and controls must sit outside the canvas.');
+  assert(await evaluate("(()=>{const canvas=document.querySelector('#scene-mount').getBoundingClientRect(),controls=document.querySelector('.scene-site-picker').getBoundingClientRect(),mode=document.querySelector('#mode-orbital'),m=mode.getBoundingClientRect();return canvas.width>=innerWidth*.95&&controls.left>=canvas.left&&controls.right<=canvas.right&&controls.top>=canvas.top&&controls.bottom<=canvas.bottom&&mode.contains(document.elementFromPoint(m.x+m.width/2,m.y+m.height/2))})()"),'The reconstructed world must span the viewport, with integrated planning and view controls fully inside it and unobscured.');
   assert(!coldRequests.some(r=>/terrain-.*.mesh/.test(r)),'Surface terrain must remain lazy while orbital bodies load.');
   assert(info.orbital,'Orbital Sun and Earth direction context is missing.');
   const orbitalSite=bundle.sites.find(s=>s.id===info.siteId),orbitalSample=orbitalSite.geometry.find(r=>r[0]===info.time);
@@ -471,7 +471,7 @@ try{
     await evaluate("document.querySelector('#hero-scope-stay').click();document.querySelector('#find-opportunities').click()");
     await until(()=>evaluate("document.querySelector('#landing-opportunities').getAttribute('aria-busy')==='false'&&!document.querySelector('#landing-opportunities').hidden"));
     assert(['PASS_FOUND','NO_PASS','UNRESOLVED'].includes(await evaluate("document.querySelector('#landing-opportunities').dataset.kind")),'A fully covered extended request must distinguish actual failed/unresolved candidates from missing data.');
-    if(bundle.coverage[1]-43200-first>30*86400)assert.match(await evaluate("document.querySelector('#opportunities-basis').textContent"),/later dates remain unsearched/i);
+    if(bundle.coverage[1]-43200-first>30*86400)assert.match(await evaluate("document.querySelector('#opportunities-ranking').textContent"),/later dates remain unsearched/i);
     await screenshot('extended-opportunities');
   }
   if(extraSite){
@@ -545,16 +545,30 @@ try{
   const viewedExpected=runMission(bundle,{...communicationDemo(bundle),siteId:viewed.site,nominal:viewed.start});
   checkCertificate(await download('opportunity-view-certificate'),viewedExpected.nominal,'nominal');
   await evaluate("document.querySelector('#earliest').value='2026-11-04T06:00:00';document.querySelector('#latest').value='2026-11-04T06:00:00';for(const id of ['earliest','latest'])document.querySelector('#'+id).dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('#visual-arrival').value='2026-11-04T06:00:00';document.querySelector('#visual-date-go').click();document.querySelector('#find-opportunities').click()");
+  // The expanded inventory includes an unresolved Kocher option on Nov4.
+  // Assert that it remains unknown, then use a genuinely all-failing date.
+  if(bundle.sites.some(site=>site.id==='de-gerlache-kocher')){
+    await until(()=>evaluate("document.querySelector('#landing-opportunities').dataset.kind==='UNRESOLVED'"));
+    assert(bundle.sites.some(site=>evaluateStart(bundle,{...communicationDemo(bundle),nominal:Date.parse('2026-11-04T06:00:00Z')/1000,earliest:Date.parse('2026-11-04T06:00:00Z')/1000,latest:Date.parse('2026-11-04T06:00:00Z')/1000},site.id).status==='INDETERMINATE'));
+    await screenshot('opportunities-unresolved-desktop');
+    const failedStart=Date.parse('2026-11-06T06:00:00Z')/1000;
+    assert(bundle.sites.every(site=>evaluateStart(bundle,{...communicationDemo(bundle),nominal:failedStart,earliest:failedStart,latest:failedStart},site.id).status==='FAIL'),'The no-passing-option fixture must independently fail for every included site.');
+    await evaluate("document.querySelector('#earliest').value='2026-11-06T06:00:00';document.querySelector('#latest').value='2026-11-06T06:00:00';for(const id of ['earliest','latest'])document.querySelector('#'+id).dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('#visual-arrival').value='2026-11-06T06:00:00';document.querySelector('#visual-date-go').click();document.querySelector('#find-opportunities').click()");
+  }
   await until(()=>evaluate("document.querySelector('#landing-opportunities').dataset.kind==='NO_PASS'"));
   assert(await evaluate("!document.querySelector('#opportunity-other').hidden&&document.querySelector('#opportunity-near-misses').textContent.includes('broken')"));await screenshot('opportunities-near-misses-desktop');
   await evaluate("document.querySelector('#visual-arrival').value='2026-11-17T03:00:00';document.querySelector('#visual-date-go').click();document.querySelector('#find-opportunities').click()");
   await until(()=>evaluate("document.querySelector('#landing-opportunities').dataset.kind==='SCHEDULE_EMPTY'"));
-  assert.equal(await evaluate("Date.parse(document.querySelector('#latest').value+'Z')"),Date.parse('2026-11-04T06:00:00Z'),'Explicitly edited schedule limits must remain fixed.');await screenshot('opportunities-schedule-excluded-desktop');
+  assert.equal(await evaluate("Date.parse(document.querySelector('#latest').value+'Z')"),Date.parse(bundle.sites.some(site=>site.id==='de-gerlache-kocher')?'2026-11-06T06:00:00Z':'2026-11-04T06:00:00Z'),'Explicitly edited schedule limits must remain fixed.');await screenshot('opportunities-schedule-excluded-desktop');
   await evaluate("document.querySelector('#verified-demo').click();document.querySelector('#visual-duration').value=6;document.querySelector('#visual-arrival').value='2026-11-30T18:00:00';document.querySelector('#visual-date-go').click()");
   assert.equal(await evaluate("Date.parse(document.querySelector('#latest').value+'Z')"),(bundle.coverage[1]-6*3600)*1000);
   await evaluate(`document.querySelector('#verified-demo').click();document.querySelector('#visual-arrival').value=${JSON.stringify(inputUtc(outsideArrival))};document.querySelector('#visual-date-go').click();document.querySelector('#find-opportunities').click()`);
   await until(()=>evaluate("document.querySelector('#landing-opportunities').dataset.kind==='NO_DATA'"));
   assert.equal(await evaluate("document.querySelectorAll('#opportunity-options article').length"),0);await screenshot('opportunities-no-data-desktop');
+  // The reconstructed explorer is disclosed on demand. Opening it must show
+  // the current unsupported epoch, never stale cached angles from another view.
+  await evaluate("document.querySelector('#any-site').open=true");
+  await until(()=>evaluate("document.querySelector('#any-site-result').textContent.includes('outside the cached date range')"));
   assert.match(await evaluate("document.querySelector('#any-site-result').textContent"),/outside the cached date range/);
   assert.equal(await evaluate("document.querySelectorAll('#any-site-result .any-site-body').length"),0,'Other-location angles must not clamp an unsupported time to the last cached direction.');
   assert.equal(await evaluate("getComputedStyle(document.querySelector('.any-site-playhead')).display"),'none','The level-horizon chart must not retain a stale playhead outside coverage.');
@@ -573,18 +587,18 @@ try{
   await evaluate("document.querySelector('#product-explore').click()");
   await evaluate("document.querySelector('#focus-earth').click();scrollTo(0,0)");await screenshot('surface-mobile');
   assert.match(await evaluate("document.querySelector('#experience-title').innerText"),/Explore the Moon/);
-  assert(await evaluate("(()=>{const a=document.querySelector('.mission-scene-caption').getBoundingClientRect(),b=document.querySelector('.mission-scene-body-status').getBoundingClientRect();return a.bottom<=b.top||a.right<=b.left})()"),'Mobile site and body captions must not overlap.');
+  assert(await evaluate("(()=>{const a=document.querySelector('.mission-scene-caption').getBoundingClientRect();return ['focus-earth','focus-sun','focus-terrain'].every(id=>{const b=document.getElementById(id).getBoundingClientRect();return a.bottom<=b.top||b.bottom<=a.top||a.right<=b.left||b.right<=a.left})})()"),'The selected site/coordinate row must never overlap any camera action.');
   await evaluate("document.querySelector('#focus-terrain').click()");await screenshot('surface-terrain-mobile');
   assert(await evaluate('document.documentElement.scrollWidth<=innerWidth'));
   await evaluate("document.querySelector('#mode-orbital').click()");await until(async()=>(await inspect()).mode==='orbital');await screenshot('orbital-mobile');
   await evaluate("document.querySelector('#reset-orbit').click()");
   await until(async()=>{const camera=(await inspect()).camera;return camera.position.every((v,i)=>Math.abs(v-camera.overviewPosition[i])<1e-5);});
   await evaluate('scrollTo(0,0)');await screenshot('orbital-layout-mobile');
-  assert(await evaluate("document.querySelector('.scene-mode-switch').getBoundingClientRect().bottom<=document.querySelector('#scene-mount').getBoundingClientRect().top+1"),'Mobile controls must stack above the Moon canvas.');
+  assert(await evaluate("(()=>{const scene=document.querySelector('#scene-mount').getBoundingClientRect();return ['mode-orbital','mode-surface'].every(id=>{const n=document.getElementById(id),r=n.getBoundingClientRect();return r.left>=scene.left&&r.right<=scene.right&&r.top>=scene.top&&r.bottom<=scene.bottom&&r.height>=44&&n.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2))})})()"),'Mobile view controls must be integrated into the scene, fully contained, touch-sized and unobscured.');
   assert(await evaluate("document.querySelector('#find-opportunities').getBoundingClientRect().bottom<=innerHeight"),'The mobile landing-opportunity action must be visible before advanced analysis.');
   await evaluate("document.querySelector('#apply-requirements').checked=false;document.querySelector('#apply-requirements').dispatchEvent(new Event('change'));scrollTo(0,0)");
   await screenshot('environment-mission-mobile');
-  assert(await evaluate("(()=>{const note=document.querySelector('.product-purpose .geometry-note').getBoundingClientRect(),banner=document.querySelector('.product-purpose').getBoundingClientRect();return note.width>=innerWidth*.8&&banner.height<=155;})()"),'The mobile scientific qualification must use a readable full-width row, not a narrow vertical column between buttons.');
+  assert(await evaluate("(()=>{const n=document.querySelector('.mission-qualification'),note=n.getBoundingClientRect();return note.width>=innerWidth*.8&&note.height>0&&parseFloat(getComputedStyle(n).fontSize)>=14&&!n.closest('details')})()"),'The mobile scientific qualification must remain readable, full-width and outside a collapsed disclosure.');
   assert(await evaluate("document.querySelector('#find-opportunities').getBoundingClientRect().bottom<=innerHeight&&document.querySelector('#story-status').hidden"));
   await evaluate("document.querySelector('#find-opportunities').click()");await until(()=>evaluate("document.querySelector('#landing-opportunities').dataset.kind==='VISIBILITY_FOUND'"));
   await evaluate("document.querySelector('#landing-opportunities').scrollIntoView({block:'start',behavior:'instant'})");await screenshot('environment-opportunities-mobile');

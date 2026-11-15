@@ -13,6 +13,7 @@ const expectedSha=process.argv[3];
 assert.match(expectedSha??'',/^[a-f0-9]{40}$/i,'Supply the exact expected public release SHA after the URL.');
 const skipMedia=process.argv.includes('--skip-media');
 const requireExtendedSite=process.argv.includes('--require-extended-site');
+const requireTenSites=process.argv.includes('--require-ten-sites');
 const work=resolve('.operator/release-integration-20261115',`public-${Date.now()}`);await mkdir(work,{recursive:true});
 const release=await fetch(new URL('release.json',url)).then(r=>{assert.equal(r.status,200);return r.json();});
 assert.equal(release.application_release_sha,expectedSha);
@@ -25,8 +26,14 @@ const sha256=bytes=>createHash('sha256').update(bytes).digest('hex');
 const extendedSiteId='peak-near-shackleton',extendedStart=Date.parse('2027-07-01T06:00:00Z')/1000;
 const inputUtc=seconds=>new Date(seconds*1000).toISOString().slice(0,19);
 let extendedEvidence=null,extendedSite=null,extendedTerrain=null;
-if(requireExtendedSite){
-  assert.equal(bundle.sites.length,4,'The extended public release must publish all four verified study points.');
+if(requireTenSites){
+  const localBundle=JSON.parse(await readFile(resolve('web/data/bundle.json'),'utf8'));
+  assert.equal(localBundle.sites.length,10,'Run the ten-site release check from its matching integration checkout.');
+  assert.deepEqual(bundle.sites.map(({id,lat,lon,heightM})=>({id,lat,lon,heightM})),localBundle.sites.map(({id,lat,lon,heightM})=>({id,lat,lon,heightM})),'The public release must publish the complete matching ten-site inventory.');
+  assert.equal(sha256(bundleBytes),sha256(await readFile(resolve('web/data/bundle.json'))),'The public bundle must match the verified ten-site release bytes.');
+}
+if(requireExtendedSite||requireTenSites){
+  for(const id of ['connecting-ridge','shackleton-rim','de-gerlache-rim','peak-near-shackleton'])assert(bundle.sites.some(site=>site.id===id),`The extended release must preserve original study point ${id}.`);
   assert.deepEqual(bundle.coverage,[Date.parse('2026-11-01T00:00:00Z')/1000,Date.parse('2028-01-01T00:00:00Z')/1000],
     'The extended public release must contain the actual half-open 426-day cache.');
   extendedSite=bundle.sites.find(site=>site.id===extendedSiteId);assert(extendedSite,'The extended release needs the actual NASA R07 study point.');

@@ -1,28 +1,42 @@
-.mission-scene{position:relative;overflow:hidden;isolation:isolate;background:var(--color-black);min-height:440px}
-.mission-scene-canvas{display:block;width:100%;height:100%;position:absolute;inset:0;touch-action:none;outline:none}
-.mission-scene-canvas:focus-visible{outline:2px solid var(--color-sun);outline-offset:-4px}
-.mission-scene-caption{position:absolute;bottom:22px;left:25px;right:25px;display:flex;flex-direction:column;gap:7px;pointer-events:none;text-shadow:0 2px 12px var(--color-black)}
-.mission-scene-location{color:var(--color-text);font-size:var(--text-xs);letter-spacing:.06em;font-weight:600}
-.mission-scene-note{font-size:var(--text-xs);line-height:1.6;letter-spacing:.06em;color:var(--color-text-secondary)}
-.mission-scene-body-status{position:absolute;top:22px;right:24px;display:flex;flex-direction:column;gap:7px;text-align:right;pointer-events:none;font-size:var(--text-xs);letter-spacing:.05em;line-height:1.5;color:var(--color-text-secondary);text-shadow:0 1px 8px var(--color-black)}
-.mission-scene-body-status[hidden],.mission-scene-marker-label[hidden]{display:none}
-.mission-scene-body-status [data-state="visible"]{color:var(--color-sun)}
-.mission-scene-body-status [data-state="uncertain"],.mission-scene-body-status [data-state="unknown"]{color:var(--color-indeterminate)}
-.mission-scene-marker-label{position:absolute;pointer-events:none;transform:translate(18px,-12px);padding:5px 8px;border-left:1px solid var(--color-sun);color:var(--color-sun);background:color-mix(in srgb,var(--color-black) 40%,transparent);font-size:var(--text-xs);white-space:nowrap;letter-spacing:.08em;text-transform:uppercase}
-.mission-scene[data-mode="surface"][data-terrain-status="loading"]::after,.mission-scene[data-mode="surface"][data-terrain-status="unavailable"]::after{content:"Loading NASA LOLA surface…";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:var(--color-text-secondary);font-size:var(--text-xs);text-align:center;max-width:80%;line-height:1.7;pointer-events:none}
-.mission-scene[data-mode="surface"][data-terrain-status="unavailable"]::after{content:"Surface mesh unavailable. Use the accessible terrain and mission views."}
-@media(max-width:600px){.mission-scene-caption{left:16px;right:16px;bottom:16px}.mission-scene-location{font-size:var(--text-xs)}.mission-scene-note{font-size:var(--text-xs);max-width:290px}.mission-scene-body-status{top:15px;right:15px;font-size:var(--text-xs)}.mission-scene-marker-label{font-size:var(--text-xs)}}
-.mission-scene-body-label{position:absolute;pointer-events:none;transform:translate(14px,-50%);padding:3px 7px;border-left:1px solid var(--color-earth);color:var(--color-text);background:color-mix(in srgb,var(--color-black) 50%,transparent);font-size:var(--text-xs);letter-spacing:.1em;white-space:nowrap}
-.mission-scene-body-label[data-body="sun"]{border-left-color:var(--color-sun);color:var(--color-sun)}
-.mission-scene-body-label[hidden]{display:none}
-.mission-context-marker{position:absolute;z-index:2;transform:translate(-50%,-50%);width:36px;height:36px;min-height:36px;padding:0;border:0;border-radius:50%;background:transparent;color:var(--color-earth);font:var(--text-2xl)/36px var(--font-body);text-shadow:0 1px 4px var(--color-black);cursor:pointer}
-.mission-context-marker[hidden],.mission-marker-legend[hidden]{display:none}
-.mission-context-marker:hover,.mission-context-marker:focus-visible{background:color-mix(in srgb,var(--color-surface) 85%,transparent);outline:2px solid var(--color-earth);outline-offset:0;color:var(--color-text)}
-.mission-context-marker[aria-pressed="true"]{color:var(--color-text)}
-.mission-marker-legend{position:absolute;bottom:80px;left:16px;display:flex;flex-wrap:wrap;gap:6px 16px;max-width:calc(100% - 32px);pointer-events:none;color:var(--color-text-secondary);font:var(--text-sm)/1.5 var(--font-body);text-shadow:0 2px 4px var(--color-black)}
-.mission-marker-legend span:first-child{color:var(--color-sun)}
-.mission-scene-marker-label[data-kind="context"]{max-width:min(260px,55%);white-space:normal;border-left-color:var(--color-earth);color:var(--color-text);font:var(--text-sm)/1.4 var(--font-body);letter-spacing:0;text-transform:none}
-@media(max-width:700px){.mission-marker-legend{bottom:68px;font-size:var(--text-sm);gap:2px 12px}.mission-context-marker{width:40px;height:40px;min-height:40px;line-height:40px}}
-.mission-terrain-obstruction{position:absolute;transform:translate(-50%,-100%);max-width:250px;text-align:center;color:var(--color-text-secondary);background:color-mix(in srgb,var(--color-bg) 91%,transparent);border-bottom:1px solid var(--color-earth);padding:8px 12px;font:var(--text-xs)/1.6 var(--font-body);pointer-events:none}
-.mission-terrain-obstruction[hidden]{display:none}
-@media(max-width:700px){.mission-terrain-obstruction{font-size:var(--text-xs);max-width:210px;padding:6px 9px}}
+﻿/* DOM labels emitted by the scientific display renderer. Projection belongs to the renderer. */
+.mission-scene{position:absolute;overflow:hidden;background:var(--color-black)}
+.mission-scene-canvas{display:block;width:100%;height:100%;position:absolute;inset:0;touch-action:none}
+.mission-scene-canvas:focus-visible{outline:var(--focus-ring);outline-offset:-5px}
+.mission-scene-caption{position:static;max-width:none;pointer-events:none}
+.mission-scene-location{margin:0;font:400 var(--text-sm)/var(--leading-normal) var(--font-body);color:var(--color-text-secondary)}
+.mission-scene-note{display:none;position:absolute;top:100%;margin-top:var(--space-2);font:400 var(--text-xs)/var(--leading-snug) var(--font-body);color:var(--color-text-muted);max-width:380px}
+.mission-scene-body-status{display:none}
+.mission-scene-marker-label{position:absolute;z-index:2;pointer-events:none;transform:translate(18px,-12px);padding:var(--space-2) var(--space-3);border-left:1px solid var(--color-sun);color:var(--color-sun);background:var(--surface-overlay);font:500 var(--text-sm)/var(--leading-snug) var(--font-body);white-space:nowrap}
+.mission-scene[data-mode="surface"][data-terrain-status="loading"]::after,.mission-scene[data-mode="surface"][data-terrain-status="unavailable"]::after{content:"Loading NASA LOLA surface…";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:var(--color-text-secondary);font-size:var(--text-base);text-align:center;max-width:80%;pointer-events:none}
+.mission-scene[data-mode="surface"][data-terrain-status="unavailable"]::after{content:"Terrain display unavailable. The scientific 2D view remains available."}
+.mission-scene-body-label{position:absolute;z-index:2;pointer-events:none;transform:translate(14px,-50%);padding:var(--space-1) var(--space-2);color:var(--color-earth);background:var(--surface-overlay);font-size:var(--text-sm);white-space:nowrap}
+.mission-scene-body-label[data-body="sun"]{color:var(--color-sun)}
+.mission-context-marker{position:absolute;z-index:2;transform:translate(-50%,-50%);width:44px;height:44px;min-height:44px;padding:0;border:0;border-radius:50%;background:transparent;color:var(--color-earth);font:var(--text-2xl)/44px var(--font-body);text-shadow:0 1px 4px var(--color-black);cursor:pointer}
+.mission-context-marker:hover,.mission-context-marker:focus-visible{background:var(--color-surface);outline:var(--focus-ring);outline-offset:0;color:var(--color-text)}.mission-context-marker[aria-pressed="true"]{color:var(--color-text)}
+.mission-marker-legend{position:static;display:flex;flex-wrap:wrap;gap:var(--space-2) var(--space-4);pointer-events:none;color:var(--color-text-secondary);font-size:var(--text-sm);max-width:none}.mission-marker-legend span:first-child{color:var(--color-sun)}
+.mission-scene-marker-label[data-kind="context"]{max-width:min(260px,55%);white-space:normal;border-color:var(--color-earth);color:var(--color-text)}
+.mission-terrain-obstruction{position:absolute;z-index:2;transform:translate(-50%,-100%);max-width:250px;text-align:center;color:var(--color-text-secondary);background:var(--surface-overlay);border-bottom:1px solid var(--color-earth);padding:var(--space-2) var(--space-3);font-size:var(--text-sm);pointer-events:none}
+@media(max-width:740px){.mission-scene{position:relative}.mission-scene-caption{display:block}.mission-scene-location{font-size:var(--text-xs)}.mission-scene-note{display:none}.mission-marker-legend{font-size:var(--text-sm);line-height:var(--leading-snug)}.mission-scene-marker-label{max-width:180px;white-space:normal;font-size:var(--text-xs)}.mission-terrain-obstruction{max-width:210px;font-size:var(--text-sm)}}
+
+/* Symbolic screen-size pins remain at the projected, source-verified coordinates.
+   The compact cluster combines selection targets; it does not move the locations. */
+.mission-terrain-pin{position:absolute;z-index:2;width:17px;height:17px;border:2px solid var(--color-sun);border-radius:50%;background:var(--color-bg);color:var(--color-sun);transform:translate(-50%,-50%);pointer-events:none}
+.mission-terrain-pin::after{content:"";position:absolute;left:50%;top:50%;width:4px;height:4px;border-radius:50%;background:currentColor;transform:translate(-50%,-50%)}
+.mission-terrain-pin[data-selected=true]{width:20px;height:20px;border-width:2px}.mission-terrain-pin[data-selected=true]::after{width:6px;height:6px}
+.mission-terrain-marker{position:absolute;z-index:3;transform:translate(-50%,-50%);width:44px;height:44px;padding:0;border:0;border-radius:50%;background:transparent;color:var(--color-sun)}
+.mission-terrain-marker::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:17px;height:17px;border:2px solid currentColor;border-radius:50%}
+.mission-terrain-marker::after{content:"";position:absolute;left:50%;top:50%;width:4px;height:4px;border-radius:50%;background:currentColor;transform:translate(-50%,-50%)}
+.mission-terrain-marker:hover,.mission-terrain-marker:focus-visible{background:var(--color-sun-surface)}
+.mission-terrain-cluster{position:absolute;z-index:4;transform:translate(-100%,-50%);color:var(--color-sun)}
+.mission-terrain-cluster[open]{z-index:10}
+.mission-terrain-leader{position:absolute;z-index:3;pointer-events:none;border-top:1px solid var(--color-sun);transform-origin:left center}
+.mission-terrain-cluster>summary{display:flex;align-items:center;gap:var(--space-2);min-height:44px;padding:var(--space-2) var(--space-3);border:1px solid var(--color-sun-border);border-radius:var(--radius-pill);background:var(--surface-overlay);font:500 var(--text-sm)/var(--leading-snug) var(--font-body);color:var(--color-sun);white-space:nowrap;list-style:none}
+.mission-terrain-cluster>summary::-webkit-details-marker{display:none}
+.mission-terrain-cluster>summary::before{content:'';width:17px;height:17px;flex:none;border:2px solid currentColor;border-radius:50%;background:radial-gradient(circle,currentColor 0 2px,transparent 2.5px)}
+.mission-terrain-choices{position:absolute;left:0;top:calc(100% + var(--space-2));display:grid;width:260px;max-width:calc(100vw - var(--space-6));max-height:var(--terrain-menu-height,280px);overflow-y:auto;overscroll-behavior:contain;margin:0;padding:var(--space-2);background:var(--color-surface);border:1px solid var(--color-sun-border);border-radius:var(--radius-md);box-shadow:var(--shadow-2)}
+.mission-terrain-cluster:not([open]) .mission-terrain-choices{display:none}
+.mission-terrain-cluster[data-placement=above] .mission-terrain-choices{top:auto;bottom:calc(100% + var(--space-2))}
+.mission-terrain-choices button{position:relative;min-height:54px;text-align:left;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:var(--space-1);border:0;background:transparent;color:var(--color-text);border-radius:var(--radius-sm);padding:var(--space-2) var(--space-2) var(--space-2) 36px}
+.mission-terrain-choices button::before{content:"";position:absolute;left:var(--space-2);top:18px;width:15px;height:15px;border:2px solid var(--color-sun);border-radius:50%;background:radial-gradient(circle,var(--color-sun) 0 1.5px,transparent 2px)}
+.mission-terrain-choices button span{font:400 var(--text-xs)/var(--leading-snug) var(--font-mono);color:var(--color-text-secondary)}
+.mission-terrain-choices button[aria-pressed=true]{background:var(--color-sun-surface);color:var(--color-sun)}

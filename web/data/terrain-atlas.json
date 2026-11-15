@@ -2,51 +2,51 @@
   "aiUse": "OpenAI Codex and Anthropic Claude assisted derivative implementation, tests and interface text under human teammates Arya Ergin and Aras. Image pixels are a deterministic NASA DEM transformation, not generative artwork.",
   "display": {
     "boundsM": [
-      -64000.0,
-      -64000.0,
-      64000.0,
-      64000.0
+      -224000.0,
+      -224000.0,
+      224000.0,
+      224000.0
     ],
     "colorStretchPercentiles": [
       2,
       98
     ],
     "elevationRangeM": [
-      -4374.82275390625,
-      1955.648681640625
+      -5701.046875,
+      7015.89794921875
     ],
-    "height": 640,
+    "height": 896,
     "image": "terrain-atlas.png",
     "missingEncoding": "[startIndex,length], row-major, zero-based; transparent PNG pixels",
     "missingPixels": 0,
     "nativePixelsPerDisplayPixel": [
-      2.5,
-      2.5
+      6.25,
+      6.25
     ],
     "nativeWindow": [
-      3000,
-      3000,
-      1600,
-      1600
+      1000,
+      1000,
+      5600,
+      5600
     ],
     "noDataRuns": [],
     "reduction": "GDAL area-weighted average; any contributing masked native pixel masks the output pixel",
-    "sha256": "2fc3338e89550c814984c8c423e971e31ccdcce6412a8c58d599eb57d138b35c",
+    "sha256": "b12d6b945e7fdb7e9f9985e4fa0afe290a379e5160e1e962d7934929130f709c",
     "spacingM": [
-      200.0,
-      200.0
+      500.0,
+      500.0
     ],
     "syntheticLight": {
       "elevationDeg": 45,
       "mapAzimuthDegClockwiseFromUp": 315
     },
-    "validPixels": 409600,
-    "width": 640
+    "validPixels": 802816,
+    "width": 896
   },
   "kind": "NASA LOLA DEM display derivative; independent of mission calculations",
   "limits": [
     "Relief shading uses an artificial fixed map light, not Sun geometry or actual lunar illumination.",
-    "This reduced 200 m display is not used to compute any horizon, visibility interval or mission decision.",
+    "This reduced 500 m display is not used to compute any horizon, visibility interval or mission decision.",
     "A valid display cell establishes only valid source pixels in this reduced map; it is not a terrain-aware calculation at that coordinate.",
     "Only exact cached study points have terrain-aware mission calculations; other coordinates support level-horizon exploration, not terrain-aware feasibility.",
     "This regional crop omits the rest of the source raster. Transparent cells would indicate missing terrain, never flat terrain.",
@@ -67,7 +67,7 @@
     "scaleAtPole": 1,
     "verticalDatum": "radial metres above the 1,737,400 m reference sphere"
   },
-  "reproduce": "python -m science.atlas --raw data/raw --output web/data",
+  "reproduce": "python -m science.southpole_release --raw data/raw --baseline-dir data/reference/southpole-baseline --draft-dir data/cache/southpole/release --validation-dir data/cache/southpole/validation --output data/cache/southpole/validated --engine-commit <verified-source-commit>",
   "source": {
     "acquiredUtc": "2026-11-14T06:12:13.494318+00:00",
     "bytes": 189158392,

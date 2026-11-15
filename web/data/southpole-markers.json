@@ -1,0 +1,50 @@
+[
+  {
+    "capability": "terrain-aware",
+    "id": "nobile-rim-1",
+    "lat": -85.4381,
+    "lon": 37.36667,
+    "name": "Nobile Rim 1",
+    "source": "https://ntrs.nasa.gov/citations/20250002845"
+  },
+  {
+    "capability": "terrain-aware",
+    "id": "malapert-massif",
+    "lat": -85.9948,
+    "lon": 359.76422,
+    "name": "Malapert Massif",
+    "source": "https://ntrs.nasa.gov/citations/20250002845"
+  },
+  {
+    "capability": "terrain-aware",
+    "id": "leibnitz-beta-plateau",
+    "lat": -85.4266,
+    "lon": 31.74276,
+    "name": "Leibnitz Beta Plateau",
+    "source": "https://ntrs.nasa.gov/citations/20250002845"
+  },
+  {
+    "capability": "terrain-aware",
+    "id": "de-gerlache-kocher",
+    "lat": -85.8296,
+    "lon": 243.678,
+    "name": "de Gerlache-Kocher Massif",
+    "source": "https://ntrs.nasa.gov/citations/20250002845"
+  },
+  {
+    "capability": "terrain-aware",
+    "id": "haworth",
+    "lat": -86.7639,
+    "lon": 337.223,
+    "name": "Haworth",
+    "source": "https://ntrs.nasa.gov/citations/20250002845"
+  },
+  {
+    "capability": "terrain-aware",
+    "id": "nobile-rim-2",
+    "lat": -83.954,
+    "lon": 58.82206,
+    "name": "Nobile Rim 2",
+    "source": "https://ntrs.nasa.gov/citations/20250002845"
+  }
+]

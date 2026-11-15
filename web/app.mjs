@@ -10,6 +10,7 @@ import {resolveAutomaticSchedule,findLandingOpportunities,findVisibilityOpportun
 import {visibilityConclusion,comparisonConclusion,opportunityConclusion,conciseDuration,firstScreenConclusion} from './explanations.mjs';
 import {coverageLabel,coverageTicks,utcMonthWindow,searchQualification,isCachedTime} from './coverage.mjs';
 import {automaticSearchOptions} from './search-scope.mjs';
+import {opportunityRange,opportunityPage,opportunityRequestInputs} from './opportunity-view.mjs';
 
 import {NOTABLE_SITES,referenceDirections,skyAt,elevationSeries,nextLevelCrossing,levelSummary,validCoordinate} from './anysite.mjs';
 
@@ -84,6 +85,9 @@ let scheduleAnchor;
 let explicitSchedule={earliest:false,latest:false};
 let opportunityRequest=0;
 let opportunityReport;
+let opportunityRows=[];
+let opportunityPageIndex=0;
+const opportunitySmallScreen=matchMedia('(max-width:740px)');
 let requirementsEnabled=false;
 let requirementsSource='example';
 let delayStoryEnabled=false;
@@ -161,8 +165,7 @@ function statusChip(status, className = '') {
 function syncAssessment(){
   document.body.dataset.delayStory=String(delayStoryEnabled);
   const actions=byId('mission-actions');
-  const actionAnchor=delayStoryEnabled?byId('story-joint'):document.querySelector('.story-evidence');
-  if(actionAnchor.nextElementSibling!==actions)actionAnchor.after(actions);
+  // Mission actions have a stable place in the scene, independent of assessment mode.
   document.body.classList.toggle('environment-only',!requirementsEnabled);
   byId('apply-requirements').checked=requirementsEnabled;
   byId('assessment-label').textContent=requirementsSource==='custom'?'Evaluate my mission requirements':'Evaluate illustrative mission requirements';
@@ -170,6 +173,7 @@ function syncAssessment(){
   byId('opportunity-scope').textContent=requirementsEnabled?`Before launch · ${bundle?.sites?.length??'supported'} study points · unchanged selected limits`:'Compare confirmed Sun + Earth time · no mission limits applied';
   byId('decision-evidence').hidden=!requirementsEnabled;
   byId('environment-overview').hidden=requirementsEnabled;
+  byId('story-uncertainty').hidden=!requirementsEnabled;
   document.querySelector('.story-progress').hidden=!requirementsEnabled||!delayStoryEnabled;
   byId('story-status').hidden=!requirementsEnabled;byId('story-next').hidden=!requirementsEnabled;byId('story-witness').hidden=!requirementsEnabled;
   const jump=document.querySelector('.decision-jump');jump.href=requirementsEnabled?'#decision-evidence':'#explain';jump.textContent=requirementsEnabled?'See all mission requirements and proof ↓':'How to read these measurements ↓';
@@ -920,33 +924,55 @@ function evaluate() {
 }
 
 function clearOpportunities(){
-  ++opportunityRequest;opportunityReport=null;
+  ++opportunityRequest;opportunityReport=null;opportunityRows=[];opportunityPageIndex=0;
   byId('landing-opportunities').hidden=true;byId('landing-opportunities').setAttribute('aria-busy','false');
   byId('find-opportunities').disabled=false;byId('find-opportunities').textContent='Find landing opportunities';
+  byId('opportunity-search-range').disabled=false;byId('opportunity-pagination').hidden=true;
 }
 
-async function searchOpportunities(){
-  if(!applyVisualArrival())return;
-  pausePlayback();const requestedInputs=inputs,request=++opportunityRequest,root=byId('landing-opportunities');
+function invalidateOpportunityRange(){
+  ++opportunityRequest;opportunityReport=null;opportunityRows=[];opportunityPageIndex=0;
+  const root=byId('landing-opportunities');root.dataset.kind='STALE';root.setAttribute('aria-busy','false');delete root.dataset.candidates;
+  byId('opportunities-status').textContent='Dates changed. Search to update the opportunities.';
+  byId('opportunities-basis').textContent='';byId('opportunities-counts').textContent='The previous results no longer describe these search inputs.';byId('opportunities-ranking').textContent='';
+  byId('opportunity-options').replaceChildren();byId('opportunity-other').hidden=true;byId('opportunity-pagination').hidden=true;
+  byId('find-opportunities').disabled=false;byId('find-opportunities').textContent='Find landing opportunities';byId('opportunity-search-range').disabled=false;
+}
+
+async function searchOpportunities({explicitRange=false}={}){
+  if(!explicitRange&&!applyVisualArrival())return;
+  const root=byId('landing-opportunities');let range;
+  try{
+    if(explicitRange){
+      if(!inputs||isEdited)throw Error('Apply the current mission inputs before searching. Your arrival has not changed.');
+      range=opportunityRange(byId('opportunity-from').value,byId('opportunity-to').value,byId('opportunity-grid').value);
+    }
+  }catch(error){root.dataset.kind='ERROR';byId('opportunities-status').textContent=`Search not run: ${error.message}`;return;}
+  pausePlayback();const sourceInputs=inputs,requestedInputs=explicitRange?opportunityRequestInputs(bundle,inputs,range,explicitSchedule):inputs,request=++opportunityRequest;
+  if(!explicitRange){
+    const from=Math.max(inputs.nominal,inputs.earliest),to=Math.max(from,Math.min(inputs.latest,bundle.coverage[1]-inputs.durationHours*3600,from+30*86400));
+    byId('opportunity-from').value=inputTime(from);byId('opportunity-to').value=inputTime(to);byId('opportunity-grid').value=inputs.gridMinutes;
+  }
   root.hidden=productMode!=='explore';root.setAttribute('aria-busy','true');root.dataset.kind='SEARCHING';
   byId('opportunities-eyebrow').textContent=requirementsEnabled?`YOUR REQUIREMENTS · ${bundle.sites.length} STUDY SITES · BEFORE LAUNCH`:`${bundle.sites.length} STUDY SITES · ${coverageLabel(bundle.coverage)}`;
   byId('opportunities-status').textContent=requirementsEnabled?'Checking sites against your selected requirements…':'Finding confirmed Sun and Earth visibility…';
   byId('opportunities-counts').textContent='Search in progress.';byId('opportunities-ranking').textContent='';
-  byId('opportunities-basis').textContent='This is a new-arrival search before launch; the landing delay is not added.';
-  byId('opportunity-options').replaceChildren();byId('opportunity-other').hidden=true;
+  byId('opportunities-basis').textContent='';
+  byId('opportunity-options').replaceChildren();byId('opportunity-other').hidden=true;byId('opportunity-pagination').hidden=true;
+  byId('opportunity-search-range').disabled=true;
   byId('find-opportunities').disabled=true;byId('find-opportunities').textContent='Checking landing opportunities…';
   try{
     const finder=requirementsEnabled?findLandingOpportunities:findVisibilityOpportunities;
-    const report=await finder(bundle,requestedInputs,{searchWindowDays:30,cancelled:()=>request!==opportunityRequest||inputs!==requestedInputs,
+    const report=await finder(bundle,requestedInputs,{...(explicitRange?{searchRange:{from:range.from,to:range.to},collectAll:true}:{searchWindowDays:30}),cancelled:()=>request!==opportunityRequest||inputs!==sourceInputs,
       yieldControl:()=>new Promise(resolve=>setTimeout(resolve,0))});
-    if(request!==opportunityRequest||inputs!==requestedInputs)return;
-    opportunityReport=report;renderOpportunities(report);
+    if(request!==opportunityRequest||inputs!==sourceInputs)return;
+    opportunityReport=report;opportunityPageIndex=0;renderOpportunities(report);
     if(productMode==='explore')root.scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
   }catch(error){
     if(request!==opportunityRequest||error.name==='AbortError')return;
     root.dataset.kind='ERROR';byId('opportunities-status').textContent=`Search not run: ${error.message}`;
   }finally{
-    if(request===opportunityRequest){root.setAttribute('aria-busy','false');byId('find-opportunities').disabled=false;byId('find-opportunities').textContent='Find landing opportunities';}
+    if(request===opportunityRequest){root.setAttribute('aria-busy','false');byId('find-opportunities').disabled=false;byId('find-opportunities').textContent='Find landing opportunities';byId('opportunity-search-range').disabled=false;}
   }
 }
 
@@ -954,56 +980,40 @@ function renderOpportunities(report){
   const root=byId('landing-opportunities');root.hidden=productMode!=='explore';root.dataset.kind=report.kind;
   root.dataset.candidates=report.search.candidateCount;root.dataset.requestedArrival=report.requested.nominal;
   byId('opportunities-counts').textContent=report.search.candidateCount?`${report.search.candidateCount} site/start combinations evaluated. ${Object.entries(report.counts).map(([key,count])=>`${key.replaceAll('_',' ').toLowerCase()}: ${count}`).join(' · ')}.`:'No eligible site/start combination was evaluated.';
-  byId('opportunities-ranking').textContent=report.basis??'Search only within complete cached coverage and the selected allowed schedule.';
-  const rangeLabel=report.search.candidateCount?`Searched UTC starts: ${formatTime(report.search.firstStart)} to ${formatTime(report.search.lastStart)} · ${report.requested.durationHours} h views · ${report.search.gridMinutes}-minute grid.`:`Cached UTC evidence: ${formatTime(bundle.coverage[0])} to ${formatTime(bundle.coverage[1])}, exclusive end.`;
-  const siteLabel=`${report.search.sites.length} study points: ${report.search.sites.map(id=>findSite(id).name).join(', ')}.`;
+  byId('opportunities-ranking').textContent=`${report.search.gridMinutes}-minute sampled starts. ${searchQualification(report.search)}`;
+  const rangeLabel=`${report.requested.durationHours} h views · ${report.search.gridMinutes}-minute starts.`;
+  if(report.search.candidateCount)byId('opportunities-ranking').textContent+=` Checked UTC: ${formatTime(report.search.firstStart)} to ${formatTime(report.search.lastStart)}.`;
+  const siteLabel=`${report.search.sites.length} terrain-aware study points.`;
+  const allStarts=Array.isArray(report.allOptions);
+  if(allStarts)byId('opportunities-ranking').textContent+=` All confirmed sampled starts are listed, earliest first; neighboring windows may overlap. Availability between starts is not established.`;
   if(!report.requirementsApplied){
-    byId('opportunities-title').textContent={VISIBILITY_FOUND:'Explore visibility opportunities',UNRESOLVED:'Joint visibility remains unresolved',NO_JOINT:'No joint visibility established on this grid',NO_DATA:'Outside complete cached coverage',SCHEDULE_EMPTY:'No eligible date in your schedule'}[report.kind];
-    byId('opportunities-status').textContent=opportunityConclusion(report,id=>findSite(id).name);
-    byId('opportunities-basis').textContent=`${rangeLabel} ${siteLabel} ${searchQualification(report.search)}`.trim();
-    const cards=byId('opportunity-options');cards.replaceChildren();
-    for(const view of report.options){
-      const card=element('article','opportunity-card');Object.assign(card.dataset,{site:view.siteId,start:view.start,status:'ENVIRONMENT'});
-      card.append(element('p','eyebrow',view.metrics.joint.visibleRangeSeconds[0]>0?'Confirmed Sun + Earth overlap':view.metrics.joint.visibleRangeSeconds[1]>0?'Unresolved possible overlap':'No joint visibility at this sample'),element('h3','',findSite(view.siteId).name),element('p','opportunity-date',shortTime(view.start)));
-      const conclusion=visibilityConclusion(view.metrics,view.end-view.start);
-      card.append(element('p','opportunity-joint',conclusion.headline),element('p','opportunity-rule',conclusion.reason));
-      const measurements=element('div','');environmentalMeasurements(measurements,view);card.append(measurements);
-      const warning=siteCaution(view.siteId);if(warning)card.append(element('p','comparison-caution',warning));
-      const button=element('button','outline','Explore this arrival →');button.type='button';button.addEventListener('click',()=>{
-        byId('site').value=view.siteId;byId('nominal').value=inputTime(view.start);selected='nominal';
-        if(evaluate()){showGuidedPhase('nominal');sceneController?.selectSite(view.siteId,{focus:false});byId('experience').scrollIntoView({block:'start',behavior:'instant'});}
-      });card.append(button);cards.append(card);
-    }
-    byId('opportunity-other').hidden=true;return;
+    byId('opportunities-title').textContent={VISIBILITY_FOUND:'Explore visibility opportunities',UNRESOLVED:'Joint visibility remains unresolved',NO_JOINT:'No joint visibility established on this grid',NO_DATA:'Outside complete cached coverage',SCHEDULE_EMPTY:'No eligible date in your schedule',GRID_EMPTY:'No sampled start in this range'}[report.kind];
+    byId('opportunities-status').textContent=report.kind==='GRID_EMPTY'?'No grid start fits the covered range. Choose a smaller interval between starts or widen the UTC range.':opportunityConclusion(report,id=>findSite(id).name);
+    byId('opportunities-basis').textContent=`${rangeLabel} ${siteLabel}`;
+    if(allStarts&&report.allOptions.length)byId('opportunities-status').textContent=`${report.allOptions.length} confirmed Sun + Earth opportunities at ${new Set(report.allOptions.map(view=>view.siteId)).size} sites.`;
+    opportunityRows=(allStarts?report.allOptions:report.options).map(view=>({view}));
+    renderOpportunityPage();
+    const other=byId('opportunity-near-misses');other.replaceChildren();
+    if(allStarts)for(const view of report.options.filter(view=>view.metrics.joint.visibleRangeSeconds[0]===0&&view.metrics.joint.visibleRangeSeconds[1]>0))other.append(element('p','',`${findSite(view.siteId).name}: no simultaneous Sun and Earth time is confirmed at its best checked start; unresolved terrain visibility may allow more.`));
+    byId('opportunity-other').hidden=!other.childElementCount;return;
   }
-  const titles={PASS_FOUND:'Passing arrivals found',NO_PASS:'No checked arrival passes',UNRESOLVED:'No passing arrival proven',NO_DATA:'No complete mission in cached data',SCHEDULE_EMPTY:'No eligible start inside your allowed schedule'};
+  const titles={PASS_FOUND:'Passing arrivals found',NO_PASS:'No checked arrival passes',UNRESOLVED:'No passing arrival proven',NO_DATA:'No complete mission in cached data',SCHEDULE_EMPTY:'No eligible start inside your allowed schedule',GRID_EMPTY:'No sampled start in this range'};
   byId('opportunities-title').textContent=titles[report.kind];
   byId('opportunities-status').textContent=report.kind==='PASS_FOUND'
-    ?`Confirmed passing arrivals were found at ${report.options.length} ${report.options.length===1?'site':'sites'}, with every selected requirement unchanged.`
+    ?allStarts?`${report.allOptions.length} starts meet your requirements at ${new Set(report.allOptions.map(m=>m.siteId)).size} sites.`:`Confirmed passing arrivals were found at ${report.options.length} ${report.options.length===1?'site':'sites'}, with every selected requirement unchanged.`
     :report.kind==='NO_PASS'?'No checked arrival meets all selected requirements. Near misses below explain which rules fail.'
       :report.kind==='UNRESOLVED'?'No passing arrival is proven. Unresolved intervals prevent ruling out earlier opportunities.'
-        :report.kind==='NO_DATA'?'No complete mission fits the available cached data. Choose a covered arrival or a shorter mission.'
+        :report.kind==='NO_DATA'?'No complete mission fits the available cached data. Choose a covered range or a shorter mission.'
+          :report.kind==='GRID_EMPTY'?'No grid start fits the covered range. Choose a smaller interval between starts or widen the UTC range.'
           :'No eligible start fits your allowed schedule. This is a scheduling exclusion, not adverse lunar conditions.';
-  byId('opportunities-basis').textContent=`${rangeLabel} ${siteLabel} ${searchQualification(report.search)}`.trim();
-  const cards=byId('opportunity-options');cards.replaceChildren();
+  byId('opportunities-basis').textContent=`${rangeLabel} ${siteLabel}`;
   const passingIds=new Set(report.options.map(m=>m.siteId));
-  const rows=[...report.options.map(mission=>({mission,label:'First confirmed pass at this site'})),
+  opportunityRows=allStarts?report.allOptions.map(mission=>({mission,label:'Confirmed passing start'})):[...report.options.map(mission=>({mission,label:'First confirmed pass at this site'})),
     ...bundle.sites.filter(s=>!passingIds.has(s.id)).map(site=>{
       const uncertain=report.unresolved.find(m=>m.siteId===site.id),near=report.nearMisses.find(r=>r.mission.siteId===site.id);
       return uncertain?{mission:uncertain,label:'Unresolved sampled arrival'}:near?{mission:near.mission,label:'Fewest broken rules at this site'}:null;
     }).filter(Boolean)];
-  for(const {mission,label} of rows){
-    const card=element('article','opportunity-card');Object.assign(card.dataset,{site:mission.siteId,start:mission.start,status:mission.status});
-    card.append(element('p','eyebrow',label),element('h3','',findSite(mission.siteId).name),statusChip(mission.status),element('p','opportunity-date',shortTime(mission.start)));
-    const joint=mission.constraints.find(c=>c.id==='min_joint_total');
-    if(joint)card.append(element('p','opportunity-joint',`${evidenceTime(joint.range[0])} confirmed Sun + Earth`));
-    card.append(element('p','opportunity-rule',optionDecisionText(mission)));
-    const caution=siteCaution(mission.siteId);if(caution)card.append(element('p','comparison-caution',caution));
-    const view=element('button','outline','View this arrival →');view.type='button';view.addEventListener('click',()=>{
-      byId('site').value=mission.siteId;byId('nominal').value=inputTime(mission.start);selected='nominal';
-      if(evaluate()){showGuidedPhase('nominal');sceneController?.selectSite(mission.siteId,{focus:false});byId('experience').scrollIntoView({block:'start',behavior:'instant'});}
-    });card.append(view);cards.append(card);
-  }
+  renderOpportunityPage();
   const other=byId('opportunity-near-misses');other.replaceChildren();
   for(const {mission,failedRules} of report.nearMisses){
     const row=element('p','',`${findSite(mission.siteId).name} · ${shortTime(mission.start)} · ${failedRules.length} broken ${failedRules.length===1?'rule':'rules'}: ${failedRules.map(c=>{const v=constraintEvidence(c);return `${v.title}: ${v.metricText}, required ${v.requirementText}; margin ${v.marginText}`;}).join('; ')}.`);other.append(row);
@@ -1011,6 +1021,43 @@ function renderOpportunities(report){
   for(const mission of report.unresolved)other.append(element('p','',`${findSite(mission.siteId).name} · ${shortTime(mission.start)}: ${optionDecisionText(mission)} No PASS is established.`));
   if(report.nearMisses.length)other.prepend(element('p','secondary','Near misses are ordered by fewer proven broken rules, then earlier UTC. This is not a safety score, and no requirement was relaxed.'));
   byId('opportunity-other').hidden=!other.childElementCount;
+}
+
+function renderOpportunityPage({focus=false}={}){
+  if(!opportunityReport)return;
+  const page=opportunityPage(opportunityRows.length,opportunityPageIndex,opportunitySmallScreen.matches?5:10);opportunityPageIndex=page.index;
+  const cards=byId('opportunity-options');cards.replaceChildren();cards.dataset.page=page.index+1;cards.dataset.total=page.total;cards.dataset.pageSize=page.size;
+  for(const {view,mission,label} of opportunityRows.slice(page.start,page.end)){
+    if(view){
+      const card=element('article','opportunity-card');Object.assign(card.dataset,{site:view.siteId,start:view.start,status:'ENVIRONMENT'});
+      card.append(element('p','eyebrow',view.metrics.joint.visibleRangeSeconds[0]>0?'Sun + Earth':view.metrics.joint.visibleRangeSeconds[1]>0?'Unresolved overlap':'No joint visibility'),element('h3','',findSite(view.siteId).name),element('p','opportunity-date',shortTime(view.start)));
+      const conclusion=visibilityConclusion(view.metrics,view.end-view.start);
+      card.append(element('p','opportunity-joint',firstScreenConclusion(view.metrics,view.end-view.start).headline));
+      const measurements=element('div','');environmentalMeasurements(measurements,view);const details=measurements.firstElementChild;details.classList.add('opportunity-details');details.querySelector('summary').textContent='See visibility details';
+      details.append(element('p','opportunity-rule',conclusion.reason));
+      const warning=siteCaution(view.siteId);if(warning)details.append(element('p','comparison-caution',warning));card.append(details);
+      const button=element('button','outline','Explore');button.type='button';button.addEventListener('click',()=>{
+        byId('site').value=view.siteId;byId('nominal').value=inputTime(view.start);selected='nominal';
+        if(evaluate()){showGuidedPhase('nominal');sceneController?.selectSite(view.siteId,{focus:false});byId('experience').scrollIntoView({block:'start',behavior:'instant'});}
+      });card.append(button);cards.append(card);continue;
+    }
+    const card=element('article','opportunity-card');Object.assign(card.dataset,{site:mission.siteId,start:mission.start,status:mission.status});
+    card.append(element('p','eyebrow',label),element('h3','',findSite(mission.siteId).name),statusChip(mission.status),element('p','opportunity-date',shortTime(mission.start)));
+    const joint=mission.constraints.find(c=>c.id==='min_joint_total');
+    if(joint)card.append(element('p','opportunity-joint',`${evidenceTime(joint.range[0])} confirmed Sun + Earth`));
+    if(mission.status!=='PASS')card.append(element('p','opportunity-rule',optionDecisionBrief(mission)));
+    const measurements=element('div','');environmentalMeasurements(measurements,mission);const details=measurements.firstElementChild;details.classList.add('opportunity-details');details.querySelector('summary').textContent='See requirements and visibility';
+    for(const constraint of mission.constraints.filter(c=>['max_sun_block','max_earth_block','min_joint_total','min_joint_continuous'].includes(c.id))){const evidence=constraintEvidence(constraint);details.append(element('p','',`${evidence.title}: ${evidence.metricText}; required ${evidence.requirementText}; margin ${evidence.marginText} · ${constraint.status}.`));}
+    const caution=siteCaution(mission.siteId);if(caution)details.append(element('p','comparison-caution',caution));card.append(details);
+    const viewButton=element('button','outline','Explore');viewButton.type='button';viewButton.addEventListener('click',()=>{
+      byId('site').value=mission.siteId;byId('nominal').value=inputTime(mission.start);selected='nominal';
+      if(evaluate()){showGuidedPhase('nominal');sceneController?.selectSite(mission.siteId,{focus:false});byId('experience').scrollIntoView({block:'start',behavior:'instant'});}
+    });card.append(viewButton);cards.append(card);
+  }
+  const pager=byId('opportunity-pagination');pager.hidden=!page.total;
+  byId('opportunity-previous').disabled=page.index===0;byId('opportunity-next').disabled=page.index===page.pages-1;
+  byId('opportunity-page-status').textContent=`${page.total?page.start+1:0}–${page.end} of ${page.total} · Page ${page.index+1} of ${page.pages}`;
+  if(focus){pager.scrollIntoView({block:'nearest',behavior:'instant'});(byId('opportunity-next').disabled?byId('opportunity-previous'):byId('opportunity-next')).focus({preventScroll:true});}
 }
 
 function chooseTarget(value) {
@@ -1133,6 +1180,14 @@ byId('visual-date-go').addEventListener('click',applyVisualArrival);
 for(const id of ['visual-arrival','visual-duration'])byId(id).addEventListener('change',applyVisualArrival);
 for(const key of ['earliest','latest'])for(const event of ['input','change'])byId(key).addEventListener(event,()=>{explicitSchedule[key]=Boolean(byId(key).value);});
 byId('find-opportunities').addEventListener('click',searchOpportunities);
+byId('opportunity-range-form').addEventListener('submit',event=>{event.preventDefault();void searchOpportunities({explicitRange:true});});
+for(const id of ['opportunity-from','opportunity-to','opportunity-grid'])byId(id).addEventListener('input',invalidateOpportunityRange);
+for(const [id,direction] of [['opportunity-previous',-1],['opportunity-next',1]])byId(id).addEventListener('click',()=>{opportunityPageIndex+=direction;renderOpportunityPage({focus:true});});
+opportunitySmallScreen.addEventListener('change',()=>{
+  if(!opportunityReport)return;
+  const first=opportunityPageIndex*Number(byId('opportunity-options').dataset.pageSize??10);
+  opportunityPageIndex=Math.floor(first/(opportunitySmallScreen.matches?5:10));renderOpportunityPage();
+});
 byId('opportunity-limits').addEventListener('click',()=>{setExpert(true);byId('latest').focus();});
 byId('apply-requirements').addEventListener('change',()=>{
   requirementsEnabled=byId('apply-requirements').checked;syncAssessment();clearOpportunities();
@@ -1245,7 +1300,6 @@ async function initialize() {
     byId('visual-coverage').textContent=`UTC · ${coverageLabel(bundle.coverage)}`;
     byId('visual-coverage').title=`${formatTime(start)} to ${formatTime(end)}, exclusive end.`;
     byId('visual-supported-scope').textContent=`${bundle.sites.length} listed study points and ${coverageLabel(bundle.coverage)} have evaluated cached terrain-aware calculations.`;
-    byId('hero-scope-note').textContent=`Playback spans ${coverageLabel(bundle.coverage)} at the selected speed. It changes the view clock, not your arrival or duration.`;
     document.querySelector('#any-site-chart').setAttribute('aria-label',`Level-horizon Sun and Earth elevation across ${coverageLabel(bundle.coverage)}`);
     byId('any-site-range-note').textContent=`Height above the level horizon across ${coverageLabel(bundle.coverage)}. The vertical line is the view clock; the final axis tick is the exclusive cache end.`;
     const siteOptions = bundle.sites.map((site) => {
@@ -1368,8 +1422,6 @@ function optionDecisionBrief(mission){
 function renderOptionComparison(focus){
   if(!inputs)return;
   byId('compare-workspace-title').textContent=requirementsEnabled?'Which arrival meets your requirements?':'Compare lunar arrivals';
-  document.querySelector('#compare-workspace .eyebrow').textContent=requirementsEnabled?'Same requirements · independent arrivals':'Measured conditions · independent arrivals';
-  byId('compare-input-summary').textContent=`${inputs.durationHours} h views · independent sites and UTC arrivals · shared ${requirementsEnabled?'requirements and schedule':'duration'}.`;
   comparisonOptions??=[{key:'A',siteId:inputs.siteId,start:inputs.nominal},{key:'B',siteId:requirementsEnabled?inputs.siteId:(bundle.sites.find(s=>s.id!==inputs.siteId)??bundle.sites[0]).id,start:inputs.nominal+(requirementsEnabled?inputs.delayHours*3600:0)}];
   const root=byId('option-comparison');root.replaceChildren();root.dataset.count=comparisonOptions.length;
   if(isEdited){root.append(element('p','notice','Shared settings have unevaluated changes. Evaluate them in Advanced before comparing options.'));byId('comparison-difference').textContent='No updated comparison is established.';return;}
@@ -1395,13 +1447,13 @@ function renderOptionComparison(focus){
     evaluations.push({key:option.key,name:findSite(option.siteId)?.name,mission,metrics:bounded,complete});Object.assign(card.dataset,{site:option.siteId,start:option.start,end:mission.end,status:mission.status,cause:mission.startAllowed===false?'schedule':'environment'});
     const status=element('p','option-status');if(requirementsEnabled){status.append(statusChip(mission.status));card.append(status);}else card.dataset.status='ENVIRONMENT';
     if(mission.startAllowed===false)card.append(element('p','schedule-exclusion','Outside allowed schedule — environmental results are separate.'));
-    if(siteCaution(option.siteId))card.append(element('p','comparison-caution',siteCaution(option.siteId)));
     const joint=requirementsEnabled?mission.constraints.find(c=>c.id==='min_joint_total'):null;
     const jointSeconds=joint?joint.range[0]*3600:bounded.joint.visibleRangeSeconds[0];
     card.append(element('p','option-joint',firstScreenConclusion(bounded,mission.end-mission.start,{complete}).headline));
     const explanation=visibilityConclusion(bounded,mission.end-mission.start,{complete});
     card.append(element('p','option-reason',requirementsEnabled?optionDecisionBrief(mission):explanation.reason));
     const measurementRoot=element('div','');environmentalMeasurements(measurementRoot,mission);card.append(measurementRoot);
+    if(siteCaution(option.siteId))measurementRoot.querySelector('details').append(element('p','comparison-caution',siteCaution(option.siteId)));
     if(requirementsEnabled)for(const [id,label]of [['max_sun_block','Longest Sun unavailability'],['max_earth_block','Longest Earth obstruction']]){
       const rule=mission.constraints.find(c=>c.id===id),view=constraintEvidence(rule);
       measurementRoot.querySelector('details').append(element('p','option-outage',`${label}: ${rule.range[0]===rule.range[1]?evidenceTime(rule.metric):view.rangeText}${rule.status==='INDETERMINATE'?' · unresolved':''}.`));
@@ -1410,7 +1462,7 @@ function renderOptionComparison(focus){
     viewButton.addEventListener('click',()=>{
       if(isEdited){byId('comparison-difference').textContent='Evaluate pending shared settings in Advanced before loading an option.';return;}
       byId('site').value=option.siteId;byId('nominal').value=inputTime(option.start);selected='nominal';updateSiteDetail();
-      if(evaluate()){showGuidedPhase('nominal');setProductMode('explore');byId('workspace-notice').hidden=false;byId('workspace-notice').textContent=`Option ${option.key} is now the original planned arrival. Delay/recovery and exports use this new plan.`;}
+      if(evaluate()){showGuidedPhase('nominal');setProductMode('explore');byId('workspace-notice').hidden=true;}
     });
     card.append(viewButton);
     if(requirementsEnabled){const rules=element('div','compact-requirements');renderRequirementCards(rules,mission,true);
@@ -1756,7 +1808,7 @@ function setExperienceMode(mode) {
   updateSceneCaption();
   byId('explore-site').textContent='Explore surface';
   byId('explore-site').setAttribute('aria-label','Explore the modeled lunar surface');
-  if(sceneController&&!sceneDisabled)byId('scene-status').textContent=mode==='orbital'?'Drag to orbit; scroll or pinch to zoom. Scroll outside the scene to move the page. Select a study point to approach the surface.':'Surface view · actual LOLA relief at the recorded observer height. Drag to look; scroll or pinch to zoom. Scroll outside the scene to move the page.';
+  if(sceneController&&!sceneDisabled)byId('scene-status').textContent=mode==='orbital'?'Drag to orbit · Scroll or pinch to zoom':'Drag to look · Scroll or pinch to zoom';
 }
 
 function setSceneStatus(event) {
@@ -1777,15 +1829,16 @@ async function initializeExperience() {
   byId('mission-actions').append(byId('find-opportunities'),byId('explore-site'));
   byId('mission-options-content').append(byId('apply-requirements').closest('label'),byId('mission-requirements-editor'),byId('start-delay-demo'));
   byId('orbital-story-slot').append(byId('mission-story'));
-  byId('experience').insertBefore(byId('decision-evidence'),document.querySelector('.experience-status'));
+  // Evidence stays below the scene in normal document flow.
   byId('comparison-panels').append(byId('feasibility'));
   const audit=element('details','site-audit');audit.append(element('summary','',`${bundle.sites.length}-site original/delayed audit`),byId('compare'));byId('top').append(audit);
-  byId('scene-mount').append(byId('scene-poster'));
+  byId('scene-mount').append(byId('scene-poster'),document.querySelector('.scene-mode-switch'));
   byId('scene-mount').append(byId('earth-inset'));
   byId('scene-mount').append(byId('surface-focus'),byId('rescue-transition'));
-  document.querySelector('.scene-stage').append(byId('scene-transport'));
+  // Transport is part of the scene composition in the source markup.
   document.querySelector('.story-footer details').append(byId('verified-demo'));
   if(byId('explain'))byId('experience').append(byId('explain'));
+
   const options=bundle.sites.map(site=>{const option=element('option','',site.name);option.value=site.id;return option;});
   byId('visual-site').replaceChildren(...options);
   byId('visual-site').disabled=false;
@@ -1802,6 +1855,10 @@ async function initializeExperience() {
   try {
     sceneController=await sceneLoading;
     if(sceneDisabled){sceneController.dispose();return;}
+    const coordinateCaption=byId('scene-mount').querySelector('.mission-scene-caption');
+    if(coordinateCaption)byId('scene-coordinate-caption').append(coordinateCaption);
+    const markerLegend=byId('scene-mount').querySelector('.mission-marker-legend');
+    if(markerLegend)byId('scene-coordinate-caption').append(markerLegend);
     sceneController.selectSite(visualSiteId??inputs.siteId,{focus:false});
     if(latestSceneFrame)sceneController.setFrame(latestSceneFrame);
     byId('experience').dataset.ready='true';
@@ -1860,17 +1917,60 @@ function updateExperienceFrame(site,sample,mission) {
   if(!wholeMonth&&autoMonthSpeed){autoMonthSpeed=false;byId('sky-speed').value='4';}
   byId('hero-speed').value=byId('sky-speed').value;
   byId('hero-scope-stay').setAttribute('aria-pressed',String(!wholeMonth));byId('hero-scope-month').setAttribute('aria-pressed',String(wholeMonth));
-  byId('hero-scope-note').hidden=!wholeMonth;
   const lanes=byId('hero-lanes'),laneKey=`${mission.siteId}|${mission.start}|${mission.end}`;
+  lanes.removeAttribute('aria-hidden');
   lanes.hidden=wholeMonth||isEdited;
   if(!lanes.hidden&&lanes.dataset.key!==laneKey){
     lanes.dataset.key=laneKey;lanes.replaceChildren();
     for(const [key,title] of [['sun','Sun'],['earth','Earth']]){
-      const lane=element('div','hero-lane'),track=element('div','hero-lane-track');lane.dataset.channel=key;
+      const lane=element('div','hero-lane'),track=element('button','hero-lane-track');lane.dataset.channel=key;
+      track.type='button';track.dataset.channel=key;
+      const summary=visibilitySummary(mission.timeline[key],mission.start,mission.end).seconds;
+      const total=mission.end-mission.start,unresolved=summary.uncertain+summary.unknown;
+      const compactDuration=seconds=>conciseDuration(seconds).replace(/\s+\d+\s+s$/,'');
+      const caption=summary.visible===total?'Visible for the whole stay':summary.blocked===total?'Blocked for the whole stay'
+        :`${compactDuration(summary.visible)} confirmed${unresolved>0?` · ${compactDuration(unresolved)} unresolved`:''}`;
+      const meanings={visible:'center visible',blocked:'center blocked',uncertain:'unresolved visibility',unknown:'missing data'};
+      track.setAttribute('aria-label',`${title}: ${caption}. ${conciseDuration(summary.blocked)} blocked; ${conciseDuration(unresolved)} unresolved or missing. Click a time to inspect the nearest cached sample. Enter inspects the current time; the time slider supports arrow-key scrubbing.`);
+      track.title=`${title}: ${caption}. Solid color is visible; dark is blocked; diagonal stripes are unresolved; crosshatching is missing data.`;
+      const captionNode=element('span','hero-lane-caption',caption),strip=element('span','hero-lane-strip timeline-unknown');
+      captionNode.setAttribute('aria-hidden','true');strip.setAttribute('aria-hidden','true');
       for(const [a,b,state] of mission.timeline[key]){
         const piece=element('span',`timeline-piece timeline-${state}`);
-        piece.style.left=`${100*(a-mission.start)/(mission.end-mission.start)}%`;piece.style.width=`${100*(b-a)/(mission.end-mission.start)}%`;track.append(piece);
+        Object.assign(piece.dataset,{start:a,end:b,state});
+        piece.title=`${title}: ${meanings[state]??'missing data'} · ${formatTime(a)} to ${formatTime(b)}`;
+        piece.style.left=`${100*(a-mission.start)/total}%`;piece.style.width=`${100*(b-a)/total}%`;strip.append(piece);
       }
+      const head=element('span','timeline-playhead story-joint-playhead hero-lane-playhead');
+      head.dataset.start=mission.start;head.dataset.end=mission.end;strip.append(head);
+      const inspection=element('span','hero-lane-inspection');inspection.id=`hero-${key}-inspection`;inspection.hidden=true;
+      inspection.setAttribute('role','status');inspection.setAttribute('aria-live','off');track.setAttribute('aria-describedby',inspection.id);
+      const inspectTime=(time,announce=false)=>{
+        const interval=mission.timeline[key].find(([a,b])=>a<=time&&time<b);
+        inspection.setAttribute('aria-live',announce?'polite':'off');
+        inspection.textContent=interval?`${title}: ${meanings[interval[2]]??'missing data'} · ${formatTime(interval[0])} to ${formatTime(interval[1])}. View: ${formatTime(time)}.`
+          :`${title}: no interval established at ${formatTime(time)}. No visibility is assumed.`;
+        inspection.hidden=false;
+      };
+      const pointerTime=event=>{
+        const rect=strip.getBoundingClientRect(),fraction=Math.max(0,Math.min(1,(event.clientX-rect.left)/Math.max(1,rect.width)));
+        // Keep the existing half-open mission domain; the right edge selects its last cached sample.
+        return Math.min(mission.end-0.001,mission.start+fraction*total);
+      };
+      track.addEventListener('pointermove',event=>{
+        if(!chart)return;const index=nearestSample(chart.samples,pointerTime(event),chart.domain);
+        if(index!==null)inspectTime(chart.samples[index][0]);
+      });
+      track.addEventListener('pointerleave',()=>{if(document.activeElement!==track)inspection.hidden=true;});
+      track.addEventListener('focus',()=>inspectTime(currentTime??mission.start));
+      track.addEventListener('blur',()=>{inspection.hidden=true;});
+      track.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();inspection.hidden=true;}});
+      track.addEventListener('click',event=>{
+        if(isEdited||!chart)return;const time=event.detail===0?(currentTime??mission.start):pointerTime(event);
+        const index=nearestSample(chart.samples,time,chart.domain);if(index===null)return;
+        pausePlayback();byId('probe-slider').value=index;updateProbe();inspectTime(chart.samples[index][0],true);
+      });
+      track.append(captionNode,strip,inspection);
       lane.append(element('span','hero-lane-label',title),track);lanes.append(lane);
     }
   }
@@ -1892,7 +1992,7 @@ function updateExperienceFrame(site,sample,mission) {
       if(countdown.kind==='bounded')next=`${name} in ${durationRange(countdown.remaining)}`;
       else if(countdown.kind==='unresolved'){
         const from=minute(Math.floor(countdown.interval[0]/60)*60),to=minute(Math.ceil(countdown.interval[1]/60)*60);
-        next=`${name} ${from}–${from.slice(0,6)===to.slice(0,6)?to.slice(7):to} UTC`;
+        next=`${name} unresolved: ${from}–${from.slice(0,6)===to.slice(0,6)?to.slice(7):to} UTC`;
       }
       eventNotes[key]=countdown.kind==='bounded'?''
         :countdown.kind==='unresolved'?` The ${name} time cannot be pinned down more closely than ${shortTime(countdown.interval[0])} to ${shortTime(countdown.interval[1])}.`
@@ -2110,7 +2210,7 @@ async function runRescueAction(){
 function durationClock(seconds){const s=Math.round(seconds);return `${Math.floor(s/3600)} h ${String(Math.floor(s%3600/60)).padStart(2,'0')} min ${String(s%60).padStart(2,'0')} s`;}
 function renderStoryJoint(story){
   const mission=typeof selected==='number'?selectedMission():result[guidedPhase];
-  const root=byId('story-joint');root.replaceChildren();if(!mission)return;
+  const root=byId('story-joint');root.replaceChildren();byId('story-uncertainty').replaceChildren();if(!mission)return;
   const summary=visibilitySummary(mission.timeline.joint,mission.start,mission.end).seconds;
   root.append(element('p','joint-duration',`${durationClock(summary.visible)} with Sun + Earth`));
   const track=element('div','story-joint-track');track.setAttribute('aria-label','Joint sunlight and Earth-center visibility intervals');
@@ -2120,7 +2220,7 @@ function renderStoryJoint(story){
     const wait=(result.recommended.start-result.delayed.start)/3600;
     root.prepend(element('p','recovery-wait',`Wait after delay: ${Math.floor(wait/24)} d ${number.format(wait%24)} h.`));
   }
-  const detail=element('details');detail.append(element('summary','','Visibility uncertainty'),element('p','',`${durationClock(summary.uncertain+summary.unknown)} unresolved. This is center visibility, not generated power or a working radio link.`));root.append(detail);
+  const detail=element('details');detail.append(element('summary','','Visibility uncertainty'),element('p','',`${durationClock(summary.uncertain+summary.unknown)} unresolved. This is center visibility, not generated power or a working radio link.`));byId('story-uncertainty').replaceChildren(detail);
 }
 
 async function renderConfigurations(){

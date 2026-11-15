@@ -27,6 +27,18 @@ from science.sources import (
 from science.terrain import RADIUS_M, _raster_description, project
 
 LEVELS = ((250., 101), (4000., 129), (32000., 257))
+SOUTHPOLE_OUTER_REGIONAL = "LDEM_60S_240MPP_ADJ.TIF"
+
+
+def _southpole_registry():
+    """Optional additive registry; its source module imports scene helpers lazily."""
+    try:
+        from science.southpole_sites import SOUTHPOLE_SITES, SOURCE_PINS
+    except ModuleNotFoundError as error:
+        if error.name != "science.southpole_sites":
+            raise
+        return (), ()
+    return SOUTHPOLE_SITES, SOURCE_PINS
 
 
 def terrain_source_spec(filename):
@@ -41,11 +53,20 @@ def terrain_source_spec(filename):
                 'url': url, 'citation': citation, 'acquiredUtc': ACQUIRED_UTC[filename]}
     from science.extended_sites import EXTENDED_FILES
 
-    if filename not in EXTENDED_FILES:
+    if filename in EXTENDED_FILES:
+        pin = EXTENDED_FILES[filename]
+        return {'filename': filename, 'sha256': pin['sha256'], 'expectedBytes': pin['bytes'],
+                'url': pin['url'], 'citation': pin['citation'], 'acquiredUtc': pin['pinnedAcquisitionUtc'],
+                'publisherChecksumAvailable': pin['publisherChecksumAvailable'], 'checksumOrigin': pin['checksumOrigin']}
+    rows, pins = _southpole_registry()
+    supported = {f'{row[5]}_final_adj_5mpp_surf.tif' for row in rows}
+    supported.add(SOUTHPOLE_OUTER_REGIONAL)
+    matches = [pin for pin in pins if pin.get('filename') == filename]
+    if filename not in supported or len(matches) != 1:
         raise ValueError(f'Unsupported native terrain source: {filename}')
-    pin = EXTENDED_FILES[filename]
+    pin = matches[0]
     return {'filename': filename, 'sha256': pin['sha256'], 'expectedBytes': pin['bytes'],
-            'url': pin['url'], 'citation': pin['citation'], 'acquiredUtc': pin['pinnedAcquisitionUtc'],
+            'url': pin['url'], 'citation': pin['citation'], 'acquiredUtc': pin['acquiredUtc'],
             'publisherChecksumAvailable': pin['publisherChecksumAvailable'], 'checksumOrigin': pin['checksumOrigin']}
 
 
@@ -67,7 +88,9 @@ def checked_terrain_source(raw, filename):
 def _scene_site_row(site):
     from science.extended_sites import EXTENDED_SITES
 
-    registry = {row[0]: row for row in (*SITES, *EXTENDED_SITES)}
+    southpole, _ = _southpole_registry()
+    registry = {row[0]: row for row in (*SITES, *EXTENDED_SITES, *southpole)}
+    southpole_ids = {row[0] for row in southpole}
     identifier = site.get('id')
     if not isinstance(identifier, str) or identifier not in registry:
         raise ValueError(f'Unsupported terrain-aware display study point: {identifier}')
@@ -88,6 +111,9 @@ def _scene_site_row(site):
                 or terrain.get('groundM') != ground
                 or terrain.get('observerRadiusM') != RADIUS_M + ground + site['heightM']):
             raise ValueError(f'Terrain model or observer differs from own study-point source: {identifier}/{level}')
+        if (identifier in southpole_ids
+                and terrain.get('outerRegional', {}).get('filename') != SOUTHPOLE_OUTER_REGIONAL):
+            raise ValueError(f'Outer terrain source differs from own study-point source: {identifier}/{level}')
     return row
 
 
@@ -108,7 +134,12 @@ def scene_site_rows(bundle):
     if bundle.get('manifest', {}).get('frame', {}).get('working') != FRAME:
         raise ValueError('Display bundle working lunar frame differs from the scientific model')
     records = bundle.get('manifest', {}).get('files', [])
-    for filename in (REGIONAL, *(f'{row[5]}_final_adj_5mpp_surf.tif' for row in rows)):
+    southpole, _ = _southpole_registry()
+    southpole_ids = {row[0] for row in southpole}
+    filenames = [REGIONAL, *(f'{row[5]}_final_adj_5mpp_surf.tif' for row in rows)]
+    if any(row[0] in southpole_ids for row in rows):
+        filenames.append(SOUTHPOLE_OUTER_REGIONAL)
+    for filename in filenames:
         pin = terrain_source_spec(filename)
         matches = [record for record in records if record.get('filename') == filename]
         if (len(matches) != 1 or matches[0].get('sha256') != pin['sha256']
