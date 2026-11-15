@@ -1,0 +1,61 @@
+{
+  "apiDimensionsMm": [
+    399.9999761581421,
+    399.9999761581421
+  ],
+  "apiFilesUrl": "https://api.polyhaven.com/files/moon_macro_01",
+  "apiInfoUrl": "https://api.polyhaven.com/info/moon_macro_01",
+  "assetId": "moon_macro_01",
+  "authors": {
+    "Dario Barresi": "Processing",
+    "Greg Zaal": "Photography",
+    "Jenelle van Heerden": "Photography",
+    "Rico Cilliers": "Photography"
+  },
+  "captureDescriptionUrl": "https://blog.polyhaven.com/moon/",
+  "captureLab": "Spaceport Rostock, Germany",
+  "captureMaterial": "Laboratory regolith simulant, prepared and photographed on Earth",
+  "collectionUrl": "https://polyhaven.com/collections/moon",
+  "license": "CC0-1.0",
+  "licenseTextUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "licenseUrl": "https://polyhaven.com/license",
+  "pageUrl": "https://polyhaven.com/a/moon_macro_01",
+  "previewRendersIncluded": false,
+  "sourcePinsEstablishedUtcDate": "2026-11-15",
+  "sources": {
+    "diffuse": {
+      "byteLength": 607698,
+      "filename": "moon_macro_01_diff_1k.jpg",
+      "format": "jpg",
+      "md5": "83a84a44cff8c7b43b7ca35bcdecde6c",
+      "resolution": "1k",
+      "sha256": "752421a3505eaedf5cf4dfe37ec75c559fd3cefd28aa2e9b48be781a35704068",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/moon_macro_01/moon_macro_01_diff_1k.jpg"
+    },
+    "normal": {
+      "byteLength": 5994106,
+      "filename": "moon_macro_01_nor_gl_1k.png",
+      "format": "png",
+      "md5": "d261def688694c890b695bcbf1990a09",
+      "resolution": "1k",
+      "sha256": "91d5210eba6b49006577d0544b74deba8e2924af96d7f1d54ed0edbf05b03f97",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/png/1k/moon_macro_01/moon_macro_01_nor_gl_1k.png"
+    },
+    "roughness": {
+      "byteLength": 316490,
+      "filename": "moon_macro_01_rough_1k.jpg",
+      "format": "jpg",
+      "md5": "9902e278c61635d3c1d1ccb4ebfe6589",
+      "resolution": "1k",
+      "sha256": "10c0ad79f340cd28fdbaa4c92d020a6886072122836d11e8e6ce21b823262b24",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/moon_macro_01/moon_macro_01_rough_1k.jpg"
+    }
+  },
+  "tileHeightM": 0.4,
+  "tileWidthM": 0.4,
+  "totalSourceBytes": 6918294,
+  "unusedMaps": [
+    "Displacement",
+    "AO"
+  ]
+}

@@ -1,12 +1,13 @@
 // Display renderer only. Visibility and all mission decisions come from frozen intervals.
 import {bodyDirection, moonPoint,localToMoonDirection} from './scene-model.mjs';
 import {NOTABLE_SITES} from './anysite.mjs';
-import {surfaceUVs,surfacePhotoLevel,surfaceVisualRecord} from './surface-visuals.mjs';
+import {surfaceUVs,surfacePhotoLevel,surfaceVisualRecord,regolithUVs,regolithLightingChunk} from './surface-visuals.mjs';
 
 const RAD=Math.PI/180;
 const asset=name=>new URL(`./assets/${name}`,import.meta.url).href;
 const terrainUrl=new URL('./data/terrain-scenes.json',import.meta.url);
 const surfaceVisualsUrl=new URL('./assets/surface/manifest.json',import.meta.url);
+const regolithMaterialUrl=new URL('./assets/surface/material/manifest.json',import.meta.url);
 const clamp=(value,lo,hi)=>Math.max(lo,Math.min(hi,value));
 
 export const moonFixedPosition=moonPoint;
@@ -18,7 +19,7 @@ export function orbitalMarkerRecords(studyPoints) {
 }
 export function surfaceLightState(sunState,hasDirection,enhanced=false){
   const lit=hasDirection&&sunState==='visible';
-  return {direct:lit?2.3:0,ambient:(lit||enhanced)? .18:.002,fill:(lit||enhanced)? .3:0,
+  return {direct:lit?2.3:0,ambient:enhanced?.18:lit?.03:.001,fill:enhanced?.3:lit?.06:0,
     skylineLevel:lit?1:(enhanced? .5:0),skylineFloor:(lit||enhanced)? .02:.001,enhanced:Boolean(enhanced)};
 }
 // Display framing only: a zoomed, lifted overview. Directions and sizes in the scene are unchanged.
@@ -121,6 +122,8 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   let modeTransition=0,transitionTimer=0;
   let terrainMesh=null,terrainSiteId=null,terrainRecord=null,terrainError=null;
   let surfaceDetailMesh=null,surfaceVisualEntry=null,surfaceVisualError=null,surfaceVisualsPromise=null,surfaceVisualAbort=null;
+  let regolithMaterialPromise=null,regolithMaterialError=null;
+  const regolithMaterialAbort=new AbortController();
   let surfaceImageryEnabled=true;
   let surfaceSourceSignature='';
   let moonTextureLoaded=false,earthTextureLoaded=false,moonBumpLoaded=false;
@@ -343,7 +346,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   // A separate, explicitly illustrative fill shades actual DEM normals without casting shadows.
   const displayFill=new THREE.DirectionalLight(0xdfe4ec,.3);
   displayFill.castShadow=false;surfaceScene.add(displayFill,displayFill.target);
-  const sunlight=new THREE.DirectionalLight(0xfff4e2,2.3);
+  const sunlight=new THREE.DirectionalLight(0xfffbf3,2.3);
   sunlight.castShadow=false;
   surfaceScene.add(sunlight,sunlight.target);
 
@@ -365,14 +368,14 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     gl_FragColor=vec4(vec3(tone*1.02,tone,tone*0.97),1.0);
     #include <colorspace_fragment>
     }`}));
-  // Lunar regolith scatters light back strongly and shows no limb darkening. A Lommel-Seeliger
-  // term replaces the Lambert cosine; procedural grain is display texture, never relief data.
+  // A Lommel–Seeliger approximation shades only diffuse regolith reflection.
+  // Specular keeps its physical cosine; material detail never becomes relief data.
   let regolithShading='lambert';
   function regolithMaterial({fineTerrain=false}={}) {
     const material=new THREE.MeshStandardMaterial({color:0x8f8f8d,roughness:1,metalness:0,side:THREE.FrontSide});
-    const cosine='float dotNL = saturate( dot( geometryNormal, directLight.direction ) );';
     const chunk=THREE.ShaderChunk?.lights_physical_pars_fragment;
-    if(!chunk?.includes(cosine))return material;
+    const lunarChunk=regolithLightingChunk(chunk);
+    if(!lunarChunk)return material;
     regolithShading='lommel-seeliger';
     const grain=mobileQuality||fineTerrain?'0':'1';
     material.onBeforeCompile=shader=>{
@@ -385,9 +388,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
           return mix(mix(lnHash(i),lnHash(i+vec2(1.0,0.0)),f.x),mix(lnHash(i+vec2(0.0,1.0)),lnHash(i+vec2(1.0,1.0)),f.x),f.y);}
         float lnGrain(vec2 p,float range){float near=1.0/(1.0+range*range*0.004),mid=1.0/(1.0+range*range*0.00002);
           return lnNoise(p*2.3)*0.35*near+lnNoise(p*0.47)*0.8*near+lnNoise(p*0.083)*0.75*mid+lnNoise(p*0.011)*0.25*mid;}`)
-        .replace('#include <lights_physical_pars_fragment>',chunk.replace(cosine,`float lsIn = saturate( dot( geometryNormal, directLight.direction ) );
-        float lsOut = saturate( dot( geometryNormal, geometryViewDir ) );
-        float dotNL = smoothstep( 0.0, 0.035, lsIn ) * min( 1.0, 2.0 * lsIn / ( lsIn + lsOut + 0.05 ) );`))
+        .replace('#include <lights_physical_pars_fragment>',lunarChunk)
         .replace('#include <color_fragment>',`#include <color_fragment>
         float lnRange=length(vRegolith.xz);
         ${fineTerrain?'':'diffuseColor.rgb*=0.93+0.04*lnNoise(vRegolith.xz*0.19)/(1.0+lnRange*0.02)+0.03*lnNoise(vRegolith.xz*0.0127);'}`)
@@ -398,31 +399,45 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
           normal=normalize(normal+mat3(viewMatrix)*vec3(-slope.x,0.0,-slope.y)); }
         #endif`);
     };
-    material.customProgramCacheKey=()=>'lunaris-regolith-3-'+grain+'-'+fineTerrain;
+    material.customProgramCacheKey=()=>'lunaris-regolith-4-'+grain+'-'+fineTerrain;
     return material;
   }
-  function photographedMaterial(photo,mask,bounds,displayGamma=1) {
+  function photographedMaterial(photo,mask,bounds,displayGamma=1,regolith=null) {
     const gamma=Number.isFinite(displayGamma)&&displayGamma>=.25&&displayGamma<=1.5?displayGamma:1;
     const uniforms={surfacePhoto:{value:photo},surfaceMask:{value:mask},surfacePhotoGamma:{value:gamma},surfacePhotoLevel:{value:0},surfacePhotoEnabled:{value:surfaceImageryEnabled?1:0},surfaceEdge:{value:new THREE.Vector2(40/(bounds[2]-bounds[0]),40/(bounds[3]-bounds[1]))}};
     const material=new THREE.MeshStandardMaterial({color:0x8f8f8d,roughness:1,metalness:0,side:THREE.FrontSide});
+    if(regolith){
+      material.map=regolith.diffuse;material.normalMap=regolith.normal;material.roughnessMap=regolith.roughness;
+      material.normalScale.set(.5,.5);
+      material.userData.regolithMaterial=regolith;
+    }
     material.userData.surfaceUniforms=uniforms;
     material.onBeforeCompile=shader=>{
       Object.assign(shader.uniforms,uniforms);
+      shader.uniforms.regolithMeanLinear={value:regolith?.manifest.diffuseMeanLinear??1};
       shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nattribute vec2 surfaceUv;varying vec2 vSurfaceUv;varying vec3 vSurfacePosition;')
         .replace('#include <begin_vertex>','#include <begin_vertex>\nvSurfaceUv=surfaceUv;vSurfacePosition=position;');
-      const chunk=THREE.ShaderChunk.lights_physical_pars_fragment,cosine='float dotNL = saturate( dot( geometryNormal, directLight.direction ) );';
+      const chunk=THREE.ShaderChunk.lights_physical_pars_fragment;
       shader.fragmentShader=shader.fragmentShader.replace('#include <common>',`#include <common>
         varying vec2 vSurfaceUv;varying vec3 vSurfacePosition;uniform sampler2D surfacePhoto;uniform sampler2D surfaceMask;
         uniform float surfacePhotoLevel;uniform float surfacePhotoEnabled;uniform float surfacePhotoGamma;uniform vec2 surfaceEdge;
+        uniform float regolithMeanLinear;
+        float lnCloseMaterial(){return 1.0-smoothstep(25.0,150.0,length(vSurfacePosition.xz));}
+        // Two native-scale orientations break visible repetition without
+        // enlarging grains or changing any geometric surface.
+        const mat2 lnSoilA=mat2(0.95630476,0.29237170,-0.29237170,0.95630476);
+        const mat2 lnSoilB=mat2(0.73135370,-0.68199836,0.68199836,0.73135370);
+        const mat2 lnSoilInvA=mat2(0.95630476,-0.29237170,0.29237170,0.95630476);
+        const mat2 lnSoilInvB=mat2(0.73135370,0.68199836,-0.68199836,0.73135370);
+        vec2 lnSoilUvA(vec2 uv){return lnSoilA*uv+vec2(0.17,0.31);}
+        vec2 lnSoilUvB(vec2 uv){return lnSoilB*uv+vec2(0.67,0.13);}
         float lnPhotoHash(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
         float lnPhotoNoise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);
           return mix(mix(lnPhotoHash(i),lnPhotoHash(i+vec2(1.0,0.0)),f.x),mix(lnPhotoHash(i+vec2(0.0,1.0)),lnPhotoHash(i+vec2(1.0,1.0)),f.x),f.y);}
         float lnMaterialGrain(vec2 p,float frequency){vec2 q=p*frequency;
           float footprint=max(fwidth(q.x),fwidth(q.y));
           return (lnPhotoNoise(q)-0.5)*(1.0-smoothstep(0.35,0.9,footprint));}`)
-        .replace('#include <lights_physical_pars_fragment>',chunk.replace(cosine,`float lsIn=saturate(dot(geometryNormal,directLight.direction));
-          float lsOut=saturate(dot(geometryNormal,geometryViewDir));
-          float dotNL=smoothstep(0.0,0.035,lsIn)*min(1.0,2.0*lsIn/(lsIn+lsOut+0.05));`))
+        .replace('#include <lights_physical_pars_fragment>',regolithLightingChunk(chunk)??chunk)
         .replace('#include <opaque_fragment>',`vec2 edge=min(vSurfaceUv,vec2(1.0)-vSurfaceUv);
           float sourceWeight=smoothstep(0.0,surfaceEdge.x,edge.x)*smoothstep(0.0,surfaceEdge.y,edge.y);
           sourceWeight*=smoothstep(0.5,0.99,texture2D(surfaceMask,vSurfaceUv).r)*surfacePhotoEnabled;
@@ -431,23 +446,46 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
           // ordering. Brightness-dependent blending can invert that ordering.
           // This is neither calibrated albedo nor recovered shadow information.
           vec3 photoDisplay=pow(max(historicalPhoto,vec3(0.0)),vec3(surfacePhotoGamma));
-          float photoWeight=sourceWeight*0.55;
+          float photoWeight=sourceWeight*${regolith?'mix(0.55,0.12,lnCloseMaterial())':'0.55'};
           outgoingLight=mix(outgoingLight,photoDisplay*surfacePhotoLevel,photoWeight);
           // Band-limited illustrative regolith texture, not measured site detail.
           // It never displaces the NASA geometry or creates terrain shadows.
-          float grain=0.12*lnMaterialGrain(vSurfacePosition.xz,7.0)+0.035*lnMaterialGrain(vSurfacePosition.xz,23.0);
+          float grain=${regolith?'0.0':'0.12*lnMaterialGrain(vSurfacePosition.xz,7.0)+0.035*lnMaterialGrain(vSurfacePosition.xz,23.0)'};
           outgoingLight*=1.0+grain;
           #include <opaque_fragment>`);
+      if(regolith){
+        shader.fragmentShader=shader.fragmentShader.replace('#include <map_fragment>',`#ifdef USE_MAP
+          // A repeating laboratory material supplies unregistered sub-metre
+          // appearance only. NASA photographic UVs remain separate.
+          vec3 grainColor=mix(texture2D(map,lnSoilUvA(vMapUv)).rgb,texture2D(map,lnSoilUvB(vMapUv)).rgb,0.43)/max(regolithMeanLinear,0.001);
+          // Laboratory simulant colour is not measured lunar-site colour.
+          // Retain its luminance detail as a neutral illustrative material.
+          float grainLuminance=dot(grainColor,vec3(0.2126,0.7152,0.0722));
+          diffuseColor.rgb*=mix(vec3(1.0),vec3(clamp(grainLuminance,0.35,1.8)),lnCloseMaterial()*0.85);
+          #endif`)
+          .replace('#include <normal_fragment_maps>',THREE.ShaderChunk.normal_fragment_maps
+            .replace('vec3 mapN = texture2D( normalMap, vNormalMapUv ).xyz * 2.0 - 1.0;',`vec3 soilNA=texture2D(normalMap,lnSoilUvA(vNormalMapUv)).xyz*2.0-1.0;
+              vec3 soilNB=texture2D(normalMap,lnSoilUvB(vNormalMapUv)).xyz*2.0-1.0;
+              soilNA.xy=lnSoilInvA*soilNA.xy;soilNB.xy=lnSoilInvB*soilNB.xy;
+              vec3 mapN=normalize(mix(soilNA,soilNB,0.43));`)
+            .replace('mapN.xy *= normalScale;','mapN.xy *= normalScale * lnCloseMaterial();'))
+          .replace('#include <roughnessmap_fragment>',`float roughnessFactor=roughness;
+            #ifdef USE_ROUGHNESSMAP
+            float soilRoughness=mix(texture2D(roughnessMap,lnSoilUvA(vRoughnessMapUv)).g,texture2D(roughnessMap,lnSoilUvB(vRoughnessMapUv)).g,0.43);
+            roughnessFactor*=mix(1.0,soilRoughness,lnCloseMaterial());
+            #endif`);
+      }
     };
-    material.customProgramCacheKey=()=>`lunaris-registered-surface-5`;
+    material.customProgramCacheKey=()=>`lunaris-registered-surface-10-${Boolean(regolith)}`;
     return material;
   }
   function updateSurfaceSource(){
     const active=mode==='surface'&&surfaceVisualEntry?.entry.site.id===site.id;
     surfaceSource.hidden=!active;
-    if(active)surfaceSource.textContent=surfaceImageryEnabled&&surfaceVisualEntry.photo?'LROC photo detail · illustrative lighting':surfaceDetailMesh?'NASA SfS display terrain · modeled lighting':'NASA LOLA terrain · modeled lighting';
+    if(active)surfaceSource.textContent=surfaceVisualEntry.material.userData.regolithMaterial?'NASA terrain · illustrative regolith':surfaceImageryEnabled&&surfaceVisualEntry.photo?'LROC photo detail · illustrative lighting':surfaceDetailMesh?'NASA SfS display terrain · modeled lighting':'NASA LOLA terrain · modeled lighting';
     container.dataset.surfacePhoto=String(Boolean(active&&surfaceVisualEntry.photo&&surfaceImageryEnabled));
     container.dataset.surfaceDetail=String(Boolean(active&&surfaceDetailMesh));
+    container.dataset.surfaceMaterial=String(Boolean(active&&surfaceVisualEntry?.material.userData.regolithMaterial));
     const signature=[site.id,mode,Boolean(active&&surfaceVisualEntry?.photo),surfaceImageryEnabled].join(':');
     if(signature!==surfaceSourceSignature){surfaceSourceSignature=signature;container.dispatchEvent(new CustomEvent('surfacevisualchange',{detail:{siteId:site.id,available:Boolean(active&&surfaceVisualEntry?.photo),enabled:surfaceImageryEnabled}}));}
   }
@@ -462,9 +500,9 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     if(terrainMesh){terrainMesh.geometry.setDrawRange(0,Infinity);terrainMesh.material=terrainMesh.userData.originalMaterial??terrainMesh.material;}
     updateSurfaceSource();
   }
-  async function verifiedSurfaceBytes(record,signal){
-    const url=new URL(record.url??record.positionFile,surfaceVisualsUrl);
-    if(url.origin!==surfaceVisualsUrl.origin||!url.pathname.startsWith(new URL('./',surfaceVisualsUrl).pathname))throw Error('Surface asset must remain in its offline directory.');
+  async function verifiedSurfaceBytes(record,signal,baseUrl=surfaceVisualsUrl){
+    const url=new URL(record.url??record.positionFile,baseUrl);
+    if(url.origin!==baseUrl.origin||!url.pathname.startsWith(new URL('./',baseUrl).pathname))throw Error('Surface asset must remain in its offline directory.');
     const response=await fetch(url,{signal});if(!response.ok)throw Error(`Surface asset: HTTP ${response.status}`);
     const bytes=await response.arrayBuffer();
     if(bytes.byteLength!==record.byteLength)throw Error('Surface asset byte count differs.');
@@ -472,8 +510,8 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     if(digest!==record.sha256)throw Error('Surface asset checksum differs.');
     return {bytes,url};
   }
-  async function verifiedSurfaceTexture(record,signal,mask=false){
-    const {bytes,url}=await verifiedSurfaceBytes(record,signal);
+  async function verifiedSurfaceTexture(record,signal,mask=false,baseUrl=surfaceVisualsUrl){
+    const {bytes,url}=await verifiedSurfaceBytes(record,signal,baseUrl);
     const blobUrl=URL.createObjectURL(new Blob([bytes],{type:url.pathname.endsWith('.webp')?'image/webp':'image/png'}));
     try{
       const texture=await new THREE.TextureLoader().loadAsync(blobUrl);
@@ -483,6 +521,23 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
       texture.anisotropy=Math.min(mobileQuality?4:16,renderer.capabilities.getMaxAnisotropy());
       return texture;
     }finally{URL.revokeObjectURL(blobUrl);}
+  }
+  async function loadRegolithMaterial(){
+    if(!regolithMaterialPromise)regolithMaterialPromise=(async()=>{
+      const response=await fetch(regolithMaterialUrl,{signal:regolithMaterialAbort.signal});
+      if(!response.ok)throw Error(`Representative material: HTTP ${response.status}`);
+      const manifest=await response.json(),width=manifest.tileWidthM;
+      if(manifest.schemaVersion!==1||manifest.kind!=='laboratory-regolith-simulant'||manifest.displayOnly!==true||manifest.displacementApplied!==false||!Number.isFinite(width)||width<=0||width>2||!Number.isFinite(manifest.diffuseMeanLinear)||manifest.diffuseMeanLinear<=0)throw Error('Invalid representative material identity or scale.');
+      const records=manifest.textures[mobileQuality?'mobile':'desktop'];
+      const names=['diffuse','normal','roughness'];
+      const results=await Promise.allSettled(names.map((name,index)=>verifiedSurfaceTexture(records[name],regolithMaterialAbort.signal,index!==0,regolithMaterialUrl)));
+      const failed=results.find(row=>row.status==='rejected');
+      if(failed||disposed){for(const row of results)if(row.status==='fulfilled')row.value.dispose();if(failed)throw failed.reason;return null;}
+      const loaded={manifest};
+      results.forEach((row,index)=>{row.value.wrapS=row.value.wrapT=THREE.RepeatWrapping;loaded[names[index]]=track(row.value);});
+      return loaded;
+    })().catch(error=>{if(error.name!=='AbortError')regolithMaterialError=error.message;return null;});
+    return regolithMaterialPromise;
   }
   function evictSurfaceAssets(){
     const limit=mobileQuality?1:2;
@@ -509,11 +564,13 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
           photo=await verifiedSurfaceTexture(imagery.textures[tier],controller.signal);ownResources.push(photo);
           mask=await verifiedSurfaceTexture(imagery.masks[tier],controller.signal,true);ownResources.push(mask);
         }
-        const material=photo?photographedMaterial(photo,mask,imagery.bounds,imagery.displayContrastGamma):regolithMaterial({fineTerrain:true});ownResources.push(material);
+        const regolith=photo?await loadRegolithMaterial():null;
+        const material=photo?photographedMaterial(photo,mask,imagery.bounds,imagery.displayContrastGamma,regolith):regolithMaterial({fineTerrain:true});ownResources.push(material);
         if(record){
           const {bytes}=await verifiedSurfaceBytes(record,controller.signal),view=terrainBufferViews(bytes,record);
           const geometry=new THREE.BufferGeometry();ownResources.push(geometry);
           geometry.setAttribute('position',new THREE.BufferAttribute(view.positions,3));geometry.setIndex(new THREE.BufferAttribute(view.indices,1));
+          if(regolith)geometry.setAttribute('uv',new THREE.BufferAttribute(regolithUVs(view.positions,regolith.manifest.tileWidthM),2));
           if(photo)geometry.setAttribute('surfaceUv',new THREE.BufferAttribute(surfaceUVs(requestedSite,view.positions,imagery.bounds),2));
           geometry.computeVertexNormals();geometry.computeBoundingSphere();detailMesh=new THREE.Mesh(geometry,material);
           detailMesh.name='NASA shape-from-shading display patch';
@@ -530,6 +587,8 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
       }else if(cached.photo){
         const positions=terrainMesh.geometry.attributes.position.array;
         terrainMesh.geometry.setAttribute('surfaceUv',new THREE.BufferAttribute(surfaceUVs(requestedSite,positions,cached.entry.imagery.bounds),2));
+        const regolith=cached.material.userData.regolithMaterial;
+        if(regolith)terrainMesh.geometry.setAttribute('uv',new THREE.BufferAttribute(regolithUVs(positions,regolith.manifest.tileWidthM),2));
         terrainMesh.material=cached.material;
       }
       updateSurfaceMaterial();evictSurfaceAssets();invalidate();
@@ -1016,7 +1075,12 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
         detailSha256:surfaceVisualEntry?.record?.sha256??null,quality:surfaceVisualEntry?.tier??null,
         photoSha256:surfaceVisualEntry?.entry.imagery?.textures?.[surfaceVisualEntry.tier]?.sha256??null,
         photoBounds:surfaceVisualEntry?.entry.imagery?.bounds??null,observer:surfaceVisualEntry?.entry.observer??null,
-        sourceUrl:surfaceVisualEntry?.entry.imagery?.sourceUrl??null,cacheCount:surfaceVisualCache.size,error:surfaceVisualError},
+        sourceUrl:surfaceVisualEntry?.entry.imagery?.sourceUrl??null,cacheCount:surfaceVisualCache.size,error:surfaceVisualError,
+        representativeMaterial:{loaded:Boolean(surfaceVisualEntry?.material.userData.regolithMaterial),
+          sourceUrl:surfaceVisualEntry?.material.userData.regolithMaterial?.manifest.sourceUrl??null,
+          tileWidthM:surfaceVisualEntry?.material.userData.regolithMaterial?.manifest.tileWidthM??null,
+          normalScale:surfaceVisualEntry?.material.normalScale?.toArray()??null,
+          geographicRegistration:'none',displayOnly:true,displacementApplied:false,error:regolithMaterialError}},
       farHorizonSectors:farHorizonRecord?.sectorCount??0,
       farHorizon:{siteId:farHorizonSiteId,rendered:mode==='surface'&&!lost&&!disposed&&Boolean(farHorizonMesh),
         vertexCount:farHorizonMesh?.geometry.attributes.position.count??0,indexCount:farHorizonMesh?.geometry.index.count??0,
@@ -1034,7 +1098,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
         disclosure:'Historical cloud-free Blue Marble composite. The phase follows the cached Sun direction; the geographic face and weather are not registered to the selected UTC.'},
       displayLighting:{ambientIntensity:floorLight.intensity,enhancedNight,shadowsLocalHalfExtentM:0,castShadowsRendered:false,proceduralMaterialGrain:regolithShading==='lommel-seeliger',proceduralNormalGrain:regolithShading==='lommel-seeliger'&&!mobileQuality&&!surfaceDetailMesh&&!surfaceVisualEntry?.photo,regolithShading,
         lightScope:'Direct display illumination follows confirmed Sun-center visibility. Dim ambient or enhanced fill is artificial; full-disc shadow, Earthshine and photometric brightness are not calculated.',
-        materialNote:surfaceVisualEntry?(surfaceImageryEnabled&&surfaceVisualEntry.photo?'Registered LROC historical brightness blends with modeled shading using a documented display-only contrast curve. Fine material color grain is illustrative, not measured relief. The photographs are not calibrated albedo or current-epoch shadows.':surfaceDetailMesh?'NASA shape-from-shading display geometry, modeled reflectance; no procedural local relief.':'NASA LOLA geometry, modeled reflectance.'):'Lommel-Seeliger regolith reflectance with procedural display grain. Grain adds no relief; all slopes and ridges are LOLA data.',
+        materialNote:surfaceVisualEntry?.material.userData.regolithMaterial?'Close-up color, normal and roughness detail comes from a laboratory lunar-soil simulant at its documented 0.40 m tile width. It is representative material, not measured at this site. No mesh displacement or terrain-cast shadows are added. NASA photographs retain historical lighting.':surfaceVisualEntry?(surfaceImageryEnabled&&surfaceVisualEntry.photo?'Registered LROC historical brightness blends with modeled shading using a documented display-only contrast curve. Fine material color grain is illustrative, not measured relief. The photographs are not calibrated albedo or current-epoch shadows.':surfaceDetailMesh?'NASA shape-from-shading display geometry, modeled reflectance; no procedural local relief.':'NASA LOLA geometry, modeled reflectance.'):'Lommel-Seeliger regolith reflectance with procedural display grain. Grain adds no relief; all slopes and ridges are LOLA data.',
         fill:{intensity:displayFill.intensity,direction:displayFill.position.clone().normalize().toArray(),castsShadows:displayFill.castShadow,basis:'Illustrative display fill; actual DEM normals, independent of Sun visibility.'}},
       renderedFrames:renderer.info.render.frame,triangles:renderer.info.render.triangles,
       gpuResources:{geometries:renderer.info.memory.geometries,textures:renderer.info.memory.textures}};
@@ -1117,7 +1181,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   const resizeObserver=typeof ResizeObserver==='function'?new ResizeObserver(resize):null;resizeObserver?.observe(container);
   listen(window,'resize',resize);
   function dispose() {
-    if(disposed)return;disposed=true;surfaceVisualAbort?.abort();++terrainRequest;++modeTransition;clearTimeout(transitionTimer);transitionTimer=0;cancelAnimationFrame(raf);raf=0;
+    if(disposed)return;disposed=true;surfaceVisualAbort?.abort();regolithMaterialAbort.abort();++terrainRequest;++modeTransition;clearTimeout(transitionTimer);transitionTimer=0;cancelAnimationFrame(raf);raf=0;
     observer?.disconnect();resizeObserver?.disconnect();listeners.forEach(remove=>remove());controls.dispose();
     resources.forEach(resource=>resource.dispose());renderer.dispose();
     canvas.remove();caption.remove();bodyStatus.remove();markerLabel.remove();markerLegend.remove();obstruction.remove();bodyLabels.earth.remove();bodyLabels.sun.remove();

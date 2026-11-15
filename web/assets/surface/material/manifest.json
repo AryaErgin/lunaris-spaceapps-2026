@@ -1,0 +1,93 @@
+{
+  "aiUse": "OpenAI Codex assisted deterministic conversion code, tests and documentation. The credited source is a human-captured laboratory scan; no generated texture or topography is used.",
+  "conversion": {
+    "PillowVersion": "12.3.0",
+    "diffuseEncoding": "sRGB WebP, quality90",
+    "diffuseMeanBasis": "Mean linear-sRGB Rec.709 luminance of the decoded desktop output",
+    "nativeDiffuseResolution": [
+      1024,
+      1024
+    ],
+    "nativeNormalBitDepth": 16,
+    "normalResampling": "Linear XYZ box average and unit-vector renormalization; no sRGB decoding",
+    "numpyVersion": "2.4.6",
+    "outputNormalBitDepth": 8
+  },
+  "credit": "Poly Haven / Spaceport Rostock; Dario Barresi, Greg Zaal, Jenelle van Heerden, Rico Cilliers",
+  "diffuseMeanLinear": 0.1849871412239445,
+  "displacementApplied": false,
+  "displayOnly": true,
+  "kind": "laboratory-regolith-simulant",
+  "license": "CC0-1.0",
+  "limits": [
+    "Representative laboratory simulant material, not NASA-measured regolith at any study point.",
+    "Material normals change display shading only; they do not modify terrain vertices, horizons, visibility, landing hazards or mission decisions.",
+    "No displacement or ambient-occlusion map is applied. Photometric power and exact lunar reflectance are not validated."
+  ],
+  "reproduce": "python tools/build_regolith_material.py --acquire",
+  "schemaVersion": 1,
+  "sourcePinsUrl": "source-pins.json",
+  "sourceUrl": "https://polyhaven.com/a/moon_macro_01",
+  "textures": {
+    "desktop": {
+      "diffuse": {
+        "byteLength": 206802,
+        "colorSpace": "srgb",
+        "height": 1024,
+        "meanLinearLuminance": 0.1849871412239445,
+        "sha256": "07ce4806273e1a2898d08a0abb5fe647b8f580e63f1bcac9399b6f48605fd403",
+        "url": "regolith-diffuse-desktop.webp",
+        "width": 1024
+      },
+      "normal": {
+        "byteLength": 2494608,
+        "colorSpace": "linear",
+        "encoding": "OpenGL tangent-space XYZ; normalized,8-bit RGB PNG",
+        "height": 1024,
+        "sha256": "4d0eb12fd7ca0d1eeee85a63a9de66997bbd5ac3fb4a0e302c0b80709f43c0dc",
+        "url": "regolith-normal-desktop.png",
+        "width": 1024
+      },
+      "roughness": {
+        "byteLength": 368662,
+        "colorSpace": "linear",
+        "encoding": "8-bit grayscale PNG",
+        "height": 1024,
+        "sha256": "3ed2c8b9ded13c49ae191bc75a10a971874506f888430b893c90b1743532f177",
+        "url": "regolith-roughness-desktop.png",
+        "width": 1024
+      }
+    },
+    "mobile": {
+      "diffuse": {
+        "byteLength": 31918,
+        "colorSpace": "srgb",
+        "height": 512,
+        "meanLinearLuminance": 0.1848327808681894,
+        "sha256": "c289088b37e4235425718b7112ce8116ed0307d307616be727dfe196e2270271",
+        "url": "regolith-diffuse-mobile.webp",
+        "width": 512
+      },
+      "normal": {
+        "byteLength": 588371,
+        "colorSpace": "linear",
+        "encoding": "OpenGL tangent-space XYZ; normalized,8-bit RGB PNG",
+        "height": 512,
+        "sha256": "9d5b92016a97580f616543dea4df50d7443e8990e4feea73dab68fe22a0fefb9",
+        "url": "regolith-normal-mobile.png",
+        "width": 512
+      },
+      "roughness": {
+        "byteLength": 80142,
+        "colorSpace": "linear",
+        "encoding": "8-bit grayscale PNG",
+        "height": 512,
+        "sha256": "e4eea52615ea6d2366e1e4a38b9c74d57665ddfd2fca365e84592c9c6e914b14",
+        "url": "regolith-roughness-mobile.png",
+        "width": 512
+      }
+    }
+  },
+  "tileHeightM": 0.4,
+  "tileWidthM": 0.4
+}
