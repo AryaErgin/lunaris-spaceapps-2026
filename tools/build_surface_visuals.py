@@ -205,12 +205,26 @@ class SurfaceSampler:
         return self.inverse @ (x, y)
 
     def sample(self, east, north):
+        east, north = np.broadcast_arrays(np.asarray(east, dtype=float), np.asarray(north, dtype=float))
         col, row = self.indices(east, north)
-        col, row = np.floor(col).astype(int), np.floor(row).astype(int)
-        valid = (col >= 0) & (row >= 0) & (col < self.data.shape[1]) & (row < self.data.shape[0])
-        c, r = np.clip(col, 0, self.data.shape[1]-1), np.clip(row, 0, self.data.shape[0]-1)
-        valid &= self.valid[r, c]
-        height = self.data.data[r, c].astype(float)
+        # Affine maps pixel corners; samples are at native pixel centers.
+        col, row = np.asarray(col)-.5, np.asarray(row)-.5
+        rows, columns = self.data.shape
+        if min(rows, columns) < 2:
+            return np.full(east.shape, np.nan), np.zeros(east.shape, dtype=bool)
+        finite = np.isfinite(col) & np.isfinite(row)
+        # Nanometre-scale arithmetic tolerance only, not an extrapolation halo.
+        valid = finite & (col >= -1e-9) & (row >= -1e-9) & (col <= columns-1+1e-9) & (row <= rows-1+1e-9)
+        col, row = np.clip(np.where(finite, col, 0), 0, columns-1), np.clip(np.where(finite, row, 0), 0, rows-1)
+        c = np.minimum(np.floor(col).astype(int), columns-2)
+        r = np.minimum(np.floor(row).astype(int), rows-2)
+        fx, fy = col-c, row-r
+        height = np.zeros(east.shape, dtype=float)
+        for dx, dy in ((0, 0), (1, 0), (0, 1), (1, 1)):
+            neighbor = self.data.data[r+dy, c+dx]
+            valid &= self.valid[r+dy, c+dx] & np.isfinite(neighbor)
+            weight = (fx if dx else 1-fx)*(fy if dy else 1-fy)
+            height += np.where(np.isfinite(neighbor), neighbor, 0)*weight
         belt = np.maximum(np.abs(east), np.abs(north)) > 3500
         if np.any(belt):
             t = np.clip((np.maximum(np.abs(east[belt]), np.abs(north[belt]))-3500)/500, 0, 1)
@@ -229,6 +243,20 @@ class SurfaceSampler:
         r0, r1 = np.clip(r0, 0, self.data.shape[0]), np.clip(r1, 0, self.data.shape[0])
         count = self.missing[r1, c1]-self.missing[r0, c1]-self.missing[r1, c0]+self.missing[r0, c0]
         return inside & (count == 0)
+
+
+def observer_height_metadata(site, native_height, sampler):
+    values, valid = sampler.sample(np.array([0.]), np.array([0.]))
+    interpolated = float(values[0]) if valid[0] and np.isfinite(values[0]) else None
+    return {"baselineGroundM": site["groundM"], "nativeSfsGroundM": native_height,
+            "sfsMinusBaselineGroundM": native_height-site["groundM"],
+            "rigidVerticalOffsetAppliedM": 0,
+            "cameraAboveNativeSfsCellM": site["groundM"]+site["heightM"]-native_height,
+            "interpolatedSfsGroundM": interpolated,
+            "interpolatedSfsMinusBaselineGroundM": None if interpolated is None else interpolated-site["groundM"],
+            "cameraAboveInterpolatedSfsM": None if interpolated is None else site["groundM"]+site["heightM"]-interpolated,
+            "interpolatedSfsGroundValid": interpolated is not None,
+            "displayHeightSampling": "Bilinear radial height at native pixel centers; all four contributors must be finite and valid. No edge extrapolation."}
 
 
 def file_record(path, **extra):
@@ -368,6 +396,8 @@ def build_photos(raw, output, specs):
                               "nativeRaster": {"width": spec["width"], "height": spec["height"], "transform": list(transform), "bounds": spec["bounds"], "crsWkt": spec["crsWkt"], "registration": "Area", "nodata": 0},
                               "sourceUrl": spec["sourceUrl"], "sourcePixelSha256": spec["pixelSha256"], "sourceNativeRaster": spec["sourceNativeRaster"],
                               "nativeResolutionM": 1, "historicIllumination": True, "photometricAlbedo": False,
+                              "displayContrastGamma": 0.6 if spec["siteId"] == "de-gerlache-rim" else 1.0,
+                              "displayContrastScope": "Illustrative monotonic brightness adjustment for readability, not recovered shadow detail or calibrated albedo.",
                               "validFraction": float(valid.mean()), "product": "NASA LROC controlled polar mosaic",
                               "registration": spec["registration"], "limitations": spec["limitations"],
                               "projection": {"kind": "south-polar-stereographic", "radiusM": RADIUS_M, "centralMeridianDeg": 0, "latitudeOriginDeg": -90},
@@ -382,11 +412,15 @@ def build_photos(raw, output, specs):
 
 def build_region(raw, output, site, source, prototype):
     profile = json.loads(json.dumps(prototype))
+    for field in ("sites", "observerSfsInputs", "sourceSamplesAtObserver"):
+        profile.pop(field, None)
+    profile["qualityGates"].pop("imageDerivedDetailAtObserver", None)
     profile["site"] = {"id": site["id"], **{key: site[key] for key in ("lat", "lon", "groundM", "heightM")}}
     profile["terrain"], profile["imagery"] = {}, None
     profile["sourceRasters"] = []
     profile["observer"] = {"baselineGroundM": site["groundM"], "rigidVerticalOffsetAppliedM": 0}
-    profile["limits"] = [text for text in profile["limits"] if not text.startswith("Different source coordinate grids")]
+    profile["sources"] = [row for row in profile["sources"] if row.get("url") != NAC_URL]
+    profile["limits"] = [text for text in profile["limits"] if not text.startswith(("Different source coordinate grids", "The single1m NAC mosaic"))]
     profile["limits"].append("Individual raster geotransforms govern registration and resolution; a shared filename suffix does not establish equal pixel grids.")
     if source is None:
         profile["terrain"] = None
@@ -427,15 +461,15 @@ def build_region(raw, output, site, source, prototype):
         if not np.all((xx >= bounds.left) & (xx < bounds.right) & (yy > bounds.bottom) & (yy <= bounds.top)):
             raise ValueError("Native SfS raster does not cover the full4km display patch")
         point_height = float(next(dataset.sample([(x, y)]))[0])
-        clearance = site["groundM"]+site["heightM"]-point_height
-        profile["observer"].update(nativeSfsGroundM=point_height, sfsMinusBaselineGroundM=point_height-site["groundM"], cameraAboveNativeSfsCellM=clearance)
-        if not np.isfinite(point_height) or point_height == dataset.nodata or clearance <= 0:
+        sampler = SurfaceSampler(dataset, site, boundary)
+        profile["observer"] = observer_height_metadata(site, point_height, sampler)
+        clearance = profile["observer"]["cameraAboveInterpolatedSfsM"]
+        if not np.isfinite(point_height) or point_height == dataset.nodata or clearance is None or clearance <= 0:
             profile["terrain"] = None
             profile["surfaceStatus"] = "SFS_OBSERVER_CONFLICT"
             profile["surfaceReason"] = "SfS ground intersects the unchanged observer; original LOLA display terrain retained. No vertical offset was applied."
             profile["qualityGates"]["completeFrozenSeam"] = False
             return profile
-        sampler = SurfaceSampler(dataset, site, boundary)
         for quality, levels in LEVELS.items():
             mesh = build_mesh(site, sampler, levels=levels)
             seam_count = boundary.anchor(mesh["positions"], mesh["gridCoordinatesM"])
@@ -459,7 +493,7 @@ def build_all(raw, output):
     for site in bundle["sites"]:
         if site["id"] == SITE_ID:
             profile = prototype
-            profile["surfaceStatus"] = "SFS_AVAILABLE"
+            profile.setdefault("surfaceStatus", "SFS_AVAILABLE" if profile["terrain"] else "SFS_OBSERVER_CONFLICT")
         else:
             source = next((row for row in pins if row["siteId"] == site["id"]), None)
             profile = build_region(raw, output, site, source, prototype)
@@ -515,7 +549,11 @@ def build(raw, output):
         x, y = project(site["lat"], site["lon"])
         point_height = float(next(dataset.sample([(x, y)]))[0])
         sampler = SurfaceSampler(dataset, site, boundary)
-        for quality, levels in LEVELS.items():
+        observer = observer_height_metadata(site, point_height, sampler)
+        clearance = observer["cameraAboveInterpolatedSfsM"]
+        if clearance is None or clearance <= 0:
+            terrain = None
+        for quality, levels in (LEVELS.items() if terrain is not None else []):
             mesh = build_mesh(site, sampler, levels=levels)
             seam_count = boundary.anchor(mesh["positions"], mesh["gridCoordinatesM"])
             payload, encoded = encode_mesh(mesh["positions"], mesh["indices"])
@@ -571,16 +609,14 @@ def build(raw, output):
                                   "fullArchiveDownloaded": False, "fullArchiveMd5Verified": False, "memberCrcAndSha256Verified": True},
                 "sourceFrameBasis": "PGDA104 retains the LOLA geodetic reference; PGDA78 declares DE421 MOON_ME. Raster WKT itself names Moon2015 sphere, not a DE ephemeris. No additional frame rotation applied.",
                 "datum": "Radial heights in metres relative to sphere radius1737400m",
-                "observer": {"baselineGroundM": site["groundM"], "nativeSfsGroundM": point_height,
-                             "sfsMinusBaselineGroundM": point_height-site["groundM"], "rigidVerticalOffsetAppliedM": 0,
-                             "cameraAboveNativeSfsCellM": site["groundM"]+site["heightM"]-point_height},
+                "observer": observer,
                 "transition": {"innerHalfExtentM": 3500, "outerHalfExtentM": 4000,
                                "method": "Display-only smoothstep height blend to frozen LOLA mesh; all512 outer seam vertices copied byte-exact. Original4–32km mesh and analytical skyline unchanged."},
                 "sources": [{"url": "https://pgda.gsfc.nasa.gov/products/104", "doi": "10.3847/PSJ/ae5b70", "license": "CC-BY-4.0 (Zenodo record)"},
                             {"url": "https://zenodo.org/records/17954508", "doi": "10.5281/zenodo.17954508"},
                             {"url": "https://pgda.gsfc.nasa.gov/products/78"}, {"url": NAC_URL, "credit": "NASA/GSFC/Arizona State University LROC"}],
                 "qualityGates": {"nativeSourceHashes": True, "lunarProjectionAndAreaRegistration": True, "siteInsideSources": True,
-                                 "completeFrozenSeam": True, "baselineObserverPreserved": True, "visibilityEngineChanged": False},
+                                 "completeFrozenSeam": bool(terrain), "baselineObserverPreserved": True, "visibilityEngineChanged": False},
                 "limits": ["Display geometry only. The frozen terrain-aware visibility engine and bundle remain authoritative.",
                            "SfS slopes are reconstructed from images over LOLA control; 5m posting is not a blanket5m physical-accuracy claim. Shadowed/poorly observed areas may retain smoother prior terrain.",
                            "The single1m NAC mosaic records historical illumination and shadows; it is not albedo or a current-epoch shadow simulation. It covers only the documented2km square.",
@@ -609,7 +645,7 @@ def main():
             acquire_photos(args.raw, json.loads((args.output/"photo-source-pins.json").read_text())["records"])
     manifest = build_photos(args.raw, args.output, json.loads((args.output/"photo-source-pins.json").read_text())["records"]) if args.photos_only else build_all(args.raw, args.output) if args.all else build(args.raw, args.output)
     print(json.dumps({"site": manifest["site"], "observer": manifest["observer"],
-                      "terrain": {key: {field: value[field] for field in ("vertexCount", "indexCount", "byteLength", "sha256")} for key, value in manifest["terrain"].items()},
+                      "terrain": {key: {field: value[field] for field in ("vertexCount", "indexCount", "byteLength", "sha256")} for key, value in (manifest["terrain"] or {}).items()},
                       "textures": manifest["imagery"]["textures"]}, indent=2))
 
 

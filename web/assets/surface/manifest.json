@@ -147,21 +147,32 @@
   ],
   "observer": {
     "baselineGroundM": 1009.5821533203125,
+    "cameraAboveInterpolatedSfsM": 1.4862601716035897,
     "cameraAboveNativeSfsCellM": 1.6256103515625,
+    "displayHeightSampling": "Bilinear radial height at native pixel centers; all four contributors must be finite and valid. No edge extrapolation.",
+    "interpolatedSfsGroundM": 1010.0958931487089,
+    "interpolatedSfsGroundValid": true,
+    "interpolatedSfsMinusBaselineGroundM": 0.5137398283964103,
     "nativeSfsGroundM": 1009.95654296875,
     "rigidVerticalOffsetAppliedM": 0,
     "sfsMinusBaselineGroundM": 0.3743896484375
   },
+  "observerSfsInputs": {
+    "bestInputResolutionM": 1.100000023841858,
+    "illuminatedImageCount": 26.0,
+    "solarAzimuthBinCount": 5.0
+  },
   "qualityGates": {
     "baselineObserverPreserved": true,
     "completeFrozenSeam": true,
+    "imageDerivedDetailAtObserver": true,
     "lunarProjectionAndAreaRegistration": true,
     "nativeSourceHashes": true,
     "siteInsideSources": true,
     "visibilityEngineChanged": false
   },
   "referenceRadiusM": 1737400.0,
-  "reproduce": "PYTHONPATH=.venv/vendor python tools/build_surface_visuals.py --acquire",
+  "reproduce": "PYTHONPATH=.venv/vendor python tools/build_surface_visuals.py --all --acquire",
   "schemaVersion": 1,
   "site": {
     "groundM": 1009.5821533203125,
@@ -184,6 +195,8 @@
           -10000,
           -10999
         ],
+        "displayContrastGamma": 1.0,
+        "displayContrastScope": "Illustrative monotonic brightness adjustment for readability, not recovered shadow detail or calibrated albedo.",
         "historicIllumination": true,
         "limitations": [
           "Historicalaveragemosaicnotcurrentlighting/calibratedalbedo.",
@@ -423,13 +436,17 @@
       "limits": [
         "Display geometry only. The frozen terrain-aware visibility engine and bundle remain authoritative.",
         "SfS slopes are reconstructed from images over LOLA control; 5m posting is not a blanket5m physical-accuracy claim. Shadowed/poorly observed areas may retain smoother prior terrain.",
-        "The single1m NAC mosaic records historical illumination and shadows; it is not albedo or a current-epoch shadow simulation. It covers only the documented2km square.",
         "The3500\u20134000m transition belt is a declared display blend, not a new scientific terrain model.",
         "Individual raster geotransforms govern registration and resolution; a shared filename suffix does not establish equal pixel grids."
       ],
       "observer": {
         "baselineGroundM": 1944.632568359375,
+        "cameraAboveInterpolatedSfsM": 1.5114201092183066,
         "cameraAboveNativeSfsCellM": 1.5477294921875,
+        "displayHeightSampling": "Bilinear radial height at native pixel centers; all four contributors must be finite and valid. No edge extrapolation.",
+        "interpolatedSfsGroundM": 1945.1211482501567,
+        "interpolatedSfsGroundValid": true,
+        "interpolatedSfsMinusBaselineGroundM": 0.4885798907816934,
         "nativeSfsGroundM": 1945.0848388671875,
         "rigidVerticalOffsetAppliedM": 0,
         "sfsMinusBaselineGroundM": 0.4522705078125
@@ -648,7 +665,7 @@
             ],
             [
               4003.069580078125,
-              14.927476939444016,
+              14.907479409382246,
               4003.609130859375
             ]
           ],
@@ -692,7 +709,7 @@
           "positionFile": "connecting-ridge-desktop.mesh",
           "positionsByteOffset": 0,
           "seamVertexCount": 512,
-          "sha256": "3281c5944d6f8bfb75b707483e9d1c172dcbfa3979def5fd8b80f48acc3e5e42",
+          "sha256": "df1c70b71b1bc85c1a5e2afc2f2f6c9eaf23e1ecdc20902f266899558fc06c11",
           "vertexCount": 115377
         },
         "mobile": {
@@ -705,7 +722,7 @@
             ],
             [
               4003.069580078125,
-              14.745814784309873,
+              14.714933081827759,
               4003.609130859375
             ]
           ],
@@ -749,7 +766,7 @@
           "positionFile": "connecting-ridge-mobile.mesh",
           "positionsByteOffset": 0,
           "seamVertexCount": 512,
-          "sha256": "2d10ce0743341aac459b72a146580e7c69e2f22a7438e97d90d6511432728b56",
+          "sha256": "b91f580b8c6285884578e263b0c3b94787ae7621b3915c3fcad08047ee98ec77",
           "vertexCount": 39337
         }
       },
@@ -765,12 +782,337 @@
       "coordinateConvention": "x=eastM, y=radialUpM above unchanged baseline ground, z=-northM",
       "datum": "Radial heights in metres relative to sphere radius1737400m",
       "frame": "MOON_ME_DE440_ME421",
-      "imagery": null,
+      "imagery": {
+        "bounds": [
+          -2001,
+          -8000,
+          -1,
+          -6000
+        ],
+        "displayContrastGamma": 1.0,
+        "displayContrastScope": "Illustrative monotonic brightness adjustment for readability, not recovered shadow detail or calibrated albedo.",
+        "historicIllumination": true,
+        "limitations": [
+          "Historicalaveragemosaicnotcurrentlighting/calibratedalbedo.",
+          "ConservativeDN0mask;sourcelegacynodataunrepresentableuint8.",
+          "ProjectionnotexplicitMEvsPAframecertification.",
+          "Notusedtoauthoritativelyevaluatevisibility."
+        ],
+        "masks": {
+          "desktop": {
+            "byteLength": 6485,
+            "height": 2000,
+            "sha256": "6631e84b1d6b393f5d9c5fc2f8aa60e5797746c02d9bf4cfa25290c0541b7e3c",
+            "url": "shackleton-rim-photo-mask-desktop.png",
+            "validFraction": 1.0,
+            "width": 2000
+          },
+          "mobile": {
+            "byteLength": 2182,
+            "height": 1000,
+            "sha256": "49a6210f306758d27370e836dc083f9a452f77e184e8948f6d57661a9d242eb7",
+            "url": "shackleton-rim-photo-mask-mobile.png",
+            "validFraction": 1.0,
+            "width": 1000
+          }
+        },
+        "nativeBounds": [
+          -2001,
+          -8000,
+          -1,
+          -6000
+        ],
+        "nativeRaster": {
+          "bounds": [
+            -2001,
+            -8000,
+            -1,
+            -6000
+          ],
+          "crsWkt": "PROJCS[\"POLAR_STEREOGRAPHIC MOON\",GEOGCS[\"GCS_MOON\",DATUM[\"D_MOON\",SPHEROID[\"MOON_polarRadius\",1737400,0]],PRIMEM[\"Reference_Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "height": 2000,
+          "nodata": 0,
+          "registration": "Area",
+          "transform": [
+            1.0,
+            0.0,
+            -2001.0,
+            0.0,
+            -1.0,
+            -6000.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 2000
+        },
+        "nativeResolutionM": 1,
+        "photometricAlbedo": false,
+        "product": "NASA LROC controlled polar mosaic",
+        "projection": {
+          "centralMeridianDeg": 0,
+          "kind": "south-polar-stereographic",
+          "latitudeOriginDeg": -90,
+          "radiusM": 1737400.0
+        },
+        "registration": {
+          "displayOffsetENM": [
+            0,
+            0
+          ],
+          "residualM": null,
+          "status": "NOMINAL_ONLY_RESIDUAL_NOT_MEASURED"
+        },
+        "sourceNativeRaster": [
+          {
+            "nativeRaster": {
+              "bigTiff": false,
+              "bits": 8,
+              "compression": 1,
+              "geoAscii": "unnamed|GCS Name = unnamed ellipse|Datum = unknown|Ellipsoid = unnamed|Primem = Greenwich||",
+              "geoDouble": [
+                1737400,
+                1737400,
+                0,
+                -90,
+                0,
+                0,
+                1,
+                0
+              ],
+              "geokeys": [
+                1,
+                1,
+                0,
+                20,
+                1024,
+                0,
+                1,
+                1,
+                1025,
+                0,
+                1,
+                1,
+                1026,
+                34737,
+                8,
+                0,
+                2048,
+                0,
+                1,
+                32767,
+                2049,
+                34737,
+                83,
+                8,
+                2050,
+                0,
+                1,
+                32767,
+                2054,
+                0,
+                1,
+                9102,
+                2056,
+                0,
+                1,
+                32767,
+                2057,
+                34736,
+                1,
+                0,
+                2058,
+                34736,
+                1,
+                1,
+                2061,
+                34736,
+                1,
+                2,
+                3072,
+                0,
+                1,
+                32767,
+                3074,
+                0,
+                1,
+                32767,
+                3075,
+                0,
+                1,
+                15,
+                3076,
+                0,
+                1,
+                9001,
+                3081,
+                34736,
+                1,
+                3,
+                3082,
+                34736,
+                1,
+                4,
+                3083,
+                34736,
+                1,
+                5,
+                3092,
+                34736,
+                1,
+                6,
+                3095,
+                34736,
+                1,
+                7
+              ],
+              "height": 45488,
+              "id": "NAC_POLE_SOUTH_CM_AVG_P892S2250",
+              "nodata": null,
+              "orientation": 1,
+              "pixelScale": [
+                1,
+                1,
+                0
+              ],
+              "samples": 1,
+              "tiepoint": [
+                0,
+                0,
+                0,
+                -45488,
+                0,
+                0
+              ],
+              "tileHeight": 256,
+              "tileWidth": 256,
+              "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P892S2250.PYR.TIF",
+              "width": 45488,
+              "x0": -45488,
+              "y0": 0
+            },
+            "retrievedRanges": [
+              {
+                "bytes": 589824,
+                "contentRange": "bytes 279379976-279969799/2775991170",
+                "end": 279969799,
+                "etag": "\"848912b1f886b47ddd0a9080acd9ea39\"",
+                "sha256": "227b675b1bd81afc975d4ff3d6878596b810b553df58f294c8e447eb511b1991",
+                "start": 279379976,
+                "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P892S2250.PYR.TIF"
+              },
+              {
+                "bytes": 589824,
+                "contentRange": "bytes 291045384-291635207/2775991170",
+                "end": 291635207,
+                "etag": "\"848912b1f886b47ddd0a9080acd9ea39\"",
+                "sha256": "a355965063eade9d31dd88edf03189339c36bf0856663652f3d30040e5596067",
+                "start": 291045384,
+                "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P892S2250.PYR.TIF"
+              },
+              {
+                "bytes": 589824,
+                "contentRange": "bytes 302710792-303300615/2775991170",
+                "end": 303300615,
+                "etag": "\"848912b1f886b47ddd0a9080acd9ea39\"",
+                "sha256": "88049ee5b87b73b99a15b672f5d6b366d689d5c8f7f66ee74f2fe405ea56fdac",
+                "start": 302710792,
+                "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P892S2250.PYR.TIF"
+              },
+              {
+                "bytes": 589824,
+                "contentRange": "bytes 314376200-314966023/2775991170",
+                "end": 314966023,
+                "etag": "\"848912b1f886b47ddd0a9080acd9ea39\"",
+                "sha256": "1914fd2fa774c603b288b8d18afd23098dbbc9ccdc2e96c6ecad12c954f85c07",
+                "start": 314376200,
+                "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P892S2250.PYR.TIF"
+              },
+              {
+                "bytes": 589824,
+                "contentRange": "bytes 326041608-326631431/2775991170",
+                "end": 326631431,
+                "etag": "\"848912b1f886b47ddd0a9080acd9ea39\"",
+                "sha256": "b1dd5a1891646f13fd13fb3b3b026ad06e9c699981167197b212d47f1b54fc54",
+                "start": 326041608,
+                "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P892S2250.PYR.TIF"
+              },
+              {
+                "bytes": 589824,
+                "contentRange": "bytes 337707016-338296839/2775991170",
+                "end": 338296839,
+                "etag": "\"848912b1f886b47ddd0a9080acd9ea39\"",
+                "sha256": "fe8b60ae4c52cc19af015b68b2f346da0698bdb0b41448e9bd84de0c0b0e0f38",
+                "start": 337707016,
+                "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P892S2250.PYR.TIF"
+              },
+              {
+                "bytes": 589824,
+                "contentRange": "bytes 349372424-349962247/2775991170",
+                "end": 349962247,
+                "etag": "\"848912b1f886b47ddd0a9080acd9ea39\"",
+                "sha256": "044e760602c3815206d6aacf139009f21b0dc350ea7c847ade93960799a7a285",
+                "start": 349372424,
+                "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P892S2250.PYR.TIF"
+              },
+              {
+                "bytes": 589824,
+                "contentRange": "bytes 361037832-361627655/2775991170",
+                "end": 361627655,
+                "etag": "\"848912b1f886b47ddd0a9080acd9ea39\"",
+                "sha256": "3b4784c6bd122cef920b9942f5076f0c0eae91b889aac28409a5e7168ad008f9",
+                "start": 361037832,
+                "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P892S2250.PYR.TIF"
+              },
+              {
+                "bytes": 589824,
+                "contentRange": "bytes 372703240-373293063/2775991170",
+                "end": 373293063,
+                "etag": "\"848912b1f886b47ddd0a9080acd9ea39\"",
+                "sha256": "abe587e003638a744b8fa6f05ed4d6d6dee0e4a93959b6e9b841ee2bb74a14a1",
+                "start": 372703240,
+                "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P892S2250.PYR.TIF"
+              }
+            ],
+            "sourceFullHashStatus": "NOT_FULLY_DOWNLOADED",
+            "sourceFullSha256": null,
+            "window": {
+              "col": 43487,
+              "destCol": 0,
+              "destRow": 0,
+              "height": 2000,
+              "row": 6000,
+              "width": 2000
+            }
+          }
+        ],
+        "sourcePixelSha256": "a0f12c90161aecc509e82a5b7412678476964f4b25718fcca435e0ada94f7428",
+        "sourceUrl": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P892S2250.PYR.TIF",
+        "textures": {
+          "desktop": {
+            "byteLength": 448346,
+            "height": 2000,
+            "metersPerPixel": 1.0,
+            "sha256": "9e3c6d9f3ea04bfbd849a4ee5589dab956fcafed918e3a28fef5f805f57f6a83",
+            "url": "shackleton-rim-photo-desktop.webp",
+            "width": 2000
+          },
+          "mobile": {
+            "byteLength": 194630,
+            "height": 1000,
+            "metersPerPixel": 2.0,
+            "sha256": "13fa5e48863b6f642456be752c71fa680b9f0627423cb37d6fbedc17ade32442",
+            "url": "shackleton-rim-photo-mobile.webp",
+            "width": 1000
+          }
+        },
+        "uvConvention": "u=(projectedX-xmin)/(xmax-xmin); v=(projectedY-ymin)/(ymax-ymin). Image row zero is north/ymax; Three.js TextureLoader flipY=true. Outside bounds is unavailable, never repeat.",
+        "validFraction": 1.0
+      },
       "kind": "Display-only registered NASA surface detail",
       "limits": [
         "Display geometry only. The frozen terrain-aware visibility engine and bundle remain authoritative.",
         "SfS slopes are reconstructed from images over LOLA control; 5m posting is not a blanket5m physical-accuracy claim. Shadowed/poorly observed areas may retain smoother prior terrain.",
-        "The single1m NAC mosaic records historical illumination and shadows; it is not albedo or a current-epoch shadow simulation. It covers only the documented2km square.",
         "The3500\u20134000m transition belt is a declared display blend, not a new scientific terrain model.",
         "Individual raster geotransforms govern registration and resolution; a shared filename suffix does not establish equal pixel grids."
       ],
@@ -814,7 +1156,7 @@
         },
         {
           "credit": "NASA/GSFC/Arizona State University LROC",
-          "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_ROI/NOBILE02LOC/NAC_ROI_NOBILE02LOC_P839S0587.TIF"
+          "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P892S2250.PYR.TIF"
         }
       ],
       "surfaceReason": "None of the13 published SfS DEM footprints covers this observer point; original LOLA display terrain retained.",
@@ -839,6 +1181,8 @@
           -36001,
           16001
         ],
+        "displayContrastGamma": 0.6,
+        "displayContrastScope": "Illustrative monotonic brightness adjustment for readability, not recovered shadow detail or calibrated albedo.",
         "historicIllumination": true,
         "limitations": [
           "Historicalaveragemosaicnotcurrentlighting/calibratedalbedo.",
@@ -1078,14 +1422,18 @@
       "limits": [
         "Display geometry only. The frozen terrain-aware visibility engine and bundle remain authoritative.",
         "SfS slopes are reconstructed from images over LOLA control; 5m posting is not a blanket5m physical-accuracy claim. Shadowed/poorly observed areas may retain smoother prior terrain.",
-        "The single1m NAC mosaic records historical illumination and shadows; it is not albedo or a current-epoch shadow simulation. It covers only the documented2km square.",
         "The3500\u20134000m transition belt is a declared display blend, not a new scientific terrain model.",
-        "No illuminated SfS input at the observer pixel: the finite regional product retains prior terrain there; improved image-derived local detail is not established.",
-        "Individual raster geotransforms govern registration and resolution; a shared filename suffix does not establish equal pixel grids."
+        "Individual raster geotransforms govern registration and resolution; a shared filename suffix does not establish equal pixel grids.",
+        "No illuminated SfS input at the observer pixel: the finite regional product retains prior terrain there; improved image-derived local detail is not established."
       ],
       "observer": {
         "baselineGroundM": 1793.7939453125,
+        "cameraAboveInterpolatedSfsM": 1.8019141359668538,
         "cameraAboveNativeSfsCellM": 1.7957763671875,
+        "displayHeightSampling": "Bilinear radial height at native pixel centers; all four contributors must be finite and valid. No edge extrapolation.",
+        "interpolatedSfsGroundM": 1793.9920311765331,
+        "interpolatedSfsGroundValid": true,
+        "interpolatedSfsMinusBaselineGroundM": 0.1980858640331462,
         "nativeSfsGroundM": 1793.9981689453125,
         "rigidVerticalOffsetAppliedM": 0,
         "sfsMinusBaselineGroundM": 0.2042236328125
@@ -1304,7 +1652,7 @@
             ],
             [
               4002.388671875,
-              24.80397009098898,
+              24.660264795695443,
               4002.74951171875
             ]
           ],
@@ -1348,7 +1696,7 @@
           "positionFile": "de-gerlache-rim-desktop.mesh",
           "positionsByteOffset": 0,
           "seamVertexCount": 512,
-          "sha256": "2d9947ce0e1956df757eaf61d65ecfb5f81e62bf82933f43c55e673ca2150020",
+          "sha256": "f009c97fcb52011635b467e5036831e9151ad95e4ba74294d37e4574ebe241f5",
           "vertexCount": 115377
         },
         "mobile": {
@@ -1361,7 +1709,7 @@
             ],
             [
               4002.388671875,
-              24.39292079843847,
+              24.660264795695443,
               4002.74951171875
             ]
           ],
@@ -1405,7 +1753,7 @@
           "positionFile": "de-gerlache-rim-mobile.mesh",
           "positionsByteOffset": 0,
           "seamVertexCount": 512,
-          "sha256": "c25aede7ce3e8ef762dce5c908e4c846a725352eccfcbdab7df5f0cf631753d7",
+          "sha256": "370ca2ba3951b80bd7de5fbe5344948d64546c27d7a75265383e03a094bbc0b4",
           "vertexCount": 39337
         }
       },
@@ -1428,6 +1776,8 @@
           31000,
           -18999.999999999996
         ],
+        "displayContrastGamma": 1.0,
+        "displayContrastScope": "Illustrative monotonic brightness adjustment for readability, not recovered shadow detail or calibrated albedo.",
         "historicIllumination": true,
         "limitations": [
           "Historicalaveragemosaicnotcurrentlighting/calibratedalbedo.",
@@ -1669,13 +2019,17 @@
       "limits": [
         "Display geometry only. The frozen terrain-aware visibility engine and bundle remain authoritative.",
         "SfS slopes are reconstructed from images over LOLA control; 5m posting is not a blanket5m physical-accuracy claim. Shadowed/poorly observed areas may retain smoother prior terrain.",
-        "The single1m NAC mosaic records historical illumination and shadows; it is not albedo or a current-epoch shadow simulation. It covers only the documented2km square.",
         "The3500\u20134000m transition belt is a declared display blend, not a new scientific terrain model.",
         "Individual raster geotransforms govern registration and resolution; a shared filename suffix does not establish equal pixel grids."
       ],
       "observer": {
         "baselineGroundM": 1645.548828125,
+        "cameraAboveInterpolatedSfsM": 2.240128715992796,
         "cameraAboveNativeSfsCellM": 1.8787841796875,
+        "displayHeightSampling": "Bilinear radial height at native pixel centers; all four contributors must be finite and valid. No edge extrapolation.",
+        "interpolatedSfsGroundM": 1645.3086994090072,
+        "interpolatedSfsGroundValid": true,
+        "interpolatedSfsMinusBaselineGroundM": -0.24012871599279606,
         "nativeSfsGroundM": 1645.6700439453125,
         "rigidVerticalOffsetAppliedM": 0,
         "sfsMinusBaselineGroundM": 0.1212158203125
@@ -1894,7 +2248,7 @@
             ],
             [
               4003.2421875,
-              3.4303285347747523,
+              3.4326733208254283,
               4002.931396484375
             ]
           ],
@@ -1938,7 +2292,7 @@
           "positionFile": "peak-near-shackleton-desktop.mesh",
           "positionsByteOffset": 0,
           "seamVertexCount": 512,
-          "sha256": "de702b36ad825ed96fde00375f533244418976e37ea31b4f92e9546bc323c658",
+          "sha256": "c8eef3bde90b89194206671ae33304bd1aad532f49bb6bb1077a2a7c4801123e",
           "vertexCount": 115377
         },
         "mobile": {
@@ -1951,7 +2305,7 @@
             ],
             [
               4003.2421875,
-              3.4303285347747523,
+              3.4326733208254283,
               4002.931396484375
             ]
           ],
@@ -1995,7 +2349,7 @@
           "positionFile": "peak-near-shackleton-mobile.mesh",
           "positionsByteOffset": 0,
           "seamVertexCount": 512,
-          "sha256": "dc8ac4ba7755c1eb15fbd5d0778f4bfff29796f6dbf105728fedf09a53992261",
+          "sha256": "f1103186100ad66b77d43ed7327b34c6ef819c012fcd351a88d88d20dc02d6df",
           "vertexCount": 39337
         }
       },
@@ -2018,6 +2372,8 @@
           85000,
           111001
         ],
+        "displayContrastGamma": 1.0,
+        "displayContrastScope": "Illustrative monotonic brightness adjustment for readability, not recovered shadow detail or calibrated albedo.",
         "historicIllumination": true,
         "limitations": [
           "Historicalaveragemosaicnotcurrentlighting/calibratedalbedo.",
@@ -2257,13 +2613,17 @@
       "limits": [
         "Display geometry only. The frozen terrain-aware visibility engine and bundle remain authoritative.",
         "SfS slopes are reconstructed from images over LOLA control; 5m posting is not a blanket5m physical-accuracy claim. Shadowed/poorly observed areas may retain smoother prior terrain.",
-        "The single1m NAC mosaic records historical illumination and shadows; it is not albedo or a current-epoch shadow simulation. It covers only the documented2km square.",
         "The3500\u20134000m transition belt is a declared display blend, not a new scientific terrain model.",
         "Individual raster geotransforms govern registration and resolution; a shared filename suffix does not establish equal pixel grids."
       ],
       "observer": {
         "baselineGroundM": 5946.12841796875,
+        "cameraAboveInterpolatedSfsM": 2.740043613141097,
         "cameraAboveNativeSfsCellM": 3.47998046875,
+        "displayHeightSampling": "Bilinear radial height at native pixel centers; all four contributors must be finite and valid. No edge extrapolation.",
+        "interpolatedSfsGroundM": 5945.388374355609,
+        "interpolatedSfsGroundValid": true,
+        "interpolatedSfsMinusBaselineGroundM": -0.740043613141097,
         "nativeSfsGroundM": 5944.6484375,
         "rigidVerticalOffsetAppliedM": 0,
         "sfsMinusBaselineGroundM": -1.47998046875
@@ -2526,7 +2886,7 @@
           "positionFile": "nobile-rim-1-desktop.mesh",
           "positionsByteOffset": 0,
           "seamVertexCount": 512,
-          "sha256": "619aa48380b6888b6fcdc597f38a270a1e79fb761b41cb65c7be8b59d5e4fbf1",
+          "sha256": "d6faff5205c11eab8f928d1aa7bf3e3e97671097fb56aa4c8667725a03e70548",
           "vertexCount": 115377
         },
         "mobile": {
@@ -2583,7 +2943,7 @@
           "positionFile": "nobile-rim-1-mobile.mesh",
           "positionsByteOffset": 0,
           "seamVertexCount": 512,
-          "sha256": "1ac7323903bb945f27ce3fc93d268b0be469f4ab0474dfe6866399f300c2b46a",
+          "sha256": "bc5a8732988fdd0e4fbafd2962e562e01741439fa577e2510b6b1db094399806",
           "vertexCount": 39337
         }
       },
@@ -2599,18 +2959,569 @@
       "coordinateConvention": "x=eastM, y=radialUpM above unchanged baseline ground, z=-northM",
       "datum": "Radial heights in metres relative to sphere radius1737400m",
       "frame": "MOON_ME_DE440_ME421",
-      "imagery": null,
+      "imagery": {
+        "bounds": [
+          -1500,
+          120500,
+          500,
+          122500
+        ],
+        "displayContrastGamma": 1.0,
+        "displayContrastScope": "Illustrative monotonic brightness adjustment for readability, not recovered shadow detail or calibrated albedo.",
+        "historicIllumination": true,
+        "limitations": [
+          "Historicalaveragemosaicnotcurrentlighting/calibratedalbedo.",
+          "ConservativeDN0mask;sourcelegacynodataunrepresentableuint8.",
+          "ProjectionnotexplicitMEvsPAframecertification.",
+          "Notusedtoauthoritativelyevaluatevisibility."
+        ],
+        "masks": {
+          "desktop": {
+            "byteLength": 6485,
+            "height": 2000,
+            "sha256": "6631e84b1d6b393f5d9c5fc2f8aa60e5797746c02d9bf4cfa25290c0541b7e3c",
+            "url": "malapert-massif-photo-mask-desktop.png",
+            "validFraction": 1.0,
+            "width": 2000
+          },
+          "mobile": {
+            "byteLength": 2182,
+            "height": 1000,
+            "sha256": "49a6210f306758d27370e836dc083f9a452f77e184e8948f6d57661a9d242eb7",
+            "url": "malapert-massif-photo-mask-mobile.png",
+            "validFraction": 1.0,
+            "width": 1000
+          }
+        },
+        "nativeBounds": [
+          -1500,
+          120500,
+          500,
+          122500
+        ],
+        "nativeRaster": {
+          "bounds": [
+            -1500,
+            120500,
+            500,
+            122500
+          ],
+          "crsWkt": "PROJCS[\"POLAR_STEREOGRAPHIC MOON\",GEOGCS[\"GCS_MOON\",DATUM[\"D_MOON\",SPHEROID[\"MOON_polarRadius\",1737400,0]],PRIMEM[\"Reference_Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "height": 2000,
+          "nodata": 0,
+          "registration": "Area",
+          "transform": [
+            1.0,
+            0.0,
+            -1500.0,
+            0.0,
+            -1.0,
+            122500.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 2000
+        },
+        "nativeResolutionM": 1,
+        "photometricAlbedo": false,
+        "product": "NASA LROC controlled polar mosaic",
+        "projection": {
+          "centralMeridianDeg": 0,
+          "kind": "south-polar-stereographic",
+          "latitudeOriginDeg": -90,
+          "radiusM": 1737400.0
+        },
+        "registration": {
+          "displayOffsetENM": [
+            0,
+            0
+          ],
+          "residualM": null,
+          "status": "NOMINAL_ONLY_RESIDUAL_NOT_MEASURED"
+        },
+        "sourceNativeRaster": [
+          {
+            "nativeRaster": {
+              "bigTiff": true,
+              "bits": 8,
+              "compression": 1,
+              "geoAscii": "unnamed|GCS Name = unnamed ellipse|Datum = unknown|Ellipsoid = unnamed|Primem = Greenwich||",
+              "geoDouble": [
+                1737400,
+                1737400,
+                0,
+                -90,
+                0,
+                0,
+                1,
+                0
+              ],
+              "geokeys": [
+                1,
+                1,
+                0,
+                20,
+                1024,
+                0,
+                1,
+                1,
+                1025,
+                0,
+                1,
+                1,
+                1026,
+                34737,
+                8,
+                0,
+                2048,
+                0,
+                1,
+                32767,
+                2049,
+                34737,
+                83,
+                8,
+                2050,
+                0,
+                1,
+                32767,
+                2054,
+                0,
+                1,
+                9102,
+                2056,
+                0,
+                1,
+                32767,
+                2057,
+                34736,
+                1,
+                0,
+                2058,
+                34736,
+                1,
+                1,
+                2061,
+                34736,
+                1,
+                2,
+                3072,
+                0,
+                1,
+                32767,
+                3074,
+                0,
+                1,
+                32767,
+                3075,
+                0,
+                1,
+                15,
+                3076,
+                0,
+                1,
+                9001,
+                3081,
+                34736,
+                1,
+                3,
+                3082,
+                34736,
+                1,
+                4,
+                3083,
+                34736,
+                1,
+                5,
+                3092,
+                34736,
+                1,
+                6,
+                3095,
+                34736,
+                1,
+                7
+              ],
+              "height": 57726,
+              "id": "NAC_POLE_SOUTH_CM_AVG_P863S3450",
+              "nodata": null,
+              "orientation": 1,
+              "pixelScale": [
+                1,
+                1,
+                0
+              ],
+              "samples": 1,
+              "tiepoint": [
+                0,
+                0,
+                0,
+                -68263,
+                136526,
+                0
+              ],
+              "tileHeight": 256,
+              "tileWidth": 256,
+              "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P863S3450.PYR.TIF",
+              "width": 68263,
+              "x0": -68263,
+              "y0": 136526
+            },
+            "retrievedRanges": [
+              {
+                "bytes": 458752,
+                "contentRange": "bytes 961937424-962396175/5286449560",
+                "end": 962396175,
+                "etag": "\"73b2a53f041b39a1ded5d64586c9cdb7\"",
+                "sha256": "cf8aa7992cbf0027ed6d5a735bf0512208641e9c9cdf848ff61248581b8ec08f",
+                "start": 961937424,
+                "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P863S3450.PYR.TIF"
+              },
+              {
+                "bytes": 458752,
+                "contentRange": "bytes 979435536-979894287/5286449560",
+                "end": 979894287,
+                "etag": "\"73b2a53f041b39a1ded5d64586c9cdb7\"",
+                "sha256": "d9122d2797237f472083a000324cc043c6bf04d85b5198544a1b4ecf239d204f",
+                "start": 979435536,
+                "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P863S3450.PYR.TIF"
+              },
+              {
+                "bytes": 458752,
+                "contentRange": "bytes 996933648-997392399/5286449560",
+                "end": 997392399,
+                "etag": "\"73b2a53f041b39a1ded5d64586c9cdb7\"",
+                "sha256": "248a566e59d3868599f8501c90856942bf3f4d2850f552d58711aab7e088edc1",
+                "start": 996933648,
+                "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P863S3450.PYR.TIF"
+              },
+              {
+                "bytes": 458752,
+                "contentRange": "bytes 1014431760-1014890511/5286449560",
+                "end": 1014890511,
+                "etag": "\"73b2a53f041b39a1ded5d64586c9cdb7\"",
+                "sha256": "5da05c070d05bf8dbc10b9179db69630c82ca623b44301b154c1cbeb1360d8c6",
+                "start": 1014431760,
+                "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P863S3450.PYR.TIF"
+              },
+              {
+                "bytes": 458752,
+                "contentRange": "bytes 1031929872-1032388623/5286449560",
+                "end": 1032388623,
+                "etag": "\"73b2a53f041b39a1ded5d64586c9cdb7\"",
+                "sha256": "c0a7e16f2b512c75cf7dc949d54fa45b88c06f6f8813eb105a0e437c58416364",
+                "start": 1031929872,
+                "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P863S3450.PYR.TIF"
+              },
+              {
+                "bytes": 458752,
+                "contentRange": "bytes 1049427984-1049886735/5286449560",
+                "end": 1049886735,
+                "etag": "\"73b2a53f041b39a1ded5d64586c9cdb7\"",
+                "sha256": "2d7367b67117d4349e7dd10d41ccc0ec6cfbe221942c5e40ed722fe6f520204c",
+                "start": 1049427984,
+                "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P863S3450.PYR.TIF"
+              },
+              {
+                "bytes": 458752,
+                "contentRange": "bytes 1066926096-1067384847/5286449560",
+                "end": 1067384847,
+                "etag": "\"73b2a53f041b39a1ded5d64586c9cdb7\"",
+                "sha256": "c44f64d8099f809c87abb7c66bb29c45fbfbc3feb1deec144a5d8ec38f91e83d",
+                "start": 1066926096,
+                "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P863S3450.PYR.TIF"
+              },
+              {
+                "bytes": 458752,
+                "contentRange": "bytes 1084424208-1084882959/5286449560",
+                "end": 1084882959,
+                "etag": "\"73b2a53f041b39a1ded5d64586c9cdb7\"",
+                "sha256": "dd89916d7c6aff3fc9a2a6456e089d6170c33639e7a39ff8d91ca6e4ddb5b6d7",
+                "start": 1084424208,
+                "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P863S3450.PYR.TIF"
+              },
+              {
+                "bytes": 458752,
+                "contentRange": "bytes 1101922320-1102381071/5286449560",
+                "end": 1102381071,
+                "etag": "\"73b2a53f041b39a1ded5d64586c9cdb7\"",
+                "sha256": "83d459ba0a5ca8d152b652d8ab38ea6a30d5ccc6033d73445cd80feaa1c265d8",
+                "start": 1101922320,
+                "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P863S3450.PYR.TIF"
+              }
+            ],
+            "sourceFullHashStatus": "NOT_FULLY_DOWNLOADED",
+            "sourceFullSha256": null,
+            "window": {
+              "col": 66763,
+              "destCol": 0,
+              "destRow": 0,
+              "height": 2000,
+              "row": 14026,
+              "width": 1500
+            }
+          },
+          {
+            "nativeRaster": {
+              "bigTiff": true,
+              "bits": 8,
+              "compression": 1,
+              "geoAscii": "unnamed|GCS Name = unnamed ellipse|Datum = unknown|Ellipsoid = unnamed|Primem = Greenwich||",
+              "geoDouble": [
+                1737400,
+                1737400,
+                0,
+                -90,
+                0,
+                0,
+                1,
+                0
+              ],
+              "geokeys": [
+                1,
+                1,
+                0,
+                20,
+                1024,
+                0,
+                1,
+                1,
+                1025,
+                0,
+                1,
+                1,
+                1026,
+                34737,
+                8,
+                0,
+                2048,
+                0,
+                1,
+                32767,
+                2049,
+                34737,
+                83,
+                8,
+                2050,
+                0,
+                1,
+                32767,
+                2054,
+                0,
+                1,
+                9102,
+                2056,
+                0,
+                1,
+                32767,
+                2057,
+                34736,
+                1,
+                0,
+                2058,
+                34736,
+                1,
+                1,
+                2061,
+                34736,
+                1,
+                2,
+                3072,
+                0,
+                1,
+                32767,
+                3074,
+                0,
+                1,
+                32767,
+                3075,
+                0,
+                1,
+                15,
+                3076,
+                0,
+                1,
+                9001,
+                3081,
+                34736,
+                1,
+                3,
+                3082,
+                34736,
+                1,
+                4,
+                3083,
+                34736,
+                1,
+                5,
+                3092,
+                34736,
+                1,
+                6,
+                3095,
+                34736,
+                1,
+                7
+              ],
+              "height": 57726,
+              "id": "NAC_POLE_SOUTH_CM_AVG_P863S0150",
+              "nodata": null,
+              "orientation": 1,
+              "pixelScale": [
+                1,
+                1,
+                0
+              ],
+              "samples": 1,
+              "tiepoint": [
+                0,
+                0,
+                0,
+                0,
+                136526,
+                0
+              ],
+              "tileHeight": 256,
+              "tileWidth": 256,
+              "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P863S0150.PYR.TIF",
+              "width": 68263,
+              "x0": 0,
+              "y0": 136526
+            },
+            "retrievedRanges": [
+              {
+                "bytes": 131072,
+                "contentRange": "bytes 944898064-945029135/5286449560",
+                "end": 945029135,
+                "etag": "\"26614978439b08ca83f1d0ebc0f85f54\"",
+                "sha256": "06aa59cb9a1af29b43ba391bb59ae14ec23f1c64571301f5f03c2ffa464da8b6",
+                "start": 944898064,
+                "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P863S0150.PYR.TIF"
+              },
+              {
+                "bytes": 131072,
+                "contentRange": "bytes 962396176-962527247/5286449560",
+                "end": 962527247,
+                "etag": "\"26614978439b08ca83f1d0ebc0f85f54\"",
+                "sha256": "0b22fd4ccab45e4f798bb66185bb997a6f25957b16128b899f03d4d7a7e2f025",
+                "start": 962396176,
+                "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P863S0150.PYR.TIF"
+              },
+              {
+                "bytes": 131072,
+                "contentRange": "bytes 979894288-980025359/5286449560",
+                "end": 980025359,
+                "etag": "\"26614978439b08ca83f1d0ebc0f85f54\"",
+                "sha256": "430df51fc636c9705d99f80dd45a434bfd79af0345236fd43e17e3f1f7512747",
+                "start": 979894288,
+                "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P863S0150.PYR.TIF"
+              },
+              {
+                "bytes": 131072,
+                "contentRange": "bytes 997392400-997523471/5286449560",
+                "end": 997523471,
+                "etag": "\"26614978439b08ca83f1d0ebc0f85f54\"",
+                "sha256": "fbb18683404ce48b69251253b8a47ae9ac8ba2828df599edfb1ab5b9e915a429",
+                "start": 997392400,
+                "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P863S0150.PYR.TIF"
+              },
+              {
+                "bytes": 131072,
+                "contentRange": "bytes 1014890512-1015021583/5286449560",
+                "end": 1015021583,
+                "etag": "\"26614978439b08ca83f1d0ebc0f85f54\"",
+                "sha256": "b9b67ce8a8d8c48ea33b93680a433bb56c74d5e8cbbbb5b17692334eb38e9c58",
+                "start": 1014890512,
+                "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P863S0150.PYR.TIF"
+              },
+              {
+                "bytes": 131072,
+                "contentRange": "bytes 1032388624-1032519695/5286449560",
+                "end": 1032519695,
+                "etag": "\"26614978439b08ca83f1d0ebc0f85f54\"",
+                "sha256": "a49f50376fbb8bbef6b1f01c3ef9ae8fab1f4179d7e550dd8744b3583a820885",
+                "start": 1032388624,
+                "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P863S0150.PYR.TIF"
+              },
+              {
+                "bytes": 131072,
+                "contentRange": "bytes 1049886736-1050017807/5286449560",
+                "end": 1050017807,
+                "etag": "\"26614978439b08ca83f1d0ebc0f85f54\"",
+                "sha256": "6fedff96f145b307670fccd8213097dd40ea5dcba1e00e41c7eeb97d4b600383",
+                "start": 1049886736,
+                "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P863S0150.PYR.TIF"
+              },
+              {
+                "bytes": 131072,
+                "contentRange": "bytes 1067384848-1067515919/5286449560",
+                "end": 1067515919,
+                "etag": "\"26614978439b08ca83f1d0ebc0f85f54\"",
+                "sha256": "c9383d525bf6626d7f85c74229b4d865dd0a60cb4327934d615758afe73cfdc8",
+                "start": 1067384848,
+                "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P863S0150.PYR.TIF"
+              },
+              {
+                "bytes": 131072,
+                "contentRange": "bytes 1084882960-1085014031/5286449560",
+                "end": 1085014031,
+                "etag": "\"26614978439b08ca83f1d0ebc0f85f54\"",
+                "sha256": "2b7f20f5a93ef1359b24ace80e1c065bb192399eb013d009dabd220bd31adbf9",
+                "start": 1084882960,
+                "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P863S0150.PYR.TIF"
+              }
+            ],
+            "sourceFullHashStatus": "NOT_FULLY_DOWNLOADED",
+            "sourceFullSha256": null,
+            "window": {
+              "col": 0,
+              "destCol": 1500,
+              "destRow": 0,
+              "height": 2000,
+              "row": 14026,
+              "width": 500
+            }
+          }
+        ],
+        "sourcePixelSha256": "b9bbd66f8ef9f4184f5639bb133f0e26ab75ec279d85cb0ddad9a6a7503d54af",
+        "sourceUrl": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P863S3450.PYR.TIF",
+        "textures": {
+          "desktop": {
+            "byteLength": 795274,
+            "height": 2000,
+            "metersPerPixel": 1.0,
+            "sha256": "4cca3bb271bb7208f94953c351976b83dbf17249d48621aa41894307e8388987",
+            "url": "malapert-massif-photo-desktop.webp",
+            "width": 2000
+          },
+          "mobile": {
+            "byteLength": 304316,
+            "height": 1000,
+            "metersPerPixel": 2.0,
+            "sha256": "9987ab0380399f23b3f0c1bb8ec0a5c9859c53c05b95084162c73ba0d7214d03",
+            "url": "malapert-massif-photo-mobile.webp",
+            "width": 1000
+          }
+        },
+        "uvConvention": "u=(projectedX-xmin)/(xmax-xmin); v=(projectedY-ymin)/(ymax-ymin). Image row zero is north/ymax; Three.js TextureLoader flipY=true. Outside bounds is unavailable, never repeat.",
+        "validFraction": 1.0
+      },
       "kind": "Display-only registered NASA surface detail",
       "limits": [
         "Display geometry only. The frozen terrain-aware visibility engine and bundle remain authoritative.",
         "SfS slopes are reconstructed from images over LOLA control; 5m posting is not a blanket5m physical-accuracy claim. Shadowed/poorly observed areas may retain smoother prior terrain.",
-        "The single1m NAC mosaic records historical illumination and shadows; it is not albedo or a current-epoch shadow simulation. It covers only the documented2km square.",
         "The3500\u20134000m transition belt is a declared display blend, not a new scientific terrain model.",
         "Individual raster geotransforms govern registration and resolution; a shared filename suffix does not establish equal pixel grids."
       ],
       "observer": {
         "baselineGroundM": 4783.62939453125,
+        "cameraAboveInterpolatedSfsM": 2.480508453079892,
         "cameraAboveNativeSfsCellM": 2.84033203125,
+        "displayHeightSampling": "Bilinear radial height at native pixel centers; all four contributors must be finite and valid. No edge extrapolation.",
+        "interpolatedSfsGroundM": 4783.14888607817,
+        "interpolatedSfsGroundValid": true,
+        "interpolatedSfsMinusBaselineGroundM": -0.4805084530798922,
         "nativeSfsGroundM": 4782.7890625,
         "rigidVerticalOffsetAppliedM": 0,
         "sfsMinusBaselineGroundM": -0.84033203125
@@ -2813,7 +3724,7 @@
         },
         {
           "credit": "NASA/GSFC/Arizona State University LROC",
-          "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_ROI/NOBILE02LOC/NAC_ROI_NOBILE02LOC_P839S0587.TIF"
+          "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P863S3450.PYR.TIF"
         }
       ],
       "surfaceReason": "Published SfS display patch; original observer and outer LOLA terrain retained.",
@@ -2873,7 +3784,7 @@
           "positionFile": "malapert-massif-desktop.mesh",
           "positionsByteOffset": 0,
           "seamVertexCount": 512,
-          "sha256": "921a9651d34502eecdabf9dab9bd45d084c6ea1924aa4e3dc3d16ba472f31310",
+          "sha256": "adba30bda5d6a0d8bd08827d108af49524cbf79b9994673e141e654d3334885a",
           "vertexCount": 115377
         },
         "mobile": {
@@ -2930,7 +3841,7 @@
           "positionFile": "malapert-massif-mobile.mesh",
           "positionsByteOffset": 0,
           "seamVertexCount": 512,
-          "sha256": "7f97114670b5ae185c5396aed4267ed3fd1a8921f630231c9719df50fd5572dd",
+          "sha256": "78079c092fbfeb649c5988fba90af2a4b927d14ee08aa1b0114bf3ed3187ba95",
           "vertexCount": 39337
         }
       },
@@ -2953,6 +3864,8 @@
           73999,
           119000
         ],
+        "displayContrastGamma": 1.0,
+        "displayContrastScope": "Illustrative monotonic brightness adjustment for readability, not recovered shadow detail or calibrated albedo.",
         "historicIllumination": true,
         "limitations": [
           "Historicalaveragemosaicnotcurrentlighting/calibratedalbedo.",
@@ -3192,13 +4105,17 @@
       "limits": [
         "Display geometry only. The frozen terrain-aware visibility engine and bundle remain authoritative.",
         "SfS slopes are reconstructed from images over LOLA control; 5m posting is not a blanket5m physical-accuracy claim. Shadowed/poorly observed areas may retain smoother prior terrain.",
-        "The single1m NAC mosaic records historical illumination and shadows; it is not albedo or a current-epoch shadow simulation. It covers only the documented2km square.",
         "The3500\u20134000m transition belt is a declared display blend, not a new scientific terrain model.",
         "Individual raster geotransforms govern registration and resolution; a shared filename suffix does not establish equal pixel grids."
       ],
       "observer": {
         "baselineGroundM": 6398.13671875,
+        "cameraAboveInterpolatedSfsM": 1.3516341976692274,
         "cameraAboveNativeSfsCellM": 1.77099609375,
+        "displayHeightSampling": "Bilinear radial height at native pixel centers; all four contributors must be finite and valid. No edge extrapolation.",
+        "interpolatedSfsGroundM": 6398.785084552331,
+        "interpolatedSfsGroundValid": true,
+        "interpolatedSfsMinusBaselineGroundM": 0.6483658023307726,
         "nativeSfsGroundM": 6398.36572265625,
         "rigidVerticalOffsetAppliedM": 0,
         "sfsMinusBaselineGroundM": 0.22900390625
@@ -3417,7 +4334,7 @@
             ],
             [
               4013.991943359375,
-              65.93807956097058,
+              65.9384691500813,
               4012.830078125
             ]
           ],
@@ -3461,7 +4378,7 @@
           "positionFile": "leibnitz-beta-plateau-desktop.mesh",
           "positionsByteOffset": 0,
           "seamVertexCount": 512,
-          "sha256": "c4efcee8f07c9f953e3b35528e8ef901b7d8a3a9cc930ed6e760d538622a68fc",
+          "sha256": "ac205561f27e696505b32cfc1e84e92435f3d46b96c7f4132021722e80562833",
           "vertexCount": 115377
         },
         "mobile": {
@@ -3474,7 +4391,7 @@
             ],
             [
               4013.991943359375,
-              65.93807956097058,
+              65.9384691500813,
               4012.830078125
             ]
           ],
@@ -3518,7 +4435,7 @@
           "positionFile": "leibnitz-beta-plateau-mobile.mesh",
           "positionsByteOffset": 0,
           "seamVertexCount": 512,
-          "sha256": "a423280874b40a31c5f4d7512440c95601e075a65bf856e178da7b3ca35c6e9a",
+          "sha256": "43281cd1d36c238e9c2b3a789b880320da437005b6c2b5721259e2dd4c86833f",
           "vertexCount": 39337
         }
       },
@@ -3534,18 +4451,348 @@
       "coordinateConvention": "x=eastM, y=radialUpM above unchanged baseline ground, z=-northM",
       "datum": "Radial heights in metres relative to sphere radius1737400m",
       "frame": "MOON_ME_DE440_ME421",
-      "imagery": null,
+      "imagery": {
+        "bounds": [
+          -114399,
+          -57099,
+          -112399,
+          -55099
+        ],
+        "displayContrastGamma": 1.0,
+        "displayContrastScope": "Illustrative monotonic brightness adjustment for readability, not recovered shadow detail or calibrated albedo.",
+        "historicIllumination": true,
+        "limitations": [
+          "Historicalaveragemosaicnotcurrentlighting/calibratedalbedo.",
+          "ConservativeDN0mask;sourcelegacynodataunrepresentableuint8.",
+          "ProjectionnotexplicitMEvsPAframecertification.",
+          "Notusedtoauthoritativelyevaluatevisibility."
+        ],
+        "masks": {
+          "desktop": {
+            "byteLength": 6485,
+            "height": 2000,
+            "sha256": "6631e84b1d6b393f5d9c5fc2f8aa60e5797746c02d9bf4cfa25290c0541b7e3c",
+            "url": "de-gerlache-kocher-photo-mask-desktop.png",
+            "validFraction": 1.0,
+            "width": 2000
+          },
+          "mobile": {
+            "byteLength": 2182,
+            "height": 1000,
+            "sha256": "49a6210f306758d27370e836dc083f9a452f77e184e8948f6d57661a9d242eb7",
+            "url": "de-gerlache-kocher-photo-mask-mobile.png",
+            "validFraction": 1.0,
+            "width": 1000
+          }
+        },
+        "nativeBounds": [
+          -114399,
+          -57099,
+          -112399,
+          -55099
+        ],
+        "nativeRaster": {
+          "bounds": [
+            -114399,
+            -57099,
+            -112399,
+            -55099
+          ],
+          "crsWkt": "PROJCS[\"POLAR_STEREOGRAPHIC MOON\",GEOGCS[\"GCS_MOON\",DATUM[\"D_MOON\",SPHEROID[\"MOON_polarRadius\",1737400,0]],PRIMEM[\"Reference_Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "height": 2000,
+          "nodata": 0,
+          "registration": "Area",
+          "transform": [
+            1.0,
+            0.0,
+            -114399.0,
+            0.0,
+            -1.0,
+            -55099.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 2000
+        },
+        "nativeResolutionM": 1,
+        "photometricAlbedo": false,
+        "product": "NASA LROC controlled polar mosaic",
+        "projection": {
+          "centralMeridianDeg": 0,
+          "kind": "south-polar-stereographic",
+          "latitudeOriginDeg": -90,
+          "radiusM": 1737400.0
+        },
+        "registration": {
+          "displayOffsetENM": [
+            0,
+            0
+          ],
+          "residualM": null,
+          "status": "NOMINAL_ONLY_RESIDUAL_NOT_MEASURED"
+        },
+        "sourceNativeRaster": [
+          {
+            "nativeRaster": {
+              "bigTiff": true,
+              "bits": 8,
+              "compression": 1,
+              "geoAscii": "unnamed|GCS Name = unnamed ellipse|Datum = unknown|Ellipsoid = unnamed|Primem = Greenwich||",
+              "geoDouble": [
+                1737400,
+                1737400,
+                0,
+                -90,
+                0,
+                0,
+                1,
+                0
+              ],
+              "geokeys": [
+                1,
+                1,
+                0,
+                20,
+                1024,
+                0,
+                1,
+                1,
+                1025,
+                0,
+                1,
+                1,
+                1026,
+                34737,
+                8,
+                0,
+                2048,
+                0,
+                1,
+                32767,
+                2049,
+                34737,
+                83,
+                8,
+                2050,
+                0,
+                1,
+                32767,
+                2054,
+                0,
+                1,
+                9102,
+                2056,
+                0,
+                1,
+                32767,
+                2057,
+                34736,
+                1,
+                0,
+                2058,
+                34736,
+                1,
+                1,
+                2061,
+                34736,
+                1,
+                2,
+                3072,
+                0,
+                1,
+                32767,
+                3074,
+                0,
+                1,
+                32767,
+                3075,
+                0,
+                1,
+                15,
+                3076,
+                0,
+                1,
+                9001,
+                3081,
+                34736,
+                1,
+                3,
+                3082,
+                34736,
+                1,
+                4,
+                3083,
+                34736,
+                1,
+                5,
+                3092,
+                34736,
+                1,
+                6,
+                3095,
+                34736,
+                1,
+                7
+              ],
+              "height": 68263,
+              "id": "NAC_POLE_SOUTH_CM_AVG_P863S2550",
+              "nodata": null,
+              "orientation": 1,
+              "pixelScale": [
+                1,
+                1,
+                0
+              ],
+              "samples": 1,
+              "tiepoint": [
+                0,
+                0,
+                0,
+                -136526,
+                0,
+                0
+              ],
+              "tileHeight": 256,
+              "tileWidth": 256,
+              "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P863S2550.PYR.TIF",
+              "width": 57726,
+              "x0": -136526,
+              "y0": 0
+            },
+            "retrievedRanges": [
+              {
+                "bytes": 589824,
+                "contentRange": "bytes 3190030352-3190620175/5286449560",
+                "end": 3190620175,
+                "etag": "\"8ef60acd8a4c383924357f33112549a1\"",
+                "sha256": "1e89a040195c5efd55410611eece9c44db9bf52c560cc32de490d80d04912f8c",
+                "start": 3190030352,
+                "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P863S2550.PYR.TIF"
+              },
+              {
+                "bytes": 589824,
+                "contentRange": "bytes 3204841488-3205431311/5286449560",
+                "end": 3205431311,
+                "etag": "\"8ef60acd8a4c383924357f33112549a1\"",
+                "sha256": "5e24e955310a822fe65d360a8ce094a1eddcce2094c46a64db5b8a5e3b37a4c1",
+                "start": 3204841488,
+                "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P863S2550.PYR.TIF"
+              },
+              {
+                "bytes": 589824,
+                "contentRange": "bytes 3219652624-3220242447/5286449560",
+                "end": 3220242447,
+                "etag": "\"8ef60acd8a4c383924357f33112549a1\"",
+                "sha256": "e3e0a5ed6a5824a32cdc2b672221b7e3ac2f2e511cdfcfda99162095514690cc",
+                "start": 3219652624,
+                "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P863S2550.PYR.TIF"
+              },
+              {
+                "bytes": 589824,
+                "contentRange": "bytes 3234463760-3235053583/5286449560",
+                "end": 3235053583,
+                "etag": "\"8ef60acd8a4c383924357f33112549a1\"",
+                "sha256": "f20e2c4111704a548946df1f22c93d46a85b70bfa4dabe6eedeb9954dec3a39f",
+                "start": 3234463760,
+                "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P863S2550.PYR.TIF"
+              },
+              {
+                "bytes": 589824,
+                "contentRange": "bytes 3249274896-3249864719/5286449560",
+                "end": 3249864719,
+                "etag": "\"8ef60acd8a4c383924357f33112549a1\"",
+                "sha256": "76045df55f8300621947df5fa4d8a013f751b3506a5c687e2c5960411278553e",
+                "start": 3249274896,
+                "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P863S2550.PYR.TIF"
+              },
+              {
+                "bytes": 589824,
+                "contentRange": "bytes 3264086032-3264675855/5286449560",
+                "end": 3264675855,
+                "etag": "\"8ef60acd8a4c383924357f33112549a1\"",
+                "sha256": "4c29c5533c2238d25a32f30d727d6d71c744f68886c7926da89e7b0e3bde3871",
+                "start": 3264086032,
+                "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P863S2550.PYR.TIF"
+              },
+              {
+                "bytes": 589824,
+                "contentRange": "bytes 3278897168-3279486991/5286449560",
+                "end": 3279486991,
+                "etag": "\"8ef60acd8a4c383924357f33112549a1\"",
+                "sha256": "104c9fe31fa8b6f827742a685a380441b84a2aa45bf9fb05b0015ba43ba2aa4d",
+                "start": 3278897168,
+                "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P863S2550.PYR.TIF"
+              },
+              {
+                "bytes": 589824,
+                "contentRange": "bytes 3293708304-3294298127/5286449560",
+                "end": 3294298127,
+                "etag": "\"8ef60acd8a4c383924357f33112549a1\"",
+                "sha256": "0675ae470494125b05d85f2cac9cc2086c4febb09035d0aeb0e556f96c46dfea",
+                "start": 3293708304,
+                "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P863S2550.PYR.TIF"
+              },
+              {
+                "bytes": 589824,
+                "contentRange": "bytes 3308519440-3309109263/5286449560",
+                "end": 3309109263,
+                "etag": "\"8ef60acd8a4c383924357f33112549a1\"",
+                "sha256": "61e5e2718d2c014457e00d6ebc686dab888630abd9e3b4340f87752976ad39b3",
+                "start": 3308519440,
+                "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P863S2550.PYR.TIF"
+              }
+            ],
+            "sourceFullHashStatus": "NOT_FULLY_DOWNLOADED",
+            "sourceFullSha256": null,
+            "window": {
+              "col": 22127,
+              "destCol": 0,
+              "destRow": 0,
+              "height": 2000,
+              "row": 55099,
+              "width": 2000
+            }
+          }
+        ],
+        "sourcePixelSha256": "c0132b72f7424b02c376ea4e20890dff82a19391c5e3968f0d2081d3691f8f78",
+        "sourceUrl": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P863S2550.PYR.TIF",
+        "textures": {
+          "desktop": {
+            "byteLength": 1108550,
+            "height": 2000,
+            "metersPerPixel": 1.0,
+            "sha256": "aed52d10413e1902905f75061b0af39b61f432e3fcb2fc986fc04d2ec033cbeb",
+            "url": "de-gerlache-kocher-photo-desktop.webp",
+            "width": 2000
+          },
+          "mobile": {
+            "byteLength": 397634,
+            "height": 1000,
+            "metersPerPixel": 2.0,
+            "sha256": "305d172a162cecf601c9dba338944b33421cb55f6f192dca5edc315c3f9332fb",
+            "url": "de-gerlache-kocher-photo-mobile.webp",
+            "width": 1000
+          }
+        },
+        "uvConvention": "u=(projectedX-xmin)/(xmax-xmin); v=(projectedY-ymin)/(ymax-ymin). Image row zero is north/ymax; Three.js TextureLoader flipY=true. Outside bounds is unavailable, never repeat.",
+        "validFraction": 1.0
+      },
       "kind": "Display-only registered NASA surface detail",
       "limits": [
         "Display geometry only. The frozen terrain-aware visibility engine and bundle remain authoritative.",
         "SfS slopes are reconstructed from images over LOLA control; 5m posting is not a blanket5m physical-accuracy claim. Shadowed/poorly observed areas may retain smoother prior terrain.",
-        "The single1m NAC mosaic records historical illumination and shadows; it is not albedo or a current-epoch shadow simulation. It covers only the documented2km square.",
         "The3500\u20134000m transition belt is a declared display blend, not a new scientific terrain model.",
         "Individual raster geotransforms govern registration and resolution; a shared filename suffix does not establish equal pixel grids."
       ],
       "observer": {
         "baselineGroundM": 2705.663330078125,
+        "cameraAboveInterpolatedSfsM": -1.7578911994460213,
         "cameraAboveNativeSfsCellM": -1.475341796875,
+        "displayHeightSampling": "Bilinear radial height at native pixel centers; all four contributors must be finite and valid. No edge extrapolation.",
+        "interpolatedSfsGroundM": 2709.421221277571,
+        "interpolatedSfsGroundValid": true,
+        "interpolatedSfsMinusBaselineGroundM": 3.7578911994460213,
         "nativeSfsGroundM": 2709.138671875,
         "rigidVerticalOffsetAppliedM": 0,
         "sfsMinusBaselineGroundM": 3.475341796875
@@ -3748,7 +4995,7 @@
         },
         {
           "credit": "NASA/GSFC/Arizona State University LROC",
-          "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_ROI/NOBILE02LOC/NAC_ROI_NOBILE02LOC_P839S0587.TIF"
+          "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P863S2550.PYR.TIF"
         }
       ],
       "surfaceReason": "SfS ground intersects the unchanged observer; original LOLA display terrain retained. No vertical offset was applied.",
@@ -3773,6 +5020,8 @@
           -37001,
           91502
         ],
+        "displayContrastGamma": 1.0,
+        "displayContrastScope": "Illustrative monotonic brightness adjustment for readability, not recovered shadow detail or calibrated albedo.",
         "historicIllumination": true,
         "limitations": [
           "Historicalaveragemosaicnotcurrentlighting/calibratedalbedo.",
@@ -4012,13 +5261,17 @@
       "limits": [
         "Display geometry only. The frozen terrain-aware visibility engine and bundle remain authoritative.",
         "SfS slopes are reconstructed from images over LOLA control; 5m posting is not a blanket5m physical-accuracy claim. Shadowed/poorly observed areas may retain smoother prior terrain.",
-        "The single1m NAC mosaic records historical illumination and shadows; it is not albedo or a current-epoch shadow simulation. It covers only the documented2km square.",
         "The3500\u20134000m transition belt is a declared display blend, not a new scientific terrain model.",
         "Individual raster geotransforms govern registration and resolution; a shared filename suffix does not establish equal pixel grids."
       ],
       "observer": {
         "baselineGroundM": 1628.816162109375,
+        "cameraAboveInterpolatedSfsM": 3.5401110358643564,
         "cameraAboveNativeSfsCellM": 3.24267578125,
+        "displayHeightSampling": "Bilinear radial height at native pixel centers; all four contributors must be finite and valid. No edge extrapolation.",
+        "interpolatedSfsGroundM": 1627.2760510735106,
+        "interpolatedSfsGroundValid": true,
+        "interpolatedSfsMinusBaselineGroundM": -1.5401110358643564,
         "nativeSfsGroundM": 1627.573486328125,
         "rigidVerticalOffsetAppliedM": 0,
         "sfsMinusBaselineGroundM": -1.24267578125
@@ -4281,7 +5534,7 @@
           "positionFile": "haworth-desktop.mesh",
           "positionsByteOffset": 0,
           "seamVertexCount": 512,
-          "sha256": "3f56766d1145a33d89dbb7d71cd72235e9137a428848a7b085b42d40c32e0960",
+          "sha256": "468b1729db5e150c7f3f475b0b89672a6cafa21c72b0f1b8c301963794a756ae",
           "vertexCount": 115377
         },
         "mobile": {
@@ -4338,7 +5591,7 @@
           "positionFile": "haworth-mobile.mesh",
           "positionsByteOffset": 0,
           "seamVertexCount": 512,
-          "sha256": "d56d3322dcf3616ced83f3c3d517856415f00fd909489003ba5af658f7836fe3",
+          "sha256": "fc4bfba92ad79e56de0350889aa6282c3b3e28af1b5de7b74c185b4c765ab170",
           "vertexCount": 39337
         }
       },
@@ -4361,6 +5614,8 @@
           157997.99991753,
           95993.99994675
         ],
+        "displayContrastGamma": 1.0,
+        "displayContrastScope": "Illustrative monotonic brightness adjustment for readability, not recovered shadow detail or calibrated albedo.",
         "historicIllumination": true,
         "masks": {
           "desktop": {
@@ -4497,7 +5752,12 @@
       ],
       "observer": {
         "baselineGroundM": 1009.5821533203125,
+        "cameraAboveInterpolatedSfsM": 1.4862601716035897,
         "cameraAboveNativeSfsCellM": 1.6256103515625,
+        "displayHeightSampling": "Bilinear radial height at native pixel centers; all four contributors must be finite and valid. No edge extrapolation.",
+        "interpolatedSfsGroundM": 1010.0958931487089,
+        "interpolatedSfsGroundValid": true,
+        "interpolatedSfsMinusBaselineGroundM": 0.5137398283964103,
         "nativeSfsGroundM": 1009.95654296875,
         "rigidVerticalOffsetAppliedM": 0,
         "sfsMinusBaselineGroundM": 0.3743896484375
@@ -4709,7 +5969,7 @@
             ],
             [
               4002.5546875,
-              456.31195050449656,
+              456.32098683966535,
               4003.37060546875
             ]
           ],
@@ -4753,7 +6013,7 @@
           "positionFile": "nobile-rim-2-desktop.mesh",
           "positionsByteOffset": 0,
           "seamVertexCount": 512,
-          "sha256": "649852503dc18dd12ffdacf8b290d48bd0a6ede850ad8aa0e73817cd40a7f9b3",
+          "sha256": "d7a3a158ff9be2af3c370b4834dd0a142302c6874635c526d2ec4aad13e8ee5e",
           "vertexCount": 115377
         },
         "mobile": {
@@ -4766,7 +6026,7 @@
             ],
             [
               4002.5546875,
-              456.31195050449656,
+              456.32098683966535,
               4003.37060546875
             ]
           ],
@@ -4810,7 +6070,7 @@
           "positionFile": "nobile-rim-2-mobile.mesh",
           "positionsByteOffset": 0,
           "seamVertexCount": 512,
-          "sha256": "a3d9a6a9a7b7acd0a403fbd545e6352f366931906c3dd7f3ef79cddf8b6494e6",
+          "sha256": "49d8d536fd426de140e890d5b7fac70fd97a8324124a424ff0959832c31ac7bf",
           "vertexCount": 39337
         }
       },
@@ -5004,7 +6264,7 @@
         ],
         [
           4002.5546875,
-          456.31195050449656,
+          456.32098683966535,
           4003.37060546875
         ]
       ],
@@ -5048,7 +6308,7 @@
       "positionFile": "nobile-rim-2-desktop.mesh",
       "positionsByteOffset": 0,
       "seamVertexCount": 512,
-      "sha256": "649852503dc18dd12ffdacf8b290d48bd0a6ede850ad8aa0e73817cd40a7f9b3",
+      "sha256": "d7a3a158ff9be2af3c370b4834dd0a142302c6874635c526d2ec4aad13e8ee5e",
       "vertexCount": 115377
     },
     "mobile": {
@@ -5061,7 +6321,7 @@
         ],
         [
           4002.5546875,
-          456.31195050449656,
+          456.32098683966535,
           4003.37060546875
         ]
       ],
@@ -5105,7 +6365,7 @@
       "positionFile": "nobile-rim-2-mobile.mesh",
       "positionsByteOffset": 0,
       "seamVertexCount": 512,
-      "sha256": "a3d9a6a9a7b7acd0a403fbd545e6352f366931906c3dd7f3ef79cddf8b6494e6",
+      "sha256": "49d8d536fd426de140e890d5b7fac70fd97a8324124a424ff0959832c31ac7bf",
       "vertexCount": 39337
     }
   },

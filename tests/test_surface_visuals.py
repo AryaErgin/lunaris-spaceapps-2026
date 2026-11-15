@@ -7,10 +7,90 @@ import numpy as np
 import pytest
 from PIL import Image
 
-from tools.build_surface_visuals import BUNDLE_SHA, FrozenBoundary, local_coordinates, read_range
+from tools.build_surface_visuals import BUNDLE_SHA, FrozenBoundary, SurfaceSampler, local_coordinates, read_range, PROJECTION, observer_height_metadata, build_region, NAC_URL
+import rasterio
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "web/assets/surface"
+
+
+def polar_tangent_coordinates(x, y):
+    # Independent inverse of stereographic -> south-pole gnomonic tangent grid.
+    # It does not use the production sampler's coordinate conversion.
+    x, y = np.broadcast_arrays(np.asarray(x, dtype=float), np.asarray(y, dtype=float))
+    scale = 1-(x*x+y*y)/(4*1737400.**2)
+    return x/scale, y/scale
+
+
+@pytest.fixture
+def affine_sampler():
+    from rasterio.io import MemoryFile
+
+    def make(invalid=None, invalid_value=np.nan):
+        col, row = np.meshgrid(np.arange(8)+.5, np.arange(8)+.5)
+        x, y = -20+5*col, 20-5*row
+        heights = (100+.3*x-.2*y).astype(np.float64)
+        if invalid is not None:
+            heights[invalid] = invalid_value
+        with MemoryFile() as memory:
+            with memory.open(driver="GTiff", width=8, height=8, count=1, dtype="float64",
+                             crs=PROJECTION, transform=rasterio.Affine(5, 0, -20, 0, -5, 20), nodata=-9999) as dataset:
+                dataset.write(heights, 1)
+                return SurfaceSampler(dataset, {"lat": -90, "lon": 0, "groundM": 0}, None)
+    return make
+
+
+def test_display_sampler_reproduces_an_independent_affine_height_plane(affine_sampler):
+    sampler = affine_sampler()
+    x, y = np.array([-12.25, -3.3, 0., 2.5, 11.1]), np.array([8.25, -2.7, 0., 2.5, -12.4])
+    height, valid = sampler.sample(*polar_tangent_coordinates(x, y))
+    assert valid.all()
+    assert height == pytest.approx(100+.3*x-.2*y, abs=1e-8)
+
+
+def test_display_sampler_native_pixel_centers_and_edges_do_not_extrapolate(affine_sampler):
+    sampler = affine_sampler()
+    x, y = np.array([-17.5, 17.5, -17.5, 17.5, -18, 18]), np.array([17.5, 17.5, -17.5, -17.5, 0, 0])
+    height, valid = sampler.sample(*polar_tangent_coordinates(x, y))
+    assert valid.tolist() == [True, True, True, True, False, False]
+    assert height[:4] == pytest.approx((100+.3*x-.2*y)[:4], abs=1e-8)
+    assert np.isnan(height[4:]).all()
+
+
+@pytest.mark.parametrize("invalid_value", [np.nan, np.inf, -9999])
+def test_display_sampler_requires_all_four_finite_native_neighbors(affine_sampler, invalid_value):
+    sampler = affine_sampler(invalid=(3, 5), invalid_value=invalid_value)
+    height, valid = sampler.sample(*polar_tangent_coordinates(np.array([2.5, 5.0, -12.5]), np.array([2.5, 0., 12.5])))
+    # Even a zero-weight missing neighbor is rejected conservatively.
+    assert valid.tolist() == [False, False, True]
+    assert np.isnan(height[:2]).all()
+
+
+def test_observer_metadata_keeps_nearest_height_but_checks_the_interpolated_display_surface(affine_sampler):
+    sampler = affine_sampler()
+    site = {"groundM": 100., "heightM": 2.}
+    record = observer_height_metadata(site, 101.25, sampler)
+    assert record["nativeSfsGroundM"] == 101.25
+    assert record["cameraAboveNativeSfsCellM"] == .75
+    assert record["interpolatedSfsGroundM"] == pytest.approx(100.)
+    assert record["cameraAboveInterpolatedSfsM"] == pytest.approx(2.)
+    assert record["rigidVerticalOffsetAppliedM"] == 0
+    missing = observer_height_metadata(site, 101.25, affine_sampler(invalid=(3, 4)))
+    assert missing["interpolatedSfsGroundM"] is None
+    assert missing["cameraAboveInterpolatedSfsM"] is None
+
+
+def test_generic_fallback_does_not_inherit_an_unused_nobile_photo_source(data, tmp_path):
+    prototype, _, _, _ = data
+    site = {"id": "shackleton-rim", "lat": -89.7668, "lon": 188.13, "groundM": 771.043212890625, "heightM": 2.}
+    original = json.loads(json.dumps(prototype))
+    profile = build_region(tmp_path, tmp_path, site, None, prototype)
+    assert profile["terrain"] is None and profile["imagery"] is None
+    assert "sites" not in profile and "observerSfsInputs" not in profile and "sourceSamplesAtObserver" not in profile
+    assert "imageDerivedDetailAtObserver" not in profile["qualityGates"]
+    assert not any(row.get("url") == NAC_URL for row in profile["sources"])
+    assert not any(text.startswith("The single1m NAC mosaic") for text in profile["limits"])
+    assert prototype == original
 
 
 def sha(path):

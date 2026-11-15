@@ -103,6 +103,23 @@ test('projected skyline uses retained nominal angles in ENU and leaves unknown s
   assert.equal(farHorizonData({heightM:2,terrain:{skyline:site.terrain.skyline}}).sectorCount,0);
 });
 
+test('display skyline joins adjacent known nominal samples without bridging unknown sectors', async () => {
+  const { farHorizonData } = await sceneModule();
+  const site={heightM:2,terrain:{fine:{azimuthBinDeg:90},skyline:[
+    [0,-1,1,0,-90,null], [90,9,11,10,-90,null],
+    [180,null,null,null,-90,null], [270,-6,-4,-5,-90,null],
+  ]}};
+  const {positions,sectorCount,skippedSectors}=farHorizonData(site);
+  assert.equal(sectorCount,3);assert.equal(skippedSectors,1);
+  // End of the first sector meets the next measured nominal sample exactly.
+  assert.deepEqual([...positions.slice(3,6)],[...positions.slice(12,15)]);
+  assert(Math.abs(positions[4]-(2+Math.tan(10*Math.PI/180)*200000))<.01);
+  // The missing 180-degree sector does not acquire an interpolated skyline.
+  assert.equal(positions[16],positions[13]);
+  // Known 270 -> 360/0 wrap joins the original zero-degree sample.
+  assert(Math.abs(positions[28]-positions[1])<.01);
+});
+
 test('body framing reports centered, offscreen and behind-camera directions without changing visibility', async () => {
   const { bodyFraming } = await sceneModule();
   assert.equal(typeof bodyFraming,'function','body framing diagnostic is missing');

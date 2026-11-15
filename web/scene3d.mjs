@@ -64,13 +64,19 @@ export function farHorizonData(site,rangeM=200000) {
     return {positions:new Float32Array(),indices:new Uint32Array(),sectorCount,skippedSectors:rows.length,rangeM,maxSourceBlockerDistanceM,sourceSectorsBeyond32Km};
   }
   const lowerY=site.heightM+Math.tan(-60*RAD)*rangeM;
+  const known=row=>[row?.[0],row?.[1],row?.[2],row?.[3],row?.[4]].every(Number.isFinite)&&row[4]<=-89.999&&Math.abs(row[3])<89&&row[1]<=row[2];
+  const byAzimuth=new Map(rows.filter(known).map(row=>[Math.round(((row[0]%360+360)%360)*1e6),row]));
   for(const row of rows) {
     // A gap cap other than the no-gap sentinel makes this sector unavailable.
-    if(![row?.[0],row?.[1],row?.[2],row?.[3],row?.[4]].every(Number.isFinite)||row[4]>-89.999||Math.abs(row[3])>=89||row[1]>row[2])continue;
+    if(!known(row))continue;
     const start=row[0]*RAD,end=(row[0]+bin)*RAD,topY=site.heightM+Math.tan(row[3]*RAD)*rangeM;
+    // Display interpolation joins actual neighboring nominal samples. It never
+    // bridges a missing sector or changes the authoritative visibility bounds.
+    const next=byAzimuth.get(Math.round((((row[0]+bin)%360+360)%360)*1e6));
+    const endY=next?site.heightM+Math.tan(next[3]*RAD)*rangeM:topY;
     const first=positions.length/3;
     positions.push(Math.sin(start)*rangeM,topY,-Math.cos(start)*rangeM,
-      Math.sin(end)*rangeM,topY,-Math.cos(end)*rangeM,
+      Math.sin(end)*rangeM,endY,-Math.cos(end)*rangeM,
       Math.sin(start)*rangeM,lowerY,-Math.cos(start)*rangeM,
       Math.sin(end)*rangeM,lowerY,-Math.cos(end)*rangeM);
     indices.push(first,first+2,first+1,first+1,first+2,first+3);sectorCount++;
@@ -355,7 +361,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     void main(){
     #include <logdepthbuf_fragment>
     float azimuth=atan(vCurtain.x,-vCurtain.z);float facing=0.5-0.5*cos(azimuth-sunAzimuth);
-    float tone=baseTone+sunLevel*(0.02+0.1*facing*facing);
+    float tone=baseTone+sunLevel*(0.006+0.035*facing*facing);
     gl_FragColor=vec4(vec3(tone*1.02,tone,tone*0.97),1.0);
     #include <colorspace_fragment>
     }`}));
@@ -363,7 +369,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   // term replaces the Lambert cosine; procedural grain is display texture, never relief data.
   let regolithShading='lambert';
   function regolithMaterial({fineTerrain=false}={}) {
-    const material=new THREE.MeshStandardMaterial({color:0xa9a59d,roughness:1,metalness:0,side:THREE.FrontSide});
+    const material=new THREE.MeshStandardMaterial({color:0x8f8f8d,roughness:1,metalness:0,side:THREE.FrontSide});
     const cosine='float dotNL = saturate( dot( geometryNormal, directLight.direction ) );';
     const chunk=THREE.ShaderChunk?.lights_physical_pars_fragment;
     if(!chunk?.includes(cosine))return material;
@@ -395,36 +401,51 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     material.customProgramCacheKey=()=>'lunaris-regolith-3-'+grain+'-'+fineTerrain;
     return material;
   }
-  function photographedMaterial(photo,mask,bounds) {
-    const uniforms={surfacePhoto:{value:photo},surfaceMask:{value:mask},surfacePhotoLevel:{value:0},surfacePhotoEnabled:{value:surfaceImageryEnabled?1:0},surfaceEdge:{value:new THREE.Vector2(40/(bounds[2]-bounds[0]),40/(bounds[3]-bounds[1]))}};
-    const material=new THREE.MeshStandardMaterial({color:0xa9a59d,roughness:1,metalness:0,side:THREE.FrontSide});
+  function photographedMaterial(photo,mask,bounds,displayGamma=1) {
+    const gamma=Number.isFinite(displayGamma)&&displayGamma>=.25&&displayGamma<=1.5?displayGamma:1;
+    const uniforms={surfacePhoto:{value:photo},surfaceMask:{value:mask},surfacePhotoGamma:{value:gamma},surfacePhotoLevel:{value:0},surfacePhotoEnabled:{value:surfaceImageryEnabled?1:0},surfaceEdge:{value:new THREE.Vector2(40/(bounds[2]-bounds[0]),40/(bounds[3]-bounds[1]))}};
+    const material=new THREE.MeshStandardMaterial({color:0x8f8f8d,roughness:1,metalness:0,side:THREE.FrontSide});
     material.userData.surfaceUniforms=uniforms;
     material.onBeforeCompile=shader=>{
       Object.assign(shader.uniforms,uniforms);
-      shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nattribute vec2 surfaceUv;varying vec2 vSurfaceUv;')
-        .replace('#include <begin_vertex>','#include <begin_vertex>\nvSurfaceUv=surfaceUv;');
+      shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nattribute vec2 surfaceUv;varying vec2 vSurfaceUv;varying vec3 vSurfacePosition;')
+        .replace('#include <begin_vertex>','#include <begin_vertex>\nvSurfaceUv=surfaceUv;vSurfacePosition=position;');
       const chunk=THREE.ShaderChunk.lights_physical_pars_fragment,cosine='float dotNL = saturate( dot( geometryNormal, directLight.direction ) );';
       shader.fragmentShader=shader.fragmentShader.replace('#include <common>',`#include <common>
-        varying vec2 vSurfaceUv;uniform sampler2D surfacePhoto;uniform sampler2D surfaceMask;
-        uniform float surfacePhotoLevel;uniform float surfacePhotoEnabled;uniform vec2 surfaceEdge;`)
+        varying vec2 vSurfaceUv;varying vec3 vSurfacePosition;uniform sampler2D surfacePhoto;uniform sampler2D surfaceMask;
+        uniform float surfacePhotoLevel;uniform float surfacePhotoEnabled;uniform float surfacePhotoGamma;uniform vec2 surfaceEdge;
+        float lnPhotoHash(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
+        float lnPhotoNoise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);
+          return mix(mix(lnPhotoHash(i),lnPhotoHash(i+vec2(1.0,0.0)),f.x),mix(lnPhotoHash(i+vec2(0.0,1.0)),lnPhotoHash(i+vec2(1.0,1.0)),f.x),f.y);}
+        float lnMaterialGrain(vec2 p,float frequency){vec2 q=p*frequency;
+          float footprint=max(fwidth(q.x),fwidth(q.y));
+          return (lnPhotoNoise(q)-0.5)*(1.0-smoothstep(0.35,0.9,footprint));}`)
         .replace('#include <lights_physical_pars_fragment>',chunk.replace(cosine,`float lsIn=saturate(dot(geometryNormal,directLight.direction));
           float lsOut=saturate(dot(geometryNormal,geometryViewDir));
           float dotNL=smoothstep(0.0,0.035,lsIn)*min(1.0,2.0*lsIn/(lsIn+lsOut+0.05));`))
         .replace('#include <opaque_fragment>',`vec2 edge=min(vSurfaceUv,vec2(1.0)-vSurfaceUv);
           float sourceWeight=smoothstep(0.0,surfaceEdge.x,edge.x)*smoothstep(0.0,surfaceEdge.y,edge.y);
           sourceWeight*=smoothstep(0.5,0.99,texture2D(surfaceMask,vSurfaceUv).r)*surfacePhotoEnabled;
-          // The photo already contains historical illumination. Replace radiance;
-          // multiplying by current Sun shading here would double-light it.
-          outgoingLight=mix(outgoingLight,texture2D(surfacePhoto,vSurfaceUv).rgb*surfacePhotoLevel,sourceWeight);
+          vec3 historicalPhoto=texture2D(surfacePhoto,vSurfaceUv).rgb;
+          // A monotonic display-only contrast curve preserves native brightness
+          // ordering. Brightness-dependent blending can invert that ordering.
+          // This is neither calibrated albedo nor recovered shadow information.
+          vec3 photoDisplay=pow(max(historicalPhoto,vec3(0.0)),vec3(surfacePhotoGamma));
+          float photoWeight=sourceWeight*0.55;
+          outgoingLight=mix(outgoingLight,photoDisplay*surfacePhotoLevel,photoWeight);
+          // Band-limited illustrative regolith texture, not measured site detail.
+          // It never displaces the NASA geometry or creates terrain shadows.
+          float grain=0.12*lnMaterialGrain(vSurfacePosition.xz,7.0)+0.035*lnMaterialGrain(vSurfacePosition.xz,23.0);
+          outgoingLight*=1.0+grain;
           #include <opaque_fragment>`);
     };
-    material.customProgramCacheKey=()=>`lunaris-registered-surface-1`;
+    material.customProgramCacheKey=()=>`lunaris-registered-surface-5`;
     return material;
   }
   function updateSurfaceSource(){
     const active=mode==='surface'&&surfaceVisualEntry?.entry.site.id===site.id;
     surfaceSource.hidden=!active;
-    if(active)surfaceSource.textContent=surfaceImageryEnabled&&surfaceVisualEntry.photo?'LROC imagery · historical lighting':surfaceDetailMesh?'NASA SfS display terrain · modeled lighting':'NASA LOLA terrain · modeled lighting';
+    if(active)surfaceSource.textContent=surfaceImageryEnabled&&surfaceVisualEntry.photo?'LROC photo detail · illustrative lighting':surfaceDetailMesh?'NASA SfS display terrain · modeled lighting':'NASA LOLA terrain · modeled lighting';
     container.dataset.surfacePhoto=String(Boolean(active&&surfaceVisualEntry.photo&&surfaceImageryEnabled));
     container.dataset.surfaceDetail=String(Boolean(active&&surfaceDetailMesh));
     const signature=[site.id,mode,Boolean(active&&surfaceVisualEntry?.photo),surfaceImageryEnabled].join(':');
@@ -459,7 +480,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
       if(texture.image.width!==record.width||texture.image.height!==record.height){texture.dispose();throw Error('Surface image dimensions differ.');}
       texture.colorSpace=mask?THREE.NoColorSpace:THREE.SRGBColorSpace;
       texture.wrapS=texture.wrapT=THREE.ClampToEdgeWrapping;
-      texture.anisotropy=Math.min(mobileQuality?2:8,renderer.capabilities.getMaxAnisotropy());
+      texture.anisotropy=Math.min(mobileQuality?4:16,renderer.capabilities.getMaxAnisotropy());
       return texture;
     }finally{URL.revokeObjectURL(blobUrl);}
   }
@@ -488,7 +509,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
           photo=await verifiedSurfaceTexture(imagery.textures[tier],controller.signal);ownResources.push(photo);
           mask=await verifiedSurfaceTexture(imagery.masks[tier],controller.signal,true);ownResources.push(mask);
         }
-        const material=photo?photographedMaterial(photo,mask,imagery.bounds):regolithMaterial({fineTerrain:true});ownResources.push(material);
+        const material=photo?photographedMaterial(photo,mask,imagery.bounds,imagery.displayContrastGamma):regolithMaterial({fineTerrain:true});ownResources.push(material);
         if(record){
           const {bytes}=await verifiedSurfaceBytes(record,controller.signal),view=terrainBufferViews(bytes,record);
           const geometry=new THREE.BufferGeometry();ownResources.push(geometry);
@@ -1011,9 +1032,9 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
         limbIllustrative:true,
         material:earthMaterial.type,unlit:false,geographicFaceRegistered:false,approximateSunDirectionPhase:true,phaseBasis:'Approximate lit hemisphere follows the cached apparent Sun direction; geographic face and weather are unregistered.',
         disclosure:'Historical cloud-free Blue Marble composite. The phase follows the cached Sun direction; the geographic face and weather are not registered to the selected UTC.'},
-      displayLighting:{ambientIntensity:floorLight.intensity,enhancedNight,shadowsLocalHalfExtentM:0,castShadowsRendered:false,proceduralMaterialGrain:regolithShading==='lommel-seeliger',proceduralNormalGrain:regolithShading==='lommel-seeliger'&&!mobileQuality,regolithShading,
+      displayLighting:{ambientIntensity:floorLight.intensity,enhancedNight,shadowsLocalHalfExtentM:0,castShadowsRendered:false,proceduralMaterialGrain:regolithShading==='lommel-seeliger',proceduralNormalGrain:regolithShading==='lommel-seeliger'&&!mobileQuality&&!surfaceDetailMesh&&!surfaceVisualEntry?.photo,regolithShading,
         lightScope:'Direct display illumination follows confirmed Sun-center visibility. Dim ambient or enhanced fill is artificial; full-disc shadow, Earthshine and photometric brightness are not calculated.',
-        materialNote:surfaceVisualEntry?(surfaceImageryEnabled&&surfaceVisualEntry.photo?'Registered LROC historical image brightness replaces directional shading inside its footprint; it is not calibrated albedo or current-epoch shadows.':surfaceDetailMesh?'NASA shape-from-shading display geometry, modeled reflectance; no procedural local relief.':'NASA LOLA geometry, modeled reflectance.'):'Lommel-Seeliger regolith reflectance with procedural display grain. Grain adds no relief; all slopes and ridges are LOLA data.',
+        materialNote:surfaceVisualEntry?(surfaceImageryEnabled&&surfaceVisualEntry.photo?'Registered LROC historical brightness blends with modeled shading using a documented display-only contrast curve. Fine material color grain is illustrative, not measured relief. The photographs are not calibrated albedo or current-epoch shadows.':surfaceDetailMesh?'NASA shape-from-shading display geometry, modeled reflectance; no procedural local relief.':'NASA LOLA geometry, modeled reflectance.'):'Lommel-Seeliger regolith reflectance with procedural display grain. Grain adds no relief; all slopes and ridges are LOLA data.',
         fill:{intensity:displayFill.intensity,direction:displayFill.position.clone().normalize().toArray(),castsShadows:displayFill.castShadow,basis:'Illustrative display fill; actual DEM normals, independent of Sun visibility.'}},
       renderedFrames:renderer.info.render.frame,triangles:renderer.info.render.triangles,
       gpuResources:{geometries:renderer.info.memory.geometries,textures:renderer.info.memory.textures}};
