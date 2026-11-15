@@ -1,0 +1,179 @@
+{
+  "aiUse": "AI assisted source research, implementation, tests and documentation under human oversight; deterministic calculations and no runtime AI.",
+  "algorithmCommit": "2a4ade2aa4e05f594ae3598fcc357513ed793eea",
+  "artifactKind": "Offline scientific feature branch; not merged or deployed",
+  "baselineCommit": "d1dd61e40cb00e0e4dea369217247eb69cacbe95",
+  "bundleBytes": 17505789,
+  "coverage": [
+    1793491200,
+    1830297600
+  ],
+  "executedTests": {
+    "browser": {
+      "desktopOrbitalPointerSelections": 10,
+      "physicalMobileTested": false,
+      "status": "PASSED",
+      "viewports": [
+        {
+          "coldReadyMs": 1912.5573999999997,
+          "externalRequests": 0,
+          "failedRequests": 0,
+          "graphics": {
+            "quality": "desktop-auto-4K",
+            "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+          },
+          "height": 1000,
+          "javascriptHeapBytes": 158852253,
+          "runtimeErrors": 0,
+          "status": "PASSED",
+          "width": 1440
+        },
+        {
+          "coldReadyMs": 1693.9017999999996,
+          "externalRequests": 0,
+          "failedRequests": 0,
+          "graphics": {
+            "quality": "mobile-2K",
+            "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+          },
+          "height": 840,
+          "javascriptHeapBytes": 145346130,
+          "runtimeErrors": 0,
+          "status": "PASSED",
+          "width": 390
+        }
+      ]
+    },
+    "denseEpochsPerBodyPerNewObserver": 1226881,
+    "directSpiceInteriorChecks": 7104,
+    "independentNativeCellChecks": 2520,
+    "newHorizonsComparisons": 180,
+    "node": {
+      "failed": 0,
+      "passed": 151,
+      "skipped": 0
+    },
+    "playbackPerformance": {
+      "failures": [],
+      "scope": "Local fresh-document, cache-disabled browser measurements; OS file cache and CPU scheduling are not controlled. No network throttling or physical mobile device.",
+      "viewports": [
+        {
+          "activePlayback": [
+            {
+              "elapsedMs": 5057.199999988079,
+              "fromUtc": "2026-11-01T00:00:00.000Z",
+              "gpuResources": {
+                "geometries": 9,
+                "textures": 4
+              },
+              "mode": "orbital",
+              "renderedFrameCount": 81,
+              "renderedFramesPerSecond": 16.016768172148804,
+              "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+              "toUtc": "2026-11-05T04:30:00.000Z",
+              "trianglesAtEnd": 201984,
+              "workload": "Full-cache playback,48 actual half-hour samples per real second"
+            },
+            {
+              "elapsedMs": 5054,
+              "fromUtc": "2026-11-01T00:00:00.000Z",
+              "gpuResources": {
+                "geometries": 9,
+                "textures": 4
+              },
+              "mode": "surface",
+              "renderedFrameCount": 87,
+              "renderedFramesPerSecond": 17.214087851206965,
+              "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+              "toUtc": "2026-11-05T11:00:00.000Z",
+              "trianglesAtEnd": 189952,
+              "workload": "Full-cache playback,48 actual half-hour samples per real second"
+            }
+          ],
+          "viewport": {
+            "deviceScaleFactor": 1,
+            "height": 768,
+            "mobile": false,
+            "width": 1366
+          }
+        },
+        {
+          "activePlayback": [
+            {
+              "elapsedMs": 5032.600000023842,
+              "fromUtc": "2026-11-01T00:00:00.000Z",
+              "gpuResources": {
+                "geometries": 9,
+                "textures": 4
+              },
+              "mode": "orbital",
+              "renderedFrameCount": 94,
+              "renderedFramesPerSecond": 18.678218018430766,
+              "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+              "toUtc": "2026-11-05T03:30:00.000Z",
+              "trianglesAtEnd": 201984,
+              "workload": "Full-cache playback,48 actual half-hour samples per real second"
+            },
+            {
+              "elapsedMs": 5031.900000035763,
+              "fromUtc": "2026-11-01T00:00:00.000Z",
+              "gpuResources": {
+                "geometries": 9,
+                "textures": 4
+              },
+              "mode": "surface",
+              "renderedFrameCount": 91,
+              "renderedFramesPerSecond": 18.08462012348283,
+              "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+              "toUtc": "2026-11-05T07:00:00.000Z",
+              "trianglesAtEnd": 189952,
+              "workload": "Full-cache playback,48 actual half-hour samples per real second"
+            }
+          ],
+          "viewport": {
+            "deviceScaleFactor": 1,
+            "height": 840,
+            "mobile": false,
+            "width": 390
+          }
+        }
+      ]
+    },
+    "python": {
+      "failed": 0,
+      "passed": 178,
+      "skipped": 0
+    },
+    "totalHorizonsComparisons": 480
+  },
+  "finalBundleFileSha256": "c5b4c18fba7052cd628d6b5af26ec255f2df4597b489c38b994a76809d80c7aa",
+  "finalPayloadSha256": "729228c9ae67b15a9ec569230e703c616adb1c011b1ce529bda32e10ea7706d0",
+  "geometryOnlyContextCount": 9,
+  "limitations": [
+    "User-supplied geometric requirements, not spacecraft power, thermal, RF-link, landing or trajectory certification.",
+    "Nominal 5/80/240 m grids have interpolation and unresolved physical terrain uncertainty; numerical enclosures are model-conditional.",
+    "Mission-specific refinement can remain INDETERMINATE. Same-DEM/JPL implementation checks are not observational validation.",
+    "Chrome software WebGL and desktop mobile-width emulation; no physical-phone or hardware-GPU performance claim."
+  ],
+  "newMeshBytes": 19774728,
+  "originalBundleBytes": 7118301,
+  "originalFourSiteRecordsPreserved": true,
+  "rawInputBytesAdded": 664729233,
+  "schemaVersion": "1.0",
+  "scientificSiteRecordsUnchangedAfterValidation": true,
+  "siteContentSha256": {
+    "connecting-ridge": "6beee1e72227e260c857f365e624fb370cd7cd7c101528534d16417ba97753a9",
+    "de-gerlache-kocher": "906bcb91a24a941b1bf02ab1ba87ae8db34e04726ea05785b3dad7456d4c4b5f",
+    "de-gerlache-rim": "55b97fcfe8fe91d6369ff4c2fd8b9f0357e8f96293ac4712125d19594e28f3e7",
+    "haworth": "370c94bbfa40271252bd017e3bdefb4e35c40b63ea26944d2f9e1bccf1464645",
+    "leibnitz-beta-plateau": "cc165dd6f6c2b6d44f8de381072798669049beb1ff505cf78a54c44c14606b12",
+    "malapert-massif": "017afe4b5f3c6376972664aa22ef955d0b16d7d461836d23b8a8c46ea83f11be",
+    "nobile-rim-1": "1015300439663e12556db70d5728b2b34d196d25ec0059ad812875eee577e14e",
+    "nobile-rim-2": "f395a9dc9a989ce1545efabd153e6e356cd52e6738190df79f89ed345d18d93c",
+    "peak-near-shackleton": "7d9759255b9dfb77eb12650bc10fbd757a02d1e06b723e9cd237f83a62c88de4",
+    "shackleton-rim": "9eb93214cde85e953caef159ded8c9d38785e9a26b8b2033025526e8917ffcbd"
+  },
+  "terrainSiteCount": 10,
+  "validatedDraftPayloadSha256": "6774491fc8009cf8710aef1aabe3b6bc465add2a14077cd5728a643e4e277dfd",
+  "validationEvidenceFileSha256": "0893775c6b8934b01d2dd49367a7a4594dc1b1a2b6bc83e1dae69756c069d382"
+}

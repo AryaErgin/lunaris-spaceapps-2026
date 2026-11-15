@@ -65,3 +65,5 @@ video_drafts/
 
 # Private project execution permissions
 .codex/
+
+data/reference/

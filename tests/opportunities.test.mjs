@@ -31,7 +31,16 @@ test('no complete cached mission, an empty schedule, failed candidates and unres
   assert.equal(future.kind,'NO_DATA');assert.equal(future.search.candidateCount,0);assert.equal(future.recommended,null);
   const excluded=await findLandingOpportunities(bundle,{...demo,nominal:utc('2026-11-17T03:00Z'),latest:utc('2026-11-10T00:00Z')});
   assert.equal(excluded.kind,'SCHEDULE_EMPTY');assert.equal(excluded.counts.FAIL,0);
-  const missed=await findLandingOpportunities(bundle,{...demo,nominal:utc('2026-11-04T06:00Z'),earliest:utc('2026-11-04T06:00Z'),latest:utc('2026-11-04T06:00Z')});
+  const missInputs={...demo,nominal:utc('2026-11-04T06:00Z'),earliest:utc('2026-11-04T06:00Z'),latest:utc('2026-11-04T06:00Z')};
+  const frozenIds=new Set(['connecting-ridge','shackleton-rim','de-gerlache-rim','peak-near-shackleton']);
+  const frozenBundle={...bundle,sites:bundle.sites.filter(site=>frozenIds.has(site.id))};
+  const missed=await findLandingOpportunities(frozenBundle,missInputs);
+  if(bundle.sites.length>frozenBundle.sites.length){
+    const expanded=await findLandingOpportunities(bundle,missInputs);
+    assert.equal(expanded.kind,'UNRESOLVED','Additional terrain uncertainty must not become a definitive all-site failure.');
+    assert.equal(expanded.recommended,null);assert(expanded.counts.INDETERMINATE>0);
+    assert(expanded.unresolved.every(m=>m.status==='INDETERMINATE'));
+  }
   assert.equal(missed.kind,'NO_PASS');assert.equal(missed.recommended,null);assert(missed.nearMisses.length);
   for(const row of missed.nearMisses){assert.equal(row.mission.status,'FAIL');assert(row.failedRules.every(r=>r.status==='FAIL'));assert.deepEqual(row.mission,evaluateStart(bundle,demo,row.mission.siteId,row.mission.start));}
   const synthetic={coverage:[0,7200],sites:[{id:'x',sun:[[0,7200,'uncertain']],earth:[[0,7200,'visible']]}]};
