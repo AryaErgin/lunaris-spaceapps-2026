@@ -12,7 +12,7 @@ import numpy as np
 import pytest
 
 from science.ephemerides import FRAME
-from science.sources import REGIONAL, SITE_SOURCE
+from science.sources import REGIONAL, SITE_SOURCE, SITES
 from science.terrain import RADIUS_M, project
 
 ROWS = (
@@ -50,8 +50,12 @@ def registry(monkeypatch):
 
 def expanded_bundle(registry, *, grounds=None):
     result = json.loads((ROOT / "web/data/bundle.json").read_bytes())
-    # Existing extended bundle has the original four study points.
-    assert len(result["sites"]) == 4
+    # Preserve a four-site baseline fixture even after the public bundle is expanded.
+    frozen_ids={row[0] for row in SITES}|{'peak-near-shackleton'}
+    result['sites']=[site for site in result['sites'] if site['id'] in frozen_ids]
+    new_names={record['filename'] for record in registry.SOURCE_PINS}
+    result['manifest']['files']=[record for record in result['manifest']['files'] if record['filename'] not in new_names]
+    assert len(result['sites'])==4
     grounds = grounds or {}
     for row in ROWS:
         ground = grounds.get(row[0], 100.)
@@ -103,6 +107,10 @@ def prepare_baseline(tmp_path):
     baseline = tmp_path / "baseline"
     baseline.mkdir()
     metadata = json.loads((ROOT / "web/data/terrain-scenes.json").read_bytes())
+    frozen_ids={row[0] for row in SITES}|{'peak-near-shackleton'}
+    metadata['sites']=[site for site in metadata['sites'] if site['siteId'] in frozen_ids]
+    original_names={REGIONAL,'Site01_final_adj_5mpp_surf.tif','Site04_final_adj_5mpp_surf.tif','Site07_final_adj_5mpp_surf.tif','Site11_final_adj_5mpp_surf.tif'}
+    metadata['sources']=[source for source in metadata['sources'] if source['filename'] in original_names]
     for record in metadata["sites"]:
         payload = (ROOT / "web/data" / record["positionFile"]).read_bytes()
         (baseline / record["positionFile"]).write_bytes(payload)

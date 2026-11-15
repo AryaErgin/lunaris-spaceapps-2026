@@ -161,7 +161,7 @@ def test_actual_four_site_meshes_and_native_slope_use_own_sources(tmp_path):
     if not all((raw / filename).is_file() for filename in required):
         pytest.skip('Optional pinned NASA raw DEMs are unavailable')
     bundle = json.loads((ROOT / 'web/data/bundle.json').read_bytes())
-    bundle['sites'] = [site for site in bundle['sites'] if site['id'] != 'peak-near-shackleton']
+    bundle['sites'] = [site for site in bundle['sites'] if site['id'] in {row[0] for row in SITES}]
     extra = four_site_bundle()['sites'][-1]
     extra['groundM'] = 1645.548828125
     for level in ('coarse', 'fine'):

@@ -1,4 +1,4 @@
-﻿// Actual Chrome integration and load benchmark; no frontend layout changes.
+// Actual Chrome integration and load benchmark; no frontend layout changes.
 import assert from 'node:assert/strict';
 import {spawn} from 'node:child_process';
 import {createServer} from 'node:http';
@@ -58,7 +58,7 @@ try{
       recoveryStart:recovery.recommended?.start,elapsedMs:{load:loaded-began,firstComparison:compared-loaded,annualComparison:full-compared,warmComparison:performance.now()-full},
       javascriptHeapBytes:performance.memory?.usedJSHeapSize??null,userAgent:navigator.userAgent};
   })()`);
-  assert.equal(result.siteIds.length,13);assert.equal(result.terrainIds.length,4);assert.deepEqual(result.switched,result.siteIds);
+  assert(result.terrainIds.length>=10);assert.equal(result.siteIds.length,result.terrainIds.length+9);assert.deepEqual(result.switched,result.siteIds);
   assert.equal(result.geometryOnly.length,9);for(const row of result.geometryOnly){assert.equal(row.decision,null);assert.equal(row.terrainMetrics,null);}
   assert.equal(result.farSide.aboveLevelSecondsEstimate,0);assert.equal(result.farSide.unknownSeconds,0);
   assert(result.parity);assert.deepEqual(result.outcomes,['PASS','FAIL','PASS']);

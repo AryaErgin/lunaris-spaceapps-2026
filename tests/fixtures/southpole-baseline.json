@@ -1,0 +1,22 @@
+{
+  "baselineCommit": "d1dd61e40cb00e0e4dea369217247eb69cacbe95",
+  "baselineFileSha256": "21a59be9b936ad4780d7ad3ea58a2d8ffaae4fff7f3cbea4a965398b370f8f67",
+  "canonicalConvention": "SHA256 of parsed JSON with recursively sorted object keys and JavaScript number serialization; site records and finite scenarios compared without mutation.",
+  "sites": {
+    "connecting-ridge": "a6c57e5877fc821224ed06aa5a281029a23dea843b933eebcba2b14fc608ee29",
+    "shackleton-rim": "605a1feaffbcf27d3acf97b3ff8c3c79e93dc108e6fc05ba8c16a26141de43b0",
+    "de-gerlache-rim": "e14640d84c7dfe59bf88416825c864ee8eec7ed237226a55b33346ba77feee58",
+    "peak-near-shackleton": "ae54d0c1e4a54944ec9b0e007b26b8d18fcf08439b0a83ae156bbef117ea4483"
+  },
+  "meshes": {
+    "connecting-ridge": "f343a3c31d2738f279833c605e07f36028b0eb76fad48bcc4fbd4532914a38ae",
+    "shackleton-rim": "7803b1d378e3f08597a4101643ff2829de53f906f05a9c41ac06f654b8de1641",
+    "de-gerlache-rim": "862d8c0fdccb10d07fae55c8f2e7a9427b847f73de185cdef69104a8d9336c47",
+    "peak-near-shackleton": "e51dc164d71237347bf314659e66933013fc1744befd4e60422c653885b6075c"
+  },
+  "scenarios": {
+    "height": "5dc3de079e5d0ba3322d543f5af58703a0988b96dd2de710d75064e8e544ea9a",
+    "position": "f7de9d2b9146ad039689f7737e8b148065aefa1c8a9f74cfffc121f938acfcb8",
+    "terrain": "1b6b582a5566e162b3cbbf4ad6e2c143f03203f9558092590c19859dc066b15e"
+  }
+}

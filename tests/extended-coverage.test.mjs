@@ -171,7 +171,7 @@ test('annual positions and interval partitions are complete at every actual stud
 test('new epoch directions are bound to matched Horizons and explicitly qualified motion checks',onlyExtended,()=>{
   const {horizons,motionDomain,motionEnvelope}=bundle.manifest.validation;
   assert.equal(horizons.status,'PASS');assert.equal(horizons.angular_tolerance_deg,.01);
-  assert.equal(horizons.comparison_count,300);assert(horizons.max_angular_separation_deg<.01);
+  assert.equal(horizons.comparison_count,bundle.manifest.validation.southpoleExpansion?.status==='PASS'?480:300);assert(horizons.max_angular_separation_deg<.01);
   assert.equal(motionDomain.status,'PASS');assert.equal(motionDomain.sampled_only,true);
   assert.equal(motionDomain.between_sample_bound_proven,false,'A dense sampled audit is not a continuous enclosure.');
   assert.equal(motionDomain.frame,'MOON_ME_DE440_ME421');assert.equal(motionDomain.correction,'CN+S');
