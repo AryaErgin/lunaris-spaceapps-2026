@@ -1876,7 +1876,7 @@ function updateExperienceFrame(site,sample,mission) {
       track.type='button';track.dataset.channel=key;
       const summary=visibilitySummary(mission.timeline[key],mission.start,mission.end).seconds;
       const total=mission.end-mission.start,unresolved=summary.uncertain+summary.unknown;
-      const compactDuration=seconds=>conciseDuration(seconds).replace(/\s+\d+\s+s$/,'').replace(/(\d+)\s+h/g,'$1h').replace(/(\d+)\s+min/g,'$1m').replace(/(\d+)\s+s/g,'$1s').replace(/([hms])\s+(?=\d)/g,'$1');
+      const compactDuration=seconds=>conciseDuration(seconds).replace(/\s+\d+\s+s$/,'');
       const caption=summary.visible===total?'Visible for the whole stay':summary.blocked===total?'Blocked for the whole stay'
         :`${compactDuration(summary.visible)} confirmed${unresolved>0?` · ${compactDuration(unresolved)} unresolved`:''}`;
       const meanings={visible:'center visible',blocked:'center blocked',uncertain:'unresolved visibility',unknown:'missing data'};

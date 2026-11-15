@@ -148,7 +148,7 @@ try{
     const sun=laneStyles[0],earth=laneStyles[1],visibleSun=sun.pieces.find(p=>p.state==='visible'),uncertainSun=sun.pieces.find(p=>p.state==='uncertain'),visibleEarth=earth.pieces.find(p=>p.state==='visible');
     assert(visibleSun&&uncertainSun&&visibleEarth,'The nominal witness must demonstrate confirmed, unresolved and full-stay Earth visibility.');
     assert.equal(visibleSun.pattern,'none');assert.match(uncertainSun.pattern,/repeating-linear-gradient/);assert.notEqual(visibleSun.background,visibleEarth.background,'Sun and Earth need distinct channel colors.');
-    assert.equal(earth.caption,'Visible for the whole stay');assert.match(sun.caption,/confirmed.*unresolved/);
+    assert.equal(earth.caption,'Visible for the whole stay');assert.match(sun.caption,/confirmed.*unresolved/);assert.match(sun.caption,/\d+\s+h\s+\d+\s+min\s+confirmed.*\d+\s+h\s+\d+\s+min\s+unresolved/,'Timeline quantities and units must remain separated by readable spaces.');
     const interactions=[];
     for(const [channel,state]of [['sun','uncertain'],['earth','visible']]){
       const selector='.hero-lane[data-channel="'+channel+'"] .hero-lane-track';
