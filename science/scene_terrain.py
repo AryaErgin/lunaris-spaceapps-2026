@@ -260,7 +260,7 @@ def build_scenes(raw, bundle_path, output):
                            "Nearest-cell heights and linear display triangles approximate the cell-constant scientific terrain model; no vertical exaggeration or procedural craters.",
                            "Study points are published region centers, not approved landing locations. This visual makes no landing safety, power or communication reliability claim."],
                 "reproduce": "python -m science.scene_terrain --raw data/raw --bundle web/data/bundle.json --output web/data",
-                "aiUse": "OpenAI Codex assisted implementation, tests and writing under sole human entrant Arya Ergin. Mesh vertices are deterministic NASA DEM derivatives, not generative artwork."}
+                "aiUse": "OpenAI Codex and Anthropic Claude assisted implementation, tests and writing under human teammates Arya Ergin and Aras. Mesh vertices are deterministic NASA DEM derivatives, not generative artwork."}
     with rasterio.open(raw / REGIONAL) as regional:
         for site_id, _, _, expected_lat, expected_lon, tile in SITES:
             site = sites[site_id]

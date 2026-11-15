@@ -1,7 +1,7 @@
 {
-  "aiUse": "OpenAI Codex assisted implementation, testing and writing of this presentation-only evidence derivative under sole human entrant Arya Ergin.",
-  "bundleFileSha256": "67f898ff38f66c0feb8bff7196aa78ed060dd609801dce0aca7a8927d2cc05c6",
-  "bundlePayloadSha256": "18c23c3de7cc3a61cb9fb4901c868c283cb13b789a868f074156fbabe85469a4",
+  "aiUse": "OpenAI Codex and Anthropic Claude assisted implementation, testing and writing of this presentation-only evidence derivative under human teammates Arya Ergin and Aras.",
+  "bundleFileSha256": "8fffeeba500f5e627eca46560c71516f62b1bd14dc25066fbebccd54fe34cc73",
+  "bundlePayloadSha256": "bd227c1f2ae1264dc31f7f6931e62164854c1869198ebfb252aa19f8f1146200",
   "kind": "Presentation verification of existing NASA terrain and frozen nominal skyline witnesses",
   "method": "For each exact published study point, select its containing native 5 m DEM cell and a 3x3 window. Convert native neighboring cell centers and radial elevations to curved lunar Cartesian positions, then the point's radial-up/east/north basis. Solve [deltaEast,deltaNorth] dot [dUp/dEast,dUp/dNorth] = deltaUp for the east-west and north-south central pairs. Slope is atan(hypot(the two gradient components)). Physical horizontal chord distances account for projection scale, actual ground radius and lunar curvature. Required masked/nonfinite samples yield INDETERMINATE, never a flat slope.",
   "recoveryStartRayAudit": {

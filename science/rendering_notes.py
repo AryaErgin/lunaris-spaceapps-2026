@@ -137,7 +137,7 @@ def build_notes(raw, bundle_path, output):
              "sites": [_site_note(raw, sites[row[0]], row[5]) for row in SITES],
              "recoveryStartRayAudit": _ray_audit(bundle),
              "reproduce": "python -m science.rendering_notes --raw data/raw --bundle web/data/bundle.json --output web/data/rendering-notes.json",
-             "aiUse": "OpenAI Codex assisted implementation, testing and writing of this presentation-only evidence derivative under sole human entrant Arya Ergin."}
+             "aiUse": "OpenAI Codex and Anthropic Claude assisted implementation, testing and writing of this presentation-only evidence derivative under human teammates Arya Ergin and Aras."}
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(notes, indent=2, sort_keys=True, allow_nan=False) + "\n", encoding="utf-8")
     return notes

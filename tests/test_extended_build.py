@@ -130,7 +130,10 @@ def test_extended_reports_require_same_observer_targets_and_full_date_domain(tmp
     site = {'id': 'x', 'lat': -89., 'lon': 20., 'heightM': 2., 'groundM': 100., 'referenceRadiusM': 1737400.}
     domain = {'status': 'PASS', 'start_utc': '2026-11-01T00:00:00Z', 'end_utc': '2028-01-01T00:00:00Z',
               'frame': 'MOON_ME_DE440_ME421', 'correction': 'CN+S',
-              'sites': [{'site_id': 'x', 'latitude_deg': -89., 'longitude_deg_east': 20., 'observer_radius_m': 1737502., 'status': 'PASS'}]}
+              'sites': [{'site_id': 'x', 'latitude_deg': -89., 'longitude_deg_east': 20., 'observer_radius_m': 1737502., 'status': 'PASS',
+                'checks': dict.fromkeys(['sun_angular_rate_below_envelope', 'earth_angular_rate_below_envelope',
+                    'earth_range_above_assumed_minimum', 'earth_abs_range_rate_below_assumed_maximum',
+                    'sampled_light_times_inside_coverage_guard'], True)}]}
     horizons = {'status': 'PASS', 'references': [
         {'site_id': 'x', 'target': target, 'latitude_deg': -89., 'longitude_deg_east': 20., 'observer_radius_m': 1737502.,
          'samples': [{'utc': '2026-11-01T00:00:00Z', 'separation_deg': 0.}, {'utc': '2028-01-01T00:00:00Z', 'separation_deg': 0.}]}
@@ -162,6 +165,28 @@ def test_extended_reports_require_same_observer_targets_and_full_date_domain(tmp
     write(domain, changed)
     with pytest.raises(ValueError, match='frame|convention'):
         module._validated_reports(a, b, start, end, [site])
+    changed = deepcopy(domain); changed['sites'][0]['status'] = 'FAIL'
+    changed['sites'][0]['checks'] = dict.fromkeys(changed['sites'][0]['checks'], False)
+    write(changed, horizons)
+    with pytest.raises(ValueError, match='domain|audit'):
+        module._validated_reports(a, b, start, end, [site])
+    from hashlib import sha256
+    from pathlib import Path
+    domain['kernels'] = horizons['kernels'] = [{'filename': 'test.bsp', 'sha256': 'a'*64}]
+    domain['code_sha256'] = {name: sha256(Path('science', name).read_bytes()).hexdigest()
+                            for name in ('ephemerides.py', 'domain_validation.py')}
+    horizons['code_sha256'] = {'ephemerides.py': domain['code_sha256']['ephemerides.py']}
+    write(domain, horizons)
+    module._validated_reports(a, b, start, end, [site], expected_kernel_hashes={'test.bsp': 'a'*64})
+    for field in ('kernels', 'code_sha256'):
+        changed = deepcopy(horizons)
+        if field == 'kernels':
+            changed[field][0]['sha256'] = '0'*64
+        else:
+            changed[field]['ephemerides.py'] = '0'*64
+        write(domain, changed)
+        with pytest.raises(ValueError, match='Horizons.*(kernel|code)'):
+            module._validated_reports(a, b, start, end, [site], expected_kernel_hashes={'test.bsp': 'a'*64})
 
 
 def test_reference_cannot_be_a_modified_or_empty_bundle_claiming_the_stable_fingerprint(tmp_path):

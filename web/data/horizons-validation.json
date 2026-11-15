@@ -1,30 +1,147 @@
 {
-  "test_id": "T03",
-  "status": "PASS",
-  "retrieved_utc": "2026-11-14T06:15:23Z",
-  "comparison_count": 24,
   "angular_tolerance_deg": 0.01,
-  "max_angular_separation_deg": 4.82073e-07,
-  "comparison_conventions": {
-    "lunar_spice_frame": "MOON_ME_DE440_ME421",
-    "lunar_horizons_frame": "MEAN_ME (DE440-family realization of DE421 mean Earth/polar axis)",
-    "spice_correction": "CN+S",
-    "horizons_correction": "Airless apparent; additionally includes relativistic deflection",
-    "observer_reference_radius_m": 1737400.0,
-    "interpretation": "Topocentric implementation comparison with shared JPL ephemeris lineage; tests no terrain or physical visibility."
+  "code_sha256": {
+    "ephemerides.py": "adc66b45b706a8d64c9b03aabba029b2140b806686b7b6b46358d6cd3365d69c"
   },
+  "comparison_conventions": {
+    "horizons_correction": "Airless apparent; additionally includes relativistic deflection",
+    "interpretation": "Topocentric implementation comparison with shared JPL ephemeris lineage; tests no terrain or physical visibility.",
+    "lunar_horizons_frame": "MEAN_ME (DE440-family realization of DE421 mean Earth/polar axis)",
+    "lunar_spice_frame": "MOON_ME_DE440_ME421",
+    "observer_reference_radius_m": 1737400.0,
+    "spice_correction": "CN+S"
+  },
+  "comparison_count": 300,
+  "execution": {
+    "completed_utc": "2026-11-14T23:11:02.592688Z",
+    "elapsed_seconds": 17.229200900008436,
+    "observer_count": 10,
+    "python": "3.11.9",
+    "raw_response_acquisition_scope": "Every cached response retains its actual original HTTP acquisition time, URL and SHA256; report retrieved_utc is the comparison invocation time.",
+    "requested_dates": [
+      "2026-11-01",
+      "2026-12-01",
+      "2027-01-01",
+      "2027-02-01",
+      "2027-03-01",
+      "2027-04-01",
+      "2027-05-01",
+      "2027-06-01",
+      "2027-07-01",
+      "2027-08-01",
+      "2027-09-01",
+      "2027-10-01",
+      "2027-11-01",
+      "2027-12-01",
+      "2028-01-01"
+    ],
+    "response_count": 20
+  },
+  "generator_commit": "621a086b6e7ffc4b1f62e7959859fd20906445bb",
+  "kernel_coverage": {
+    "correction": "CN+S",
+    "note": "Raw kernel intervals. Reception calculations also require target coverage at retarded epochs.",
+    "observer_frame": "MOON_ME_DE440_ME421",
+    "orientation": [
+      {
+        "end_tdb_s_past_j2000": 20514081600.0,
+        "end_utc": "2650-01-24T23:58:50.816Z",
+        "start_tdb_s_past_j2000": -14200747200.0,
+        "start_utc": "1549-12-30T23:59:18.816Z"
+      }
+    ],
+    "orientation_class_id": 31008,
+    "output_frame_epoch": "OBSERVER",
+    "spiceypy_version": "8.4.0",
+    "spk": {
+      "10": [
+        {
+          "end_tdb_s_past_j2000": 4735368000.0,
+          "end_utc": "2150-01-21T23:58:50.816Z",
+          "start_tdb_s_past_j2000": -4734072000.0,
+          "start_utc": "1849-12-25T23:59:18.816Z"
+        }
+      ],
+      "3": [
+        {
+          "end_tdb_s_past_j2000": 4735368000.0,
+          "end_utc": "2150-01-21T23:58:50.816Z",
+          "start_tdb_s_past_j2000": -4734072000.0,
+          "start_utc": "1849-12-25T23:59:18.816Z"
+        }
+      ],
+      "301": [
+        {
+          "end_tdb_s_past_j2000": 4735368000.0,
+          "end_utc": "2150-01-21T23:58:50.816Z",
+          "start_tdb_s_past_j2000": -4734072000.0,
+          "start_utc": "1849-12-25T23:59:18.816Z"
+        }
+      ],
+      "399": [
+        {
+          "end_tdb_s_past_j2000": 4735368000.0,
+          "end_utc": "2150-01-21T23:58:50.816Z",
+          "start_tdb_s_past_j2000": -4734072000.0,
+          "start_utc": "1849-12-25T23:59:18.816Z"
+        }
+      ]
+    },
+    "toolkit_version": "CSPICE_N0067"
+  },
+  "kernels": [
+    {
+      "access": "NASA public archive. Cite the publisher and linked product.",
+      "bytes": 32726016,
+      "citation": "https://doi.org/10.3847/1538-3881/abd414",
+      "filename": "de440s.bsp",
+      "local_file_acquired_utc": "2026-11-14T06:12:27.445103+00:00",
+      "product_version": "de440s",
+      "sha256": "c1c7feeab882263fc493a9d5a5b2ddd71b54826cdf65d8d17a76126b260a49f2",
+      "url": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/planets/de440s.bsp",
+      "use": "JPL SPICE kernel"
+    },
+    {
+      "access": "NASA public archive. Cite the publisher and linked product.",
+      "bytes": 12863488,
+      "citation": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/",
+      "filename": "moon_pa_de440_200625.bpc",
+      "local_file_acquired_utc": "2026-11-14T06:12:32.300673+00:00",
+      "product_version": "moon_pa_de440_200625",
+      "sha256": "60cd55aa401ea2ea97360636f567554bfe4e37bb829f901b4460a455dfaf783f",
+      "url": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/moon_pa_de440_200625.bpc",
+      "use": "JPL SPICE kernel"
+    },
+    {
+      "access": "NASA public archive. Cite the publisher and linked product.",
+      "bytes": 19478,
+      "citation": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/fk/satellites/",
+      "filename": "moon_de440_250416.tf",
+      "local_file_acquired_utc": "2026-11-14T06:12:28.191050+00:00",
+      "product_version": "moon_de440_250416",
+      "sha256": "a47c71e9c9f33796bdafb2c9d69a7ee447b6016ecad80f71cd6f3e479f9cf768",
+      "url": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/fk/satellites/moon_de440_250416.tf",
+      "use": "JPL SPICE kernel"
+    },
+    {
+      "access": "NASA public archive. Cite the publisher and linked product.",
+      "bytes": 5257,
+      "citation": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/lsk/",
+      "filename": "naif0012.tls",
+      "local_file_acquired_utc": "2026-11-14T06:12:27.991396+00:00",
+      "product_version": "naif0012",
+      "sha256": "678e32bdb5a744117a467cd9601cd6b373f0e9bc9bbde1371d5eee39600a039b",
+      "url": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/lsk/naif0012.tls",
+      "use": "JPL SPICE kernel"
+    }
+  ],
+  "max_angular_separation_deg": 5.16547e-07,
   "references": [
     {
-      "site_id": "connecting-ridge",
+      "horizons_target_id": "10",
       "latitude_deg": -89.4632,
       "longitude_deg_east": 222.51,
       "observer_radius_m": 1739346.6325683594,
-      "target": "sun",
-      "horizons_target_id": "10",
-      "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%2710%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27222.51000000%2C-89.46320000%2C1.946632568%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272026-11-30%27&STEP_SIZE=%271+d%27",
-      "source_filename": "connecting-ridge-sun.txt",
-      "source_bytes": 7880,
-      "source_sha256": "6e3ea04d844cbf38b9c0f085f82de4a9d63060e92e773710d11bfd753d924e6e",
       "reference_header": [
         "API VERSION: 1.2",
         "API SOURCE: NASA/JPL Horizons API",
@@ -37,50 +154,138 @@
       ],
       "samples": [
         {
-          "utc": "2026-11-01T00:00:00Z",
           "horizons_azimuth_deg": 62.633912325,
           "horizons_elevation_deg": 1.703361756,
+          "separation_deg": 8.37e-09,
           "spice_azimuth_deg": 62.633912317,
           "spice_elevation_deg": 1.703361756,
-          "separation_deg": 8.37e-09
+          "utc": "2026-11-01T00:00:00Z"
         },
         {
-          "utc": "2026-11-10T00:00:00Z",
-          "horizons_azimuth_deg": 312.883884836,
-          "horizons_elevation_deg": 1.909607783,
-          "spice_azimuth_deg": 312.883884837,
-          "spice_elevation_deg": 1.909607783,
-          "separation_deg": 8.02e-10
+          "horizons_azimuth_deg": 57.566572136,
+          "horizons_elevation_deg": 1.75808202,
+          "separation_deg": 8.371e-09,
+          "spice_azimuth_deg": 57.566572128,
+          "spice_elevation_deg": 1.758082021,
+          "utc": "2026-12-01T00:00:00Z"
         },
         {
-          "utc": "2026-11-20T00:00:00Z",
-          "horizons_azimuth_deg": 191.08456776,
-          "horizons_elevation_deg": 1.017910121,
-          "spice_azimuth_deg": 191.084567764,
-          "spice_elevation_deg": 1.017910121,
-          "separation_deg": 4.516e-09
+          "horizons_azimuth_deg": 40.61310186,
+          "horizons_elevation_deg": 1.421432551,
+          "separation_deg": 6.544e-09,
+          "spice_azimuth_deg": 40.613101853,
+          "spice_elevation_deg": 1.421432551,
+          "utc": "2027-01-01T00:00:00Z"
         },
         {
-          "utc": "2026-11-30T00:00:00Z",
-          "horizons_azimuth_deg": 69.722931966,
-          "horizons_elevation_deg": 1.662479019,
-          "spice_azimuth_deg": 69.722931958,
-          "spice_elevation_deg": 1.662479019,
-          "separation_deg": 8.002e-09
+          "horizons_azimuth_deg": 23.662975232,
+          "horizons_elevation_deg": 0.719254172,
+          "separation_deg": 4.801e-09,
+          "spice_azimuth_deg": 23.662975227,
+          "spice_elevation_deg": 0.719254172,
+          "utc": "2027-02-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 42.999913007,
+          "horizons_elevation_deg": -0.17734041,
+          "separation_deg": 4.537e-09,
+          "spice_azimuth_deg": 42.999913002,
+          "spice_elevation_deg": -0.17734041,
+          "utc": "2027-03-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 25.388558231,
+          "horizons_elevation_deg": -0.762456321,
+          "separation_deg": 4.583e-09,
+          "spice_azimuth_deg": 25.388558226,
+          "spice_elevation_deg": -0.762456322,
+          "utc": "2027-04-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 19.474909067,
+          "horizons_elevation_deg": -1.035838422,
+          "separation_deg": 5.021e-09,
+          "spice_azimuth_deg": 19.474909062,
+          "spice_elevation_deg": -1.035838423,
+          "utc": "2027-05-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 0.898565338,
+          "horizons_elevation_deg": -0.855030882,
+          "separation_deg": 5.12e-09,
+          "spice_azimuth_deg": 0.898565333,
+          "spice_elevation_deg": -0.855030882,
+          "utc": "2027-06-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 354.269117006,
+          "horizons_elevation_deg": -0.335332753,
+          "separation_deg": 5.635e-09,
+          "spice_azimuth_deg": 354.269117,
+          "spice_elevation_deg": -0.335332753,
+          "utc": "2027-07-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 335.340522166,
+          "horizons_elevation_deg": 0.401585795,
+          "separation_deg": 3.838e-09,
+          "spice_azimuth_deg": 335.340522162,
+          "spice_elevation_deg": 0.401585795,
+          "utc": "2027-08-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 316.615176993,
+          "horizons_elevation_deg": 1.115435751,
+          "separation_deg": 1.464e-09,
+          "spice_azimuth_deg": 316.615176992,
+          "spice_elevation_deg": 1.115435751,
+          "utc": "2027-09-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 310.546283089,
+          "horizons_elevation_deg": 1.662749228,
+          "separation_deg": 4.01e-10,
+          "spice_azimuth_deg": 310.546283089,
+          "spice_elevation_deg": 1.662749228,
+          "utc": "2027-10-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 292.774724956,
+          "horizons_elevation_deg": 1.74398247,
+          "separation_deg": 2.982e-09,
+          "spice_azimuth_deg": 292.774724959,
+          "spice_elevation_deg": 1.743982469,
+          "utc": "2027-11-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 287.690437656,
+          "horizons_elevation_deg": 1.451377978,
+          "separation_deg": 4.267e-09,
+          "spice_azimuth_deg": 287.69043766,
+          "spice_elevation_deg": 1.451377978,
+          "utc": "2027-12-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 270.711816202,
+          "horizons_elevation_deg": 0.635906241,
+          "separation_deg": 7.804e-09,
+          "spice_azimuth_deg": 270.71181621,
+          "spice_elevation_deg": 0.63590624,
+          "utc": "2028-01-01T00:00:00Z"
         }
-      ]
+      ],
+      "site_id": "connecting-ridge",
+      "source_bytes": 31303,
+      "source_filename": "connecting-ridge-sun.txt",
+      "source_sha256": "1c6ca956cba54a0c493510c322dab1882b2a1c999bc308b1ca8b755d0408aebe",
+      "target": "sun",
+      "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%2710%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27222.51000000%2C-89.46320000%2C1.946632568%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27"
     },
     {
-      "site_id": "connecting-ridge",
+      "horizons_target_id": "399",
       "latitude_deg": -89.4632,
       "longitude_deg_east": 222.51,
       "observer_radius_m": 1739346.6325683594,
-      "target": "earth",
-      "horizons_target_id": "399",
-      "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27399%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27222.51000000%2C-89.46320000%2C1.946632568%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272026-11-30%27&STEP_SIZE=%271+d%27",
-      "source_filename": "connecting-ridge-earth.txt",
-      "source_bytes": 7880,
-      "source_sha256": "8b180c9a11d05b53958cf1de5eaf6e61c6f58718cacc320de427c32468a0c0d6",
       "reference_header": [
         "API VERSION: 1.2",
         "API SOURCE: NASA/JPL Horizons API",
@@ -93,50 +298,138 @@
       ],
       "samples": [
         {
-          "utc": "2026-11-01T00:00:00Z",
           "horizons_azimuth_deg": 141.464443396,
           "horizons_elevation_deg": 2.519352786,
+          "separation_deg": 3.09503e-07,
           "spice_azimuth_deg": 141.464443087,
           "spice_elevation_deg": 2.519352812,
-          "separation_deg": 3.09503e-07
+          "utc": "2026-11-01T00:00:00Z"
         },
         {
-          "utc": "2026-11-10T00:00:00Z",
-          "horizons_azimuth_deg": 140.89408013,
-          "horizons_elevation_deg": -7.229836791,
-          "spice_azimuth_deg": 140.894079838,
-          "spice_elevation_deg": -7.229836788,
-          "separation_deg": 2.89616e-07
+          "horizons_azimuth_deg": 144.150946397,
+          "horizons_elevation_deg": -2.045556527,
+          "separation_deg": 3.36162e-07,
+          "spice_azimuth_deg": 144.150946064,
+          "spice_elevation_deg": -2.045556479,
+          "utc": "2026-12-01T00:00:00Z"
         },
         {
-          "utc": "2026-11-20T00:00:00Z",
-          "horizons_azimuth_deg": 130.274804392,
-          "horizons_elevation_deg": 2.824463852,
-          "spice_azimuth_deg": 130.274803911,
-          "spice_elevation_deg": 2.824463808,
-          "separation_deg": 4.82073e-07
+          "horizons_azimuth_deg": 144.641742987,
+          "horizons_elevation_deg": -6.686185742,
+          "separation_deg": 3.97816e-07,
+          "spice_azimuth_deg": 144.641742589,
+          "spice_elevation_deg": -6.686185698,
+          "utc": "2027-01-01T00:00:00Z"
         },
         {
-          "utc": "2026-11-30T00:00:00Z",
-          "horizons_azimuth_deg": 143.583178448,
-          "horizons_elevation_deg": -0.463566137,
-          "spice_azimuth_deg": 143.583178165,
-          "spice_elevation_deg": -0.463566096,
-          "separation_deg": 2.85787e-07
+          "horizons_azimuth_deg": 142.077396352,
+          "horizons_elevation_deg": -7.119177985,
+          "separation_deg": 4.33984e-07,
+          "spice_azimuth_deg": 142.077395915,
+          "spice_elevation_deg": -7.119177975,
+          "utc": "2027-02-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 141.513843925,
+          "horizons_elevation_deg": -6.671411835,
+          "separation_deg": 3.58596e-07,
+          "spice_azimuth_deg": 141.513843564,
+          "spice_elevation_deg": -6.671411827,
+          "utc": "2027-03-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 136.550349349,
+          "horizons_elevation_deg": -2.580417686,
+          "separation_deg": 4.10762e-07,
+          "spice_azimuth_deg": 136.550348939,
+          "spice_elevation_deg": -2.580417713,
+          "utc": "2027-04-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 133.006704103,
+          "horizons_elevation_deg": 1.34489712,
+          "separation_deg": 4.29779e-07,
+          "spice_azimuth_deg": 133.006703675,
+          "spice_elevation_deg": 1.34489708,
+          "utc": "2027-05-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 130.609116261,
+          "horizons_elevation_deg": 5.438144927,
+          "separation_deg": 4.90622e-07,
+          "spice_azimuth_deg": 130.609115769,
+          "spice_elevation_deg": 5.4381449,
+          "utc": "2027-06-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 131.154681888,
+          "horizons_elevation_deg": 5.933078171,
+          "separation_deg": 5.16154e-07,
+          "spice_azimuth_deg": 131.154681369,
+          "spice_elevation_deg": 5.933078175,
+          "utc": "2027-07-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 135.200046513,
+          "horizons_elevation_deg": 2.031890424,
+          "separation_deg": 5.01832e-07,
+          "spice_azimuth_deg": 135.200046013,
+          "spice_elevation_deg": 2.031890473,
+          "utc": "2027-08-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 140.228349513,
+          "horizons_elevation_deg": -4.179946427,
+          "separation_deg": 3.97302e-07,
+          "spice_azimuth_deg": 140.228349117,
+          "spice_elevation_deg": -4.179946383,
+          "utc": "2027-09-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 142.459556855,
+          "horizons_elevation_deg": -6.917890282,
+          "separation_deg": 3.39052e-07,
+          "spice_azimuth_deg": 142.459556514,
+          "spice_elevation_deg": -6.917890264,
+          "utc": "2027-10-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 143.073666225,
+          "horizons_elevation_deg": -6.250995496,
+          "separation_deg": 2.37127e-07,
+          "spice_azimuth_deg": 143.073665987,
+          "spice_elevation_deg": -6.250995509,
+          "utc": "2027-11-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 140.94301718,
+          "horizons_elevation_deg": -3.189759855,
+          "separation_deg": 2.09345e-07,
+          "spice_azimuth_deg": 140.943016972,
+          "spice_elevation_deg": -3.189759884,
+          "utc": "2027-12-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 136.343400269,
+          "horizons_elevation_deg": 2.037140319,
+          "separation_deg": 1.86826e-07,
+          "spice_azimuth_deg": 136.343400086,
+          "spice_elevation_deg": 2.037140283,
+          "utc": "2028-01-01T00:00:00Z"
         }
-      ]
+      ],
+      "site_id": "connecting-ridge",
+      "source_bytes": 31303,
+      "source_filename": "connecting-ridge-earth.txt",
+      "source_sha256": "6577888933dcd516249f505d358008ead67591c1144f7f600c2b444037f30f6c",
+      "target": "earth",
+      "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27399%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27222.51000000%2C-89.46320000%2C1.946632568%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27"
     },
     {
-      "site_id": "shackleton-rim",
+      "horizons_target_id": "10",
       "latitude_deg": -89.7668,
       "longitude_deg_east": 188.13,
       "observer_radius_m": 1738173.0432128906,
-      "target": "sun",
-      "horizons_target_id": "10",
-      "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%2710%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27188.13000000%2C-89.76680000%2C0.773043213%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272026-11-30%27&STEP_SIZE=%271+d%27",
-      "source_filename": "shackleton-rim-sun.txt",
-      "source_bytes": 7880,
-      "source_sha256": "afa8f274b2a412bcfccffd1dd606fb9380605687dcfd08b2b0b9db3a566f2a9a",
       "reference_header": [
         "API VERSION: 1.2",
         "API SOURCE: NASA/JPL Horizons API",
@@ -149,50 +442,138 @@
       ],
       "samples": [
         {
-          "utc": "2026-11-01T00:00:00Z",
           "horizons_azimuth_deg": 97.006588776,
           "horizons_elevation_deg": 1.42811804,
+          "separation_deg": 9.185e-09,
           "spice_azimuth_deg": 97.006588767,
           "spice_elevation_deg": 1.428118041,
-          "separation_deg": 9.185e-09
+          "utc": "2026-11-01T00:00:00Z"
         },
         {
-          "utc": "2026-11-10T00:00:00Z",
-          "horizons_azimuth_deg": 347.274259839,
-          "horizons_elevation_deg": 1.771737968,
-          "spice_azimuth_deg": 347.27425984,
-          "spice_elevation_deg": 1.771737968,
-          "separation_deg": 1.014e-09
+          "horizons_azimuth_deg": 91.93976885,
+          "horizons_elevation_deg": 1.462252746,
+          "separation_deg": 8.495e-09,
+          "spice_azimuth_deg": 91.939768842,
+          "spice_elevation_deg": 1.462252746,
+          "utc": "2026-12-01T00:00:00Z"
         },
         {
-          "utc": "2026-11-20T00:00:00Z",
-          "horizons_azimuth_deg": 225.462630391,
-          "horizons_elevation_deg": 1.381140002,
-          "spice_azimuth_deg": 225.462630395,
-          "spice_elevation_deg": 1.381140002,
-          "separation_deg": 3.884e-09
+          "horizons_azimuth_deg": 74.989778656,
+          "horizons_elevation_deg": 1.074316989,
+          "separation_deg": 6.937e-09,
+          "spice_azimuth_deg": 74.989778649,
+          "spice_elevation_deg": 1.074316989,
+          "utc": "2027-01-01T00:00:00Z"
         },
         {
-          "utc": "2026-11-30T00:00:00Z",
-          "horizons_azimuth_deg": 104.09485046,
-          "horizons_elevation_deg": 1.419604538,
-          "spice_azimuth_deg": 104.094850452,
-          "spice_elevation_deg": 1.419604538,
-          "separation_deg": 8.433e-09
+          "horizons_azimuth_deg": 58.042193868,
+          "horizons_elevation_deg": 0.351017004,
+          "separation_deg": 4.863e-09,
+          "spice_azimuth_deg": 58.042193863,
+          "spice_elevation_deg": 0.351017004,
+          "utc": "2027-02-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 77.380136316,
+          "horizons_elevation_deg": -0.518979198,
+          "separation_deg": 4.944e-09,
+          "spice_azimuth_deg": 77.380136311,
+          "spice_elevation_deg": -0.518979198,
+          "utc": "2027-03-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 59.768414576,
+          "horizons_elevation_deg": -1.129996589,
+          "separation_deg": 4.183e-09,
+          "spice_azimuth_deg": 59.768414572,
+          "spice_elevation_deg": -1.129996589,
+          "utc": "2027-04-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 53.854093152,
+          "horizons_elevation_deg": -1.4043767,
+          "separation_deg": 4.401e-09,
+          "spice_azimuth_deg": 53.854093148,
+          "spice_elevation_deg": -1.4043767,
+          "utc": "2027-05-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 35.275683592,
+          "horizons_elevation_deg": -1.201387377,
+          "separation_deg": 4.514e-09,
+          "spice_azimuth_deg": 35.275683588,
+          "spice_elevation_deg": -1.201387377,
+          "utc": "2027-06-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 28.647058294,
+          "horizons_elevation_deg": -0.664796586,
+          "separation_deg": 5.627e-09,
+          "spice_azimuth_deg": 28.647058288,
+          "spice_elevation_deg": -0.664796586,
+          "utc": "2027-07-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 9.721161176,
+          "horizons_elevation_deg": 0.143590221,
+          "separation_deg": 4.68e-09,
+          "spice_azimuth_deg": 9.721161171,
+          "spice_elevation_deg": 0.143590221,
+          "utc": "2027-08-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 351.000568917,
+          "horizons_elevation_deg": 0.955622238,
+          "separation_deg": 1.549e-09,
+          "spice_azimuth_deg": 351.000568916,
+          "spice_elevation_deg": 0.955622238,
+          "utc": "2027-09-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 344.935374917,
+          "horizons_elevation_deg": 1.538943599,
+          "separation_deg": 4.49e-10,
+          "spice_azimuth_deg": 344.935374917,
+          "spice_elevation_deg": 1.538943599,
+          "utc": "2027-10-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 327.165292993,
+          "horizons_elevation_deg": 1.73206798,
+          "separation_deg": 2.835e-09,
+          "spice_azimuth_deg": 327.165292996,
+          "spice_elevation_deg": 1.73206798,
+          "utc": "2027-11-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 322.079217711,
+          "horizons_elevation_deg": 1.472170011,
+          "separation_deg": 5.177e-09,
+          "spice_azimuth_deg": 322.079217716,
+          "spice_elevation_deg": 1.472170011,
+          "utc": "2027-12-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 305.095427819,
+          "horizons_elevation_deg": 0.763290084,
+          "separation_deg": 7.782e-09,
+          "spice_azimuth_deg": 305.095427827,
+          "spice_elevation_deg": 0.763290084,
+          "utc": "2028-01-01T00:00:00Z"
         }
-      ]
+      ],
+      "site_id": "shackleton-rim",
+      "source_bytes": 31303,
+      "source_filename": "shackleton-rim-sun.txt",
+      "source_sha256": "f39eb1f7264999012e109adf5dccb8c21e4b2f4b7923e616000c622b878ab816",
+      "target": "sun",
+      "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%2710%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27188.13000000%2C-89.76680000%2C0.773043213%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27"
     },
     {
-      "site_id": "shackleton-rim",
+      "horizons_target_id": "399",
       "latitude_deg": -89.7668,
       "longitude_deg_east": 188.13,
       "observer_radius_m": 1738173.0432128906,
-      "target": "earth",
-      "horizons_target_id": "399",
-      "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27399%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27188.13000000%2C-89.76680000%2C0.773043213%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272026-11-30%27&STEP_SIZE=%271+d%27",
-      "source_filename": "shackleton-rim-earth.txt",
-      "source_bytes": 7880,
-      "source_sha256": "515e3a496ea70bcda72b3bdcdb778d3544d0730d3caec16e6cdbf2905f13afdb",
       "reference_header": [
         "API VERSION: 1.2",
         "API SOURCE: NASA/JPL Horizons API",
@@ -205,50 +586,138 @@
       ],
       "samples": [
         {
-          "utc": "2026-11-01T00:00:00Z",
           "horizons_azimuth_deg": 175.827839294,
           "horizons_elevation_deg": 2.706839326,
+          "separation_deg": 3.08619e-07,
           "spice_azimuth_deg": 175.827838986,
           "spice_elevation_deg": 2.70683935,
-          "separation_deg": 3.08619e-07
+          "utc": "2026-11-01T00:00:00Z"
         },
         {
-          "utc": "2026-11-10T00:00:00Z",
-          "horizons_azimuth_deg": 175.312050457,
-          "horizons_elevation_deg": -7.045522997,
-          "spice_azimuth_deg": 175.312050165,
-          "spice_elevation_deg": -7.045522996,
-          "separation_deg": 2.89552e-07
+          "horizons_azimuth_deg": 178.539374489,
+          "horizons_elevation_deg": -1.843399244,
+          "separation_deg": 3.35531e-07,
+          "spice_azimuth_deg": 178.539374156,
+          "spice_elevation_deg": -1.843399199,
+          "utc": "2026-12-01T00:00:00Z"
         },
         {
-          "utc": "2026-11-20T00:00:00Z",
-          "horizons_azimuth_deg": 164.635075509,
-          "horizons_elevation_deg": 2.946738488,
-          "spice_azimuth_deg": 164.635075029,
-          "spice_elevation_deg": 2.946738441,
-          "separation_deg": 4.81389e-07
+          "horizons_azimuth_deg": 179.055142828,
+          "horizons_elevation_deg": -6.48140794,
+          "separation_deg": 3.98621e-07,
+          "spice_azimuth_deg": 179.055142429,
+          "spice_elevation_deg": -6.481407898,
+          "utc": "2027-01-01T00:00:00Z"
         },
         {
-          "utc": "2026-11-30T00:00:00Z",
-          "horizons_azimuth_deg": 177.963080872,
-          "horizons_elevation_deg": -0.264469464,
-          "spice_azimuth_deg": 177.963080589,
-          "spice_elevation_deg": -0.264469424,
-          "separation_deg": 2.85875e-07
+          "horizons_azimuth_deg": 176.494273341,
+          "horizons_elevation_deg": -6.928314618,
+          "separation_deg": 4.34069e-07,
+          "spice_azimuth_deg": 176.494272904,
+          "spice_elevation_deg": -6.928314611,
+          "utc": "2027-02-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 175.928434794,
+          "horizons_elevation_deg": -6.483658428,
+          "separation_deg": 3.58646e-07,
+          "spice_azimuth_deg": 175.928434433,
+          "spice_elevation_deg": -6.483658422,
+          "utc": "2027-03-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 170.942816035,
+          "horizons_elevation_deg": -2.420822839,
+          "separation_deg": 4.11288e-07,
+          "spice_azimuth_deg": 170.942815624,
+          "spice_elevation_deg": -2.420822868,
+          "utc": "2027-04-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 167.376160135,
+          "horizons_elevation_deg": 1.483621358,
+          "separation_deg": 4.2932e-07,
+          "spice_azimuth_deg": 167.376159708,
+          "spice_elevation_deg": 1.483621316,
+          "utc": "2027-05-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 164.953484614,
+          "horizons_elevation_deg": 5.562425239,
+          "separation_deg": 4.91138e-07,
+          "spice_azimuth_deg": 164.953484121,
+          "spice_elevation_deg": 5.562425209,
+          "utc": "2027-06-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 165.496089835,
+          "horizons_elevation_deg": 6.06066329,
+          "separation_deg": 5.16191e-07,
+          "spice_azimuth_deg": 165.496089316,
+          "spice_elevation_deg": 6.060663291,
+          "utc": "2027-07-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 169.565430638,
+          "horizons_elevation_deg": 2.183606695,
+          "separation_deg": 5.01316e-07,
+          "spice_azimuth_deg": 169.565430138,
+          "spice_elevation_deg": 2.183606741,
+          "utc": "2027-08-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 174.629164464,
+          "horizons_elevation_deg": -3.999346773,
+          "separation_deg": 3.97361e-07,
+          "spice_azimuth_deg": 174.629164068,
+          "spice_elevation_deg": -3.999346732,
+          "utc": "2027-09-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 176.875037081,
+          "horizons_elevation_deg": -6.724923269,
+          "separation_deg": 3.39388e-07,
+          "spice_azimuth_deg": 176.87503674,
+          "spice_elevation_deg": -6.724923253,
+          "utc": "2027-10-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 177.485286612,
+          "horizons_elevation_deg": -6.054677443,
+          "separation_deg": 2.37007e-07,
+          "spice_azimuth_deg": 177.485286374,
+          "spice_elevation_deg": -6.054677458,
+          "utc": "2027-11-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 175.338279079,
+          "horizons_elevation_deg": -3.005179007,
+          "separation_deg": 2.10049e-07,
+          "spice_azimuth_deg": 175.338278871,
+          "spice_elevation_deg": -3.005179037,
+          "utc": "2027-12-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 170.709049188,
+          "horizons_elevation_deg": 2.19550998,
+          "separation_deg": 1.87054e-07,
+          "spice_azimuth_deg": 170.709049005,
+          "spice_elevation_deg": 2.195509943,
+          "utc": "2028-01-01T00:00:00Z"
         }
-      ]
+      ],
+      "site_id": "shackleton-rim",
+      "source_bytes": 31303,
+      "source_filename": "shackleton-rim-earth.txt",
+      "source_sha256": "f647154ba69ba63bda71fbb9f6ff4c9e8b3afd5393510cd0ca1bf1c312a5ba3a",
+      "target": "earth",
+      "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27399%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27188.13000000%2C-89.76680000%2C0.773043213%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27"
     },
     {
-      "site_id": "de-gerlache-rim",
+      "horizons_target_id": "10",
       "latitude_deg": -88.6834,
       "longitude_deg_east": 292.0679,
       "observer_radius_m": 1739195.7939453125,
-      "target": "sun",
-      "horizons_target_id": "10",
-      "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%2710%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.06790000%2C-88.68340000%2C1.795793945%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272026-11-30%27&STEP_SIZE=%271+d%27",
-      "source_filename": "de-gerlache-rim-sun.txt",
-      "source_bytes": 7880,
-      "source_sha256": "845c9306b4ee3af22c39e2efeba792e1d672be635c35d31e2642960b3367c675",
       "reference_header": [
         "API VERSION: 1.2",
         "API SOURCE: NASA/JPL Horizons API",
@@ -261,50 +730,138 @@
       ],
       "samples": [
         {
-          "utc": "2026-11-01T00:00:00Z",
           "horizons_azimuth_deg": 353.056994755,
           "horizons_elevation_deg": 2.763507238,
+          "separation_deg": 8.827e-09,
           "spice_azimuth_deg": 353.056994746,
           "spice_elevation_deg": 2.763507238,
-          "separation_deg": 8.827e-09
+          "utc": "2026-11-01T00:00:00Z"
         },
         {
-          "utc": "2026-11-10T00:00:00Z",
-          "horizons_azimuth_deg": 243.312187824,
-          "horizons_elevation_deg": 0.953184522,
-          "spice_azimuth_deg": 243.312187825,
-          "spice_elevation_deg": 0.953184521,
-          "separation_deg": 1.49e-09
+          "horizons_azimuth_deg": 347.985784811,
+          "horizons_elevation_deg": 2.757922167,
+          "separation_deg": 8.644e-09,
+          "spice_azimuth_deg": 347.985784802,
+          "spice_elevation_deg": 2.757922167,
+          "utc": "2026-12-01T00:00:00Z"
         },
         {
-          "utc": "2026-11-20T00:00:00Z",
-          "horizons_azimuth_deg": 121.55250268,
-          "horizons_elevation_deg": 0.85595225,
-          "spice_azimuth_deg": 121.552502684,
-          "spice_elevation_deg": 0.85595225,
-          "separation_deg": 4.475e-09
+          "horizons_azimuth_deg": 331.030067623,
+          "horizons_elevation_deg": 2.165881537,
+          "separation_deg": 7.006e-09,
+          "spice_azimuth_deg": 331.030067616,
+          "spice_elevation_deg": 2.165881537,
+          "utc": "2027-01-01T00:00:00Z"
         },
         {
-          "utc": "2026-11-30T00:00:00Z",
-          "horizons_azimuth_deg": 0.151360095,
-          "horizons_elevation_deg": 2.792979622,
-          "spice_azimuth_deg": 0.151360087,
-          "spice_elevation_deg": 2.792979622,
-          "separation_deg": 8.035e-09
+          "horizons_azimuth_deg": 314.091964657,
+          "horizons_elevation_deg": 1.143803827,
+          "separation_deg": 4.139e-09,
+          "spice_azimuth_deg": 314.091964653,
+          "spice_elevation_deg": 1.143803827,
+          "utc": "2027-02-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 333.444194801,
+          "horizons_elevation_deg": 0.607783971,
+          "separation_deg": 4.767e-09,
+          "spice_azimuth_deg": 333.444194796,
+          "spice_elevation_deg": 0.607783971,
+          "utc": "2027-03-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 315.847092212,
+          "horizons_elevation_deg": -0.302845669,
+          "separation_deg": 4.03e-09,
+          "spice_azimuth_deg": 315.847092208,
+          "spice_elevation_deg": -0.302845669,
+          "utc": "2027-04-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 309.940749851,
+          "horizons_elevation_deg": -0.696821999,
+          "separation_deg": 4.538e-09,
+          "spice_azimuth_deg": 309.940749846,
+          "spice_elevation_deg": -0.696821999,
+          "utc": "2027-05-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 291.365476532,
+          "horizons_elevation_deg": -0.912352138,
+          "separation_deg": 4.643e-09,
+          "spice_azimuth_deg": 291.365476527,
+          "spice_elevation_deg": -0.912352138,
+          "utc": "2027-06-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 284.726247003,
+          "horizons_elevation_deg": -0.534927907,
+          "separation_deg": 5.549e-09,
+          "spice_azimuth_deg": 284.726246997,
+          "spice_elevation_deg": -0.534927908,
+          "utc": "2027-07-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 265.786311863,
+          "horizons_elevation_deg": -0.183040227,
+          "separation_deg": 3.852e-09,
+          "spice_azimuth_deg": 265.786311859,
+          "spice_elevation_deg": -0.183040227,
+          "utc": "2027-08-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 247.053271847,
+          "horizons_elevation_deg": 0.212068677,
+          "separation_deg": 1.938e-09,
+          "spice_azimuth_deg": 247.053271845,
+          "spice_elevation_deg": 0.212068677,
+          "utc": "2027-09-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 240.978983512,
+          "horizons_elevation_deg": 0.675213283,
+          "separation_deg": 6.37e-10,
+          "spice_azimuth_deg": 240.978983512,
+          "spice_elevation_deg": 0.675213283,
+          "utc": "2027-10-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 223.214363789,
+          "horizons_elevation_deg": 0.57669665,
+          "separation_deg": 2.739e-09,
+          "spice_azimuth_deg": 223.214363792,
+          "spice_elevation_deg": 0.57669665,
+          "utc": "2027-11-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 218.133828107,
+          "horizons_elevation_deg": 0.252663986,
+          "separation_deg": 4.696e-09,
+          "spice_azimuth_deg": 218.133828112,
+          "spice_elevation_deg": 0.252663986,
+          "utc": "2027-12-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 201.159716288,
+          "horizons_elevation_deg": -0.598628778,
+          "separation_deg": 7.405e-09,
+          "spice_azimuth_deg": 201.159716295,
+          "spice_elevation_deg": -0.598628778,
+          "utc": "2028-01-01T00:00:00Z"
         }
-      ]
+      ],
+      "site_id": "de-gerlache-rim",
+      "source_bytes": 31303,
+      "source_filename": "de-gerlache-rim-sun.txt",
+      "source_sha256": "a30c12cbb4f5281835e8da30e15103b06c8d09b93b0f3cc156dae480390b251f",
+      "target": "sun",
+      "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%2710%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.06790000%2C-88.68340000%2C1.795793945%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27"
     },
     {
-      "site_id": "de-gerlache-rim",
+      "horizons_target_id": "399",
       "latitude_deg": -88.6834,
       "longitude_deg_east": 292.0679,
       "observer_radius_m": 1739195.7939453125,
-      "target": "earth",
-      "horizons_target_id": "399",
-      "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27399%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.06790000%2C-88.68340000%2C1.795793945%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272026-11-30%27&STEP_SIZE=%271+d%27",
-      "source_filename": "de-gerlache-rim-earth.txt",
-      "source_bytes": 7880,
-      "source_sha256": "7db892a842a53f4ebed4f429a81e8c8aa15093c0334483cbe7f9c36210896c90",
       "reference_header": [
         "API VERSION: 1.2",
         "API SOURCE: NASA/JPL Horizons API",
@@ -317,38 +874,2493 @@
       ],
       "samples": [
         {
-          "utc": "2026-11-01T00:00:00Z",
           "horizons_azimuth_deg": 71.963662421,
           "horizons_elevation_deg": 3.347899642,
+          "separation_deg": 3.09543e-07,
           "spice_azimuth_deg": 71.963662112,
           "spice_elevation_deg": 3.347899673,
-          "separation_deg": 3.09543e-07
+          "utc": "2026-11-01T00:00:00Z"
         },
         {
-          "utc": "2026-11-10T00:00:00Z",
-          "horizons_azimuth_deg": 71.237481181,
-          "horizons_elevation_deg": -6.39159593,
-          "spice_azimuth_deg": 71.23748089,
-          "spice_elevation_deg": -6.391595923,
-          "separation_deg": 2.89134e-07
+          "horizons_azimuth_deg": 74.57568213,
+          "horizons_elevation_deg": -1.260606649,
+          "separation_deg": 3.36299e-07,
+          "spice_azimuth_deg": 74.575681798,
+          "spice_elevation_deg": -1.260606597,
+          "utc": "2026-12-01T00:00:00Z"
         },
         {
-          "utc": "2026-11-20T00:00:00Z",
-          "horizons_azimuth_deg": 60.768924272,
-          "horizons_elevation_deg": 3.815397274,
-          "spice_azimuth_deg": 60.768923791,
-          "spice_elevation_deg": 3.815397236,
-          "separation_deg": 4.81817e-07
+          "horizons_azimuth_deg": 74.987862475,
+          "horizons_elevation_deg": -5.909058598,
+          "separation_deg": 3.98476e-07,
+          "spice_azimuth_deg": 74.987862078,
+          "spice_elevation_deg": -5.909058548,
+          "utc": "2027-01-01T00:00:00Z"
         },
         {
-          "utc": "2026-11-30T00:00:00Z",
-          "horizons_azimuth_deg": 74.034393882,
-          "horizons_elevation_deg": 0.330688108,
-          "spice_azimuth_deg": 74.034393599,
-          "spice_elevation_deg": 0.330688154,
-          "separation_deg": 2.86546e-07
+          "horizons_azimuth_deg": 72.420451186,
+          "horizons_elevation_deg": -6.299846184,
+          "separation_deg": 4.34316e-07,
+          "spice_azimuth_deg": 72.420450749,
+          "spice_elevation_deg": -6.299846167,
+          "utc": "2027-02-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 71.86514832,
+          "horizons_elevation_deg": -5.843063364,
+          "separation_deg": 3.58177e-07,
+          "spice_azimuth_deg": 71.86514796,
+          "spice_elevation_deg": -5.84306335,
+          "utc": "2027-03-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 66.97054847,
+          "horizons_elevation_deg": -1.676088336,
+          "separation_deg": 4.10928e-07,
+          "spice_azimuth_deg": 66.970548059,
+          "spice_elevation_deg": -1.676088357,
+          "utc": "2027-04-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 63.483007337,
+          "horizons_elevation_deg": 2.299464869,
+          "separation_deg": 4.29832e-07,
+          "spice_azimuth_deg": 63.483006908,
+          "spice_elevation_deg": 2.299464835,
+          "utc": "2027-05-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 61.137840822,
+          "horizons_elevation_deg": 6.424726714,
+          "separation_deg": 4.90569e-07,
+          "spice_azimuth_deg": 61.137840329,
+          "spice_elevation_deg": 6.424726694,
+          "utc": "2027-06-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 61.69109058,
+          "horizons_elevation_deg": 6.912519307,
+          "separation_deg": 5.16502e-07,
+          "spice_azimuth_deg": 61.69109006,
+          "spice_elevation_deg": 6.912519318,
+          "utc": "2027-07-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 65.687692593,
+          "horizons_elevation_deg": 2.955681207,
+          "separation_deg": 5.01353e-07,
+          "spice_azimuth_deg": 65.687692094,
+          "spice_elevation_deg": 2.955681263,
+          "utc": "2027-08-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 70.621578089,
+          "horizons_elevation_deg": -3.331435639,
+          "separation_deg": 3.97735e-07,
+          "spice_azimuth_deg": 70.621577694,
+          "spice_elevation_deg": -3.33143559,
+          "utc": "2027-09-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 72.805607231,
+          "horizons_elevation_deg": -6.104789666,
+          "separation_deg": 3.3976e-07,
+          "spice_azimuth_deg": 72.80560689,
+          "spice_elevation_deg": -6.104789642,
+          "utc": "2027-10-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 73.429536523,
+          "horizons_elevation_deg": -5.447931854,
+          "separation_deg": 2.37417e-07,
+          "spice_azimuth_deg": 73.429536285,
+          "spice_elevation_deg": -5.447931863,
+          "utc": "2027-11-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 71.350855703,
+          "horizons_elevation_deg": -2.352550246,
+          "separation_deg": 2.09685e-07,
+          "spice_azimuth_deg": 71.350855495,
+          "spice_elevation_deg": -2.352550272,
+          "utc": "2027-12-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 66.831416406,
+          "horizons_elevation_deg": 2.94432367,
+          "separation_deg": 1.86356e-07,
+          "spice_azimuth_deg": 66.831416222,
+          "spice_elevation_deg": 2.944323637,
+          "utc": "2028-01-01T00:00:00Z"
         }
-      ]
+      ],
+      "site_id": "de-gerlache-rim",
+      "source_bytes": 31303,
+      "source_filename": "de-gerlache-rim-earth.txt",
+      "source_sha256": "1a5a3e48a52fe537dff3f0b177188c94eabdddac697075cdb865189e7d385bee",
+      "target": "earth",
+      "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27399%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.06790000%2C-88.68340000%2C1.795793945%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27"
+    },
+    {
+      "horizons_target_id": "10",
+      "latitude_deg": -88.811,
+      "longitude_deg_east": 123.6901,
+      "observer_radius_m": 1739047.548828125,
+      "reference_header": [
+        "API VERSION: 1.2",
+        "API SOURCE: NASA/JPL Horizons API",
+        "Target body name: Sun (10)                        {source: DE441}",
+        "Center body name: Moon (301)                      {source: DE441}",
+        "Center geodetic : 123.6901, -88.811, 1.64755      {E-lon(deg),Lat(deg),Alt(km)}",
+        "Center pole/equ : MEAN_ME (high precision)        {East-longitude positive}",
+        "Center radii    : 1737.4, 1737.4, 1737.4 km       {Equator_a, b, pole_c}",
+        "Atmos refraction: NO (AIRLESS)"
+      ],
+      "samples": [
+        {
+          "horizons_azimuth_deg": 161.446560419,
+          "horizons_elevation_deg": 0.329363253,
+          "separation_deg": 9.111e-09,
+          "spice_azimuth_deg": 161.44656041,
+          "spice_elevation_deg": 0.329363253,
+          "utc": "2026-11-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 156.381402709,
+          "horizons_elevation_deg": 0.380758654,
+          "separation_deg": 8.433e-09,
+          "spice_azimuth_deg": 156.381402701,
+          "spice_elevation_deg": 0.380758654,
+          "utc": "2026-12-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 139.433170059,
+          "horizons_elevation_deg": 0.110727772,
+          "separation_deg": 7.271e-09,
+          "spice_azimuth_deg": 139.433170052,
+          "spice_elevation_deg": 0.110727772,
+          "utc": "2027-01-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 122.479499398,
+          "horizons_elevation_deg": -0.410937327,
+          "separation_deg": 4.587e-09,
+          "spice_azimuth_deg": 122.479499393,
+          "spice_elevation_deg": -0.410937326,
+          "utc": "2027-02-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 141.808896557,
+          "horizons_elevation_deg": -1.504521155,
+          "separation_deg": 5.025e-09,
+          "spice_azimuth_deg": 141.808896552,
+          "spice_elevation_deg": -1.504521155,
+          "utc": "2027-03-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 124.18535107,
+          "horizons_elevation_deg": -1.915719857,
+          "separation_deg": 3.788e-09,
+          "spice_azimuth_deg": 124.185351066,
+          "spice_elevation_deg": -1.915719857,
+          "utc": "2027-04-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 118.265507674,
+          "horizons_elevation_deg": -2.105301257,
+          "separation_deg": 5.036e-09,
+          "spice_azimuth_deg": 118.265507669,
+          "spice_elevation_deg": -2.105301257,
+          "utc": "2027-05-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 99.688117438,
+          "horizons_elevation_deg": -1.592174445,
+          "separation_deg": 4.855e-09,
+          "spice_azimuth_deg": 99.688117433,
+          "spice_elevation_deg": -1.592174445,
+          "utc": "2027-06-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 93.0697869,
+          "horizons_elevation_deg": -0.933318687,
+          "separation_deg": 5.899e-09,
+          "spice_azimuth_deg": 93.069786894,
+          "spice_elevation_deg": -0.933318687,
+          "utc": "2027-07-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 74.162571398,
+          "horizons_elevation_deg": 0.238252927,
+          "separation_deg": 4.347e-09,
+          "spice_azimuth_deg": 74.162571394,
+          "spice_elevation_deg": 0.238252927,
+          "utc": "2027-08-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 55.459177987,
+          "horizons_elevation_deg": 1.399619285,
+          "separation_deg": 1.915e-09,
+          "spice_azimuth_deg": 55.459177985,
+          "spice_elevation_deg": 1.399619285,
+          "utc": "2027-09-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 49.403597445,
+          "horizons_elevation_deg": 2.087698078,
+          "separation_deg": 2.54e-10,
+          "spice_azimuth_deg": 49.403597445,
+          "spice_elevation_deg": 2.087698078,
+          "utc": "2027-10-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 31.631039814,
+          "horizons_elevation_deg": 2.548617022,
+          "separation_deg": 2.643e-09,
+          "spice_azimuth_deg": 31.631039817,
+          "spice_elevation_deg": 2.548617022,
+          "utc": "2027-11-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 26.53945637,
+          "horizons_elevation_deg": 2.352000416,
+          "separation_deg": 4.335e-09,
+          "spice_azimuth_deg": 26.539456374,
+          "spice_elevation_deg": 2.352000416,
+          "utc": "2027-12-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 9.541832284,
+          "horizons_elevation_deg": 1.801768371,
+          "separation_deg": 8.189e-09,
+          "spice_azimuth_deg": 9.541832292,
+          "spice_elevation_deg": 1.801768371,
+          "utc": "2028-01-01T00:00:00Z"
+        }
+      ],
+      "site_id": "peak-near-shackleton",
+      "source_bytes": 31303,
+      "source_filename": "peak-near-shackleton-sun.txt",
+      "source_sha256": "40ef8241b4a05288e1a90a24a77f14b16523ac7b9b0761dfe89fb5c586f06671",
+      "target": "sun",
+      "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%2710%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27123.69010000%2C-88.81100000%2C1.647548828%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27"
+    },
+    {
+      "horizons_target_id": "399",
+      "latitude_deg": -88.811,
+      "longitude_deg_east": 123.6901,
+      "observer_radius_m": 1739047.548828125,
+      "reference_header": [
+        "API VERSION: 1.2",
+        "API SOURCE: NASA/JPL Horizons API",
+        "Target body name: Earth (399)                     {source: DE441}",
+        "Center body name: Moon (301)                      {source: DE441}",
+        "Center geodetic : 123.6901, -88.811, 1.64755      {E-lon(deg),Lat(deg),Alt(km)}",
+        "Center pole/equ : MEAN_ME (high precision)        {East-longitude positive}",
+        "Center radii    : 1737.4, 1737.4, 1737.4 km       {Equator_a, b, pole_c}",
+        "Atmos refraction: NO (AIRLESS)"
+      ],
+      "samples": [
+        {
+          "horizons_azimuth_deg": 240.214293249,
+          "horizons_elevation_deg": 2.349024164,
+          "separation_deg": 3.09533e-07,
+          "spice_azimuth_deg": 240.21429294,
+          "spice_elevation_deg": 2.349024183,
+          "utc": "2026-11-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 243.009310798,
+          "horizons_elevation_deg": -2.150272865,
+          "separation_deg": 3.36022e-07,
+          "spice_azimuth_deg": 243.009310464,
+          "spice_elevation_deg": -2.150272826,
+          "utc": "2026-12-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 243.612241507,
+          "horizons_elevation_deg": -6.777759252,
+          "separation_deg": 3.97875e-07,
+          "spice_azimuth_deg": 243.612241108,
+          "spice_elevation_deg": -6.777759218,
+          "utc": "2027-01-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 241.058686734,
+          "horizons_elevation_deg": -7.27199561,
+          "separation_deg": 4.34261e-07,
+          "spice_azimuth_deg": 241.058686296,
+          "spice_elevation_deg": -7.271995611,
+          "utc": "2027-02-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 240.484252227,
+          "horizons_elevation_deg": -6.837815485,
+          "separation_deg": 3.58786e-07,
+          "spice_azimuth_deg": 240.484251866,
+          "spice_elevation_deg": -6.837815485,
+          "utc": "2027-03-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 235.423034245,
+          "horizons_elevation_deg": -2.865687917,
+          "separation_deg": 4.11054e-07,
+          "spice_azimuth_deg": 235.423033835,
+          "spice_elevation_deg": -2.865687953,
+          "utc": "2027-04-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 231.788419499,
+          "horizons_elevation_deg": 0.975729055,
+          "separation_deg": 4.28992e-07,
+          "spice_azimuth_deg": 231.788419073,
+          "spice_elevation_deg": 0.975729005,
+          "utc": "2027-05-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 229.297703852,
+          "horizons_elevation_deg": 5.012572202,
+          "separation_deg": 4.90503e-07,
+          "spice_azimuth_deg": 229.297703361,
+          "spice_elevation_deg": 5.012572164,
+          "utc": "2027-06-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 229.831094127,
+          "horizons_elevation_deg": 5.519844913,
+          "separation_deg": 5.16547e-07,
+          "spice_azimuth_deg": 229.831093608,
+          "spice_elevation_deg": 5.519844905,
+          "utc": "2027-07-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 233.964118943,
+          "horizons_elevation_deg": 1.713566988,
+          "separation_deg": 5.0165e-07,
+          "spice_azimuth_deg": 233.964118442,
+          "spice_elevation_deg": 1.713567025,
+          "utc": "2027-08-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 239.138158655,
+          "horizons_elevation_deg": -4.377715875,
+          "separation_deg": 3.9781e-07,
+          "spice_azimuth_deg": 239.138158257,
+          "spice_elevation_deg": -4.377715841,
+          "utc": "2027-09-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 241.43544955,
+          "horizons_elevation_deg": -7.061634231,
+          "separation_deg": 3.3956e-07,
+          "spice_azimuth_deg": 241.435449208,
+          "spice_elevation_deg": -7.061634221,
+          "utc": "2027-10-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 242.033671199,
+          "horizons_elevation_deg": -6.380257411,
+          "separation_deg": 2.37034e-07,
+          "spice_azimuth_deg": 242.033670961,
+          "spice_elevation_deg": -6.380257429,
+          "utc": "2027-11-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 239.829716204,
+          "horizons_elevation_deg": -3.370815294,
+          "separation_deg": 2.10096e-07,
+          "spice_azimuth_deg": 239.829715996,
+          "spice_elevation_deg": -3.370815328,
+          "utc": "2027-12-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 235.107557356,
+          "horizons_elevation_deg": 1.745629107,
+          "separation_deg": 1.86429e-07,
+          "spice_azimuth_deg": 235.107557174,
+          "spice_elevation_deg": 1.745629066,
+          "utc": "2028-01-01T00:00:00Z"
+        }
+      ],
+      "site_id": "peak-near-shackleton",
+      "source_bytes": 31303,
+      "source_filename": "peak-near-shackleton-earth.txt",
+      "source_sha256": "d8118723bdacb1833d199638cc3b7e048007ace0c51f77102305cd36ffe88a13",
+      "target": "earth",
+      "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27399%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27123.69010000%2C-88.81100000%2C1.647548828%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27"
+    },
+    {
+      "horizons_target_id": "10",
+      "latitude_deg": -88.6834,
+      "longitude_deg_east": 292.0679,
+      "observer_radius_m": 1739194.7939453125,
+      "reference_header": [
+        "API VERSION: 1.2",
+        "API SOURCE: NASA/JPL Horizons API",
+        "Target body name: Sun (10)                        {source: DE441}",
+        "Center body name: Moon (301)                      {source: DE441}",
+        "Center geodetic : 292.0679, -88.6834, 1.79479     {E-lon(deg),Lat(deg),Alt(km)}",
+        "Center pole/equ : MEAN_ME (high precision)        {East-longitude positive}",
+        "Center radii    : 1737.4, 1737.4, 1737.4 km       {Equator_a, b, pole_c}",
+        "Atmos refraction: NO (AIRLESS)"
+      ],
+      "samples": [
+        {
+          "horizons_azimuth_deg": 353.056994755,
+          "horizons_elevation_deg": 2.763507238,
+          "separation_deg": 8.817e-09,
+          "spice_azimuth_deg": 353.056994746,
+          "spice_elevation_deg": 2.763507238,
+          "utc": "2026-11-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 347.985784811,
+          "horizons_elevation_deg": 2.757922167,
+          "separation_deg": 8.662e-09,
+          "spice_azimuth_deg": 347.985784802,
+          "spice_elevation_deg": 2.757922168,
+          "utc": "2026-12-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 331.030067623,
+          "horizons_elevation_deg": 2.165881537,
+          "separation_deg": 6.992e-09,
+          "spice_azimuth_deg": 331.030067616,
+          "spice_elevation_deg": 2.165881537,
+          "utc": "2027-01-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 314.091964657,
+          "horizons_elevation_deg": 1.143803828,
+          "separation_deg": 4.141e-09,
+          "spice_azimuth_deg": 314.091964653,
+          "spice_elevation_deg": 1.143803828,
+          "utc": "2027-02-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 333.444194801,
+          "horizons_elevation_deg": 0.607783971,
+          "separation_deg": 4.757e-09,
+          "spice_azimuth_deg": 333.444194796,
+          "spice_elevation_deg": 0.607783971,
+          "utc": "2027-03-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 315.847092212,
+          "horizons_elevation_deg": -0.302845668,
+          "separation_deg": 4.06e-09,
+          "spice_azimuth_deg": 315.847092208,
+          "spice_elevation_deg": -0.302845669,
+          "utc": "2027-04-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 309.940749851,
+          "horizons_elevation_deg": -0.696821999,
+          "separation_deg": 4.539e-09,
+          "spice_azimuth_deg": 309.940749846,
+          "spice_elevation_deg": -0.696821999,
+          "utc": "2027-05-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 291.365476532,
+          "horizons_elevation_deg": -0.912352138,
+          "separation_deg": 4.641e-09,
+          "spice_azimuth_deg": 291.365476527,
+          "spice_elevation_deg": -0.912352138,
+          "utc": "2027-06-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 284.726247003,
+          "horizons_elevation_deg": -0.534927907,
+          "separation_deg": 5.527e-09,
+          "spice_azimuth_deg": 284.726246997,
+          "spice_elevation_deg": -0.534927907,
+          "utc": "2027-07-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 265.786311863,
+          "horizons_elevation_deg": -0.183040227,
+          "separation_deg": 3.836e-09,
+          "spice_azimuth_deg": 265.786311859,
+          "spice_elevation_deg": -0.183040227,
+          "utc": "2027-08-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 247.053271847,
+          "horizons_elevation_deg": 0.212068678,
+          "separation_deg": 1.903e-09,
+          "spice_azimuth_deg": 247.053271845,
+          "spice_elevation_deg": 0.212068678,
+          "utc": "2027-09-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 240.978983512,
+          "horizons_elevation_deg": 0.675213283,
+          "separation_deg": 4.63e-10,
+          "spice_azimuth_deg": 240.978983512,
+          "spice_elevation_deg": 0.675213283,
+          "utc": "2027-10-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 223.214363789,
+          "horizons_elevation_deg": 0.576696651,
+          "separation_deg": 2.781e-09,
+          "spice_azimuth_deg": 223.214363792,
+          "spice_elevation_deg": 0.576696651,
+          "utc": "2027-11-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 218.133828107,
+          "horizons_elevation_deg": 0.252663986,
+          "separation_deg": 4.692e-09,
+          "spice_azimuth_deg": 218.133828112,
+          "spice_elevation_deg": 0.252663986,
+          "utc": "2027-12-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 201.159716288,
+          "horizons_elevation_deg": -0.598628778,
+          "separation_deg": 7.41e-09,
+          "spice_azimuth_deg": 201.159716295,
+          "spice_elevation_deg": -0.598628778,
+          "utc": "2028-01-01T00:00:00Z"
+        }
+      ],
+      "site_id": "de-gerlache-rim-height-h1m",
+      "source_bytes": 31303,
+      "source_filename": "de-gerlache-rim-height-h1m-sun.txt",
+      "source_sha256": "255fac6f1e357dd4ac3ac85be689f9bf2f2f78680740734d7190f6fb0c990072",
+      "target": "sun",
+      "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%2710%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.06790000%2C-88.68340000%2C1.794793945%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27"
+    },
+    {
+      "horizons_target_id": "399",
+      "latitude_deg": -88.6834,
+      "longitude_deg_east": 292.0679,
+      "observer_radius_m": 1739194.7939453125,
+      "reference_header": [
+        "API VERSION: 1.2",
+        "API SOURCE: NASA/JPL Horizons API",
+        "Target body name: Earth (399)                     {source: DE441}",
+        "Center body name: Moon (301)                      {source: DE441}",
+        "Center geodetic : 292.0679, -88.6834, 1.79479     {E-lon(deg),Lat(deg),Alt(km)}",
+        "Center pole/equ : MEAN_ME (high precision)        {East-longitude positive}",
+        "Center radii    : 1737.4, 1737.4, 1737.4 km       {Equator_a, b, pole_c}",
+        "Atmos refraction: NO (AIRLESS)"
+      ],
+      "samples": [
+        {
+          "horizons_azimuth_deg": 71.963662421,
+          "horizons_elevation_deg": 3.347899797,
+          "separation_deg": 3.0951e-07,
+          "spice_azimuth_deg": 71.963662112,
+          "spice_elevation_deg": 3.347899828,
+          "utc": "2026-11-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 74.57568213,
+          "horizons_elevation_deg": -1.260606497,
+          "separation_deg": 3.3632e-07,
+          "spice_azimuth_deg": 74.575681798,
+          "spice_elevation_deg": -1.260606445,
+          "utc": "2026-12-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 74.987862475,
+          "horizons_elevation_deg": -5.909058452,
+          "separation_deg": 3.98414e-07,
+          "spice_azimuth_deg": 74.987862078,
+          "spice_elevation_deg": -5.909058402,
+          "utc": "2027-01-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 72.420451186,
+          "horizons_elevation_deg": -6.299846042,
+          "separation_deg": 4.34288e-07,
+          "spice_azimuth_deg": 72.420450749,
+          "spice_elevation_deg": -6.299846026,
+          "utc": "2027-02-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 71.86514832,
+          "horizons_elevation_deg": -5.843063223,
+          "separation_deg": 3.58206e-07,
+          "spice_azimuth_deg": 71.86514796,
+          "spice_elevation_deg": -5.843063209,
+          "utc": "2027-03-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 66.97054847,
+          "horizons_elevation_deg": -1.676088194,
+          "separation_deg": 4.10935e-07,
+          "spice_azimuth_deg": 66.970548059,
+          "spice_elevation_deg": -1.676088215,
+          "utc": "2027-04-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 63.483007337,
+          "horizons_elevation_deg": 2.299465012,
+          "separation_deg": 4.29767e-07,
+          "spice_azimuth_deg": 63.483006908,
+          "spice_elevation_deg": 2.299464979,
+          "utc": "2027-05-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 61.137840822,
+          "horizons_elevation_deg": 6.424726863,
+          "separation_deg": 4.90575e-07,
+          "spice_azimuth_deg": 61.137840329,
+          "spice_elevation_deg": 6.424726842,
+          "utc": "2027-06-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 61.69109058,
+          "horizons_elevation_deg": 6.912519461,
+          "separation_deg": 5.16488e-07,
+          "spice_azimuth_deg": 61.69109006,
+          "spice_elevation_deg": 6.912519471,
+          "utc": "2027-07-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 65.687692593,
+          "horizons_elevation_deg": 2.955681367,
+          "separation_deg": 5.01294e-07,
+          "spice_azimuth_deg": 65.687692094,
+          "spice_elevation_deg": 2.955681423,
+          "utc": "2027-08-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 70.621578089,
+          "horizons_elevation_deg": -3.331435481,
+          "separation_deg": 3.97794e-07,
+          "spice_azimuth_deg": 70.621577694,
+          "spice_elevation_deg": -3.331435431,
+          "utc": "2027-09-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 72.805607231,
+          "horizons_elevation_deg": -6.104789512,
+          "separation_deg": 3.39741e-07,
+          "spice_azimuth_deg": 72.80560689,
+          "spice_elevation_deg": -6.104789489,
+          "utc": "2027-10-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 73.429536523,
+          "horizons_elevation_deg": -5.447931707,
+          "separation_deg": 2.3742e-07,
+          "spice_azimuth_deg": 73.429536285,
+          "spice_elevation_deg": -5.447931716,
+          "utc": "2027-11-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 71.350855703,
+          "horizons_elevation_deg": -2.352550103,
+          "separation_deg": 2.09614e-07,
+          "spice_azimuth_deg": 71.350855495,
+          "spice_elevation_deg": -2.352550128,
+          "utc": "2027-12-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 66.831416406,
+          "horizons_elevation_deg": 2.944323812,
+          "separation_deg": 1.86517e-07,
+          "spice_azimuth_deg": 66.831416222,
+          "spice_elevation_deg": 2.944323778,
+          "utc": "2028-01-01T00:00:00Z"
+        }
+      ],
+      "site_id": "de-gerlache-rim-height-h1m",
+      "source_bytes": 31303,
+      "source_filename": "de-gerlache-rim-height-h1m-earth.txt",
+      "source_sha256": "ebafdabad0250abfcd97eb82d7d346377d97dd01c814c04a2fe4ccab3577e270",
+      "target": "earth",
+      "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27399%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.06790000%2C-88.68340000%2C1.794793945%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27"
+    },
+    {
+      "horizons_target_id": "10",
+      "latitude_deg": -88.6834,
+      "longitude_deg_east": 292.0679,
+      "observer_radius_m": 1739198.7939453125,
+      "reference_header": [
+        "API VERSION: 1.2",
+        "API SOURCE: NASA/JPL Horizons API",
+        "Target body name: Sun (10)                        {source: DE441}",
+        "Center body name: Moon (301)                      {source: DE441}",
+        "Center geodetic : 292.0679, -88.6834, 1.79879     {E-lon(deg),Lat(deg),Alt(km)}",
+        "Center pole/equ : MEAN_ME (high precision)        {East-longitude positive}",
+        "Center radii    : 1737.4, 1737.4, 1737.4 km       {Equator_a, b, pole_c}",
+        "Atmos refraction: NO (AIRLESS)"
+      ],
+      "samples": [
+        {
+          "horizons_azimuth_deg": 353.056994755,
+          "horizons_elevation_deg": 2.763507236,
+          "separation_deg": 8.828e-09,
+          "spice_azimuth_deg": 353.056994746,
+          "spice_elevation_deg": 2.763507236,
+          "utc": "2026-11-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 347.985784811,
+          "horizons_elevation_deg": 2.757922166,
+          "separation_deg": 8.641e-09,
+          "spice_azimuth_deg": 347.985784802,
+          "spice_elevation_deg": 2.757922166,
+          "utc": "2026-12-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 331.030067623,
+          "horizons_elevation_deg": 2.165881535,
+          "separation_deg": 7.001e-09,
+          "spice_azimuth_deg": 331.030067616,
+          "spice_elevation_deg": 2.165881535,
+          "utc": "2027-01-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 314.091964657,
+          "horizons_elevation_deg": 1.143803826,
+          "separation_deg": 4.131e-09,
+          "spice_azimuth_deg": 314.091964653,
+          "spice_elevation_deg": 1.143803826,
+          "utc": "2027-02-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 333.444194801,
+          "horizons_elevation_deg": 0.60778397,
+          "separation_deg": 4.78e-09,
+          "spice_azimuth_deg": 333.444194796,
+          "spice_elevation_deg": 0.60778397,
+          "utc": "2027-03-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 315.847092212,
+          "horizons_elevation_deg": -0.30284567,
+          "separation_deg": 4.029e-09,
+          "spice_azimuth_deg": 315.847092208,
+          "spice_elevation_deg": -0.30284567,
+          "utc": "2027-04-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 309.940749851,
+          "horizons_elevation_deg": -0.696822,
+          "separation_deg": 4.546e-09,
+          "spice_azimuth_deg": 309.940749846,
+          "spice_elevation_deg": -0.696822,
+          "utc": "2027-05-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 291.365476532,
+          "horizons_elevation_deg": -0.912352139,
+          "separation_deg": 4.652e-09,
+          "spice_azimuth_deg": 291.365476527,
+          "spice_elevation_deg": -0.912352139,
+          "utc": "2027-06-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 284.726247003,
+          "horizons_elevation_deg": -0.534927909,
+          "separation_deg": 5.538e-09,
+          "spice_azimuth_deg": 284.726246997,
+          "spice_elevation_deg": -0.534927909,
+          "utc": "2027-07-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 265.786311863,
+          "horizons_elevation_deg": -0.183040228,
+          "separation_deg": 3.867e-09,
+          "spice_azimuth_deg": 265.786311859,
+          "spice_elevation_deg": -0.183040228,
+          "utc": "2027-08-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 247.053271847,
+          "horizons_elevation_deg": 0.212068676,
+          "separation_deg": 1.913e-09,
+          "spice_azimuth_deg": 247.053271845,
+          "spice_elevation_deg": 0.212068676,
+          "utc": "2027-09-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 240.978983512,
+          "horizons_elevation_deg": 0.675213281,
+          "separation_deg": 6.16e-10,
+          "spice_azimuth_deg": 240.978983512,
+          "spice_elevation_deg": 0.675213281,
+          "utc": "2027-10-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 223.214363789,
+          "horizons_elevation_deg": 0.576696649,
+          "separation_deg": 2.736e-09,
+          "spice_azimuth_deg": 223.214363792,
+          "spice_elevation_deg": 0.576696649,
+          "utc": "2027-11-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 218.133828107,
+          "horizons_elevation_deg": 0.252663985,
+          "separation_deg": 4.708e-09,
+          "spice_azimuth_deg": 218.133828112,
+          "spice_elevation_deg": 0.252663985,
+          "utc": "2027-12-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 201.159716288,
+          "horizons_elevation_deg": -0.598628779,
+          "separation_deg": 7.409e-09,
+          "spice_azimuth_deg": 201.159716295,
+          "spice_elevation_deg": -0.598628779,
+          "utc": "2028-01-01T00:00:00Z"
+        }
+      ],
+      "site_id": "de-gerlache-rim-height-h5m",
+      "source_bytes": 31303,
+      "source_filename": "de-gerlache-rim-height-h5m-sun.txt",
+      "source_sha256": "cbc2d5b1c86a9ea42306dad480ba567abbae999a3cdfc26dbfba6263ae15170d",
+      "target": "sun",
+      "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%2710%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.06790000%2C-88.68340000%2C1.798793945%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27"
+    },
+    {
+      "horizons_target_id": "399",
+      "latitude_deg": -88.6834,
+      "longitude_deg_east": 292.0679,
+      "observer_radius_m": 1739198.7939453125,
+      "reference_header": [
+        "API VERSION: 1.2",
+        "API SOURCE: NASA/JPL Horizons API",
+        "Target body name: Earth (399)                     {source: DE441}",
+        "Center body name: Moon (301)                      {source: DE441}",
+        "Center geodetic : 292.0679, -88.6834, 1.79879     {E-lon(deg),Lat(deg),Alt(km)}",
+        "Center pole/equ : MEAN_ME (high precision)        {East-longitude positive}",
+        "Center radii    : 1737.4, 1737.4, 1737.4 km       {Equator_a, b, pole_c}",
+        "Atmos refraction: NO (AIRLESS)"
+      ],
+      "samples": [
+        {
+          "horizons_azimuth_deg": 71.963662421,
+          "horizons_elevation_deg": 3.347899178,
+          "separation_deg": 3.09546e-07,
+          "spice_azimuth_deg": 71.963662112,
+          "spice_elevation_deg": 3.347899209,
+          "utc": "2026-11-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 74.57568213,
+          "horizons_elevation_deg": -1.260607106,
+          "separation_deg": 3.3639e-07,
+          "spice_azimuth_deg": 74.575681798,
+          "spice_elevation_deg": -1.260607053,
+          "utc": "2026-12-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 74.987862475,
+          "horizons_elevation_deg": -5.909059035,
+          "separation_deg": 3.98535e-07,
+          "spice_azimuth_deg": 74.987862078,
+          "spice_elevation_deg": -5.909058984,
+          "utc": "2027-01-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 72.420451186,
+          "horizons_elevation_deg": -6.299846607,
+          "separation_deg": 4.34287e-07,
+          "spice_azimuth_deg": 72.420450749,
+          "spice_elevation_deg": -6.299846591,
+          "utc": "2027-02-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 71.86514832,
+          "horizons_elevation_deg": -5.843063789,
+          "separation_deg": 3.58179e-07,
+          "spice_azimuth_deg": 71.86514796,
+          "spice_elevation_deg": -5.843063775,
+          "utc": "2027-03-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 66.97054847,
+          "horizons_elevation_deg": -1.676088761,
+          "separation_deg": 4.10951e-07,
+          "spice_azimuth_deg": 66.970548059,
+          "spice_elevation_deg": -1.676088782,
+          "utc": "2027-04-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 63.483007337,
+          "horizons_elevation_deg": 2.299464437,
+          "separation_deg": 4.29789e-07,
+          "spice_azimuth_deg": 63.483006908,
+          "spice_elevation_deg": 2.299464403,
+          "utc": "2027-05-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 61.137840822,
+          "horizons_elevation_deg": 6.424726267,
+          "separation_deg": 4.90553e-07,
+          "spice_azimuth_deg": 61.137840329,
+          "spice_elevation_deg": 6.424726247,
+          "utc": "2027-06-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 61.69109058,
+          "horizons_elevation_deg": 6.912518847,
+          "separation_deg": 5.16497e-07,
+          "spice_azimuth_deg": 61.69109006,
+          "spice_elevation_deg": 6.912518858,
+          "utc": "2027-07-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 65.687692593,
+          "horizons_elevation_deg": 2.955680729,
+          "separation_deg": 5.01307e-07,
+          "spice_azimuth_deg": 65.687692094,
+          "spice_elevation_deg": 2.955680785,
+          "utc": "2027-08-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 70.621578089,
+          "horizons_elevation_deg": -3.331436115,
+          "separation_deg": 3.97803e-07,
+          "spice_azimuth_deg": 70.621577694,
+          "spice_elevation_deg": -3.331436065,
+          "utc": "2027-09-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 72.805607231,
+          "horizons_elevation_deg": -6.104790127,
+          "separation_deg": 3.39751e-07,
+          "spice_azimuth_deg": 72.80560689,
+          "spice_elevation_deg": -6.104790103,
+          "utc": "2027-10-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 73.429536523,
+          "horizons_elevation_deg": -5.447932295,
+          "separation_deg": 2.37412e-07,
+          "spice_azimuth_deg": 73.429536285,
+          "spice_elevation_deg": -5.447932304,
+          "utc": "2027-11-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 71.350855703,
+          "horizons_elevation_deg": -2.352550677,
+          "separation_deg": 2.09657e-07,
+          "spice_azimuth_deg": 71.350855495,
+          "spice_elevation_deg": -2.352550703,
+          "utc": "2027-12-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 66.831416406,
+          "horizons_elevation_deg": 2.944323247,
+          "separation_deg": 1.86412e-07,
+          "spice_azimuth_deg": 66.831416222,
+          "spice_elevation_deg": 2.944323213,
+          "utc": "2028-01-01T00:00:00Z"
+        }
+      ],
+      "site_id": "de-gerlache-rim-height-h5m",
+      "source_bytes": 31303,
+      "source_filename": "de-gerlache-rim-height-h5m-earth.txt",
+      "source_sha256": "7a22b1e62dbd4b4e760a966f77a6f2876b3724eb8c653afc20489790fbc4b3b2",
+      "target": "earth",
+      "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27399%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.06790000%2C-88.68340000%2C1.798793945%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27"
+    },
+    {
+      "horizons_target_id": "10",
+      "latitude_deg": -88.68263601695496,
+      "longitude_deg_east": 292.05442875761236,
+      "observer_radius_m": 1739195.6893310547,
+      "reference_header": [
+        "API VERSION: 1.2",
+        "API SOURCE: NASA/JPL Horizons API",
+        "Target body name: Sun (10)                        {source: DE441}",
+        "Center body name: Moon (301)                      {source: DE441}",
+        "Center geodetic : 292.0544288,-88.682636,1.79569  {E-lon(deg),Lat(deg),Alt(km)}",
+        "Center pole/equ : MEAN_ME (high precision)        {East-longitude positive}",
+        "Center radii    : 1737.4, 1737.4, 1737.4 km       {Equator_a, b, pole_c}",
+        "Atmos refraction: NO (AIRLESS)"
+      ],
+      "samples": [
+        {
+          "horizons_azimuth_deg": 353.070472823,
+          "horizons_elevation_deg": 2.764303018,
+          "separation_deg": 7.163e-09,
+          "spice_azimuth_deg": 353.070472816,
+          "spice_elevation_deg": 2.764303021,
+          "utc": "2026-11-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 347.999259427,
+          "horizons_elevation_deg": 2.758733845,
+          "separation_deg": 6.551e-09,
+          "spice_azimuth_deg": 347.999259421,
+          "spice_elevation_deg": 2.758733848,
+          "utc": "2026-12-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 331.043531556,
+          "horizons_elevation_deg": 2.166699899,
+          "separation_deg": 5.089e-09,
+          "spice_azimuth_deg": 331.043531551,
+          "spice_elevation_deg": 2.166699901,
+          "utc": "2027-01-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 314.105425681,
+          "horizons_elevation_deg": 1.144557828,
+          "separation_deg": 3.726e-09,
+          "spice_azimuth_deg": 314.105425678,
+          "spice_elevation_deg": 1.144557831,
+          "utc": "2027-02-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 333.457661797,
+          "horizons_elevation_deg": 0.608605779,
+          "separation_deg": 3.507e-09,
+          "spice_azimuth_deg": 333.457661795,
+          "spice_elevation_deg": 0.608605782,
+          "utc": "2027-03-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 315.860561526,
+          "horizons_elevation_deg": -0.302081817,
+          "separation_deg": 2.759e-09,
+          "spice_azimuth_deg": 315.860561524,
+          "spice_elevation_deg": -0.302081815,
+          "utc": "2027-04-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 309.954222231,
+          "horizons_elevation_deg": -0.696094095,
+          "separation_deg": 2.639e-09,
+          "spice_azimuth_deg": 309.954222229,
+          "spice_elevation_deg": -0.696094093,
+          "utc": "2027-05-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 291.378953737,
+          "horizons_elevation_deg": -0.911785398,
+          "separation_deg": 2.979e-09,
+          "spice_azimuth_deg": 291.378953734,
+          "spice_elevation_deg": -0.911785397,
+          "utc": "2027-06-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 284.739720837,
+          "horizons_elevation_deg": -0.534434178,
+          "separation_deg": 3.044e-09,
+          "spice_azimuth_deg": 284.739720834,
+          "spice_elevation_deg": -0.534434177,
+          "utc": "2027-07-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 265.799782041,
+          "horizons_elevation_deg": -0.182787488,
+          "separation_deg": 2.128e-09,
+          "spice_azimuth_deg": 265.799782039,
+          "spice_elevation_deg": -0.182787488,
+          "utc": "2027-08-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 247.066736468,
+          "horizons_elevation_deg": 0.212056035,
+          "separation_deg": 1.38e-09,
+          "spice_azimuth_deg": 247.066736469,
+          "spice_elevation_deg": 0.212056034,
+          "utc": "2027-09-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 240.992441541,
+          "horizons_elevation_deg": 0.675113492,
+          "separation_deg": 2.513e-09,
+          "spice_azimuth_deg": 240.992441543,
+          "spice_elevation_deg": 0.67511349,
+          "utc": "2027-10-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 223.227823926,
+          "horizons_elevation_deg": 0.576351957,
+          "separation_deg": 6.352e-09,
+          "spice_azimuth_deg": 223.227823932,
+          "spice_elevation_deg": 0.576351954,
+          "utc": "2027-11-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 218.147292628,
+          "horizons_elevation_deg": 0.252254335,
+          "separation_deg": 7.447e-09,
+          "spice_azimuth_deg": 218.147292635,
+          "spice_elevation_deg": 0.252254333,
+          "utc": "2027-12-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 201.173189864,
+          "horizons_elevation_deg": -0.59922942,
+          "separation_deg": 1.0884e-08,
+          "spice_azimuth_deg": 201.173189875,
+          "spice_elevation_deg": -0.599229423,
+          "utc": "2028-01-01T00:00:00Z"
+        }
+      ],
+      "site_id": "de-gerlache-rim-position-eminus25m",
+      "source_bytes": 31303,
+      "source_filename": "de-gerlache-rim-position-eminus25m-sun.txt",
+      "source_sha256": "0b2bcec360f808daea7367aca2da83e3cfc1e5e0b1eef5da76ae8b8ae24316f6",
+      "target": "sun",
+      "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%2710%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.05442876%2C-88.68263602%2C1.795689331%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27"
+    },
+    {
+      "horizons_target_id": "399",
+      "latitude_deg": -88.68263601695496,
+      "longitude_deg_east": 292.05442875761236,
+      "observer_radius_m": 1739195.6893310547,
+      "reference_header": [
+        "API VERSION: 1.2",
+        "API SOURCE: NASA/JPL Horizons API",
+        "Target body name: Earth (399)                     {source: DE441}",
+        "Center body name: Moon (301)                      {source: DE441}",
+        "Center geodetic : 292.0544288,-88.682636,1.79569  {E-lon(deg),Lat(deg),Alt(km)}",
+        "Center pole/equ : MEAN_ME (high precision)        {East-longitude positive}",
+        "Center radii    : 1737.4, 1737.4, 1737.4 km       {Equator_a, b, pole_c}",
+        "Atmos refraction: NO (AIRLESS)"
+      ],
+      "samples": [
+        {
+          "horizons_azimuth_deg": 71.977182078,
+          "horizons_elevation_deg": 3.347841685,
+          "separation_deg": 3.06493e-07,
+          "spice_azimuth_deg": 71.977181773,
+          "spice_elevation_deg": 3.347841717,
+          "utc": "2026-11-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 74.589135576,
+          "horizons_elevation_deg": -1.260701994,
+          "separation_deg": 3.34152e-07,
+          "spice_azimuth_deg": 74.589135246,
+          "spice_elevation_deg": -1.260701941,
+          "utc": "2026-12-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 75.001249135,
+          "horizons_elevation_deg": -5.909159794,
+          "separation_deg": 3.96035e-07,
+          "spice_azimuth_deg": 75.00124874,
+          "spice_elevation_deg": -5.909159743,
+          "utc": "2027-01-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 72.433831707,
+          "horizons_elevation_deg": -6.299910648,
+          "separation_deg": 4.31959e-07,
+          "spice_azimuth_deg": 72.433831273,
+          "spice_elevation_deg": -6.299910631,
+          "utc": "2027-02-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 71.878535414,
+          "horizons_elevation_deg": -5.843119867,
+          "separation_deg": 3.56212e-07,
+          "spice_azimuth_deg": 71.878535056,
+          "spice_elevation_deg": -5.843119852,
+          "utc": "2027-03-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 66.983995585,
+          "horizons_elevation_deg": -1.67607449,
+          "separation_deg": 4.08705e-07,
+          "spice_azimuth_deg": 66.983995177,
+          "spice_elevation_deg": -1.67607451,
+          "utc": "2027-04-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 63.496511613,
+          "horizons_elevation_deg": 2.29952884,
+          "separation_deg": 4.26425e-07,
+          "spice_azimuth_deg": 63.496511187,
+          "spice_elevation_deg": 2.299528807,
+          "utc": "2027-05-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 61.151404422,
+          "horizons_elevation_deg": 6.4248243,
+          "separation_deg": 4.87928e-07,
+          "spice_azimuth_deg": 61.151403931,
+          "spice_elevation_deg": 6.424824281,
+          "utc": "2027-06-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 61.704661481,
+          "horizons_elevation_deg": 6.912608986,
+          "separation_deg": 5.13647e-07,
+          "spice_azimuth_deg": 61.704660964,
+          "spice_elevation_deg": 6.912608998,
+          "utc": "2027-07-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 65.701206803,
+          "horizons_elevation_deg": 2.955713514,
+          "separation_deg": 4.99697e-07,
+          "spice_azimuth_deg": 65.701206306,
+          "spice_elevation_deg": 2.955713571,
+          "utc": "2027-08-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 70.635001813,
+          "horizons_elevation_deg": -3.331474293,
+          "separation_deg": 3.95813e-07,
+          "spice_azimuth_deg": 70.63500142,
+          "spice_elevation_deg": -3.331474242,
+          "utc": "2027-09-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 72.81899094,
+          "horizons_elevation_deg": -6.104859648,
+          "separation_deg": 3.37006e-07,
+          "spice_azimuth_deg": 72.818990602,
+          "spice_elevation_deg": -6.104859623,
+          "utc": "2027-10-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 73.442929641,
+          "horizons_elevation_deg": -5.448010778,
+          "separation_deg": 2.34809e-07,
+          "spice_azimuth_deg": 73.442929405,
+          "spice_elevation_deg": -5.448010786,
+          "utc": "2027-11-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 71.364293171,
+          "horizons_elevation_deg": -2.352599381,
+          "separation_deg": 2.07217e-07,
+          "spice_azimuth_deg": 71.364292965,
+          "spice_elevation_deg": -2.352599406,
+          "utc": "2027-12-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 66.844930018,
+          "horizons_elevation_deg": 2.944339522,
+          "separation_deg": 1.84159e-07,
+          "spice_azimuth_deg": 66.844929836,
+          "spice_elevation_deg": 2.94433949,
+          "utc": "2028-01-01T00:00:00Z"
+        }
+      ],
+      "site_id": "de-gerlache-rim-position-eminus25m",
+      "source_bytes": 31303,
+      "source_filename": "de-gerlache-rim-position-eminus25m-earth.txt",
+      "source_sha256": "480b0f127fc6fb27db2adf37bbeff3dbe29c9050c1d6e7546375f3fb744e2e78",
+      "target": "earth",
+      "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27399%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.05442876%2C-88.68263602%2C1.795689331%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27"
+    },
+    {
+      "horizons_target_id": "10",
+      "latitude_deg": -88.684163910302,
+      "longitude_deg_east": 292.08138688600366,
+      "observer_radius_m": 1739195.4438476562,
+      "reference_header": [
+        "API VERSION: 1.2",
+        "API SOURCE: NASA/JPL Horizons API",
+        "Target body name: Sun (10)                        {source: DE441}",
+        "Center body name: Moon (301)                      {source: DE441}",
+        "Center geodetic : 292.0813869,-88.6841639,1.79544 {E-lon(deg),Lat(deg),Alt(km)}",
+        "Center pole/equ : MEAN_ME (high precision)        {East-longitude positive}",
+        "Center radii    : 1737.4, 1737.4, 1737.4 km       {Equator_a, b, pole_c}",
+        "Atmos refraction: NO (AIRLESS)"
+      ],
+      "samples": [
+        {
+          "horizons_azimuth_deg": 353.04350104,
+          "horizons_elevation_deg": 2.762711455,
+          "separation_deg": 4.66e-09,
+          "spice_azimuth_deg": 353.043501035,
+          "spice_elevation_deg": 2.762711454,
+          "utc": "2026-11-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 347.972294546,
+          "horizons_elevation_deg": 2.757110487,
+          "separation_deg": 4.036e-09,
+          "spice_azimuth_deg": 347.972294542,
+          "spice_elevation_deg": 2.757110487,
+          "utc": "2026-12-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 331.016588038,
+          "horizons_elevation_deg": 2.165063172,
+          "separation_deg": 2.486e-09,
+          "spice_azimuth_deg": 331.016588036,
+          "spice_elevation_deg": 2.165063172,
+          "utc": "2027-01-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 314.07848798,
+          "horizons_elevation_deg": 1.143049824,
+          "separation_deg": 5.3e-10,
+          "spice_azimuth_deg": 314.078487979,
+          "spice_elevation_deg": 1.143049824,
+          "utc": "2027-02-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 333.430712154,
+          "horizons_elevation_deg": 0.60696216,
+          "separation_deg": 6.8e-10,
+          "spice_azimuth_deg": 333.430712153,
+          "spice_elevation_deg": 0.60696216,
+          "utc": "2027-03-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 315.833607244,
+          "horizons_elevation_deg": -0.303609523,
+          "separation_deg": 1.89e-10,
+          "spice_azimuth_deg": 315.833607244,
+          "spice_elevation_deg": -0.303609523,
+          "utc": "2027-04-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 309.927261816,
+          "horizons_elevation_deg": -0.697549905,
+          "separation_deg": 5.61e-10,
+          "spice_azimuth_deg": 309.927261815,
+          "spice_elevation_deg": -0.697549905,
+          "utc": "2027-05-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 291.351983672,
+          "horizons_elevation_deg": -0.912918879,
+          "separation_deg": 1.106e-09,
+          "spice_azimuth_deg": 291.351983671,
+          "spice_elevation_deg": -0.912918879,
+          "utc": "2027-06-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 284.712757513,
+          "horizons_elevation_deg": -0.535421638,
+          "separation_deg": 1.535e-09,
+          "spice_azimuth_deg": 284.712757511,
+          "spice_elevation_deg": -0.535421638,
+          "utc": "2027-07-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 265.772826033,
+          "horizons_elevation_deg": -0.183292966,
+          "separation_deg": 6.84e-10,
+          "spice_azimuth_deg": 265.772826032,
+          "spice_elevation_deg": -0.183292966,
+          "utc": "2027-08-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 247.039791576,
+          "horizons_elevation_deg": 0.212081321,
+          "separation_deg": 2.037e-09,
+          "spice_azimuth_deg": 247.039791578,
+          "spice_elevation_deg": 0.212081321,
+          "utc": "2027-09-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 240.965509834,
+          "horizons_elevation_deg": 0.675313074,
+          "separation_deg": 3.955e-09,
+          "spice_azimuth_deg": 240.965509838,
+          "spice_elevation_deg": 0.675313075,
+          "utc": "2027-10-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 223.200888006,
+          "horizons_elevation_deg": 0.577041346,
+          "separation_deg": 6.564e-09,
+          "spice_azimuth_deg": 223.200888013,
+          "spice_elevation_deg": 0.577041346,
+          "utc": "2027-11-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 218.120347941,
+          "horizons_elevation_deg": 0.253073639,
+          "separation_deg": 8.812e-09,
+          "spice_azimuth_deg": 218.12034795,
+          "spice_elevation_deg": 0.253073639,
+          "utc": "2027-12-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 201.146227067,
+          "horizons_elevation_deg": -0.598028133,
+          "separation_deg": 1.1556e-08,
+          "spice_azimuth_deg": 201.146227079,
+          "spice_elevation_deg": -0.598028133,
+          "utc": "2028-01-01T00:00:00Z"
+        }
+      ],
+      "site_id": "de-gerlache-rim-position-eplus25m",
+      "source_bytes": 31303,
+      "source_filename": "de-gerlache-rim-position-eplus25m-sun.txt",
+      "source_sha256": "137c4c0afa23f6aa526b369337307aae752279c9aea5341d5990fb70ae9f91df",
+      "target": "sun",
+      "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%2710%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.08138689%2C-88.68416391%2C1.795443848%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27"
+    },
+    {
+      "horizons_target_id": "399",
+      "latitude_deg": -88.684163910302,
+      "longitude_deg_east": 292.08138688600366,
+      "observer_radius_m": 1739195.4438476562,
+      "reference_header": [
+        "API VERSION: 1.2",
+        "API SOURCE: NASA/JPL Horizons API",
+        "Target body name: Earth (399)                     {source: DE441}",
+        "Center body name: Moon (301)                      {source: DE441}",
+        "Center geodetic : 292.0813869,-88.6841639,1.79544 {E-lon(deg),Lat(deg),Alt(km)}",
+        "Center pole/equ : MEAN_ME (high precision)        {East-longitude positive}",
+        "Center radii    : 1737.4, 1737.4, 1737.4 km       {Equator_a, b, pole_c}",
+        "Atmos refraction: NO (AIRLESS)"
+      ],
+      "samples": [
+        {
+          "horizons_azimuth_deg": 71.950127112,
+          "horizons_elevation_deg": 3.347957668,
+          "separation_deg": 3.05174e-07,
+          "spice_azimuth_deg": 71.950126808,
+          "spice_elevation_deg": 3.347957699,
+          "utc": "2026-11-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 74.562213032,
+          "horizons_elevation_deg": -1.260511236,
+          "separation_deg": 3.31737e-07,
+          "spice_azimuth_deg": 74.562212704,
+          "spice_elevation_deg": -1.260511183,
+          "utc": "2026-12-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 74.974460163,
+          "horizons_elevation_deg": -5.908957335,
+          "separation_deg": 3.94135e-07,
+          "spice_azimuth_deg": 74.97445977,
+          "spice_elevation_deg": -5.908957285,
+          "utc": "2027-01-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 72.407055014,
+          "horizons_elevation_deg": -6.299781654,
+          "separation_deg": 4.30248e-07,
+          "spice_azimuth_deg": 72.407054581,
+          "spice_elevation_deg": -6.299781638,
+          "utc": "2027-02-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 71.851745576,
+          "horizons_elevation_deg": -5.843006797,
+          "separation_deg": 3.54675e-07,
+          "spice_azimuth_deg": 71.85174522,
+          "spice_elevation_deg": -5.843006783,
+          "utc": "2027-03-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 66.957085706,
+          "horizons_elevation_deg": -1.676102118,
+          "separation_deg": 4.07531e-07,
+          "spice_azimuth_deg": 66.957085299,
+          "spice_elevation_deg": -1.676102139,
+          "utc": "2027-04-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 63.469487411,
+          "horizons_elevation_deg": 2.299400961,
+          "separation_deg": 4.25819e-07,
+          "spice_azimuth_deg": 63.469486986,
+          "spice_elevation_deg": 2.299400927,
+          "utc": "2027-05-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 61.124261573,
+          "horizons_elevation_deg": 6.424629193,
+          "separation_deg": 4.86403e-07,
+          "spice_azimuth_deg": 61.124261084,
+          "spice_elevation_deg": 6.424629173,
+          "utc": "2027-06-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 61.67750403,
+          "horizons_elevation_deg": 6.912429695,
+          "separation_deg": 5.12745e-07,
+          "spice_azimuth_deg": 61.677503514,
+          "spice_elevation_deg": 6.912429706,
+          "utc": "2027-07-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 65.674162734,
+          "horizons_elevation_deg": 2.955648972,
+          "separation_deg": 4.97198e-07,
+          "spice_azimuth_deg": 65.674162239,
+          "spice_elevation_deg": 2.955649028,
+          "utc": "2027-08-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 70.608138715,
+          "horizons_elevation_deg": -3.331396914,
+          "separation_deg": 3.94101e-07,
+          "spice_azimuth_deg": 70.608138323,
+          "spice_elevation_deg": -3.331396864,
+          "utc": "2027-09-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 72.792207871,
+          "horizons_elevation_deg": -6.104719613,
+          "separation_deg": 3.35671e-07,
+          "spice_azimuth_deg": 72.792207534,
+          "spice_elevation_deg": -6.10471959,
+          "utc": "2027-10-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 73.416127753,
+          "horizons_elevation_deg": -5.447852863,
+          "separation_deg": 2.3278e-07,
+          "spice_azimuth_deg": 73.416127519,
+          "spice_elevation_deg": -5.447852872,
+          "utc": "2027-11-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 71.337402584,
+          "horizons_elevation_deg": -2.352501046,
+          "separation_deg": 2.05437e-07,
+          "spice_azimuth_deg": 71.33740238,
+          "spice_elevation_deg": -2.352501072,
+          "utc": "2027-12-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 66.817887145,
+          "horizons_elevation_deg": 2.944307881,
+          "separation_deg": 1.82949e-07,
+          "spice_azimuth_deg": 66.817886965,
+          "spice_elevation_deg": 2.944307847,
+          "utc": "2028-01-01T00:00:00Z"
+        }
+      ],
+      "site_id": "de-gerlache-rim-position-eplus25m",
+      "source_bytes": 31303,
+      "source_filename": "de-gerlache-rim-position-eplus25m-earth.txt",
+      "source_sha256": "4cd309a8caa97f122b472f0194c32dc1200d59fe98a7f737d254656b77a45820",
+      "target": "earth",
+      "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27399%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.08138689%2C-88.68416391%2C1.795443848%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27"
+    },
+    {
+      "horizons_target_id": "10",
+      "latitude_deg": -88.6834,
+      "longitude_deg_east": 292.0679,
+      "observer_radius_m": 1739196.5446777344,
+      "reference_header": [
+        "API VERSION: 1.2",
+        "API SOURCE: NASA/JPL Horizons API",
+        "Target body name: Sun (10)                        {source: DE441}",
+        "Center body name: Moon (301)                      {source: DE441}",
+        "Center geodetic : 292.0679, -88.6834, 1.79654     {E-lon(deg),Lat(deg),Alt(km)}",
+        "Center pole/equ : MEAN_ME (high precision)        {East-longitude positive}",
+        "Center radii    : 1737.4, 1737.4, 1737.4 km       {Equator_a, b, pole_c}",
+        "Atmos refraction: NO (AIRLESS)"
+      ],
+      "samples": [
+        {
+          "horizons_azimuth_deg": 353.056994755,
+          "horizons_elevation_deg": 2.763507237,
+          "separation_deg": 8.822e-09,
+          "spice_azimuth_deg": 353.056994746,
+          "spice_elevation_deg": 2.763507237,
+          "utc": "2026-11-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 347.985784811,
+          "horizons_elevation_deg": 2.757922167,
+          "separation_deg": 8.642e-09,
+          "spice_azimuth_deg": 347.985784802,
+          "spice_elevation_deg": 2.757922167,
+          "utc": "2026-12-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 331.030067623,
+          "horizons_elevation_deg": 2.165881536,
+          "separation_deg": 6.996e-09,
+          "spice_azimuth_deg": 331.030067616,
+          "spice_elevation_deg": 2.165881536,
+          "utc": "2027-01-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 314.091964657,
+          "horizons_elevation_deg": 1.143803827,
+          "separation_deg": 4.129e-09,
+          "spice_azimuth_deg": 314.091964653,
+          "spice_elevation_deg": 1.143803827,
+          "utc": "2027-02-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 333.444194801,
+          "horizons_elevation_deg": 0.60778397,
+          "separation_deg": 4.773e-09,
+          "spice_azimuth_deg": 333.444194796,
+          "spice_elevation_deg": 0.60778397,
+          "utc": "2027-03-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 315.847092212,
+          "horizons_elevation_deg": -0.302845669,
+          "separation_deg": 4.032e-09,
+          "spice_azimuth_deg": 315.847092208,
+          "spice_elevation_deg": -0.302845669,
+          "utc": "2027-04-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 309.940749851,
+          "horizons_elevation_deg": -0.696821999,
+          "separation_deg": 4.558e-09,
+          "spice_azimuth_deg": 309.940749846,
+          "spice_elevation_deg": -0.696821999,
+          "utc": "2027-05-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 291.365476532,
+          "horizons_elevation_deg": -0.912352138,
+          "separation_deg": 4.665e-09,
+          "spice_azimuth_deg": 291.365476527,
+          "spice_elevation_deg": -0.912352138,
+          "utc": "2027-06-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 284.726247003,
+          "horizons_elevation_deg": -0.534927908,
+          "separation_deg": 5.53e-09,
+          "spice_azimuth_deg": 284.726246997,
+          "spice_elevation_deg": -0.534927908,
+          "utc": "2027-07-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 265.786311863,
+          "horizons_elevation_deg": -0.183040228,
+          "separation_deg": 3.854e-09,
+          "spice_azimuth_deg": 265.786311859,
+          "spice_elevation_deg": -0.183040228,
+          "utc": "2027-08-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 247.053271847,
+          "horizons_elevation_deg": 0.212068677,
+          "separation_deg": 1.897e-09,
+          "spice_azimuth_deg": 247.053271845,
+          "spice_elevation_deg": 0.212068677,
+          "utc": "2027-09-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 240.978983512,
+          "horizons_elevation_deg": 0.675213282,
+          "separation_deg": 5.34e-10,
+          "spice_azimuth_deg": 240.978983512,
+          "spice_elevation_deg": 0.675213282,
+          "utc": "2027-10-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 223.214363789,
+          "horizons_elevation_deg": 0.57669665,
+          "separation_deg": 2.742e-09,
+          "spice_azimuth_deg": 223.214363792,
+          "spice_elevation_deg": 0.57669665,
+          "utc": "2027-11-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 218.133828107,
+          "horizons_elevation_deg": 0.252663986,
+          "separation_deg": 4.721e-09,
+          "spice_azimuth_deg": 218.133828112,
+          "spice_elevation_deg": 0.252663985,
+          "utc": "2027-12-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 201.159716288,
+          "horizons_elevation_deg": -0.598628778,
+          "separation_deg": 7.414e-09,
+          "spice_azimuth_deg": 201.159716295,
+          "spice_elevation_deg": -0.598628778,
+          "utc": "2028-01-01T00:00:00Z"
+        }
+      ],
+      "site_id": "de-gerlache-rim-terrain-cloneminus0001",
+      "source_bytes": 31303,
+      "source_filename": "de-gerlache-rim-terrain-cloneminus0001-sun.txt",
+      "source_sha256": "bce6badf5988d4383c26bf7f04437e14cd230e9d85c3a7045f0f11af72b38fa2",
+      "target": "sun",
+      "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%2710%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.06790000%2C-88.68340000%2C1.796544678%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27"
+    },
+    {
+      "horizons_target_id": "399",
+      "latitude_deg": -88.6834,
+      "longitude_deg_east": 292.0679,
+      "observer_radius_m": 1739196.5446777344,
+      "reference_header": [
+        "API VERSION: 1.2",
+        "API SOURCE: NASA/JPL Horizons API",
+        "Target body name: Earth (399)                     {source: DE441}",
+        "Center body name: Moon (301)                      {source: DE441}",
+        "Center geodetic : 292.0679, -88.6834, 1.79654     {E-lon(deg),Lat(deg),Alt(km)}",
+        "Center pole/equ : MEAN_ME (high precision)        {East-longitude positive}",
+        "Center radii    : 1737.4, 1737.4, 1737.4 km       {Equator_a, b, pole_c}",
+        "Atmos refraction: NO (AIRLESS)"
+      ],
+      "samples": [
+        {
+          "horizons_azimuth_deg": 71.963662421,
+          "horizons_elevation_deg": 3.347899526,
+          "separation_deg": 3.09534e-07,
+          "spice_azimuth_deg": 71.963662112,
+          "spice_elevation_deg": 3.347899557,
+          "utc": "2026-11-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 74.57568213,
+          "horizons_elevation_deg": -1.260606764,
+          "separation_deg": 3.36422e-07,
+          "spice_azimuth_deg": 74.575681798,
+          "spice_elevation_deg": -1.260606711,
+          "utc": "2026-12-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 74.987862475,
+          "horizons_elevation_deg": -5.909058707,
+          "separation_deg": 3.98446e-07,
+          "spice_azimuth_deg": 74.987862078,
+          "spice_elevation_deg": -5.909058657,
+          "utc": "2027-01-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 72.420451186,
+          "horizons_elevation_deg": -6.29984629,
+          "separation_deg": 4.34314e-07,
+          "spice_azimuth_deg": 72.420450749,
+          "spice_elevation_deg": -6.299846273,
+          "utc": "2027-02-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 71.86514832,
+          "horizons_elevation_deg": -5.843063471,
+          "separation_deg": 3.58203e-07,
+          "spice_azimuth_deg": 71.86514796,
+          "spice_elevation_deg": -5.843063457,
+          "utc": "2027-03-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 66.97054847,
+          "horizons_elevation_deg": -1.676088442,
+          "separation_deg": 4.1095e-07,
+          "spice_azimuth_deg": 66.970548059,
+          "spice_elevation_deg": -1.676088463,
+          "utc": "2027-04-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 63.483007337,
+          "horizons_elevation_deg": 2.299464761,
+          "separation_deg": 4.29829e-07,
+          "spice_azimuth_deg": 63.483006908,
+          "spice_elevation_deg": 2.299464727,
+          "utc": "2027-05-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 61.137840822,
+          "horizons_elevation_deg": 6.424726602,
+          "separation_deg": 4.90559e-07,
+          "spice_azimuth_deg": 61.137840329,
+          "spice_elevation_deg": 6.424726582,
+          "utc": "2027-06-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 61.69109058,
+          "horizons_elevation_deg": 6.912519192,
+          "separation_deg": 5.16498e-07,
+          "spice_azimuth_deg": 61.69109006,
+          "spice_elevation_deg": 6.912519203,
+          "utc": "2027-07-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 65.687692593,
+          "horizons_elevation_deg": 2.955681088,
+          "separation_deg": 5.01272e-07,
+          "spice_azimuth_deg": 65.687692094,
+          "spice_elevation_deg": 2.955681144,
+          "utc": "2027-08-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 70.621578089,
+          "horizons_elevation_deg": -3.331435758,
+          "separation_deg": 3.97736e-07,
+          "spice_azimuth_deg": 70.621577694,
+          "spice_elevation_deg": -3.331435709,
+          "utc": "2027-09-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 72.805607231,
+          "horizons_elevation_deg": -6.104789781,
+          "separation_deg": 3.39733e-07,
+          "spice_azimuth_deg": 72.80560689,
+          "spice_elevation_deg": -6.104789758,
+          "utc": "2027-10-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 73.429536523,
+          "horizons_elevation_deg": -5.447931965,
+          "separation_deg": 2.37391e-07,
+          "spice_azimuth_deg": 73.429536285,
+          "spice_elevation_deg": -5.447931974,
+          "utc": "2027-11-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 71.350855703,
+          "horizons_elevation_deg": -2.352550354,
+          "separation_deg": 2.0966e-07,
+          "spice_azimuth_deg": 71.350855495,
+          "spice_elevation_deg": -2.35255038,
+          "utc": "2027-12-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 66.831416406,
+          "horizons_elevation_deg": 2.944323565,
+          "separation_deg": 1.86524e-07,
+          "spice_azimuth_deg": 66.831416222,
+          "spice_elevation_deg": 2.944323531,
+          "utc": "2028-01-01T00:00:00Z"
+        }
+      ],
+      "site_id": "de-gerlache-rim-terrain-cloneminus0001",
+      "source_bytes": 31303,
+      "source_filename": "de-gerlache-rim-terrain-cloneminus0001-earth.txt",
+      "source_sha256": "fda1a3133236e32efd808dc130aec8d8d69fa132600c32d3fb8cc73d4a71b8b3",
+      "target": "earth",
+      "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27399%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.06790000%2C-88.68340000%2C1.796544678%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27"
+    },
+    {
+      "horizons_target_id": "10",
+      "latitude_deg": -88.6834,
+      "longitude_deg_east": 292.0679,
+      "observer_radius_m": 1739195.8166503906,
+      "reference_header": [
+        "API VERSION: 1.2",
+        "API SOURCE: NASA/JPL Horizons API",
+        "Target body name: Sun (10)                        {source: DE441}",
+        "Center body name: Moon (301)                      {source: DE441}",
+        "Center geodetic : 292.0679, -88.6834, 1.79582     {E-lon(deg),Lat(deg),Alt(km)}",
+        "Center pole/equ : MEAN_ME (high precision)        {East-longitude positive}",
+        "Center radii    : 1737.4, 1737.4, 1737.4 km       {Equator_a, b, pole_c}",
+        "Atmos refraction: NO (AIRLESS)"
+      ],
+      "samples": [
+        {
+          "horizons_azimuth_deg": 353.056994755,
+          "horizons_elevation_deg": 2.763507238,
+          "separation_deg": 8.827e-09,
+          "spice_azimuth_deg": 353.056994746,
+          "spice_elevation_deg": 2.763507238,
+          "utc": "2026-11-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 347.985784811,
+          "horizons_elevation_deg": 2.757922167,
+          "separation_deg": 8.644e-09,
+          "spice_azimuth_deg": 347.985784802,
+          "spice_elevation_deg": 2.757922167,
+          "utc": "2026-12-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 331.030067623,
+          "horizons_elevation_deg": 2.165881536,
+          "separation_deg": 7.012e-09,
+          "spice_azimuth_deg": 331.030067616,
+          "spice_elevation_deg": 2.165881537,
+          "utc": "2027-01-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 314.091964657,
+          "horizons_elevation_deg": 1.143803827,
+          "separation_deg": 4.138e-09,
+          "spice_azimuth_deg": 314.091964653,
+          "spice_elevation_deg": 1.143803827,
+          "utc": "2027-02-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 333.444194801,
+          "horizons_elevation_deg": 0.607783971,
+          "separation_deg": 4.768e-09,
+          "spice_azimuth_deg": 333.444194796,
+          "spice_elevation_deg": 0.607783971,
+          "utc": "2027-03-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 315.847092212,
+          "horizons_elevation_deg": -0.302845669,
+          "separation_deg": 4.03e-09,
+          "spice_azimuth_deg": 315.847092208,
+          "spice_elevation_deg": -0.302845669,
+          "utc": "2027-04-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 309.940749851,
+          "horizons_elevation_deg": -0.696821999,
+          "separation_deg": 4.538e-09,
+          "spice_azimuth_deg": 309.940749846,
+          "spice_elevation_deg": -0.696821999,
+          "utc": "2027-05-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 291.365476532,
+          "horizons_elevation_deg": -0.912352138,
+          "separation_deg": 4.644e-09,
+          "spice_azimuth_deg": 291.365476527,
+          "spice_elevation_deg": -0.912352138,
+          "utc": "2027-06-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 284.726247003,
+          "horizons_elevation_deg": -0.534927907,
+          "separation_deg": 5.549e-09,
+          "spice_azimuth_deg": 284.726246997,
+          "spice_elevation_deg": -0.534927908,
+          "utc": "2027-07-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 265.786311863,
+          "horizons_elevation_deg": -0.183040227,
+          "separation_deg": 3.853e-09,
+          "spice_azimuth_deg": 265.786311859,
+          "spice_elevation_deg": -0.183040227,
+          "utc": "2027-08-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 247.053271847,
+          "horizons_elevation_deg": 0.212068677,
+          "separation_deg": 1.936e-09,
+          "spice_azimuth_deg": 247.053271845,
+          "spice_elevation_deg": 0.212068677,
+          "utc": "2027-09-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 240.978983512,
+          "horizons_elevation_deg": 0.675213283,
+          "separation_deg": 6.43e-10,
+          "spice_azimuth_deg": 240.978983512,
+          "spice_elevation_deg": 0.675213283,
+          "utc": "2027-10-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 223.214363789,
+          "horizons_elevation_deg": 0.57669665,
+          "separation_deg": 2.738e-09,
+          "spice_azimuth_deg": 223.214363792,
+          "spice_elevation_deg": 0.57669665,
+          "utc": "2027-11-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 218.133828107,
+          "horizons_elevation_deg": 0.252663986,
+          "separation_deg": 4.697e-09,
+          "spice_azimuth_deg": 218.133828112,
+          "spice_elevation_deg": 0.252663986,
+          "utc": "2027-12-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 201.159716288,
+          "horizons_elevation_deg": -0.598628778,
+          "separation_deg": 7.405e-09,
+          "spice_azimuth_deg": 201.159716295,
+          "spice_elevation_deg": -0.598628778,
+          "utc": "2028-01-01T00:00:00Z"
+        }
+      ],
+      "site_id": "de-gerlache-rim-terrain-cloneminus0002",
+      "source_bytes": 31303,
+      "source_filename": "de-gerlache-rim-terrain-cloneminus0002-sun.txt",
+      "source_sha256": "dbc501f516bd1d74f1539aca283f70019b44694cf25bfcc75136340e0800dc76",
+      "target": "sun",
+      "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%2710%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.06790000%2C-88.68340000%2C1.795816650%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27"
+    },
+    {
+      "horizons_target_id": "399",
+      "latitude_deg": -88.6834,
+      "longitude_deg_east": 292.0679,
+      "observer_radius_m": 1739195.8166503906,
+      "reference_header": [
+        "API VERSION: 1.2",
+        "API SOURCE: NASA/JPL Horizons API",
+        "Target body name: Earth (399)                     {source: DE441}",
+        "Center body name: Moon (301)                      {source: DE441}",
+        "Center geodetic : 292.0679, -88.6834, 1.79582     {E-lon(deg),Lat(deg),Alt(km)}",
+        "Center pole/equ : MEAN_ME (high precision)        {East-longitude positive}",
+        "Center radii    : 1737.4, 1737.4, 1737.4 km       {Equator_a, b, pole_c}",
+        "Atmos refraction: NO (AIRLESS)"
+      ],
+      "samples": [
+        {
+          "horizons_azimuth_deg": 71.963662421,
+          "horizons_elevation_deg": 3.347899638,
+          "separation_deg": 3.09592e-07,
+          "spice_azimuth_deg": 71.963662112,
+          "spice_elevation_deg": 3.347899669,
+          "utc": "2026-11-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 74.57568213,
+          "horizons_elevation_deg": -1.260606653,
+          "separation_deg": 3.36385e-07,
+          "spice_azimuth_deg": 74.575681798,
+          "spice_elevation_deg": -1.2606066,
+          "utc": "2026-12-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 74.987862475,
+          "horizons_elevation_deg": -5.909058601,
+          "separation_deg": 3.98437e-07,
+          "spice_azimuth_deg": 74.987862078,
+          "spice_elevation_deg": -5.909058551,
+          "utc": "2027-01-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 72.420451186,
+          "horizons_elevation_deg": -6.299846187,
+          "separation_deg": 4.34307e-07,
+          "spice_azimuth_deg": 72.420450749,
+          "spice_elevation_deg": -6.29984617,
+          "utc": "2027-02-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 71.86514832,
+          "horizons_elevation_deg": -5.843063367,
+          "separation_deg": 3.58168e-07,
+          "spice_azimuth_deg": 71.86514796,
+          "spice_elevation_deg": -5.843063354,
+          "utc": "2027-03-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 66.97054847,
+          "horizons_elevation_deg": -1.676088339,
+          "separation_deg": 4.10936e-07,
+          "spice_azimuth_deg": 66.970548059,
+          "spice_elevation_deg": -1.67608836,
+          "utc": "2027-04-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 63.483007337,
+          "horizons_elevation_deg": 2.299464865,
+          "separation_deg": 4.29775e-07,
+          "spice_azimuth_deg": 63.483006908,
+          "spice_elevation_deg": 2.299464832,
+          "utc": "2027-05-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 61.137840822,
+          "horizons_elevation_deg": 6.424726711,
+          "separation_deg": 4.90585e-07,
+          "spice_azimuth_deg": 61.137840329,
+          "spice_elevation_deg": 6.42472669,
+          "utc": "2027-06-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 61.69109058,
+          "horizons_elevation_deg": 6.912519304,
+          "separation_deg": 5.16491e-07,
+          "spice_azimuth_deg": 61.69109006,
+          "spice_elevation_deg": 6.912519314,
+          "utc": "2027-07-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 65.687692593,
+          "horizons_elevation_deg": 2.955681204,
+          "separation_deg": 5.01283e-07,
+          "spice_azimuth_deg": 65.687692094,
+          "spice_elevation_deg": 2.95568126,
+          "utc": "2027-08-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 70.621578089,
+          "horizons_elevation_deg": -3.331435643,
+          "separation_deg": 3.97783e-07,
+          "spice_azimuth_deg": 70.621577694,
+          "spice_elevation_deg": -3.331435593,
+          "utc": "2027-09-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 72.805607231,
+          "horizons_elevation_deg": -6.104789669,
+          "separation_deg": 3.39727e-07,
+          "spice_azimuth_deg": 72.80560689,
+          "spice_elevation_deg": -6.104789646,
+          "utc": "2027-10-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 73.429536523,
+          "horizons_elevation_deg": -5.447931858,
+          "separation_deg": 2.37393e-07,
+          "spice_azimuth_deg": 73.429536285,
+          "spice_elevation_deg": -5.447931867,
+          "utc": "2027-11-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 71.350855703,
+          "horizons_elevation_deg": -2.352550249,
+          "separation_deg": 2.09717e-07,
+          "spice_azimuth_deg": 71.350855495,
+          "spice_elevation_deg": -2.352550275,
+          "utc": "2027-12-01T00:00:00Z"
+        },
+        {
+          "horizons_azimuth_deg": 66.831416406,
+          "horizons_elevation_deg": 2.944323667,
+          "separation_deg": 1.86392e-07,
+          "spice_azimuth_deg": 66.831416222,
+          "spice_elevation_deg": 2.944323634,
+          "utc": "2028-01-01T00:00:00Z"
+        }
+      ],
+      "site_id": "de-gerlache-rim-terrain-cloneminus0002",
+      "source_bytes": 31303,
+      "source_filename": "de-gerlache-rim-terrain-cloneminus0002-earth.txt",
+      "source_sha256": "2ba8029802109c13aef7a47bf6d198d2507977f56dba8e1aced5566b0910a9e9",
+      "target": "earth",
+      "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27399%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.06790000%2C-88.68340000%2C1.795816650%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27"
     }
-  ]
+  ],
+  "response_acquisitions": [
+    {
+      "acquiredUtc": "2026-11-14T23:10:46.291654Z",
+      "bodyFile": "1c6ca956cba54a0c493510c322dab1882b2a1c999bc308b1ca8b755d0408aebe.body",
+      "bytes": 31303,
+      "httpStatus": 200,
+      "requestedUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%2710%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27222.51000000%2C-89.46320000%2C1.946632568%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27",
+      "resolvedUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%2710%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27222.51000000%2C-89.46320000%2C1.946632568%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27",
+      "responseHeaders": {
+        "Connection": "close",
+        "Content-Type": "text/plain",
+        "Date": "Sat, 14 Nov 2026 23:10:46 GMT",
+        "Server": "nginx",
+        "Transfer-Encoding": "chunked"
+      },
+      "sha256": "1c6ca956cba54a0c493510c322dab1882b2a1c999bc308b1ca8b755d0408aebe",
+      "usedCachedResponse": false
+    },
+    {
+      "acquiredUtc": "2026-11-14T23:10:47.130222Z",
+      "bodyFile": "6577888933dcd516249f505d358008ead67591c1144f7f600c2b444037f30f6c.body",
+      "bytes": 31303,
+      "httpStatus": 200,
+      "requestedUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27399%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27222.51000000%2C-89.46320000%2C1.946632568%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27",
+      "resolvedUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27399%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27222.51000000%2C-89.46320000%2C1.946632568%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27",
+      "responseHeaders": {
+        "Connection": "close",
+        "Content-Type": "text/plain",
+        "Date": "Sat, 14 Nov 2026 23:10:46 GMT",
+        "Server": "nginx",
+        "Transfer-Encoding": "chunked"
+      },
+      "sha256": "6577888933dcd516249f505d358008ead67591c1144f7f600c2b444037f30f6c",
+      "usedCachedResponse": false
+    },
+    {
+      "acquiredUtc": "2026-11-14T23:10:47.969438Z",
+      "bodyFile": "f39eb1f7264999012e109adf5dccb8c21e4b2f4b7923e616000c622b878ab816.body",
+      "bytes": 31303,
+      "httpStatus": 200,
+      "requestedUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%2710%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27188.13000000%2C-89.76680000%2C0.773043213%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27",
+      "resolvedUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%2710%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27188.13000000%2C-89.76680000%2C0.773043213%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27",
+      "responseHeaders": {
+        "Connection": "close",
+        "Content-Type": "text/plain",
+        "Date": "Sat, 14 Nov 2026 23:10:47 GMT",
+        "Server": "nginx",
+        "Transfer-Encoding": "chunked"
+      },
+      "sha256": "f39eb1f7264999012e109adf5dccb8c21e4b2f4b7923e616000c622b878ab816",
+      "usedCachedResponse": false
+    },
+    {
+      "acquiredUtc": "2026-11-14T23:10:48.803296Z",
+      "bodyFile": "f647154ba69ba63bda71fbb9f6ff4c9e8b3afd5393510cd0ca1bf1c312a5ba3a.body",
+      "bytes": 31303,
+      "httpStatus": 200,
+      "requestedUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27399%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27188.13000000%2C-89.76680000%2C0.773043213%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27",
+      "resolvedUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27399%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27188.13000000%2C-89.76680000%2C0.773043213%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27",
+      "responseHeaders": {
+        "Connection": "close",
+        "Content-Type": "text/plain",
+        "Date": "Sat, 14 Nov 2026 23:10:48 GMT",
+        "Server": "nginx",
+        "Transfer-Encoding": "chunked"
+      },
+      "sha256": "f647154ba69ba63bda71fbb9f6ff4c9e8b3afd5393510cd0ca1bf1c312a5ba3a",
+      "usedCachedResponse": false
+    },
+    {
+      "acquiredUtc": "2026-11-14T23:10:49.642431Z",
+      "bodyFile": "a30c12cbb4f5281835e8da30e15103b06c8d09b93b0f3cc156dae480390b251f.body",
+      "bytes": 31303,
+      "httpStatus": 200,
+      "requestedUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%2710%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.06790000%2C-88.68340000%2C1.795793945%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27",
+      "resolvedUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%2710%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.06790000%2C-88.68340000%2C1.795793945%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27",
+      "responseHeaders": {
+        "Connection": "close",
+        "Content-Type": "text/plain",
+        "Date": "Sat, 14 Nov 2026 23:10:49 GMT",
+        "Server": "nginx",
+        "Transfer-Encoding": "chunked"
+      },
+      "sha256": "a30c12cbb4f5281835e8da30e15103b06c8d09b93b0f3cc156dae480390b251f",
+      "usedCachedResponse": false
+    },
+    {
+      "acquiredUtc": "2026-11-14T23:10:50.485372Z",
+      "bodyFile": "1a5a3e48a52fe537dff3f0b177188c94eabdddac697075cdb865189e7d385bee.body",
+      "bytes": 31303,
+      "httpStatus": 200,
+      "requestedUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27399%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.06790000%2C-88.68340000%2C1.795793945%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27",
+      "resolvedUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27399%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.06790000%2C-88.68340000%2C1.795793945%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27",
+      "responseHeaders": {
+        "Connection": "close",
+        "Content-Type": "text/plain",
+        "Date": "Sat, 14 Nov 2026 23:10:50 GMT",
+        "Server": "nginx",
+        "Transfer-Encoding": "chunked"
+      },
+      "sha256": "1a5a3e48a52fe537dff3f0b177188c94eabdddac697075cdb865189e7d385bee",
+      "usedCachedResponse": false
+    },
+    {
+      "acquiredUtc": "2026-11-14T23:10:51.321797Z",
+      "bodyFile": "40ef8241b4a05288e1a90a24a77f14b16523ac7b9b0761dfe89fb5c586f06671.body",
+      "bytes": 31303,
+      "httpStatus": 200,
+      "requestedUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%2710%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27123.69010000%2C-88.81100000%2C1.647548828%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27",
+      "resolvedUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%2710%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27123.69010000%2C-88.81100000%2C1.647548828%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27",
+      "responseHeaders": {
+        "Connection": "close",
+        "Content-Type": "text/plain",
+        "Date": "Sat, 14 Nov 2026 23:10:51 GMT",
+        "Server": "nginx",
+        "Transfer-Encoding": "chunked"
+      },
+      "sha256": "40ef8241b4a05288e1a90a24a77f14b16523ac7b9b0761dfe89fb5c586f06671",
+      "usedCachedResponse": false
+    },
+    {
+      "acquiredUtc": "2026-11-14T23:10:52.151375Z",
+      "bodyFile": "d8118723bdacb1833d199638cc3b7e048007ace0c51f77102305cd36ffe88a13.body",
+      "bytes": 31303,
+      "httpStatus": 200,
+      "requestedUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27399%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27123.69010000%2C-88.81100000%2C1.647548828%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27",
+      "resolvedUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27399%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27123.69010000%2C-88.81100000%2C1.647548828%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27",
+      "responseHeaders": {
+        "Connection": "close",
+        "Content-Type": "text/plain",
+        "Date": "Sat, 14 Nov 2026 23:10:51 GMT",
+        "Server": "nginx",
+        "Transfer-Encoding": "chunked"
+      },
+      "sha256": "d8118723bdacb1833d199638cc3b7e048007ace0c51f77102305cd36ffe88a13",
+      "usedCachedResponse": false
+    },
+    {
+      "acquiredUtc": "2026-11-14T23:10:52.984468Z",
+      "bodyFile": "255fac6f1e357dd4ac3ac85be689f9bf2f2f78680740734d7190f6fb0c990072.body",
+      "bytes": 31303,
+      "httpStatus": 200,
+      "requestedUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%2710%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.06790000%2C-88.68340000%2C1.794793945%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27",
+      "resolvedUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%2710%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.06790000%2C-88.68340000%2C1.794793945%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27",
+      "responseHeaders": {
+        "Connection": "close",
+        "Content-Type": "text/plain",
+        "Date": "Sat, 14 Nov 2026 23:10:52 GMT",
+        "Server": "nginx",
+        "Transfer-Encoding": "chunked"
+      },
+      "sha256": "255fac6f1e357dd4ac3ac85be689f9bf2f2f78680740734d7190f6fb0c990072",
+      "usedCachedResponse": false
+    },
+    {
+      "acquiredUtc": "2026-11-14T23:10:53.843215Z",
+      "bodyFile": "ebafdabad0250abfcd97eb82d7d346377d97dd01c814c04a2fe4ccab3577e270.body",
+      "bytes": 31303,
+      "httpStatus": 200,
+      "requestedUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27399%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.06790000%2C-88.68340000%2C1.794793945%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27",
+      "resolvedUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27399%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.06790000%2C-88.68340000%2C1.794793945%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27",
+      "responseHeaders": {
+        "Connection": "close",
+        "Content-Type": "text/plain",
+        "Date": "Sat, 14 Nov 2026 23:10:53 GMT",
+        "Server": "nginx",
+        "Transfer-Encoding": "chunked"
+      },
+      "sha256": "ebafdabad0250abfcd97eb82d7d346377d97dd01c814c04a2fe4ccab3577e270",
+      "usedCachedResponse": false
+    },
+    {
+      "acquiredUtc": "2026-11-14T23:10:54.697481Z",
+      "bodyFile": "cbc2d5b1c86a9ea42306dad480ba567abbae999a3cdfc26dbfba6263ae15170d.body",
+      "bytes": 31303,
+      "httpStatus": 200,
+      "requestedUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%2710%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.06790000%2C-88.68340000%2C1.798793945%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27",
+      "resolvedUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%2710%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.06790000%2C-88.68340000%2C1.798793945%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27",
+      "responseHeaders": {
+        "Connection": "close",
+        "Content-Type": "text/plain",
+        "Date": "Sat, 14 Nov 2026 23:10:54 GMT",
+        "Server": "nginx",
+        "Transfer-Encoding": "chunked"
+      },
+      "sha256": "cbc2d5b1c86a9ea42306dad480ba567abbae999a3cdfc26dbfba6263ae15170d",
+      "usedCachedResponse": false
+    },
+    {
+      "acquiredUtc": "2026-11-14T23:10:55.515923Z",
+      "bodyFile": "7a22b1e62dbd4b4e760a966f77a6f2876b3724eb8c653afc20489790fbc4b3b2.body",
+      "bytes": 31303,
+      "httpStatus": 200,
+      "requestedUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27399%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.06790000%2C-88.68340000%2C1.798793945%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27",
+      "resolvedUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27399%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.06790000%2C-88.68340000%2C1.798793945%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27",
+      "responseHeaders": {
+        "Connection": "close",
+        "Content-Type": "text/plain",
+        "Date": "Sat, 14 Nov 2026 23:10:55 GMT",
+        "Server": "nginx",
+        "Transfer-Encoding": "chunked"
+      },
+      "sha256": "7a22b1e62dbd4b4e760a966f77a6f2876b3724eb8c653afc20489790fbc4b3b2",
+      "usedCachedResponse": false
+    },
+    {
+      "acquiredUtc": "2026-11-14T23:10:56.346988Z",
+      "bodyFile": "0b2bcec360f808daea7367aca2da83e3cfc1e5e0b1eef5da76ae8b8ae24316f6.body",
+      "bytes": 31303,
+      "httpStatus": 200,
+      "requestedUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%2710%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.05442876%2C-88.68263602%2C1.795689331%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27",
+      "resolvedUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%2710%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.05442876%2C-88.68263602%2C1.795689331%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27",
+      "responseHeaders": {
+        "Connection": "close",
+        "Content-Type": "text/plain",
+        "Date": "Sat, 14 Nov 2026 23:10:56 GMT",
+        "Server": "nginx",
+        "Transfer-Encoding": "chunked"
+      },
+      "sha256": "0b2bcec360f808daea7367aca2da83e3cfc1e5e0b1eef5da76ae8b8ae24316f6",
+      "usedCachedResponse": false
+    },
+    {
+      "acquiredUtc": "2026-11-14T23:10:57.188754Z",
+      "bodyFile": "480b0f127fc6fb27db2adf37bbeff3dbe29c9050c1d6e7546375f3fb744e2e78.body",
+      "bytes": 31303,
+      "httpStatus": 200,
+      "requestedUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27399%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.05442876%2C-88.68263602%2C1.795689331%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27",
+      "resolvedUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27399%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.05442876%2C-88.68263602%2C1.795689331%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27",
+      "responseHeaders": {
+        "Connection": "close",
+        "Content-Type": "text/plain",
+        "Date": "Sat, 14 Nov 2026 23:10:56 GMT",
+        "Server": "nginx",
+        "Transfer-Encoding": "chunked"
+      },
+      "sha256": "480b0f127fc6fb27db2adf37bbeff3dbe29c9050c1d6e7546375f3fb744e2e78",
+      "usedCachedResponse": false
+    },
+    {
+      "acquiredUtc": "2026-11-14T23:10:58.024938Z",
+      "bodyFile": "137c4c0afa23f6aa526b369337307aae752279c9aea5341d5990fb70ae9f91df.body",
+      "bytes": 31303,
+      "httpStatus": 200,
+      "requestedUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%2710%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.08138689%2C-88.68416391%2C1.795443848%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27",
+      "resolvedUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%2710%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.08138689%2C-88.68416391%2C1.795443848%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27",
+      "responseHeaders": {
+        "Connection": "close",
+        "Content-Type": "text/plain",
+        "Date": "Sat, 14 Nov 2026 23:10:57 GMT",
+        "Server": "nginx",
+        "Transfer-Encoding": "chunked"
+      },
+      "sha256": "137c4c0afa23f6aa526b369337307aae752279c9aea5341d5990fb70ae9f91df",
+      "usedCachedResponse": false
+    },
+    {
+      "acquiredUtc": "2026-11-14T23:10:58.868127Z",
+      "bodyFile": "4cd309a8caa97f122b472f0194c32dc1200d59fe98a7f737d254656b77a45820.body",
+      "bytes": 31303,
+      "httpStatus": 200,
+      "requestedUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27399%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.08138689%2C-88.68416391%2C1.795443848%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27",
+      "resolvedUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27399%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.08138689%2C-88.68416391%2C1.795443848%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27",
+      "responseHeaders": {
+        "Connection": "close",
+        "Content-Type": "text/plain",
+        "Date": "Sat, 14 Nov 2026 23:10:58 GMT",
+        "Server": "nginx",
+        "Transfer-Encoding": "chunked"
+      },
+      "sha256": "4cd309a8caa97f122b472f0194c32dc1200d59fe98a7f737d254656b77a45820",
+      "usedCachedResponse": false
+    },
+    {
+      "acquiredUtc": "2026-11-14T23:10:59.705287Z",
+      "bodyFile": "bce6badf5988d4383c26bf7f04437e14cd230e9d85c3a7045f0f11af72b38fa2.body",
+      "bytes": 31303,
+      "httpStatus": 200,
+      "requestedUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%2710%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.06790000%2C-88.68340000%2C1.796544678%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27",
+      "resolvedUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%2710%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.06790000%2C-88.68340000%2C1.796544678%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27",
+      "responseHeaders": {
+        "Connection": "close",
+        "Content-Type": "text/plain",
+        "Date": "Sat, 14 Nov 2026 23:10:59 GMT",
+        "Server": "nginx",
+        "Transfer-Encoding": "chunked"
+      },
+      "sha256": "bce6badf5988d4383c26bf7f04437e14cd230e9d85c3a7045f0f11af72b38fa2",
+      "usedCachedResponse": false
+    },
+    {
+      "acquiredUtc": "2026-11-14T23:11:00.573116Z",
+      "bodyFile": "fda1a3133236e32efd808dc130aec8d8d69fa132600c32d3fb8cc73d4a71b8b3.body",
+      "bytes": 31303,
+      "httpStatus": 200,
+      "requestedUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27399%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.06790000%2C-88.68340000%2C1.796544678%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27",
+      "resolvedUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27399%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.06790000%2C-88.68340000%2C1.796544678%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27",
+      "responseHeaders": {
+        "Connection": "close",
+        "Content-Type": "text/plain",
+        "Date": "Sat, 14 Nov 2026 23:11:00 GMT",
+        "Server": "nginx",
+        "Transfer-Encoding": "chunked"
+      },
+      "sha256": "fda1a3133236e32efd808dc130aec8d8d69fa132600c32d3fb8cc73d4a71b8b3",
+      "usedCachedResponse": false
+    },
+    {
+      "acquiredUtc": "2026-11-14T23:11:01.426938Z",
+      "bodyFile": "dbc501f516bd1d74f1539aca283f70019b44694cf25bfcc75136340e0800dc76.body",
+      "bytes": 31303,
+      "httpStatus": 200,
+      "requestedUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%2710%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.06790000%2C-88.68340000%2C1.795816650%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27",
+      "resolvedUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%2710%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.06790000%2C-88.68340000%2C1.795816650%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27",
+      "responseHeaders": {
+        "Connection": "close",
+        "Content-Type": "text/plain",
+        "Date": "Sat, 14 Nov 2026 23:11:01 GMT",
+        "Server": "nginx",
+        "Transfer-Encoding": "chunked"
+      },
+      "sha256": "dbc501f516bd1d74f1539aca283f70019b44694cf25bfcc75136340e0800dc76",
+      "usedCachedResponse": false
+    },
+    {
+      "acquiredUtc": "2026-11-14T23:11:02.248966Z",
+      "bodyFile": "2ba8029802109c13aef7a47bf6d198d2507977f56dba8e1aced5566b0910a9e9.body",
+      "bytes": 31303,
+      "httpStatus": 200,
+      "requestedUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27399%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.06790000%2C-88.68340000%2C1.795816650%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27",
+      "resolvedUrl": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27399%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40301%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27292.06790000%2C-88.68340000%2C1.795816650%27&APPARENT=%27AIRLESS%27&QUANTITIES=%274%27&EXTRA_PREC=%27YES%27&CSV_FORMAT=%27YES%27&START_TIME=%272026-11-01%27&STOP_TIME=%272028-01-01%27&STEP_SIZE=%271+d%27",
+      "responseHeaders": {
+        "Connection": "close",
+        "Content-Type": "text/plain",
+        "Date": "Sat, 14 Nov 2026 23:11:02 GMT",
+        "Server": "nginx",
+        "Transfer-Encoding": "chunked"
+      },
+      "sha256": "2ba8029802109c13aef7a47bf6d198d2507977f56dba8e1aced5566b0910a9e9",
+      "usedCachedResponse": false
+    }
+  ],
+  "retrieved_utc": "2026-11-14T23:10:45Z",
+  "status": "PASS",
+  "test_id": "T03"
 }

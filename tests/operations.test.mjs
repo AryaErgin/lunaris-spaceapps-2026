@@ -104,8 +104,9 @@ test('real bundle matrix and metrics reuse the exact certified start results', a
   const {feasibilityMatrix,missionMetrics}=await operations();
   const bundle=JSON.parse(fs.readFileSync(new URL('../web/data/bundle.json',import.meta.url)));
   const matrix=feasibilityMatrix(bundle,bundle.demo);
-  assert.equal(matrix.starts.length,30);assert.equal(matrix.rows.length,3);
-  for(const row of matrix.rows) for(const index of [0,15,29]) {
+  assert.equal(matrix.starts.length,Math.ceil((bundle.coverage[1]-bundle.coverage[0])/86400));
+  assert.equal(matrix.rows.length,bundle.sites.length);
+  for(const row of matrix.rows) for(const index of new Set([0,Math.floor(matrix.starts.length/2),matrix.starts.length-1])) {
     const mission=row.cells[index],site=bundle.sites.find(s=>s.id===row.siteId);
     assert.deepEqual(mission,engine.evaluateStart(bundle,bundle.demo,row.siteId,matrix.starts[index]));
     const metrics=missionMetrics(mission,site);

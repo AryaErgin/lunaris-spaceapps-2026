@@ -304,13 +304,16 @@ def _validated_reports(domain_path, horizons_path, start, end, sites, *, expecte
     if not isfinite(maximum) or maximum >= HORIZONS_LIMIT_DEG:
         raise ValueError('Horizons maximum separation exceeds the fixed validation limit')
     if expected_kernel_hashes is not None:
-        actual = {row['filename']: row['sha256'] for row in domain['kernels']}
-        if any(actual.get(name) != digest for name, digest in expected_kernel_hashes.items()):
-            raise ValueError('Domain validation kernel source hashes differ from the build')
+        for label, report in (('Domain', domain), ('Horizons', horizons)):
+            actual = {row['filename']: row['sha256'] for row in report.get('kernels', [])}
+            if any(actual.get(name) != digest for name, digest in expected_kernel_hashes.items()):
+                raise ValueError(f'{label} validation kernel source hashes differ from the build')
         for name in ('ephemerides.py', 'domain_validation.py'):
             expected = sha256(Path(__file__).with_name(name).read_bytes()).hexdigest()
             if domain.get('code_sha256', {}).get(name) != expected:
                 raise ValueError('Domain validation code source hashes differ from the executed build')
+        if horizons.get('code_sha256', {}).get('ephemerides.py') != code_hashes()['ephemerides.py']:
+            raise ValueError('Horizons validation code source hash differs from the executed build')
     horizon_ids = {entry['site_id'] for entry in horizons['references']}
     domain_ids = {entry['site_id'] for entry in domain['sites']}
     if not {site['id'] for site in sites} <= horizon_ids & domain_ids:
@@ -318,6 +321,13 @@ def _validated_reports(domain_path, horizons_path, start, end, sites, *, expecte
     for site in sites:
         radius = site['referenceRadiusM'] + site['groundM'] + site['heightM']
         audit = next(record for record in domain['sites'] if record['site_id'] == site['id'])
+        required = {'sun_angular_rate_below_envelope', 'earth_angular_rate_below_envelope',
+            'earth_range_above_assumed_minimum', 'earth_abs_range_rate_below_assumed_maximum',
+            'sampled_light_times_inside_coverage_guard'}
+        checks = audit.get('checks', {})
+        if (audit.get('status') != 'PASS' or not isinstance(checks, dict)
+                or not required <= checks.keys() or not all(value is True for value in checks.values())):
+            raise ValueError(f'An observer failed or lacks the required sampled domain audit: {site["id"]}')
         records = [record for record in horizons['references'] if record['site_id'] == site['id']]
         for record in [audit, *records]:
             if (abs(record['latitude_deg'] - site['lat']) > 1e-10

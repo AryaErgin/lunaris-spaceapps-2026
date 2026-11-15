@@ -9,6 +9,7 @@ import {communicationDemo} from '../web/overview.mjs';
 import {missionMetrics,feasibilityMatrix} from '../web/operations.mjs';
 import {automaticSearchOptions} from '../web/search-scope.mjs';
 import {referenceDirections,skyAt,EARTH_DIRECTION_TOLERANCE_DEG} from '../web/anysite.mjs';
+import {evaluateConfigurations} from '../web/configurations.mjs';
 
 const HOUR=3600,DAY=24*HOUR,utc=text=>Date.parse(text)/1000;
 const START=utc('2026-11-01T00:00:00Z'),NOV_END=utc('2026-12-01T00:00:00Z'),END=utc('2028-01-01T00:00:00Z');
@@ -271,4 +272,38 @@ test('expanded cache keeps the exact fixed nominal, 72-hour failure and earliest
   const earlier={FAIL:0,INDETERMINATE:0,PASS:0};
   for(let start=result.delayed.start;start<result.recommended.start;start+=HOUR)earlier[evaluateStart(bundle,inputs,inputs.siteId,start).status]++;
   assert.deepEqual(earlier,{FAIL:240,INDETERMINATE:69,PASS:0});
+});
+
+test('all seven finite configurations use their actual 2027 timelines and unchanged requirements',onlyExtended,async()=>{
+  const studies=Object.fromEntries(['height','position','terrain'].map(kind=>[kind,
+    JSON.parse(readFileSync(new URL(`../web/data/${kind}-study.json`,import.meta.url),'utf8'))]));
+  const site=bundle.sites.find(row=>row.id==='de-gerlache-rim');
+  const fields={max_sun_block:['sun','longestBlockedRangeSeconds','max'],
+    max_earth_block:['earth','longestBlockedRangeSeconds','max'],
+    min_joint_total:['joint','visibleRangeSeconds','min'],
+    min_joint_continuous:['joint','longestVisibleRangeSeconds','min']};
+  const hashes=new Set();
+  for(const date of ['2026-12-31T18:00:00Z','2027-07-15T06:00:00Z','2027-12-20T06:00:00Z']){
+    const start=utc(date),inputs={...communicationDemo(bundle),nominal:start,delayHours:0,earliest:START,latest:END-12*HOUR};
+    const mission=evaluateStart(bundle,inputs,site.id,start);
+    const report=await evaluateConfigurations(bundle,studies,inputs,mission);
+    assert.equal(report.total,7);assert.equal(report.mission_start,start);assert.equal(report.mission_end,start+12*HOUR);
+    assert.equal(report.baseline_bundle_hash,bundle.manifest.bundleSha256);hashes.add(report.input_hash);
+    assert.equal(report.cases.filter(row=>row.baseline).length,1);
+    for(const actual of report.cases){
+      const source=actual.baseline?site:studies[actual.factor].scenarios.find(row=>row.id===actual.scenario_id);
+      assert(source);assert.equal(actual.input_hash,report.input_hash);
+      const measurements=[oracle(source.sun,source.earth,start,start+12*HOUR),
+        ...['coarse','fine'].map(level=>oracle(source.refinementIntervals.sun[level],source.refinementIntervals.earth[level],start,start+12*HOUR))];
+      for(const rule of actual.constraints){
+        const[channel,field,direction]=fields[rule.id],threshold=rule.threshold*HOUR;
+        closeRange(rule.range.map(value=>value*HOUR),measurements[0][channel][field],actual.id+'/'+rule.id);
+        if(rule.status==='PASS')for(const row of measurements)assert(direction==='max'?row[channel][field][1]<=threshold+1e-6:row[channel][field][0]>=threshold-1e-6);
+        if(rule.status==='FAIL')for(const row of measurements)assert(direction==='max'?row[channel][field][0]>threshold+1e-6:row[channel][field][1]<threshold-1e-6);
+      }
+    }
+    assert.equal(Object.values(report.counts).reduce((sum,count)=>sum+count,0),7);
+    assert.match(report.scope,/not a probability/);
+  }
+  assert.equal(hashes.size,3,'A new inspected epoch must have its own finite-case evidence identity.');
 });

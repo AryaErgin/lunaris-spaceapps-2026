@@ -1,0 +1,853 @@
+{
+  "version": "1.0.0",
+  "status": "PASS",
+  "scope": "Sampled apparent-state domain checks; shared SPICE model, not independent physical validation.",
+  "sampled_only": true,
+  "between_sample_bound_proven": false,
+  "start_utc": "2026-11-01T00:00:00Z",
+  "end_utc": "2028-01-01T00:00:00Z",
+  "cadence_seconds": 60,
+  "interlaced_cadence_seconds": 30.0,
+  "frame": "MOON_ME_DE440_ME421",
+  "correction": "CN+S",
+  "state_units": [
+    "km",
+    "km/s"
+  ],
+  "rate_method": "Instantaneous |position cross velocity| / range\u00b2, from SPKCPO reception states in fixed local ENU.",
+  "coverage": {
+    "status": "PASS",
+    "start_utc": "2026-11-01T00:00:00Z",
+    "end_utc": "2028-01-01T00:00:00Z",
+    "light_time_margin_s": 600.0,
+    "guarded_spk_start_utc": "2026-10-31T23:50:00.000000Z",
+    "kernel_intervals": {
+      "spk": {
+        "3": [
+          {
+            "start_tdb_s_past_j2000": -4734072000.0,
+            "end_tdb_s_past_j2000": 4735368000.0,
+            "start_utc": "1849-12-25T23:59:18.816Z",
+            "end_utc": "2150-01-21T23:58:50.816Z"
+          }
+        ],
+        "10": [
+          {
+            "start_tdb_s_past_j2000": -4734072000.0,
+            "end_tdb_s_past_j2000": 4735368000.0,
+            "start_utc": "1849-12-25T23:59:18.816Z",
+            "end_utc": "2150-01-21T23:58:50.816Z"
+          }
+        ],
+        "301": [
+          {
+            "start_tdb_s_past_j2000": -4734072000.0,
+            "end_tdb_s_past_j2000": 4735368000.0,
+            "start_utc": "1849-12-25T23:59:18.816Z",
+            "end_utc": "2150-01-21T23:58:50.816Z"
+          }
+        ],
+        "399": [
+          {
+            "start_tdb_s_past_j2000": -4734072000.0,
+            "end_tdb_s_past_j2000": 4735368000.0,
+            "start_utc": "1849-12-25T23:59:18.816Z",
+            "end_utc": "2150-01-21T23:58:50.816Z"
+          }
+        ]
+      },
+      "orientation": [
+        {
+          "start_tdb_s_past_j2000": -14200747200.0,
+          "end_tdb_s_past_j2000": 20514081600.0,
+          "start_utc": "1549-12-30T23:59:18.816Z",
+          "end_utc": "2650-01-24T23:58:50.816Z"
+        }
+      ],
+      "observer_frame": "MOON_ME_DE440_ME421",
+      "orientation_class_id": 31008,
+      "correction": "CN+S",
+      "output_frame_epoch": "OBSERVER",
+      "toolkit_version": "CSPICE_N0067",
+      "spiceypy_version": "8.4.0",
+      "note": "Raw kernel intervals. Reception calculations also require target coverage at retarded epochs."
+    },
+    "scope": "Raw SPK and orientation coverage; actual sampled light times must fit the declared guard."
+  },
+  "sites": [
+    {
+      "site_id": "connecting-ridge",
+      "latitude_deg": -89.4632,
+      "longitude_deg_east": 222.51,
+      "observer_radius_m": 1739346.6325683594,
+      "sun": {
+        "sample_count": 1226881,
+        "all_finite": true,
+        "min_range_km": 146705194.0423364,
+        "min_range_utc": "2027-01-07T16:02:00Z",
+        "max_range_km": 152438822.9671874,
+        "max_range_utc": "2027-07-18T02:49:00Z",
+        "max_abs_range_rate_km_s": 1.4594784823281466,
+        "max_abs_range_rate_utc": "2027-04-13T21:55:30Z",
+        "max_angular_rate_deg_min": 0.008509263988981266,
+        "max_angular_rate_utc": "2027-07-04T03:23:30Z",
+        "max_light_time_seconds": 508.4811805612115,
+        "max_light_time_utc": "2027-07-18T02:49:00Z"
+      },
+      "earth": {
+        "sample_count": 1226881,
+        "all_finite": true,
+        "min_range_km": 356525.3240964534,
+        "min_range_utc": "2026-12-24T07:58:00Z",
+        "max_range_km": 406759.9331063404,
+        "max_range_utc": "2027-01-07T06:38:30Z",
+        "max_abs_range_rate_km_s": 0.07455258734313996,
+        "max_abs_range_rate_utc": "2027-01-27T01:47:00Z",
+        "max_angular_rate_deg_min": 0.0018629037345829513,
+        "max_angular_rate_utc": "2027-08-02T08:21:00Z",
+        "max_light_time_seconds": 1.356805090494773,
+        "max_light_time_utc": "2027-01-07T06:38:30Z"
+      },
+      "regular_grid": {
+        "sun": {
+          "sample_count": 613441,
+          "all_finite": true,
+          "min_range_km": 146705194.0423364,
+          "min_range_utc": "2027-01-07T16:02:00Z",
+          "max_range_km": 152438822.9671874,
+          "max_range_utc": "2027-07-18T02:49:00Z",
+          "max_abs_range_rate_km_s": 1.459478480502609,
+          "max_abs_range_rate_utc": "2027-04-13T21:55:00Z",
+          "max_angular_rate_deg_min": 0.008509263988979868,
+          "max_angular_rate_utc": "2027-07-04T03:24:00Z",
+          "max_light_time_seconds": 508.4811805612115,
+          "max_light_time_utc": "2027-07-18T02:49:00Z"
+        },
+        "earth": {
+          "sample_count": 613441,
+          "all_finite": true,
+          "min_range_km": 356525.3240964534,
+          "min_range_utc": "2026-12-24T07:58:00Z",
+          "max_range_km": 406759.9330704772,
+          "max_range_utc": "2027-01-07T06:38:00Z",
+          "max_abs_range_rate_km_s": 0.07455258734313996,
+          "max_abs_range_rate_utc": "2027-01-27T01:47:00Z",
+          "max_angular_rate_deg_min": 0.0018629037345829513,
+          "max_angular_rate_utc": "2027-08-02T08:21:00Z",
+          "max_light_time_seconds": 1.3568050903751463,
+          "max_light_time_utc": "2027-01-07T06:38:00Z"
+        }
+      },
+      "checks": {
+        "sun_angular_rate_below_envelope": true,
+        "earth_angular_rate_below_envelope": true,
+        "earth_range_above_assumed_minimum": true,
+        "earth_abs_range_rate_below_assumed_maximum": true,
+        "sampled_light_times_inside_coverage_guard": true
+      },
+      "status": "PASS"
+    },
+    {
+      "site_id": "shackleton-rim",
+      "latitude_deg": -89.7668,
+      "longitude_deg_east": 188.13,
+      "observer_radius_m": 1738173.0432128906,
+      "sun": {
+        "sample_count": 1226881,
+        "all_finite": true,
+        "min_range_km": 146705199.3986409,
+        "min_range_utc": "2027-01-07T16:02:00Z",
+        "max_range_km": 152438816.69187683,
+        "max_range_utc": "2027-07-18T02:49:00Z",
+        "max_abs_range_rate_km_s": 1.4594660656115452,
+        "max_abs_range_rate_utc": "2027-04-13T21:55:30Z",
+        "max_angular_rate_deg_min": 0.008509263725092548,
+        "max_angular_rate_utc": "2027-07-04T03:24:00Z",
+        "max_light_time_seconds": 508.4811596290285,
+        "max_light_time_utc": "2027-07-18T02:49:00Z"
+      },
+      "earth": {
+        "sample_count": 1226881,
+        "all_finite": true,
+        "min_range_km": 356520.39311604266,
+        "min_range_utc": "2026-12-24T07:58:30Z",
+        "max_range_km": 406754.7590691388,
+        "max_range_utc": "2027-01-07T06:39:00Z",
+        "max_abs_range_rate_km_s": 0.07455182461268899,
+        "max_abs_range_rate_utc": "2027-01-27T01:47:00Z",
+        "max_angular_rate_deg_min": 0.001862930664501706,
+        "max_angular_rate_utc": "2027-08-02T08:21:00Z",
+        "max_light_time_seconds": 1.3567878317643962,
+        "max_light_time_utc": "2027-01-07T06:39:00Z"
+      },
+      "regular_grid": {
+        "sun": {
+          "sample_count": 613441,
+          "all_finite": true,
+          "min_range_km": 146705199.3986409,
+          "min_range_utc": "2027-01-07T16:02:00Z",
+          "max_range_km": 152438816.69187683,
+          "max_range_utc": "2027-07-18T02:49:00Z",
+          "max_abs_range_rate_km_s": 1.4594660632921315,
+          "max_abs_range_rate_utc": "2027-04-13T21:56:00Z",
+          "max_angular_rate_deg_min": 0.008509263725092548,
+          "max_angular_rate_utc": "2027-07-04T03:24:00Z",
+          "max_light_time_seconds": 508.4811596290285,
+          "max_light_time_utc": "2027-07-18T02:49:00Z"
+        },
+        "earth": {
+          "sample_count": 613441,
+          "all_finite": true,
+          "min_range_km": 356520.3931667409,
+          "min_range_utc": "2026-12-24T07:58:00Z",
+          "max_range_km": 406754.7590691388,
+          "max_range_utc": "2027-01-07T06:39:00Z",
+          "max_abs_range_rate_km_s": 0.07455182461268899,
+          "max_abs_range_rate_utc": "2027-01-27T01:47:00Z",
+          "max_angular_rate_deg_min": 0.001862930664501706,
+          "max_angular_rate_utc": "2027-08-02T08:21:00Z",
+          "max_light_time_seconds": 1.3567878317643962,
+          "max_light_time_utc": "2027-01-07T06:39:00Z"
+        }
+      },
+      "checks": {
+        "sun_angular_rate_below_envelope": true,
+        "earth_angular_rate_below_envelope": true,
+        "earth_range_above_assumed_minimum": true,
+        "earth_abs_range_rate_below_assumed_maximum": true,
+        "sampled_light_times_inside_coverage_guard": true
+      },
+      "status": "PASS"
+    },
+    {
+      "site_id": "de-gerlache-rim",
+      "latitude_deg": -88.6834,
+      "longitude_deg_east": 292.0679,
+      "observer_radius_m": 1739195.7939453125,
+      "sun": {
+        "sample_count": 1226881,
+        "all_finite": true,
+        "min_range_km": 146705220.1918694,
+        "min_range_utc": "2027-01-07T16:01:30Z",
+        "max_range_km": 152438799.54669988,
+        "max_range_utc": "2027-07-18T02:48:30Z",
+        "max_abs_range_rate_km_s": 1.459412124174271,
+        "max_abs_range_rate_utc": "2027-04-13T21:55:00Z",
+        "max_angular_rate_deg_min": 0.008509262433099485,
+        "max_angular_rate_utc": "2027-07-04T03:23:30Z",
+        "max_light_time_seconds": 508.4811024388742,
+        "max_light_time_utc": "2027-07-18T02:48:30Z"
+      },
+      "earth": {
+        "sample_count": 1226881,
+        "all_finite": true,
+        "min_range_km": 356498.48450942605,
+        "min_range_utc": "2026-12-24T07:57:30Z",
+        "max_range_km": 406733.1930562189,
+        "max_range_utc": "2027-01-07T06:37:00Z",
+        "max_abs_range_rate_km_s": 0.07455497816371998,
+        "max_abs_range_rate_utc": "2027-01-27T01:46:00Z",
+        "max_angular_rate_deg_min": 0.001863042614793706,
+        "max_angular_rate_utc": "2027-08-02T08:21:00Z",
+        "max_light_time_seconds": 1.3567158952885296,
+        "max_light_time_utc": "2027-01-07T06:37:00Z"
+      },
+      "regular_grid": {
+        "sun": {
+          "sample_count": 613441,
+          "all_finite": true,
+          "min_range_km": 146705220.19280177,
+          "min_range_utc": "2027-01-07T16:01:00Z",
+          "max_range_km": 152438799.54613006,
+          "max_range_utc": "2027-07-18T02:48:00Z",
+          "max_abs_range_rate_km_s": 1.459412124174271,
+          "max_abs_range_rate_utc": "2027-04-13T21:55:00Z",
+          "max_angular_rate_deg_min": 0.008509262433051895,
+          "max_angular_rate_utc": "2027-07-04T03:23:00Z",
+          "max_light_time_seconds": 508.48110243697346,
+          "max_light_time_utc": "2027-07-18T02:48:00Z"
+        },
+        "earth": {
+          "sample_count": 613441,
+          "all_finite": true,
+          "min_range_km": 356498.48459394457,
+          "min_range_utc": "2026-12-24T07:57:00Z",
+          "max_range_km": 406733.1930562189,
+          "max_range_utc": "2027-01-07T06:37:00Z",
+          "max_abs_range_rate_km_s": 0.07455497816371998,
+          "max_abs_range_rate_utc": "2027-01-27T01:46:00Z",
+          "max_angular_rate_deg_min": 0.001863042614793706,
+          "max_angular_rate_utc": "2027-08-02T08:21:00Z",
+          "max_light_time_seconds": 1.3567158952885296,
+          "max_light_time_utc": "2027-01-07T06:37:00Z"
+        }
+      },
+      "checks": {
+        "sun_angular_rate_below_envelope": true,
+        "earth_angular_rate_below_envelope": true,
+        "earth_range_above_assumed_minimum": true,
+        "earth_abs_range_rate_below_assumed_maximum": true,
+        "sampled_light_times_inside_coverage_guard": true
+      },
+      "status": "PASS"
+    },
+    {
+      "site_id": "peak-near-shackleton",
+      "latitude_deg": -88.811,
+      "longitude_deg_east": 123.6901,
+      "observer_radius_m": 1739047.548828125,
+      "sun": {
+        "sample_count": 1226881,
+        "all_finite": true,
+        "min_range_km": 146705187.4155568,
+        "min_range_utc": "2027-01-07T16:03:00Z",
+        "max_range_km": 152438825.57247427,
+        "max_range_utc": "2027-07-18T02:50:00Z",
+        "max_abs_range_rate_km_s": 1.4594978814313466,
+        "max_abs_range_rate_utc": "2027-04-13T21:56:00Z",
+        "max_angular_rate_deg_min": 0.008509264503709334,
+        "max_angular_rate_utc": "2027-07-04T03:24:30Z",
+        "max_light_time_seconds": 508.48118925151306,
+        "max_light_time_utc": "2027-07-18T02:50:00Z"
+      },
+      "earth": {
+        "sample_count": 1226881,
+        "all_finite": true,
+        "min_range_km": 356533.25460964435,
+        "min_range_utc": "2026-12-24T07:59:00Z",
+        "max_range_km": 406767.48984000523,
+        "max_range_utc": "2027-01-07T06:40:30Z",
+        "max_abs_range_rate_km_s": 0.07454950210213654,
+        "max_abs_range_rate_utc": "2027-01-27T01:47:30Z",
+        "max_angular_rate_deg_min": 0.0018628652044006835,
+        "max_angular_rate_utc": "2027-08-02T08:21:30Z",
+        "max_light_time_seconds": 1.3568302970450485,
+        "max_light_time_utc": "2027-01-07T06:40:30Z"
+      },
+      "regular_grid": {
+        "sun": {
+          "sample_count": 613441,
+          "all_finite": true,
+          "min_range_km": 146705187.4155568,
+          "min_range_utc": "2027-01-07T16:03:00Z",
+          "max_range_km": 152438825.57247427,
+          "max_range_utc": "2027-07-18T02:50:00Z",
+          "max_abs_range_rate_km_s": 1.4594978814313466,
+          "max_abs_range_rate_utc": "2027-04-13T21:56:00Z",
+          "max_angular_rate_deg_min": 0.008509264503694741,
+          "max_angular_rate_utc": "2027-07-04T03:24:00Z",
+          "max_light_time_seconds": 508.48118925151306,
+          "max_light_time_utc": "2027-07-18T02:50:00Z"
+        },
+        "earth": {
+          "sample_count": 613441,
+          "all_finite": true,
+          "min_range_km": 356533.25460964435,
+          "min_range_utc": "2026-12-24T07:59:00Z",
+          "max_range_km": 406767.48983038287,
+          "max_range_utc": "2027-01-07T06:41:00Z",
+          "max_abs_range_rate_km_s": 0.07454950206997847,
+          "max_abs_range_rate_utc": "2027-01-27T01:48:00Z",
+          "max_angular_rate_deg_min": 0.001862865198124822,
+          "max_angular_rate_utc": "2027-08-02T08:21:00Z",
+          "max_light_time_seconds": 1.3568302970129518,
+          "max_light_time_utc": "2027-01-07T06:41:00Z"
+        }
+      },
+      "checks": {
+        "sun_angular_rate_below_envelope": true,
+        "earth_angular_rate_below_envelope": true,
+        "earth_range_above_assumed_minimum": true,
+        "earth_abs_range_rate_below_assumed_maximum": true,
+        "sampled_light_times_inside_coverage_guard": true
+      },
+      "status": "PASS"
+    },
+    {
+      "site_id": "de-gerlache-rim-height-h1m",
+      "latitude_deg": -88.6834,
+      "longitude_deg_east": 292.0679,
+      "observer_radius_m": 1739194.7939453125,
+      "sun": {
+        "sample_count": 1226881,
+        "all_finite": true,
+        "min_range_km": 146705220.19187737,
+        "min_range_utc": "2027-01-07T16:01:30Z",
+        "max_range_km": 152438799.5466976,
+        "max_range_utc": "2027-07-18T02:48:30Z",
+        "max_abs_range_rate_km_s": 1.4594121241920495,
+        "max_abs_range_rate_utc": "2027-04-13T21:55:00Z",
+        "max_angular_rate_deg_min": 0.00850926243310078,
+        "max_angular_rate_utc": "2027-07-04T03:23:30Z",
+        "max_light_time_seconds": 508.4811024388665,
+        "max_light_time_utc": "2027-07-18T02:48:30Z"
+      },
+      "earth": {
+        "sample_count": 1226881,
+        "all_finite": true,
+        "min_range_km": 356498.48459588084,
+        "min_range_utc": "2026-12-24T07:57:30Z",
+        "max_range_km": 406733.1929833207,
+        "max_range_utc": "2027-01-07T06:37:00Z",
+        "max_abs_range_rate_km_s": 0.07455497794415224,
+        "max_abs_range_rate_utc": "2027-01-27T01:46:00Z",
+        "max_angular_rate_deg_min": 0.0018630426147914997,
+        "max_angular_rate_utc": "2027-08-02T08:21:00Z",
+        "max_light_time_seconds": 1.3567158950453673,
+        "max_light_time_utc": "2027-01-07T06:37:00Z"
+      },
+      "regular_grid": {
+        "sun": {
+          "sample_count": 613441,
+          "all_finite": true,
+          "min_range_km": 146705220.19280973,
+          "min_range_utc": "2027-01-07T16:01:00Z",
+          "max_range_km": 152438799.54612777,
+          "max_range_utc": "2027-07-18T02:48:00Z",
+          "max_abs_range_rate_km_s": 1.4594121241920495,
+          "max_abs_range_rate_utc": "2027-04-13T21:55:00Z",
+          "max_angular_rate_deg_min": 0.008509262433053187,
+          "max_angular_rate_utc": "2027-07-04T03:23:00Z",
+          "max_light_time_seconds": 508.48110243696584,
+          "max_light_time_utc": "2027-07-18T02:48:00Z"
+        },
+        "earth": {
+          "sample_count": 613441,
+          "all_finite": true,
+          "min_range_km": 356498.48468043515,
+          "min_range_utc": "2026-12-24T07:57:00Z",
+          "max_range_km": 406733.1929833207,
+          "max_range_utc": "2027-01-07T06:37:00Z",
+          "max_abs_range_rate_km_s": 0.07455497794415224,
+          "max_abs_range_rate_utc": "2027-01-27T01:46:00Z",
+          "max_angular_rate_deg_min": 0.0018630426147914997,
+          "max_angular_rate_utc": "2027-08-02T08:21:00Z",
+          "max_light_time_seconds": 1.3567158950453673,
+          "max_light_time_utc": "2027-01-07T06:37:00Z"
+        }
+      },
+      "checks": {
+        "sun_angular_rate_below_envelope": true,
+        "earth_angular_rate_below_envelope": true,
+        "earth_range_above_assumed_minimum": true,
+        "earth_abs_range_rate_below_assumed_maximum": true,
+        "sampled_light_times_inside_coverage_guard": true
+      },
+      "status": "PASS"
+    },
+    {
+      "site_id": "de-gerlache-rim-height-h5m",
+      "latitude_deg": -88.6834,
+      "longitude_deg_east": 292.0679,
+      "observer_radius_m": 1739198.7939453125,
+      "sun": {
+        "sample_count": 1226881,
+        "all_finite": true,
+        "min_range_km": 146705220.1918456,
+        "min_range_utc": "2027-01-07T16:01:30Z",
+        "max_range_km": 152438799.5467068,
+        "max_range_utc": "2027-07-18T02:48:30Z",
+        "max_abs_range_rate_km_s": 1.459412124120695,
+        "max_abs_range_rate_utc": "2027-04-13T21:55:00Z",
+        "max_angular_rate_deg_min": 0.008509262433095632,
+        "max_angular_rate_utc": "2027-07-04T03:23:30Z",
+        "max_light_time_seconds": 508.48110243889727,
+        "max_light_time_utc": "2027-07-18T02:48:30Z"
+      },
+      "earth": {
+        "sample_count": 1226881,
+        "all_finite": true,
+        "min_range_km": 356498.4842500056,
+        "min_range_utc": "2026-12-24T07:57:30Z",
+        "max_range_km": 406733.19327490835,
+        "max_range_utc": "2027-01-07T06:37:00Z",
+        "max_abs_range_rate_km_s": 0.07455497882242713,
+        "max_abs_range_rate_utc": "2027-01-27T01:46:00Z",
+        "max_angular_rate_deg_min": 0.0018630426147998372,
+        "max_angular_rate_utc": "2027-08-02T08:21:00Z",
+        "max_light_time_seconds": 1.356715896017999,
+        "max_light_time_utc": "2027-01-07T06:37:00Z"
+      },
+      "regular_grid": {
+        "sun": {
+          "sample_count": 613441,
+          "all_finite": true,
+          "min_range_km": 146705220.19277793,
+          "min_range_utc": "2027-01-07T16:01:00Z",
+          "max_range_km": 152438799.546137,
+          "max_range_utc": "2027-07-18T02:48:00Z",
+          "max_abs_range_rate_km_s": 1.459412124120695,
+          "max_abs_range_rate_utc": "2027-04-13T21:55:00Z",
+          "max_angular_rate_deg_min": 0.008509262433048014,
+          "max_angular_rate_utc": "2027-07-04T03:23:00Z",
+          "max_light_time_seconds": 508.48110243699665,
+          "max_light_time_utc": "2027-07-18T02:48:00Z"
+        },
+        "earth": {
+          "sample_count": 613441,
+          "all_finite": true,
+          "min_range_km": 356498.48433452245,
+          "min_range_utc": "2026-12-24T07:57:00Z",
+          "max_range_km": 406733.19327490835,
+          "max_range_utc": "2027-01-07T06:37:00Z",
+          "max_abs_range_rate_km_s": 0.07455497882242713,
+          "max_abs_range_rate_utc": "2027-01-27T01:46:00Z",
+          "max_angular_rate_deg_min": 0.0018630426147998372,
+          "max_angular_rate_utc": "2027-08-02T08:21:00Z",
+          "max_light_time_seconds": 1.356715896017999,
+          "max_light_time_utc": "2027-01-07T06:37:00Z"
+        }
+      },
+      "checks": {
+        "sun_angular_rate_below_envelope": true,
+        "earth_angular_rate_below_envelope": true,
+        "earth_range_above_assumed_minimum": true,
+        "earth_abs_range_rate_below_assumed_maximum": true,
+        "sampled_light_times_inside_coverage_guard": true
+      },
+      "status": "PASS"
+    },
+    {
+      "site_id": "de-gerlache-rim-position-eminus25m",
+      "latitude_deg": -88.68263601695496,
+      "longitude_deg_east": 292.05442875761236,
+      "observer_radius_m": 1739195.6893310547,
+      "sun": {
+        "sample_count": 1226881,
+        "all_finite": true,
+        "min_range_km": 146705220.19104227,
+        "min_range_utc": "2027-01-07T16:01:30Z",
+        "max_range_km": 152438799.54994777,
+        "max_range_utc": "2027-07-18T02:48:30Z",
+        "max_abs_range_rate_km_s": 1.4594121243770009,
+        "max_abs_range_rate_utc": "2027-04-13T21:55:00Z",
+        "max_angular_rate_deg_min": 0.008509262433060272,
+        "max_angular_rate_utc": "2027-07-04T03:23:30Z",
+        "max_light_time_seconds": 508.481102449708,
+        "max_light_time_utc": "2027-07-18T02:48:30Z"
+      },
+      "earth": {
+        "sample_count": 1226881,
+        "all_finite": true,
+        "min_range_km": 356498.48462352756,
+        "min_range_utc": "2026-12-24T07:57:30Z",
+        "max_range_km": 406733.193238567,
+        "max_range_utc": "2027-01-07T06:37:00Z",
+        "max_abs_range_rate_km_s": 0.07455497968645743,
+        "max_abs_range_rate_utc": "2027-01-27T01:46:00Z",
+        "max_angular_rate_deg_min": 0.0018630426128496082,
+        "max_angular_rate_utc": "2027-08-02T08:21:00Z",
+        "max_light_time_seconds": 1.3567158958967773,
+        "max_light_time_utc": "2027-01-07T06:37:00Z"
+      },
+      "regular_grid": {
+        "sun": {
+          "sample_count": 613441,
+          "all_finite": true,
+          "min_range_km": 146705220.19197282,
+          "min_range_utc": "2027-01-07T16:01:00Z",
+          "max_range_km": 152438799.5493798,
+          "max_range_utc": "2027-07-18T02:48:00Z",
+          "max_abs_range_rate_km_s": 1.4594121243770009,
+          "max_abs_range_rate_utc": "2027-04-13T21:55:00Z",
+          "max_angular_rate_deg_min": 0.008509262433012766,
+          "max_angular_rate_utc": "2027-07-04T03:23:00Z",
+          "max_light_time_seconds": 508.48110244781344,
+          "max_light_time_utc": "2027-07-18T02:48:00Z"
+        },
+        "earth": {
+          "sample_count": 613441,
+          "all_finite": true,
+          "min_range_km": 356498.4847077346,
+          "min_range_utc": "2026-12-24T07:57:00Z",
+          "max_range_km": 406733.193238567,
+          "max_range_utc": "2027-01-07T06:37:00Z",
+          "max_abs_range_rate_km_s": 0.07455497968645743,
+          "max_abs_range_rate_utc": "2027-01-27T01:46:00Z",
+          "max_angular_rate_deg_min": 0.0018630426128496082,
+          "max_angular_rate_utc": "2027-08-02T08:21:00Z",
+          "max_light_time_seconds": 1.3567158958967773,
+          "max_light_time_utc": "2027-01-07T06:37:00Z"
+        }
+      },
+      "checks": {
+        "sun_angular_rate_below_envelope": true,
+        "earth_angular_rate_below_envelope": true,
+        "earth_range_above_assumed_minimum": true,
+        "earth_abs_range_rate_below_assumed_maximum": true,
+        "sampled_light_times_inside_coverage_guard": true
+      },
+      "status": "PASS"
+    },
+    {
+      "site_id": "de-gerlache-rim-position-eplus25m",
+      "latitude_deg": -88.684163910302,
+      "longitude_deg_east": 292.08138688600366,
+      "observer_radius_m": 1739195.4438476562,
+      "sun": {
+        "sample_count": 1226881,
+        "all_finite": true,
+        "min_range_km": 146705220.1927002,
+        "min_range_utc": "2027-01-07T16:01:30Z",
+        "max_range_km": 152438799.5434509,
+        "max_range_utc": "2027-07-18T02:48:30Z",
+        "max_abs_range_rate_km_s": 1.4594121239795559,
+        "max_abs_range_rate_utc": "2027-04-13T21:55:00Z",
+        "max_angular_rate_deg_min": 0.008509262433139292,
+        "max_angular_rate_utc": "2027-07-04T03:23:30Z",
+        "max_light_time_seconds": 508.4811024280367,
+        "max_light_time_utc": "2027-07-18T02:48:30Z"
+      },
+      "earth": {
+        "sample_count": 1226881,
+        "all_finite": true,
+        "min_range_km": 356498.4844346464,
+        "min_range_utc": "2026-12-24T07:57:30Z",
+        "max_range_km": 406733.1928406931,
+        "max_range_utc": "2027-01-07T06:37:00Z",
+        "max_abs_range_rate_km_s": 0.07455497654106709,
+        "max_abs_range_rate_utc": "2027-01-27T01:46:00Z",
+        "max_angular_rate_deg_min": 0.0018630426167366365,
+        "max_angular_rate_utc": "2027-08-02T08:21:00Z",
+        "max_light_time_seconds": 1.356715894569613,
+        "max_light_time_utc": "2027-01-07T06:37:00Z"
+      },
+      "regular_grid": {
+        "sun": {
+          "sample_count": 613441,
+          "all_finite": true,
+          "min_range_km": 146705220.19363445,
+          "min_range_utc": "2027-01-07T16:01:00Z",
+          "max_range_km": 152438799.54287922,
+          "max_range_utc": "2027-07-18T02:48:00Z",
+          "max_abs_range_rate_km_s": 1.4594121239795559,
+          "max_abs_range_rate_utc": "2027-04-13T21:55:00Z",
+          "max_angular_rate_deg_min": 0.008509262433091592,
+          "max_angular_rate_utc": "2027-07-04T03:23:00Z",
+          "max_light_time_seconds": 508.48110242612984,
+          "max_light_time_utc": "2027-07-18T02:48:00Z"
+        },
+        "earth": {
+          "sample_count": 613441,
+          "all_finite": true,
+          "min_range_km": 356498.4845195074,
+          "min_range_utc": "2026-12-24T07:57:00Z",
+          "max_range_km": 406733.1928406931,
+          "max_range_utc": "2027-01-07T06:37:00Z",
+          "max_abs_range_rate_km_s": 0.07455497654106709,
+          "max_abs_range_rate_utc": "2027-01-27T01:46:00Z",
+          "max_angular_rate_deg_min": 0.0018630426167366365,
+          "max_angular_rate_utc": "2027-08-02T08:21:00Z",
+          "max_light_time_seconds": 1.356715894569613,
+          "max_light_time_utc": "2027-01-07T06:37:00Z"
+        }
+      },
+      "checks": {
+        "sun_angular_rate_below_envelope": true,
+        "earth_angular_rate_below_envelope": true,
+        "earth_range_above_assumed_minimum": true,
+        "earth_abs_range_rate_below_assumed_maximum": true,
+        "sampled_light_times_inside_coverage_guard": true
+      },
+      "status": "PASS"
+    },
+    {
+      "site_id": "de-gerlache-rim-terrain-cloneminus0001",
+      "latitude_deg": -88.6834,
+      "longitude_deg_east": 292.0679,
+      "observer_radius_m": 1739196.5446777344,
+      "sun": {
+        "sample_count": 1226881,
+        "all_finite": true,
+        "min_range_km": 146705220.19186345,
+        "min_range_utc": "2027-01-07T16:01:30Z",
+        "max_range_km": 152438799.54670158,
+        "max_range_utc": "2027-07-18T02:48:30Z",
+        "max_abs_range_rate_km_s": 1.4594121241608844,
+        "max_abs_range_rate_utc": "2027-04-13T21:55:00Z",
+        "max_angular_rate_deg_min": 0.008509262433098515,
+        "max_angular_rate_utc": "2027-07-04T03:23:30Z",
+        "max_light_time_seconds": 508.4811024388799,
+        "max_light_time_utc": "2027-07-18T02:48:30Z"
+      },
+      "earth": {
+        "sample_count": 1226881,
+        "all_finite": true,
+        "min_range_km": 356498.48444449436,
+        "min_range_utc": "2026-12-24T07:57:30Z",
+        "max_range_km": 406733.1931109477,
+        "max_range_utc": "2027-01-07T06:37:00Z",
+        "max_abs_range_rate_km_s": 0.07455497832855833,
+        "max_abs_range_rate_utc": "2027-01-27T01:46:00Z",
+        "max_angular_rate_deg_min": 0.001863042614795328,
+        "max_angular_rate_utc": "2027-08-02T08:21:00Z",
+        "max_light_time_seconds": 1.3567158954710852,
+        "max_light_time_utc": "2027-01-07T06:37:00Z"
+      },
+      "regular_grid": {
+        "sun": {
+          "sample_count": 613441,
+          "all_finite": true,
+          "min_range_km": 146705220.1927958,
+          "min_range_utc": "2027-01-07T16:01:00Z",
+          "max_range_km": 152438799.5461318,
+          "max_range_utc": "2027-07-18T02:48:00Z",
+          "max_abs_range_rate_km_s": 1.4594121241608844,
+          "max_abs_range_rate_utc": "2027-04-13T21:55:00Z",
+          "max_angular_rate_deg_min": 0.0085092624330509,
+          "max_angular_rate_utc": "2027-07-04T03:23:00Z",
+          "max_light_time_seconds": 508.48110243697926,
+          "max_light_time_utc": "2027-07-18T02:48:00Z"
+        },
+        "earth": {
+          "sample_count": 613441,
+          "all_finite": true,
+          "min_range_km": 356498.484529029,
+          "min_range_utc": "2026-12-24T07:57:00Z",
+          "max_range_km": 406733.1931109477,
+          "max_range_utc": "2027-01-07T06:37:00Z",
+          "max_abs_range_rate_km_s": 0.07455497832855833,
+          "max_abs_range_rate_utc": "2027-01-27T01:46:00Z",
+          "max_angular_rate_deg_min": 0.001863042614795328,
+          "max_angular_rate_utc": "2027-08-02T08:21:00Z",
+          "max_light_time_seconds": 1.3567158954710852,
+          "max_light_time_utc": "2027-01-07T06:37:00Z"
+        }
+      },
+      "checks": {
+        "sun_angular_rate_below_envelope": true,
+        "earth_angular_rate_below_envelope": true,
+        "earth_range_above_assumed_minimum": true,
+        "earth_abs_range_rate_below_assumed_maximum": true,
+        "sampled_light_times_inside_coverage_guard": true
+      },
+      "status": "PASS"
+    },
+    {
+      "site_id": "de-gerlache-rim-terrain-cloneminus0002",
+      "latitude_deg": -88.6834,
+      "longitude_deg_east": 292.0679,
+      "observer_radius_m": 1739195.8166503906,
+      "sun": {
+        "sample_count": 1226881,
+        "all_finite": true,
+        "min_range_km": 146705220.19186926,
+        "min_range_utc": "2027-01-07T16:01:30Z",
+        "max_range_km": 152438799.54669994,
+        "max_range_utc": "2027-07-18T02:48:30Z",
+        "max_abs_range_rate_km_s": 1.4594121241737743,
+        "max_abs_range_rate_utc": "2027-04-13T21:55:00Z",
+        "max_angular_rate_deg_min": 0.008509262433099475,
+        "max_angular_rate_utc": "2027-07-04T03:23:30Z",
+        "max_light_time_seconds": 508.4811024388744,
+        "max_light_time_utc": "2027-07-18T02:48:30Z"
+      },
+      "earth": {
+        "sample_count": 1226881,
+        "all_finite": true,
+        "min_range_km": 356498.48450745165,
+        "min_range_utc": "2026-12-24T07:57:30Z",
+        "max_range_km": 406733.1930578788,
+        "max_range_utc": "2027-01-07T06:37:00Z",
+        "max_abs_range_rate_km_s": 0.07455497816870453,
+        "max_abs_range_rate_utc": "2027-01-27T01:46:00Z",
+        "max_angular_rate_deg_min": 0.0018630426147939322,
+        "max_angular_rate_utc": "2027-08-02T08:21:00Z",
+        "max_light_time_seconds": 1.3567158952940666,
+        "max_light_time_utc": "2027-01-07T06:37:00Z"
+      },
+      "regular_grid": {
+        "sun": {
+          "sample_count": 613441,
+          "all_finite": true,
+          "min_range_km": 146705220.19280165,
+          "min_range_utc": "2027-01-07T16:01:00Z",
+          "max_range_km": 152438799.54613012,
+          "max_range_utc": "2027-07-18T02:48:00Z",
+          "max_abs_range_rate_km_s": 1.4594121241737743,
+          "max_abs_range_rate_utc": "2027-04-13T21:55:00Z",
+          "max_angular_rate_deg_min": 0.008509262433051848,
+          "max_angular_rate_utc": "2027-07-04T03:23:00Z",
+          "max_light_time_seconds": 508.4811024369737,
+          "max_light_time_utc": "2027-07-18T02:48:00Z"
+        },
+        "earth": {
+          "sample_count": 613441,
+          "all_finite": true,
+          "min_range_km": 356498.4845919965,
+          "min_range_utc": "2026-12-24T07:57:00Z",
+          "max_range_km": 406733.1930578788,
+          "max_range_utc": "2027-01-07T06:37:00Z",
+          "max_abs_range_rate_km_s": 0.07455497816870453,
+          "max_abs_range_rate_utc": "2027-01-27T01:46:00Z",
+          "max_angular_rate_deg_min": 0.0018630426147939322,
+          "max_angular_rate_utc": "2027-08-02T08:21:00Z",
+          "max_light_time_seconds": 1.3567158952940666,
+          "max_light_time_utc": "2027-01-07T06:37:00Z"
+        }
+      },
+      "checks": {
+        "sun_angular_rate_below_envelope": true,
+        "earth_angular_rate_below_envelope": true,
+        "earth_range_above_assumed_minimum": true,
+        "earth_abs_range_rate_below_assumed_maximum": true,
+        "sampled_light_times_inside_coverage_guard": true
+      },
+      "status": "PASS"
+    }
+  ],
+  "limits": {
+    "angular_rate_envelope_deg_min": 0.03,
+    "earth_min_range_km": 350000.0,
+    "earth_max_abs_range_rate_km_s": 2.0,
+    "light_time_guard_s": 600.0
+  },
+  "interlaced_check": {
+    "performed": true,
+    "maximum_angular_rate_change_deg_min": 6.2758615578667465e-12,
+    "tolerance_deg_min": 1e-06,
+    "within_declared_tolerance": true,
+    "interpretation": "Agreement of sampled extrema is numerical evidence, not physical accuracy or a between-sample proof."
+  },
+  "kernels": [
+    {
+      "filename": "naif0012.tls",
+      "bytes": 5257,
+      "sha256": "678e32bdb5a744117a467cd9601cd6b373f0e9bc9bbde1371d5eee39600a039b",
+      "url": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/lsk/naif0012.tls",
+      "citation": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/lsk/"
+    },
+    {
+      "filename": "de440s.bsp",
+      "bytes": 32726016,
+      "sha256": "c1c7feeab882263fc493a9d5a5b2ddd71b54826cdf65d8d17a76126b260a49f2",
+      "url": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/planets/de440s.bsp",
+      "citation": "https://doi.org/10.3847/1538-3881/abd414"
+    },
+    {
+      "filename": "moon_pa_de440_200625.bpc",
+      "bytes": 12863488,
+      "sha256": "60cd55aa401ea2ea97360636f567554bfe4e37bb829f901b4460a455dfaf783f",
+      "url": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/moon_pa_de440_200625.bpc",
+      "citation": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/"
+    },
+    {
+      "filename": "moon_de440_250416.tf",
+      "bytes": 19478,
+      "sha256": "a47c71e9c9f33796bdafb2c9d69a7ee447b6016ecad80f71cd6f3e479f9cf768",
+      "url": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/fk/satellites/moon_de440_250416.tf",
+      "citation": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/fk/satellites/"
+    }
+  ],
+  "generator_commit": "621a086b6e7ffc4b1f62e7959859fd20906445bb",
+  "code_sha256": {
+    "domain_validation.py": "30076a85a8444d491ca4b8edfb986faa1e83637b951774d03c22881703113b34",
+    "ephemerides.py": "adc66b45b706a8d64c9b03aabba029b2140b806686b7b6b46358d6cd3365d69c"
+  },
+  "limitations": [
+    "A sampled maximum can miss a peak between samples, including after interlacing.",
+    "This audit does not establish terrain skyline accuracy, full-disc illumination, electrical power or a radio link.",
+    "The existing visibility angular cone and occultation constants are unchanged; no new continuous bound is claimed."
+  ],
+  "execution_seconds": 1485.336119100015
+}

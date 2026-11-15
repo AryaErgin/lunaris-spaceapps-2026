@@ -1,7 +1,7 @@
 {
-  "aiUse": "OpenAI Codex assisted implementation, tests and writing under sole human entrant Arya Ergin. Mesh vertices are deterministic NASA DEM derivatives, not generative artwork.",
+  "aiUse": "OpenAI Codex and Anthropic Claude assisted implementation, tests and writing under human teammates Arya Ergin and Aras. Mesh vertices are deterministic NASA DEM derivatives, not generative artwork.",
   "binaryFormat": "little-endian contiguous Float32 XYZ, followed by Uint32 triangle indices",
-  "bundleSha256": "67f898ff38f66c0feb8bff7196aa78ed060dd609801dce0aca7a8927d2cc05c6",
+  "bundleSha256": "8fffeeba500f5e627eca46560c71516f62b1bd14dc25066fbebccd54fe34cc73",
   "coordinateConvention": "x=eastM, y=radialUpM above exact bundle ground, z=-northM; right handed",
   "frame": "MOON_ME_DE440_ME421",
   "gridProjection": "Inverse gnomonic directions from local east/north reference-sphere tangent coordinates",
