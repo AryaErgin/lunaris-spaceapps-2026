@@ -141,12 +141,13 @@
   --focus-offset: 3px;
 
   /* ---- Layout ------------------------------------------------------------- */
-  --header-height: 64px;
-  --rail-width: clamp(380px, 29vw, 480px);  /* mission-control sidebar */
+  --header-height: 52px;                     /* thin top bar */
+  --console-width: 320px;                    /* mission console, left of the viewport */
+  --telemetry-width: 300px;                  /* Sun and Earth telemetry, right of the viewport */
   --content-max: 1280px;                     /* reading width for Compare and Advanced */
   --control-height: 44px;                    /* minimum touch target */
-  --scene-toolbar-height: 48px;              /* view switch above the 3D viewport */
-  --scene-height: clamp(320px, calc(100svh - 418px), 860px); /* 3D viewport; leaves room for the timeline */
+  --scene-toolbar-height: 44px;              /* view switch above the 3D viewport */
+  --timeline-height: 118px;                  /* bottom mission timeline */
 
   font: var(--weight-regular) var(--text-base)/var(--leading-normal) var(--font-body);
   font-synthesis: none;

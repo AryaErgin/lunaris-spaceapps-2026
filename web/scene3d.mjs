@@ -19,6 +19,8 @@ export function surfaceLightState(sunState,hasDirection,enhanced=false){
   return {direct:lit?2.3:0,ambient:(lit||enhanced)? .18:.002,fill:(lit||enhanced)? .3:0,
     skylineLevel:lit?1:(enhanced? .5:0),skylineFloor:(lit||enhanced)? .02:.001,enhanced:Boolean(enhanced)};
 }
+// Display framing only: a zoomed, lifted overview. Directions and sizes in the scene are unchanged.
+const ORBITAL_CINEMATIC_ZOOM=1.3,ORBITAL_CINEMATIC_LIFT=.24;
 export function orbitalOverviewDistance(width,height) {
   if(width>900)return 3.3;
   const horizontalHalfFov=Math.atan(Math.tan(39*RAD/2)*Math.max(1,width)/Math.max(1,height));
@@ -136,6 +138,11 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
 
   const caption=document.createElement('div');caption.className='mission-scene-caption';
   const location=document.createElement('span');location.className='mission-scene-location';
+  const setLocation=(name,coordinates)=>{
+    const title=document.createElement('strong'),detail=document.createElement('span');
+    const separator=document.createElement('span');separator.className='mission-scene-separator';separator.textContent=' · ';
+    title.textContent=name;detail.textContent=coordinates;location.replaceChildren(title,separator,detail);
+  };
   const note=document.createElement('span');note.className='mission-scene-note mission-scene-direction-note';
   caption.append(location,note);container.append(caption);
   const bodyStatus=document.createElement('div');bodyStatus.className='mission-scene-body-status';
@@ -402,7 +409,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     const framed=Object.fromEntries([['sun',1,2,orbitalSun],['earth',4,5,orbitalEarth]].map(([key,az,el,object])=>[key,(mode==='orbital'?orbitalFraming(object):viewInfo(bodyDirection(sample?.[az],sample?.[el]))).inFrustum]));
     const signature=[site.id,contextSite?.id,mode,orbitalFocus,states.sun,states.earth,visibility.sun,visibility.earth,framed.sun,framed.earth,earthTextureLoaded].join('|');
     if(signature===captionSignature)return;captionSignature=signature;
-    location.textContent=`${mode==='orbital'&&['earth','sun'].includes(orbitalFocus)?`${orbitalFocus==='earth'?'Earth':'Sun'} direction from `:''}${site.name} · ${Math.abs(site.lat).toFixed(4)}° S · ${((site.lon%360+360)%360).toFixed(4)}° E`;
+    setLocation(`${mode==='orbital'&&['earth','sun'].includes(orbitalFocus)?`${orbitalFocus==='earth'?'Earth':'Sun'} direction from `:''}${site.name}`,`${Math.abs(site.lat).toFixed(4)}° S · ${((site.lon%360+360)%360).toFixed(4)}° E`);
     note.textContent=mode==='orbital'?'Sun and Earth sit in their computed directions at fixed approximate angular sizes (0.53° and 1.9°). Distances are schematic.'
       :`NASA LOLA mesh + projected nominal skyline · ${site.heightM} m observer · Illustrative grain and lighting; Earth phase from the cached Sun direction`;
     bodyStatus.replaceChildren();
@@ -415,7 +422,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
       bodyStatus.append(label);
     }
     if(mode==='orbital'&&contextSite){
-      location.textContent=`${contextSite.name} · ${Math.abs(contextSite.lat).toFixed(4)}° ${contextSite.lat<0?'S':'N'} · ${((contextSite.lon%360+360)%360).toFixed(4)}° E`;
+      setLocation(contextSite.name,`${Math.abs(contextSite.lat).toFixed(4)}° ${contextSite.lat<0?'S':'N'} · ${((contextSite.lon%360+360)%360).toFixed(4)}° E`);
       note.textContent='Context location: level-horizon geometry only. Local ridges and terrain-aware feasibility are not calculated here.';
     }
     bodyStatus.hidden=mode==='orbital'&&Boolean(contextSite);
@@ -608,7 +615,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   function focusSite(duration=900,onComplete=null,point=site) {
     if(!onComplete&&pendingMode==='surface')onComplete=()=>{if(pendingMode==='surface'&&!disposed)commitMode('surface');};
     const selected=new THREE.Vector3(...moonPoint(point.lat,point.lon));
-    orbitalFocus='site';controls.target.set(0,0,0);controls.minDistance=1.06;
+    orbitalFocus='site';applyOrbitalFraming();controls.target.set(0,0,0);controls.minDistance=1.06;
     const to=selected.clone().multiplyScalar(onComplete?1.25:orbitalOverviewDistance(container.clientWidth,container.clientHeight));
     if(reducedMotion){orbitalCamera.position.copy(to);orbitalCamera.lookAt(0,0,0);onComplete?.();}
     else{const from=orbitalCamera.position.clone();flight={from,to,start:performance.now(),duration,onComplete,fromDirection:from.clone().normalize(),fromRadius:from.length(),toRadius:to.length(),rotation:new THREE.Quaternion().setFromUnitVectors(from.clone().normalize(),to.clone().normalize())};}
@@ -632,7 +639,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     const point=NOTABLE_SITES.find(item=>item.id===siteId);if(!point||lost||disposed)return false;
     if(mode!=='orbital'||pendingMode)setMode('orbital');
     contextSite=point;updateMarkers();updateFrame();
-    if(shouldFocus){focusSite(900,null,point);orbitalFocus='context';}
+    if(shouldFocus){focusSite(900,null,point);orbitalFocus='context';applyOrbitalFraming();}
     captionUpdate();invalidate();return true;
   }
   function commitMode(next) {
@@ -676,7 +683,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   function focus(target) {
     if(target==='overview') {
       setMode('orbital');
-      orbitalFocus='Moon';controls.target.set(0,0,0);controls.minDistance=1.06;
+      orbitalFocus='Moon';applyOrbitalFraming();controls.target.set(0,0,0);controls.minDistance=1.06;
       const from=orbitalCamera.position.clone(),to=new THREE.Vector3(...orbitalOverviewPosition(container.clientWidth,container.clientHeight));
       // Clear orbit inertia before restoring the overview, without a visible jump.
       const damping=controls.enableDamping;controls.enableDamping=false;controls.update();controls.enableDamping=damping;
@@ -705,7 +712,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
       side.normalize();
       const offset=16*RAD,radius=Math.max(5.2,orbitalOverviewDistance(container.clientWidth,container.clientHeight)*1.3);
       const to=body.multiplyScalar(-Math.cos(offset)).addScaledVector(side,Math.sin(offset)).multiplyScalar(radius);
-      orbitalFocus=target;controls.target.set(0,0,0);controls.minDistance=1.06;
+      orbitalFocus=target;applyOrbitalFraming();controls.target.set(0,0,0);controls.minDistance=1.06;
       const from=orbitalCamera.position.clone();
       if(reducedMotion){flight=null;orbitalCamera.position.copy(to);orbitalCamera.lookAt(0,0,0);controls.update();}
       else flight={from,to,start:performance.now(),duration:900,fromDirection:from.clone().normalize(),fromRadius:from.length(),toRadius:to.length(),
@@ -714,13 +721,20 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     }
     focusBody(target);
   }
+  function applyOrbitalFraming(width=Math.max(1,container.clientWidth),height=Math.max(1,container.clientHeight)) {
+    // Earth and Sun focus keep the plain projection so the body stays framed beside the limb.
+    const cinematic=width>=640&&!['earth','sun'].includes(orbitalFocus);
+    orbitalCamera.zoom=cinematic?ORBITAL_CINEMATIC_ZOOM:1;
+    if(cinematic)orbitalCamera.setViewOffset(width,height,0,Math.round(height*ORBITAL_CINEMATIC_LIFT),width,height);else orbitalCamera.clearViewOffset();
+    orbitalCamera.updateProjectionMatrix();needsRender=true;
+  }
   function resize() {
     if(disposed)return;
     const width=Math.max(1,container.clientWidth),height=Math.max(1,container.clientHeight);
     renderer.setSize(width,height,false);
     if(!flight&&orbitalFocus==='Moon')orbitalCamera.position.setLength(orbitalOverviewDistance(width,height));
+    applyOrbitalFraming(width,height);
     for(const camera of [orbitalCamera,surfaceCamera]){camera.aspect=width/height;camera.updateProjectionMatrix();}
-    orbitalCamera.clearViewOffset();
     invalidate();
   }
   function zoom(direction) {
@@ -759,7 +773,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
         maxSourceBlockerDistanceM:farHorizonRecord?.maxSourceBlockerDistanceM??null,sourceSectorsBeyond32Km:farHorizonRecord?.sourceSectorsBeyond32Km??0,
         source:'data/bundle.json: selected site terrain.skyline azimuthStartDeg and centerModelDeg',
         disclosure:'Display-only angular curtain at an artificial projection range, not terrain at that physical distance. Unknown sectors are omitted; interval visibility remains authoritative.'},
-      camera:{position:(mode==='surface'?surfaceCamera:orbitalCamera).position.toArray(),direction:(mode==='surface'?surfaceCamera:orbitalCamera).getWorldDirection(new THREE.Vector3()).toArray(),fov:(mode==='surface'?surfaceCamera:orbitalCamera).fov,
+      camera:{orbitalZoom:orbitalCamera.zoom,orbitalViewLiftPx:orbitalCamera.view?.enabled?orbitalCamera.view.offsetY:0,canvasSize:[canvas.clientWidth,canvas.clientHeight],position:(mode==='surface'?surfaceCamera:orbitalCamera).position.toArray(),direction:(mode==='surface'?surfaceCamera:orbitalCamera).getWorldDirection(new THREE.Vector3()).toArray(),fov:(mode==='surface'?surfaceCamera:orbitalCamera).fov,
         focus:mode==='surface'?surfaceFocus:'Moon',opticalZoomFactor:mode==='surface'?Math.tan(65*RAD/2)/Math.tan(surfaceFov*RAD/2):1,bodyAngularScaleFactor:1,terrainFocusBearingDeg:terrainBearingDeg,
         overviewPosition:orbitalOverviewPosition(container.clientWidth,container.clientHeight)},
       sun:{...bodyInfo(sun,'sun',1,2),angularDiameterDeg:2*Math.atan(sunDisc.geometry.parameters.radius/skyDistance)/RAD,directLightIntensity:sunlight.intensity,displayDistanceM:skyDistance},

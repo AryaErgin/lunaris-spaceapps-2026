@@ -33,10 +33,10 @@
           <button id="product-compare" class="nav-link" type="button" data-workspace="compare" aria-pressed="false">Compare</button>
           <button id="product-analyst" class="nav-link" type="button" data-workspace="analyst" aria-pressed="false">Advanced</button>
         </nav>
+        <div class="product-purpose"><div class="purpose-copy"><p class="geometry-note">Visibility geometry does not prove power, radio-link performance or landing safety.</p></div><button id="delay-shortcut" type="button">Try a 72-hour landing delay</button><button id="tour-start" type="button">Show me how <span aria-hidden="true">→</span></button></div>
         <button id="expert-toggle" class="outline expert-toggle" type="button" aria-expanded="false" aria-controls="top" hidden>Analyst mode</button>
       </div>
     </header>
-    <div class="product-purpose"><div class="purpose-copy"><p class="geometry-note">Visibility geometry does not prove power, radio-link performance or landing safety.</p></div><button id="delay-shortcut" type="button">Try a 72-hour landing delay</button><button id="tour-start" type="button">Show me how <span aria-hidden="true">→</span></button></div>
 
     <p id="workspace-notice" class="workspace-notice" role="status" hidden></p>
     <section id="experience" class="experience" aria-labelledby="experience-title">
@@ -59,6 +59,7 @@
           <button id="reset-orbit" type="button" title="Restore the familiar near-side Moon view">Reset view ↺</button>
         </div>
         <div class="scene-site-picker">
+          <p class="rail-heading"><span>01</span> Mission</p>
           <div class="site-label-row"><label for="visual-site">Landing site <span>Study coordinates</span></label><button id="more-sites" class="link-button" type="button">Apollo, CLPS, custom ↓</button></div>
           <select id="visual-site" disabled aria-describedby="visual-site-detail"></select>
           <p id="visual-site-detail">Supported south-pole study points.</p>
@@ -84,6 +85,13 @@
           <button id="focus-terrain" type="button">Explore terrain</button>
         </div>
         <figure id="earth-inset" class="earth-inset" hidden><img src="./assets/earth-inset.jpg" width="512" height="512" loading="lazy" alt="Historical NASA Blue Marble globe composite; the geographic face is not registered to the simulated time."><figcaption>Historical Blue Marble composite.<br>Face unregistered; not current weather.</figcaption><button id="close-earth-inset" type="button" aria-label="Close Earth image inset">×</button></figure>
+        <aside id="telemetry-rail" class="telemetry-rail" aria-label="Sun and Earth telemetry">
+          <p class="rail-heading"><span>03</span> Sun and Earth now</p>
+          <div id="hero-visibility" class="hero-visibility" aria-label="Sun and Earth at the time shown"></div>
+          <p class="rail-heading"><span>04</span> This stay</p>
+          <div id="environment-overview" class="environment-overview" aria-label="Modeled environmental measurements"></div>
+          <p class="rail-note">Visibility is geometry. It does not prove power, a radio link or a safe landing.</p>
+        </aside>
         <div class="scene-caption"><span id="scene-mode-label">NASA LRO / ORBITAL EXPLORATION</span><span id="scene-clock">OFFLINE EVIDENCE</span></div>
       </div>
       <div class="experience-status">
@@ -92,20 +100,23 @@
       </div>
       <div id="scene-transport" class="scene-transport" hidden>
         <div class="scene-play-buttons">
-          <button id="hero-play" class="outline" type="button">▶ Play time</button>
-          <button id="hero-pause" class="outline" type="button">Pause</button>
-          <button id="hero-reset" class="outline" type="button">Reset</button>
+          <button id="hero-play" class="outline" type="button" aria-label="Play time"><span aria-hidden="true">▶</span> Play</button>
+          <button id="hero-pause" class="outline" type="button" aria-label="Pause" title="Pause"><span aria-hidden="true">❚❚</span></button>
+          <button id="hero-reset" class="outline" type="button" aria-label="Reset to the start" title="Reset to the start"><span aria-hidden="true">↺</span></button>
           <button id="guide-open" class="outline" type="button" hidden>Landing-delay story</button>
           <div class="hero-scope" role="group" aria-label="Playback range"><button id="hero-scope-stay" type="button" aria-pressed="true">This stay</button><button id="hero-scope-month" type="button" aria-pressed="false">All cached dates</button></div>
           <label for="hero-speed">Speed <select id="hero-speed"><option value="1">30 min/s</option><option value="4" selected>2 h/s</option><option value="12">6 h/s</option><option value="48">24 h/s</option></select></label>
         </div>
-        <input id="hero-time" type="range" min="0" max="1" step="1" value="0" aria-label="Move through the selected stay. This does not change your arrival.">
-        <div id="hero-lanes" class="hero-lanes" aria-hidden="true"></div>
-        <div class="hero-time-ends"><span id="hero-time-start">Arrival</span><output id="hero-time-label" for="hero-time"></output><span id="hero-time-end">End of stay</span></div>
+        <div class="timeline-clock"><span class="timeline-clock-label">Mission clock</span><output id="hero-time-label" for="hero-time"></output></div>
+        <div class="clock-track">
+          <input id="hero-time" type="range" min="0" max="1" step="1" value="0" aria-label="Move through the selected stay. This does not change your arrival.">
+          <div id="hero-lanes" class="hero-lanes" aria-hidden="true"></div>
+          <div class="hero-time-ends"><span id="hero-time-start">Arrival</span><span id="hero-time-end">End of stay</span></div>
+        </div>
         <p id="hero-scope-note" class="hero-scope-note" hidden>Playback covers the cached date range at the selected speed. At the pole the Sun circles low around the horizon.</p>
-        <div id="hero-visibility" class="hero-visibility" aria-label="Sun and Earth at the time shown"></div>
       </div>
       <section id="mission-story" class="mission-story" aria-labelledby="story-title" hidden>
+        <p class="rail-heading"><span>02</span> Result</p>
         <div class="story-progress" role="group" aria-label="Mission demonstration steps">
           <button id="story-nominal" type="button" data-story="nominal" aria-pressed="true"><span>01</span> Original</button>
           <button id="story-delayed" type="button" data-story="delayed" aria-pressed="false"><span>02</span> Delayed</button>
@@ -117,7 +128,6 @@
         </div>
         <div id="mission-actions" class="mission-actions"></div>
         <details id="mission-options" class="mission-options"><summary>Mission requirements &amp; delay example</summary><div id="mission-options-content"></div></details>
-        <div id="environment-overview" class="environment-overview" aria-label="Modeled environmental measurements"></div>
         <div id="story-joint" class="story-joint" aria-label="Joint Sun and Earth visibility timeline"></div>
         <a class="decision-jump" href="#decision-evidence">See all mission requirements and proof ↓</a>
         <div id="configuration-summary" class="configuration-summary" role="status" hidden></div>

@@ -1,120 +1,37 @@
 /* Judge-first presentation layer. It changes visual hierarchy, not lunar calculations. */
 /* The tour remains reachable in every assessment mode. */
 
-.product-purpose {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-  padding: 11px 26px;
-  background: linear-gradient(110deg,var(--color-surface-elevated) 0%,var(--color-surface) 58%,var(--color-surface) 100%);
-  border-bottom: 1px solid var(--color-border);
-}
-.product-purpose .purpose-copy {min-width: 0; flex: 1;}
-.product-purpose .purpose-copy>p:first-child {
-  color: var(--color-text);
-  font: 600 clamp(15px,1.25vw,17px)/1.4 var(--font-body);
-  letter-spacing: -.015em;
-  max-width: 72ch;
-}
-.product-purpose .geometry-note {
-  font: var(--text-xs)/1.4 var(--font-body);
-  color: var(--color-text-secondary);
-  margin-top: 3px;
-}
-#tour-start {
-  flex-shrink: 0;
-  border: 1px solid var(--color-sun-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-surface-elevated);
-  color: var(--color-sun);
-  font: 700 var(--text-sm)/1.4 var(--font-body);
-  padding: 11px 17px;
-  min-height: 44px;
-  cursor: pointer;
-}
-#tour-start:hover,#tour-start:focus-visible {
-  background: var(--color-track);
-  border-color: var(--color-sun);
-}
-#tour-start span {margin-left: 8px;}
 
-.experience-intro h1 {
-  color: var(--color-text);
-  font: 730 clamp(24px,2.2vw,31px)/1.15 var(--font-body);
-  letter-spacing: -.035em;
-}
-.scene-site-picker label,
-.scene-site-picker .visual-duration-field {
-  font-size: var(--text-sm);
-  color: var(--color-text);
-}
-.scene-site-picker select,.visual-date-controls input {
-  font-size: var(--text-sm)!important;
-  border-color: var(--color-border);
-  background-color: var(--color-surface);
-}
-.visual-date-controls button {
-  font-size: var(--text-xs);
-  min-height: 41px;
-}
-.find-opportunities {
-  border-radius: var(--radius-lg) !important;
-  background: linear-gradient(135deg,var(--color-sun) 0%,var(--color-sun) 100%) !important;
-  color: var(--color-on-accent) !important;
-  font-size: var(--text-base)!important;
-  font-weight: 730 !important;
-  min-height: 50px !important;
-  box-shadow: 0 5px 20px color-mix(in srgb,var(--color-sun-border) 14%,transparent);
-}
-.find-opportunities:hover,.find-opportunities:focus-visible {filter: brightness(1.08);}
-.scene-site-picker .opportunity-scope {
-  font-size: var(--text-xs)!important;
-  color: var(--color-text-secondary);
-  line-height: 1.4;
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 .assessment-toggle,#start-delay-demo {
   font-size: var(--text-sm)!important;
   line-height: 1.5;
 }
-.scene-mode-switch button {
-  font: 600 var(--text-xs)/1.4 var(--font-body) !important;
-  min-height: 40px;
-  border-radius: var(--radius-md);
-}
-.scene-mount>.surface-focus button {
-  font: 600 var(--text-xs)/1.35 var(--font-body);
-  min-height: 40px;
-  border-radius: var(--radius-md);
-  border-color: var(--color-border);
-  background: color-mix(in srgb,var(--color-surface) 91%,transparent);
-}
-.experience .mission-scene-location {font-size: var(--text-sm); font-weight: 700;}
-.experience .mission-scene-body-status {
-  top: 15px; right: 16px;
-  background: color-mix(in srgb,var(--color-bg) 87%,transparent);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: 9px 12px;
-  text-align: left;
-  font-size: var(--text-xs);
-  line-height: 1.45;
-  letter-spacing: 0;
-  max-width: min(270px,36%);
-}
+
+
+
+
 .experience .mission-scene-marker-label {
   font: 700 var(--text-xs)/1.3 var(--font-body);
   letter-spacing: .025em;
   padding: 8px 10px;
 }
-.scene-time-label,.hero-visibility,.view-clock-help {font-size: var(--text-xs);line-height: 1.5;}
-.environment-only .story-evidence h2 {
-  color: var(--color-text);
-  font-size: clamp(21px,2vw,26px);
-  line-height: 1.2;
-  max-width: 28ch;
-}
-.story-evidence p,.environment-note {font-size: var(--text-sm);line-height: 1.55;color: var(--color-text);}
+.scene-time-label,.view-clock-help{font-size: var(--text-xs);line-height: 1.5;}
+
+.environment-note{font-size: var(--text-sm);line-height: 1.55;color: var(--color-text);}
 .measurement-details>summary,.mission-requirements-editor>summary {
   color: var(--color-text);
   font: 600 var(--text-sm)/1.6 var(--font-body);
@@ -161,8 +78,7 @@
 .search-evidence,.comparison-context {font-size: var(--text-sm);line-height: 1.6;}
 .science-guide p {font-size: var(--text-base);line-height: 1.7;}
 .science-guide>details>summary {font-size: var(--text-lg);line-height: 1.45;}
-.scene-site-picker :is(button,select,input):focus-visible,
-.quick-tour button:focus-visible,#tour-start:focus-visible {
+select,input):focus-visible,.quick-tour button:focus-visible{
   outline: 3px solid var(--color-sun);
   outline-offset: 3px;
 }
@@ -200,15 +116,15 @@
   scroll-margin-top: 125px;
 }
 @media(max-width:700px){
-  .product-purpose{padding:10px 16px;align-items:flex-start;flex-wrap:wrap;gap:9px;}
-  .product-purpose .purpose-copy>p:first-child{font-size:var(--text-md);}
-  .product-purpose .geometry-note{font-size:var(--text-xs);}
-  #tour-start{min-height:42px;padding:8px 13px;}
-  .experience .mission-scene-caption{top:10px;left:12px;right:auto;max-width:46%;width:46%;}
-  .experience .mission-scene-body-status{top:10px;bottom:auto;right:8px;font-size:var(--text-xs);line-height:1.35;max-width:46%;padding:5px 7px;}
-  .scene-site-picker label{font-size:var(--text-sm);}
-  .scene-site-picker .opportunity-scope{font-size:var(--text-xs)!important;}
-  .scene-mode-switch button{font-size:var(--text-xs)!important;}
+  
+  
+  
+  
+  
+  
+  
+  
+  
   .comparison-difference p{font-size:var(--text-md);}
   .option-joint,.opportunity-card .opportunity-joint{font-size:var(--text-xl);}
   .quick-tour{right:10px;bottom:10px;width:calc(100vw - 20px);max-height:48svh;padding:16px;}
@@ -216,62 +132,62 @@
   .quick-tour p{font-size:var(--text-md);margin-bottom:14px;}
 }
 @media(prefers-reduced-motion:reduce){
-  .quick-tour *,#tour-start{transition:none !important;animation:none !important;}
+  .quick-tour *{transition:none !important;animation:none !important;}
 }
 
 /* Essential inputs, one conclusion, then one action. Evidence expands below. */
-.experience{--rail:440px}
-.product-purpose{padding:6px 24px;background:var(--color-surface);gap:18px}
-.product-purpose .purpose-copy>.geometry-note:first-child{font:400 var(--text-sm)/1.5 var(--font-body);color:var(--color-text-secondary);max-width:none;margin:0}
-#tour-start{font-size:var(--text-sm);min-height:40px;padding:8px 14px;border-radius:var(--radius-md);background:transparent;box-shadow:none}
-.experience-intro{padding:22px 28px 12px}
-.experience-intro h1{font-size:var(--text-4xl);line-height:1.09;font-weight:730;margin:4px 0 12px;max-width:none}
-.experience-intro .eyebrow{font:var(--text-xs)/1.5 var(--font-body);letter-spacing:.04em;color:var(--color-text-secondary);margin:0 0 6px}
-.hero-support{font:var(--text-base)/1.5 var(--font-body);color:var(--color-text-secondary);margin:0;max-width:35ch}
-.scene-site-picker{padding:4px 28px 12px}
-.scene-site-picker label{font:600 var(--text-sm)/1.5 var(--font-body);margin:0 0 5px}
-.scene-site-picker label span{font:400 var(--text-sm)/1.5 var(--font-body);color:var(--color-text-secondary)}
-.scene-site-picker select,.visual-date-controls input{font-size:var(--text-base)!important;min-height:44px}
-.scene-site-picker select{margin-bottom:14px}
-.visual-date-controls{align-items:end;gap:8px}
-.visual-date-controls>input{flex:1 1 0;width:0}
-.visual-date-controls>#visual-arrival{font-size:var(--text-sm)!important}
-.visual-duration-field{flex:0 0 62px;margin:0!important;font-size:var(--text-sm)!important;line-height:1.4}
-.visual-date-controls .visual-duration-field input{font-size:var(--text-base)!important;min-height:44px;padding:8px;width:100%}
-.visual-date-controls button{min-height:44px;padding:8px;font-size:var(--text-sm)}
-.scene-site-picker .opportunity-scope{display:none}
-.orbital-story-slot{padding:10px 28px 24px;overflow:visible}
-.story-evidence h2,.environment-only .story-evidence h2{font:750 var(--text-3xl)/1.2 var(--font-body);margin:8px 0;max-width:24ch;letter-spacing:-.025em}
-#story-date{font:var(--text-sm)/1.5 var(--font-body);color:var(--color-text-secondary);text-transform:none}
-.story-evidence p{font-size:var(--text-base);line-height:1.5;color:var(--color-text)}
-.environment-only .story-outcome{display:none}
-.mission-actions{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:stretch;gap:8px;margin:18px 0 12px}
-.mission-actions .find-opportunities{margin:0;width:100%;min-height:50px;font-size:var(--text-base)!important;justify-content:center}
-.mission-actions .explore-site{display:grid;place-items:center;min-height:40px;font:600 var(--text-sm)/1.4 var(--font-body);white-space:nowrap;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface);color:var(--color-text);margin:0;padding:8px;text-align:center;cursor:pointer}
-.mission-options{margin-top:14px;border-top:1px solid var(--color-border);padding-top:10px;font:var(--text-sm)/1.6 var(--font-body);color:var(--color-text-secondary)}
-.mission-options>summary{cursor:pointer;padding:5px 0;color:var(--color-text-secondary)}
-.mission-options .assessment-toggle{font:var(--text-sm)/1.5 var(--font-body)!important;margin:12px 0}
-.mission-options #start-delay-demo{display:block;font-size:var(--text-sm)!important;min-height:40px;text-align:left}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 .measurement-details>summary{font:600 var(--text-sm)/1.6 var(--font-body)}
 .environment-line{font:var(--text-sm)/1.4 var(--font-body);grid-template-columns:40px minmax(0,1fr)}
 .environment-measurement span{font:var(--text-sm)/1.4 var(--font-body)}
 .environment-note{font:var(--text-sm)/1.6 var(--font-body)}
-body[data-delay-story='true'] .experience-intro h1{font-size:var(--text-2xl);max-width:none;margin-bottom:4px}
-body[data-delay-story='true'] .hero-support{display:none}
-body[data-delay-story='true'] .experience-intro{padding-top:14px;padding-bottom:6px}
-body[data-delay-story='true'] .story-evidence h2{font-size:var(--text-2xl)}
-body[data-delay-story='true'] .story-progress button{font-size:var(--text-sm);min-height:36px}
-body[data-delay-story='true'] .story-outcome button{font:600 var(--text-md)/1.4 var(--font-body)}
-.scene-transport{height:180px;padding:12px 18px}
-.scene-play-buttons button{font:600 var(--text-sm)/1.4 var(--font-body);min-height:38px}
-.scene-play-buttons label,.scene-play-buttons select,.scene-time-label{font-size:var(--text-sm)}
+
+
+
+
+
+
+
+
+.scene-time-label{font-size:var(--text-sm)}
 .view-clock-help{font-size:var(--text-sm);color:var(--color-text-secondary);line-height:1.4}
-.hero-visibility{font-size:var(--text-sm);line-height:1.5}
-.hero-visibility span{cursor:help}
-.experience .mission-scene-location{font-size:var(--text-sm)}
+
+
+
 .experience .mission-scene-direction-note{display:none!important}
-.scene-mode-switch button{font-size:var(--text-sm)!important}
-.scene-mount>.surface-focus button{font-size:var(--text-sm);min-height:40px}
+
+
 .science-guide>details>summary{font-size:var(--text-xl)}
 .science-guide p{font-size:var(--text-base);line-height:1.65}
 .option-card select,.option-card input{font-size:var(--text-base);min-height:44px}
@@ -285,28 +201,28 @@ body[data-delay-story='true'] .story-outcome button{font:600 var(--text-md)/1.4 
 .quick-tour p{font-size:var(--text-base);line-height:1.45;margin:0 0 14px}
 .quick-tour-actions{flex-wrap:wrap}.quick-tour-actions button{min-width:0;white-space:normal}
 .quick-tour-target{scroll-margin-top:105px}
-@media(min-width:701px) and (max-width:1100px){.experience{--rail:400px}.experience-intro,.scene-site-picker,.orbital-story-slot{padding-left:22px;padding-right:22px}.experience-intro h1{font-size:var(--text-3xl)}}
+
 @media(max-width:700px){
- .experience{--rail:0px}.product-purpose{padding:8px 16px;flex-wrap:wrap;align-items:center;gap:12px}
- .product-purpose .purpose-copy{flex:1 0 100%}
- .product-purpose .purpose-copy>.geometry-note:first-child{font-size:var(--text-sm)}
- #tour-start{min-height:44px;padding:8px 10px;font-size:var(--text-sm)}#tour-start span{display:none}
- .experience-intro{padding:18px 20px 14px}.experience-intro h1{font-size:var(--text-3xl);max-width:18ch;margin:5px 0 10px}
- .hero-support{font-size:var(--text-base);line-height:1.45;max-width:none}
- .scene-site-picker{padding:14px 20px 6px}.scene-site-picker select{min-height:46px}
- .scene-mode-switch button{font-size:var(--text-xs)!important;min-height:42px;padding:6px 8px}
- .experience .mission-scene-caption{max-width:46%;width:46%;top:10px;left:12px}
- .experience .mission-scene-location{font-size:var(--text-xs)}
- .experience .mission-scene-body-status{font-size:var(--text-xs);max-width:46%;right:8px;top:10px;bottom:auto;padding:5px 7px}
- .orbital-story-slot{padding:14px 20px 24px}
- .story-evidence h2,.environment-only .story-evidence h2{font-size:var(--text-3xl)}
- .mission-actions{grid-template-columns:1fr;margin:14px 0 10px}
- .mission-actions .find-opportunities{position:fixed;z-index:30;left:16px;right:16px;bottom:12px;width:calc(100% - 32px);box-shadow:0 3px 18px color-mix(in srgb,var(--color-black) 53%,transparent);border:1px solid var(--color-sun)}
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
  body{padding-bottom:82px}
- .scene-transport{height:auto;min-height:185px;padding:12px 16px}
+ 
  .scene-time-label{gap:8px;flex-wrap:wrap}
- .scene-play-buttons button{font-size:var(--text-sm);min-height:40px}
- .scene-caption{font-size:var(--text-xs)}.scene-caption span:first-child{max-width:58%}
+ 
+ 
  .option-joint,.opportunity-card .opportunity-joint{font-size:var(--text-2xl)}
  .comparison-difference{padding:16px}.comparison-difference p{font-size:var(--text-base)}
  .quick-tour{max-height:55svh;padding:14px 16px}.quick-tour h2{font-size:var(--text-xl)}.quick-tour p{font-size:var(--text-base)}
@@ -315,43 +231,43 @@ body[data-delay-story='true'] .story-outcome button{font:600 var(--text-md)/1.4 
 /* Playback strip: one readable clock tied to the arrival, and two plain body states. */
 .scene-time-label{display:flex;align-items:baseline;gap:10px;justify-content:flex-start;font:600 var(--text-md)/1.4 var(--font-body);color:var(--color-text-secondary);margin-top:10px}
 .scene-time-label output{font:600 var(--text-base)/1.4 var(--font-body);color:var(--color-text);font-variant-numeric:tabular-nums}
-.hero-time-ends{display:flex;justify-content:space-between;gap:12px;font-size:var(--text-xs);line-height:1.4;color:var(--color-text-secondary);font-variant-numeric:tabular-nums}
-.hero-visibility{display:flex;flex-wrap:wrap;gap:8px 12px;margin-top:10px}
-.hero-visibility .hero-body{display:flex;flex-direction:column;min-width:0;padding:6px 12px 7px;border:1px solid var(--color-border);border-left-width:3px;border-radius:var(--radius-md);background:var(--color-surface);cursor:help}
-.hero-visibility .hero-body strong{font:600 var(--text-md)/1.4 var(--font-body)}
-.hero-visibility .hero-body small{font-size:var(--text-xs);line-height:1.4;color:var(--color-text-secondary)}
-.hero-visibility .hero-body[data-state=visible]{border-left-color:var(--color-pass)}
-.hero-visibility .hero-body[data-state=blocked]{border-left-color:var(--color-fail)}
-.hero-visibility .hero-body[data-state=uncertain],.hero-visibility .hero-body[data-state=unknown]{border-left-color:var(--color-indeterminate)}
-.scene-transport{height:auto;min-height:180px;padding-bottom:14px}
-@media(max-width:700px){.hero-time-ends{font-size:var(--text-xs)}.hero-visibility .hero-body{flex:1 1 150px}.scene-time-label{flex-wrap:wrap;gap:2px 8px}}
+
+
+
+
+
+
+
+
+
+@media(max-width:700px){.scene-time-label{flex-wrap:wrap;gap:2px 8px}}
 /* Type floor: nothing a visitor needs to read is smaller than 14px; dense reference grids use 13px. */
-.eyebrow,.experience-intro .eyebrow,.opportunity-card .eyebrow{font-size:var(--text-xs);line-height:1.5}
+.eyebrow,.opportunity-card .eyebrow{font-size:var(--text-xs);line-height:1.5}
 .assessment-toggle,#assessment-label{font-size:var(--text-md)!important}
-.mission-requirements-editor,.mission-requirements-editor p,.mission-requirements-editor .requirement-edit-fields label,.scene-site-picker .requirement-edit-fields label{font-size:var(--text-sm)}
+.mission-requirements-editor,.mission-requirements-editor p,.mission-requirements-editor .requirement-edit-fields label{font-size:var(--text-sm)}
 #apply-quick-requirements,#start-delay-demo{font-size:var(--text-md)}
 .decision-jump{font-size:var(--text-sm)}
-.story-footer,.story-footer p,.story-footer summary,.story-footer #verified-demo{font-size:var(--text-sm);line-height:1.6}
-.scene-caption{font-size:var(--text-xs)}
-.hero-time-ends,.hero-visibility .hero-body small{font-size:var(--text-sm)}
+
+
+
 .experience-status p,.experience-status button{font-size:var(--text-sm);line-height:1.5}
 .visual-disclosure,.visual-disclosure p{font-size:var(--text-md)}
-.experience .mission-scene-body-status{font-size:var(--text-sm)}
+
 .comparison-caution,.opportunity-limit,.option-load-note,.comparison-context{font-size:var(--text-sm);line-height:1.55}
-.comparison-shared label span,.scene-site-picker label span{font-size:var(--text-xs)}
+.comparison-shared label span{font-size:var(--text-xs)}
 .footer-inner{font-size:var(--text-xs)}
 .feasibility-table th,.feasibility-cell,.panel-tag,.console-frame{font-size:var(--text-xs)}
-@media(max-width:700px){.experience .mission-scene-body-status{font-size:var(--text-xs)}.scene-caption{font-size:var(--text-xs)}}
+
 .comparison-shared{grid-template-columns:minmax(200px,auto) minmax(0,1fr) auto}
 .comparison-shared label span{margin-left:4px}.comparison-shared input{display:block}
 @media(max-width:700px){.comparison-shared{grid-template-columns:1fr}}
 /* The same floor for the optional requirement and delay views. */
-#story-witness{font:var(--text-sm)/1.5 var(--font-body)}
+
 .requirement-values span,.compact-requirement-values,.compact-requirement-values span,.requirement-range,.compact-requirements .requirement-range,.evidence-time-label,.evidence-margin-key,.evidence-refinement,#evidence-warnings,.requirement-proof,.visibility-definitions,.evidence-timeline-row,.configuration-summary,.story-joint,.story-joint details,.option-rules,.compact-requirements .requirement-name,#evidence-plan{font-size:var(--text-sm)}
 .requirement-head .status,.compact-requirements .requirement-head .status{font-size:var(--text-xs)}
 /* Arrival and hours apply on change; the separate Apply control stays in the DOM for scripted use only. */
 #visual-date-go[hidden]{display:none!important}
-.visual-date-controls .visual-duration-field{flex:0 0 96px}
+
 
 /* Level-horizon sky for curated and custom landing sites. */
 .any-site{padding:14px 26px;background:var(--color-bg);border-top:1px solid var(--color-border-subtle);color:var(--color-text)}
@@ -385,56 +301,52 @@ body[data-delay-story='true'] .story-outcome button{font:600 var(--text-md)/1.4 
 .any-site-note{font-size:var(--text-sm);line-height:1.6;color:var(--color-indeterminate);max-width:90ch;margin:10px 0 4px}
 .any-site-note a{color:var(--color-earth)}
 .hero-scope-field{margin-left:auto!important}.hero-scope-field+label{margin-left:12px!important}
-.scene-play-buttons select{min-height:38px}
+
 @media(max-width:700px){
  .any-site{padding:14px 20px}.any-site-controls{grid-template-columns:1fr 1fr}.any-site-controls label:first-child{grid-column:1/-1}
  .any-site-result{grid-template-columns:1fr}.any-site-body strong{font-size:var(--text-xl)}
  .hero-scope-field{margin-left:0!important}.hero-scope-field+label{margin-left:0!important}
 }
-#hero-scope{width:150px}
-.hero-visibility .hero-body{flex:1 1 250px}
+
+
 
 /* Judge-first shortcuts: delay example, other sites, monthly playback and per-body durations. */
-#delay-shortcut{min-height:44px;padding:8px 16px;border:1px solid var(--color-border-strong);border-radius:var(--radius-md);background:var(--color-surface);color:var(--color-text);font:600 var(--text-md)/1.3 var(--font-body);cursor:pointer;white-space:nowrap}
-#delay-shortcut:hover,#delay-shortcut:focus-visible{border-color:var(--color-earth);background:var(--color-surface-elevated)}
-body[data-delay-story='true'] #delay-shortcut{display:none}
-.site-label-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+
+
+
+
 .site-label-row label{margin-bottom:5px}
-#more-sites{min-height:0;padding:0;font-size:var(--text-sm);line-height:1.4;color:var(--color-earth);white-space:nowrap}
+
 .story-durations{display:flex;flex-wrap:wrap;gap:2px 16px;margin:6px 0 0;font-size:var(--text-md);line-height:1.5;color:var(--color-text-secondary)}
 .story-durations[hidden]{display:none}
-.story-duration::before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;background:var(--color-sun)}
-.story-duration.earth::before{background:var(--color-earth)}
-.story-duration strong{color:var(--color-text);font-weight:600}
-.hero-scope{display:inline-flex;margin-left:auto;border:1px solid var(--color-border);border-radius:var(--radius-md);overflow:hidden}
-.hero-scope button{width:auto;min-height:38px;padding:6px 14px;border:0;border-radius:0;background:var(--color-surface);color:var(--color-text-secondary);font:600 var(--text-sm)/1.4 var(--font-body);cursor:pointer}
-.hero-scope button+button{border-left:1px solid var(--color-border)}
-.hero-scope button[aria-pressed=true]{background:var(--color-track);color:var(--color-text)}
-.hero-scope+label{margin-left:12px!important}
-.hero-time-ends{display:grid;grid-template-columns:1fr auto 1fr;align-items:baseline;gap:4px 12px;margin-top:2px}
-.hero-time-ends output{font:600 var(--text-base)/1.4 var(--font-body);color:var(--color-text);font-variant-numeric:tabular-nums;text-align:center}
-.hero-time-ends #hero-time-end{text-align:right}
-.hero-scope-note{margin:8px 0 0;padding:7px 12px;border-left:3px solid var(--color-indeterminate);background:var(--color-surface);color:var(--color-indeterminate);font-size:var(--text-md);line-height:1.5}
-.hero-scope-note[hidden]{display:none}
+
+
+
+
+
+
+
+
+
+
+
+
+
 .any-site>summary span{font-weight:400;font-size:var(--text-sm);color:var(--color-sun);margin-left:8px}
 .any-site-line.study{stroke-dasharray:7 6;stroke-width:1.6;opacity:.85}
 .any-site-key.dashed::before{background:repeating-linear-gradient(90deg,var(--color-text) 0 5px,transparent 5px 9px)}
 .any-site-key.dashed{font-weight:400}
 .any-site-body .any-site-versus{margin-top:6px;padding-top:6px;border-top:1px solid var(--color-border);color:var(--color-text-secondary)}
 #compare-more-sites{font-size:var(--text-md);text-align:left}
-@media(max-width:700px){
- #delay-shortcut{min-height:44px;padding:8px 13px;white-space:normal;flex:1 1 175px}
- .hero-scope{margin-left:0}.hero-scope+label{margin-left:0!important}
- .hero-time-ends{grid-template-columns:1fr 1fr}.hero-time-ends output{grid-column:1/-1;grid-row:1;text-align:left}
-}
+
 /* Keep the Sun and Earth state on the first desktop screen: a slightly shorter scene, three-line chips. */
-.hero-visibility{margin-top:8px}
-.hero-visibility .hero-body small{display:block}
+
+
 
 /* First-visit onboarding remains non-modal: the highlighted controls stay usable. */
 /* Allow wider system fonts to keep the headline, site label and body summary
    to two / one / one lines on laptop screens without shrinking readable text. */
-@media(min-width:1101px){.experience{--rail:500px}}
+
 .quick-tour {width:min(390px,calc(100vw - 24px));max-height:60svh;overscroll-behavior:contain;}
 .quick-tour h2 {font-size:var(--text-2xl);line-height:1.2;}
 .quick-tour p {font-size:var(--text-base);line-height:1.5;}
@@ -457,29 +369,29 @@ body[data-delay-story='true'] #delay-shortcut{display:none}
 body{font-family:var(--font-body);background:var(--color-bg);color:var(--color-text)}
 h1,h2,h3{font-family:var(--font-display);font-weight:var(--weight-semibold);letter-spacing:var(--tracking-tight)}
 :focus-visible{outline:var(--focus-ring);outline-offset:var(--focus-offset)}
-.eyebrow,.experience-intro .eyebrow,.opportunity-card .eyebrow,#story-date,.section-code,.panel-tag,.console-frame{font-family:var(--font-mono);font-weight:var(--weight-medium);font-size:var(--text-xs);line-height:1.5;letter-spacing:var(--tracking-label);text-transform:uppercase;color:var(--color-text-muted)}
+.eyebrow,.opportunity-card .eyebrow,.section-code,.panel-tag,.console-frame{font-family:var(--font-mono);font-weight:var(--weight-medium);font-size:var(--text-xs);line-height:1.5;letter-spacing:var(--tracking-label);text-transform:uppercase;color:var(--color-text-muted)}
 
 /* Header and global actions */
-.masthead{background:var(--color-bg);border-bottom:1px solid var(--color-border-subtle)}
-.mast-inner{width:auto;margin-inline:var(--space-5);min-height:var(--header-height)}
-.brand{font-family:var(--font-display);font-weight:var(--weight-semibold);font-size:var(--text-md);letter-spacing:.32em;color:var(--color-text)}
-.brand svg{color:var(--color-sun)}
-.main-nav{gap:var(--space-2)}
-.main-nav button{font:var(--weight-medium) var(--text-md)/1 var(--font-body);color:var(--color-text-secondary);padding:var(--space-3) var(--space-4);border-bottom:2px solid transparent;border-radius:0}
-.main-nav button:hover{color:var(--color-text)}
-.main-nav button[aria-pressed=true]{color:var(--color-text);border-bottom:2px solid var(--color-accent)}
-.product-purpose{background:var(--color-bg);border-bottom:1px solid var(--color-border-subtle);padding:var(--space-2) var(--space-5);gap:var(--space-3)}
-.product-purpose .geometry-note{color:var(--color-text-muted);font-size:var(--text-sm)}
-#delay-shortcut,#tour-start{min-height:40px;padding:var(--space-2) var(--space-4);border-radius:var(--radius-md);font:var(--weight-semibold) var(--text-sm)/1.3 var(--font-body);background:transparent;cursor:pointer}
-#delay-shortcut{border:1px solid var(--color-accent);color:var(--color-sun)}
-#delay-shortcut::before{content:"\25B6";font-size:.7em;margin-right:var(--space-2)}
-#tour-start{border:1px solid var(--color-border-strong);color:var(--color-text)}
-#delay-shortcut:hover,#delay-shortcut:focus-visible{background:var(--color-sun-surface);border-color:var(--color-sun)}
-#tour-start:hover,#tour-start:focus-visible{background:var(--color-surface-elevated);border-color:var(--color-text-secondary)}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* Controls */
-.primary,.find-opportunities{background:var(--color-accent);border:1px solid var(--color-accent);color:var(--color-on-accent);border-radius:var(--radius-md);font-family:var(--font-body);font-weight:var(--weight-semibold);box-shadow:none}
-.primary:hover:not(:disabled),.find-opportunities:hover:not(:disabled){background:color-mix(in srgb,var(--color-accent) 88%,var(--color-text))}
+.primary{background:var(--color-accent);border:1px solid var(--color-accent);color:var(--color-on-accent);border-radius:var(--radius-md);font-family:var(--font-body);font-weight:var(--weight-semibold);box-shadow:none}
+.primary:hover:not(:disabled){background:color-mix(in srgb,var(--color-accent) 88%,var(--color-text))}
 .outline{background:transparent;border:1px solid var(--color-border-strong);color:var(--color-text);border-radius:var(--radius-md)}
 .outline:hover:not(:disabled){background:var(--color-surface-elevated)}
 input:not([type="checkbox"],[type="range"]),select{background:var(--color-bg);border:1px solid var(--color-border-strong);color:var(--color-text);border-radius:var(--radius-sm)}
@@ -496,61 +408,61 @@ details>summary{color:var(--color-text-secondary)}
 .status.status-unavailable::before{content:"\2013"}
 
 /* Mission-control sidebar */
-.scene-stage{background:linear-gradient(90deg,var(--color-surface) 0 var(--rail),var(--color-black) var(--rail))}
-.experience-intro h1{font-size:var(--text-4xl);line-height:var(--leading-tight);letter-spacing:var(--tracking-tight)}
-.hero-support{color:var(--color-text-secondary);font-size:var(--text-base)}
-.scene-site-picker label,.site-label-row label{font:var(--weight-medium) var(--text-xs)/1.5 var(--font-mono);letter-spacing:var(--tracking-label);text-transform:uppercase;color:var(--color-text-secondary)}
-.scene-site-picker label span{text-transform:none;letter-spacing:0;font-family:var(--font-body);color:var(--color-text-muted)}
-.visual-duration-field{font:var(--weight-medium) var(--text-xs)/1.5 var(--font-mono)!important;letter-spacing:var(--tracking-label)!important;text-transform:uppercase;color:var(--color-text-secondary)}
-.story-evidence h2,.environment-only .story-evidence h2{font-family:var(--font-display);font-weight:var(--weight-semibold);letter-spacing:var(--tracking-tight);color:var(--color-text)}
-.story-evidence p{color:var(--color-text-secondary)}
-.story-duration strong{font-family:var(--font-mono);font-weight:var(--weight-medium)}
-.story-duration::before{background:var(--color-sun)}.story-duration.earth::before{background:var(--color-earth)}
+
+
+
+.site-label-row label{font:var(--weight-medium) var(--text-xs)/1.5 var(--font-mono);letter-spacing:var(--tracking-label);text-transform:uppercase;color:var(--color-text-secondary)}
+
+
+
+
+
+
 
 /* The mission story: original, delay, failure, recovery */
-.story-progress{gap:0;border:1px solid var(--color-border);border-radius:var(--radius-md);overflow:hidden;background:var(--color-bg)}
-.story-progress button{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-height:54px;padding:var(--space-2) var(--space-3);border:0;border-radius:0;background:transparent;color:var(--color-text-secondary);font:var(--weight-semibold) var(--text-sm)/1.2 var(--font-body);text-align:left}
-.story-progress button+button{border-left:1px solid var(--color-border)}
-.story-progress button span{display:block;font:var(--weight-medium) var(--text-xs)/1.2 var(--font-mono);letter-spacing:.06em;color:var(--color-text-muted)}
-.story-progress button[data-status=PASS] span::after{content:" \2713  PASS";color:var(--color-pass)}
-.story-progress button[data-status=FAIL] span::after{content:" \2715  FAIL";color:var(--color-fail)}
-.story-progress button[data-status=INDETERMINATE] span::after{content:" ? OPEN";color:var(--color-indeterminate)}
-.story-progress button[aria-pressed=true]{background:var(--color-surface-elevated);color:var(--color-text);box-shadow:inset 0 -3px 0 var(--color-accent)}
-body[data-delay-story="true"] .story-progress button{min-height:54px;font-size:var(--text-sm)}
-body[data-delay-story="true"] #mission-story[data-status=FAIL] #story-title{color:var(--color-fail)}
-body[data-delay-story="true"] #mission-story[data-status=PASS] #story-title{color:var(--color-pass)}
-body[data-delay-story="true"] #mission-story[data-status=FAIL] #story-explanation{padding:var(--space-2) var(--space-3);border-left:3px solid var(--color-fail);background:var(--color-fail-surface);color:var(--color-text);font-weight:var(--weight-medium)}
-#story-witness{font-family:var(--font-mono);color:var(--color-text-muted)}
-.story-joint .recovery-wait{font:var(--weight-semibold) var(--text-lg)/1.3 var(--font-display);color:var(--color-sun)}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* Viewport, HUD and timeline */
-.scene-mode-switch{background:var(--color-bg);border-bottom:1px solid var(--color-border-subtle)}
-.scene-mode-switch button{font:var(--weight-medium) var(--text-xs)/1.2 var(--font-mono)!important;letter-spacing:var(--tracking-label);text-transform:uppercase;color:var(--color-text-secondary);border-radius:var(--radius-sm)}
-.scene-mode-switch button[aria-pressed=true]{background:var(--color-surface-elevated);color:var(--color-text);box-shadow:inset 0 -2px 0 var(--color-accent)}
-.experience .mission-scene-location{font:var(--weight-medium) var(--text-sm)/1.5 var(--font-mono);letter-spacing:.02em;color:var(--color-text)}
-.experience .mission-scene-body-status{background:color-mix(in srgb,var(--color-bg) 80%,transparent);border:1px solid var(--color-border);border-radius:var(--radius-md);font-family:var(--font-mono);backdrop-filter:blur(6px)}
-.scene-mount>.surface-focus button{background:color-mix(in srgb,var(--color-bg) 82%,transparent);border:1px solid var(--color-border-strong);color:var(--color-text);border-radius:var(--radius-md);font:var(--weight-medium) var(--text-sm)/1.2 var(--font-body);backdrop-filter:blur(6px)}
-.scene-mount>.surface-focus button:hover{border-color:var(--color-accent)}
-.scene-caption{font-family:var(--font-mono);letter-spacing:.06em;color:var(--color-text-muted)}
-.scene-transport{background:var(--color-bg);border-top:1px solid var(--color-border-subtle)}
-.scene-transport input[type=range]{accent-color:var(--color-accent)}
-.scene-play-buttons button{border-radius:var(--radius-md)}
-#hero-play{border-color:var(--color-accent);color:var(--color-sun)}
-.hero-scope{border-color:var(--color-border-strong);border-radius:var(--radius-md)}
-.hero-scope button{background:transparent;color:var(--color-text-secondary)}
-.hero-scope button[aria-pressed=true]{background:var(--color-surface-elevated);color:var(--color-text);box-shadow:inset 0 -2px 0 var(--color-accent)}
-.hero-time-ends{font-family:var(--font-mono);color:var(--color-text-muted)}
-.hero-time-ends output{font:var(--weight-medium) var(--text-base)/1.4 var(--font-mono);color:var(--color-text)}
-.hero-visibility .hero-body{background:var(--color-surface);border:1px solid var(--color-border-subtle);border-left:3px solid var(--color-border-strong);border-radius:var(--radius-md)}
-.hero-visibility .hero-body strong{font:var(--weight-semibold) var(--text-base)/1.35 var(--font-display);color:var(--color-text)}
-.hero-visibility .hero-body small{font-family:var(--font-mono);color:var(--color-text-secondary)}
-.hero-visibility .hero-body[data-state=visible]{border-left-color:var(--color-pass)}
-.hero-visibility .hero-body[data-state=blocked]{border-left-color:var(--color-fail)}
-.hero-visibility .hero-body[data-state=uncertain],.hero-visibility .hero-body[data-state=unknown]{border-left-color:var(--color-indeterminate)}
-.hero-visibility .hero-body[data-state=visible] strong::before{content:"\2713  ";color:var(--color-pass)}
-.hero-visibility .hero-body[data-state=blocked] strong::before{content:"\2715  ";color:var(--color-fail)}
-.hero-visibility .hero-body[data-state=uncertain] strong::before,.hero-visibility .hero-body[data-state=unknown] strong::before{content:"? ";color:var(--color-indeterminate)}
-.hero-scope-note{border-left-color:var(--color-sun);background:var(--color-sun-surface);color:var(--color-text)}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* Cards, comparison and results */
 .option-card,.opportunity-card,.comparison-shared,.comparison-difference,.panel,.month-explorer{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg)}
@@ -569,58 +481,45 @@ body[data-delay-story="true"] #mission-story[data-status=FAIL] #story-explanatio
 .quick-tour p{color:var(--color-text-secondary)}
 .quick-tour-target{outline:var(--focus-ring);outline-offset:var(--focus-offset)}
 
-@media(min-width:1500px){.experience{--rail:var(--rail-width)}.experience-intro h1{font-size:var(--text-5xl)}}
-@media(max-width:700px){
- .mast-inner{margin-inline:var(--space-4)}.product-purpose{padding:var(--space-2) var(--space-4)}
- .experience-intro h1{font-size:var(--text-3xl)}
- .scene-stage{background:var(--color-surface)}
- .story-progress button{padding:var(--space-2)}
-}
+
+
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;scroll-behavior:auto!important}}
 
 /* Identity refinements after screenshot review. */
-.story-duration strong{font-family:var(--font-body);font-weight:var(--weight-semibold);color:var(--color-text)}
-.experience .mission-scene-body-status{font-family:var(--font-body);font-size:var(--text-sm);line-height:1.5}
-.hero-time-ends #hero-time-start,.hero-time-ends #hero-time-end{font-family:var(--font-body);font-size:var(--text-sm);color:var(--color-text-muted);white-space:nowrap}
-.hero-time-ends output{font-size:var(--text-md);white-space:nowrap}
-.story-evidence h2,.environment-only .story-evidence h2{font-size:var(--text-3xl);line-height:var(--leading-tight)}
-@media(min-width:1500px){
- .experience-intro h1{font-size:var(--text-4xl)}
- .story-evidence h2,.environment-only .story-evidence h2{font-size:var(--text-4xl)}
-}
+
+
+
+
+
+
 @media(max-width:700px){
- .main-nav button{padding:var(--space-3) var(--space-2);font-size:var(--text-md)}
- .product-purpose{flex-wrap:wrap}
- #delay-shortcut,#tour-start{flex:1 1 auto;min-height:var(--control-height);padding:var(--space-2) var(--space-3);white-space:nowrap}
- .scene-mode-switch button{letter-spacing:.04em;padding-inline:var(--space-2)}
+ 
+ 
+ 
+ 
  /* The Sun and Earth state is repeated by the chips under the timeline, so the
     in-scene status box stays available to assistive technology without covering the Moon. */
- .experience .mission-scene-body-status{position:absolute;top:auto;bottom:0;right:0;width:1px;height:1px;max-width:none;padding:0;margin:0;border:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
- .experience .mission-scene-caption{max-width:none;width:auto;right:12px}
- .hero-time-ends #hero-time-start,.hero-time-ends #hero-time-end{white-space:normal}
- .hero-time-ends output{white-space:normal}
+ 
+ 
+ 
+ 
 }
 
 /* Timeline labels stay on one line at laptop widths; chip sentences use the body face. */
-.hero-time-ends #hero-time-start,.hero-time-ends #hero-time-end{font-size:var(--text-xs);white-space:normal}
-.hero-time-ends output{font-size:var(--text-sm);white-space:normal}
-@media(min-width:1280px){.hero-time-ends #hero-time-start,.hero-time-ends #hero-time-end,.hero-time-ends output{white-space:nowrap}}
-.hero-visibility .hero-body small{font-family:var(--font-body);font-size:var(--text-sm)}
-@media(min-width:1500px){
- .hero-time-ends #hero-time-start,.hero-time-ends #hero-time-end{font-size:var(--text-sm)}
- .hero-time-ends output{font-size:var(--text-base)}
-}
-@media(max-width:700px){
- .hero-time-ends #hero-time-start,.hero-time-ends #hero-time-end,.hero-time-ends output{white-space:normal}
-}
-@media(max-width:1100px){body[data-delay-story="true"] .story-progress button{min-height:46px;padding-block:var(--space-1)}}
-@media(max-width:700px){.product-purpose{gap:var(--space-2)}.product-purpose .purpose-copy{flex:1 0 100%}#delay-shortcut,#tour-start{min-height:var(--control-height);padding:var(--space-2);font-size:var(--text-xs)}#delay-shortcut::before{margin-right:var(--space-1)}}
+
+
+
+
+
+
+
+
 
 /* Web Interface Guidelines pass: balanced headings, deliberate touch behaviour, safe areas. */
 html{-webkit-tap-highlight-color:transparent}
 button,a,select,summary,input:not([type="range"]){touch-action:manipulation}
 h1,h2,h3{text-wrap:balance}
-@media(max-width:700px){.mission-actions .find-opportunities{bottom:max(12px,env(safe-area-inset-bottom))}}
+
 
 /* Timelines: one visual language. Solid colour is confirmed, hatching is unresolved,
    the bare track is not in view. Amber is the Sun, cyan Earth, green both together. */
@@ -639,16 +538,16 @@ h1,h2,h3{text-wrap:balance}
 .timeline-key i.hidden{background:var(--color-track)}
 
 /* Integrated timeline: Sun and Earth availability lanes aligned with the time slider. */
-.hero-lanes{display:grid;gap:3px;margin:2px 0 0;padding-inline:8px}
-.hero-lanes[hidden]{display:none}
-.hero-lane{display:grid;grid-template-columns:52px minmax(0,1fr);align-items:center;gap:var(--space-2);margin-left:-60px;padding-left:0}
-.hero-lane-label{font:var(--weight-medium) var(--text-xs)/1 var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--color-text-muted);text-align:right}
-.hero-lane-track{position:relative;height:7px;border-radius:var(--radius-pill);background:var(--color-track);overflow:hidden}
-.hero-lanes{padding-left:68px}
-.scene-transport input[type=range]{margin-left:60px;width:calc(100% - 60px)}
+
+
+
+
+
+
+
 
 /* Recovery cost reads as the price of the delay. */
-.story-joint .recovery-wait{display:inline-block;margin:0 0 var(--space-2);padding:var(--space-2) var(--space-3);border:1px solid var(--color-sun-border);border-left:3px solid var(--color-sun);border-radius:var(--radius-md);background:var(--color-sun-surface);font:var(--weight-semibold) var(--text-lg)/1.3 var(--font-display);color:var(--color-text)}
+
 
 /* Status badges never break mid-word; calendar cells keep letters only. */
 .status{white-space:nowrap}
@@ -665,7 +564,274 @@ h1,h2,h3{text-wrap:balance}
 .feasibility-cell.status-fail{background:var(--color-fail-surface);border-color:var(--color-fail-border);color:var(--color-fail)}
 .feasibility-cell.status-indeterminate{background:var(--color-indeterminate-surface);border-color:var(--color-indeterminate-border);color:var(--color-indeterminate)}
 @media(max-width:1000px){.feasibility-table{min-width:980px}}
-@media(max-width:700px){
- .scene-transport input[type=range]{margin-left:0;width:100%}
- .hero-lanes{padding-left:8px}.hero-lane{margin-left:0;grid-template-columns:44px minmax(0,1fr)}
+
+/* =====================================================================
+   Mission explorer shell.
+   One screen: thin top bar, compact mission console, a dominant lunar
+   viewport, a telemetry rail and a full-width timeline. Earlier stage
+   layout rules were removed; this block is the only layout for the shell.
+   ===================================================================== */
+
+/* ---- Top bar ---------------------------------------------------------- */
+.masthead{position:relative;z-index:5;background:var(--color-bg);border-bottom:1px solid var(--color-border-subtle)}
+.mast-inner{display:flex;align-items:center;gap:var(--space-5);min-height:var(--header-height);padding-inline:var(--space-4)}
+.brand{display:inline-flex;align-items:center;gap:var(--space-2);color:var(--color-text);text-decoration:none;font:var(--weight-semibold) var(--text-sm)/1 var(--font-display);letter-spacing:.34em}
+.brand svg{width:26px;height:26px;color:var(--color-sun)}
+.main-nav{display:flex;align-items:stretch;gap:var(--space-1);align-self:stretch}
+.main-nav button{padding:0 var(--space-3);border:0;border-bottom:2px solid transparent;border-radius:0;background:none;color:var(--color-text-secondary);font:var(--weight-medium) var(--text-xs)/1 var(--font-display);letter-spacing:var(--tracking-label);text-transform:uppercase;cursor:pointer}
+.main-nav button:hover{color:var(--color-text)}
+.main-nav button[aria-pressed=true]{color:var(--color-text);border-bottom-color:var(--color-accent)}
+.product-purpose{display:flex;align-items:center;gap:var(--space-3);margin-left:auto;min-width:0}
+.purpose-copy{min-width:0}
+.geometry-note{margin:0;font-size:var(--text-xs);line-height:1.4;color:var(--color-text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#delay-shortcut,#tour-start{flex:none;min-height:34px;padding:0 var(--space-3);border-radius:var(--radius-sm);background:transparent;font:var(--weight-medium) var(--text-xs)/1 var(--font-display);letter-spacing:var(--tracking-label);text-transform:uppercase;white-space:nowrap;cursor:pointer}
+#delay-shortcut{border:1px solid var(--color-accent);color:var(--color-sun)}
+#delay-shortcut::before{content:"\25B6";font-size:.75em;margin-right:var(--space-2)}
+#tour-start{border:1px solid var(--color-border);color:var(--color-text)}
+#delay-shortcut:hover,#delay-shortcut:focus-visible{background:var(--color-sun-surface)}
+#tour-start:hover,#tour-start:focus-visible{border-color:var(--color-border-strong);background:var(--color-surface)}
+#tour-start span{margin-left:var(--space-2)}
+body[data-delay-story="true"] #delay-shortcut{display:none}
+
+/* ---- Shell grid -------------------------------------------------------- */
+.experience{background:var(--color-bg);border-bottom:1px solid var(--color-border-subtle)}
+.scene-stage{position:relative;isolation:isolate;display:grid;height:calc(100svh - var(--header-height) - 1px);min-height:620px;
+  grid-template-columns:var(--console-width) minmax(0,1fr) var(--telemetry-width);
+  grid-template-rows:auto auto minmax(0,1fr) auto;
+  grid-template-areas:"intro view telemetry" "picker view telemetry" "story view telemetry" "time time time";
+  background:var(--color-black)}
+.scene-vignette{display:none}
+.rail-heading{display:flex;align-items:center;gap:var(--space-2);margin:0 0 var(--space-3);font:var(--weight-medium) var(--text-xs)/1 var(--font-display);letter-spacing:var(--tracking-label);text-transform:uppercase;color:var(--color-text-secondary)}
+.rail-heading span{font-family:var(--font-mono);color:var(--color-sun)}
+.rail-heading::after{content:"";flex:1;height:1px;background:var(--color-border-subtle)}
+
+/* ---- Mission console (left) ------------------------------------------- */
+.experience-intro,.scene-site-picker,.orbital-story-slot{background:var(--color-bg);border-right:1px solid var(--color-border-subtle);padding-inline:var(--space-4);min-width:0}
+.experience-intro{grid-area:intro;padding-top:var(--space-4)}
+.experience-intro .eyebrow{margin:0 0 var(--space-1)}
+.experience-intro h1{margin:0;font:var(--weight-medium) var(--text-xl)/1.2 var(--font-display);letter-spacing:var(--tracking-tight);color:var(--color-text)}
+.hero-support{display:none}
+body[data-delay-story="true"] .experience-intro h1{display:none}
+.scene-site-picker{grid-area:picker;padding-top:var(--space-4);padding-bottom:var(--space-2)}
+.site-label-row{display:flex;align-items:baseline;justify-content:space-between;gap:var(--space-2)}
+.scene-site-picker label{display:block;margin:0 0 var(--space-1);font:var(--weight-medium) var(--text-xs)/1.4 var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--color-text-muted)}
+.scene-site-picker label span{display:none}
+.scene-site-picker select,.scene-site-picker input{width:100%;min-height:40px;margin:0 0 var(--space-3);padding:0 var(--space-2);font-size:var(--text-sm)}
+#visual-site-detail,.scene-site-picker .opportunity-scope{display:none}
+#more-sites{min-height:0;padding:0;font-size:var(--text-xs);color:var(--color-link);white-space:nowrap}
+.visual-date-controls{display:grid;grid-template-columns:minmax(0,1fr) 72px;gap:var(--space-2);align-items:end}
+.visual-date-controls input{margin-bottom:0}
+.visual-duration-field{margin:0}
+.orbital-story-slot{grid-area:story;padding-top:var(--space-3);padding-bottom:var(--space-4);overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--color-border) transparent}
+.mission-story{display:flex;flex-direction:column;gap:var(--space-3);background:none;padding:0;border:0}
+.story-evidence{order:1}
+.story-joint{order:2}
+.mission-actions{order:3;display:grid;gap:var(--space-2)}
+.mission-options{order:4}
+.decision-jump{order:5}
+.configuration-summary{order:6}
+.story-footer{order:7}
+.story-progress{order:0}
+#story-date{margin:0 0 var(--space-1)}
+#story-title{margin:0;font:var(--weight-semibold) var(--text-3xl)/var(--leading-tight) var(--font-display);letter-spacing:var(--tracking-tight);color:var(--color-text)}
+#story-explanation{margin:var(--space-2) 0 0;font-size:var(--text-sm);line-height:1.5;color:var(--color-text-secondary)}
+#story-durations{display:grid;gap:2px;margin:var(--space-2) 0 0;font-size:var(--text-sm);line-height:1.5;color:var(--color-text-secondary)}
+#story-durations[hidden]{display:none}
+#story-witness{margin:var(--space-1) 0 0;font:var(--text-xs)/1.5 var(--font-mono);color:var(--color-text-muted)}
+#story-witness:empty{display:none}
+.story-outcome{display:flex;align-items:center;gap:var(--space-2);margin-top:var(--space-3)}
+.story-outcome button{flex:1;min-height:var(--control-height);font:var(--weight-semibold) var(--text-sm)/1.2 var(--font-body);border-color:var(--color-accent);color:var(--color-sun)}
+.find-opportunities{width:100%;min-height:var(--control-height);margin:0;font:var(--weight-semibold) var(--text-md)/1.2 var(--font-body)}
+.explore-site{width:100%;min-height:40px;padding:0 var(--space-3);border:1px solid var(--color-border);border-radius:var(--radius-md);background:transparent;color:var(--color-text);font:var(--weight-medium) var(--text-sm)/1.2 var(--font-body);text-decoration:none;cursor:pointer}
+.explore-site:hover:not(:disabled){border-color:var(--color-border-strong);background:var(--color-surface)}
+.mission-options>summary,.story-footer summary{min-height:32px;font-size:var(--text-sm);color:var(--color-text-secondary);cursor:pointer}
+
+/* ---- Viewport (centre) ------------------------------------------------- */
+.scene-mode-switch{grid-area:view;align-self:start;z-index:3;display:flex;justify-content:flex-end;align-items:center;gap:var(--space-1);height:var(--scene-toolbar-height);padding-inline:var(--space-3);background:var(--color-black)}
+.scene-mode-switch button{min-height:30px;padding:0 var(--space-3);border:1px solid transparent;border-radius:var(--radius-sm);background:none;color:var(--color-text-secondary);font:var(--weight-medium) var(--text-xs)/1 var(--font-display)!important;letter-spacing:var(--tracking-label);text-transform:uppercase;cursor:pointer}
+.scene-mode-switch button:hover{color:var(--color-text)}
+.scene-mode-switch button[aria-pressed=true]{border-color:var(--color-border);background:var(--color-surface);color:var(--color-text)}
+.scene-mount{grid-area:view;position:relative;min-height:0;min-width:0;margin-top:var(--scene-toolbar-height);overflow:hidden;background:var(--color-black)}
+.scene-mount>.scene-poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.scene-caption{grid-area:view;align-self:end;z-index:2;display:flex;justify-content:space-between;gap:var(--space-3);padding:0 var(--space-4) var(--space-2);font:var(--text-xs)/1.4 var(--font-mono);letter-spacing:.06em;color:var(--color-text-muted);pointer-events:none;text-shadow:0 1px 3px var(--color-black)}
+.experience .mission-scene-caption{top:var(--space-3);left:var(--space-4);right:auto;bottom:auto;max-width:60%}
+.experience .mission-scene-location{display:block;font:var(--text-xs)/1.5 var(--font-mono);letter-spacing:.04em;color:var(--color-text-secondary)}
+.experience .mission-scene-location strong{display:block;font:var(--weight-medium) var(--text-2xl)/1.15 var(--font-display);letter-spacing:var(--tracking-tight);color:var(--color-text)}
+.experience .mission-scene-location strong::before{content:"Study site";display:block;margin-bottom:var(--space-1);font:var(--weight-medium) var(--text-xs)/1 var(--font-display);letter-spacing:var(--tracking-label);text-transform:uppercase;color:var(--color-text-muted)}
+.experience .mission-scene-body-status{position:absolute;top:auto;bottom:0;right:0;width:1px;height:1px;max-width:none;padding:0;margin:0;border:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.scene-mount>.surface-focus{position:absolute;z-index:4;top:50%;right:var(--space-3);bottom:auto;transform:translateY(-50%);display:grid;gap:var(--space-1);max-width:none}
+.scene-mount>.surface-focus button{min-width:76px;min-height:34px;padding:0 var(--space-2);border:1px solid var(--color-border);border-radius:var(--radius-sm);background:color-mix(in srgb,var(--color-bg) 78%,transparent);color:var(--color-text-secondary);font:var(--weight-medium) var(--text-xs)/1 var(--font-display);letter-spacing:.06em;text-transform:uppercase;backdrop-filter:blur(6px);cursor:pointer}
+.scene-mount>.surface-focus button:hover{border-color:var(--color-accent);color:var(--color-text)}
+.earth-inset{position:absolute;right:var(--space-3);top:var(--space-3);width:110px;margin:0;padding:var(--space-1);background:color-mix(in srgb,var(--color-bg) 88%,transparent);border:1px solid var(--color-border);border-radius:var(--radius-sm);z-index:3}
+
+/* ---- Telemetry rail (right) -------------------------------------------- */
+.telemetry-rail{grid-area:telemetry;min-width:0;padding:var(--space-4);background:var(--color-bg);border-left:1px solid var(--color-border-subtle);overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--color-border) transparent}
+.hero-visibility{display:grid;gap:var(--space-2);margin:0 0 var(--space-5)}
+.hero-visibility .hero-body{display:grid;gap:2px;padding:var(--space-3);border:1px solid var(--color-border-subtle);border-left:2px solid var(--color-border-strong);border-radius:var(--radius-sm);background:var(--color-surface);cursor:help}
+.hero-visibility .hero-body strong{font:var(--weight-medium) var(--text-lg)/1.25 var(--font-display);letter-spacing:var(--tracking-tight);color:var(--color-text)}
+.hero-visibility .hero-body small{display:block;font:var(--text-xs)/1.5 var(--font-mono);color:var(--color-text-secondary)}
+.hero-visibility .hero-body[data-target=sun]{border-left-color:var(--color-sun)}
+.hero-visibility .hero-body[data-target=earth]{border-left-color:var(--color-earth)}
+.hero-visibility .hero-body[data-state=visible] strong::before{content:"\2713  ";color:var(--color-pass)}
+.hero-visibility .hero-body[data-state=blocked] strong::before{content:"\2715  ";color:var(--color-fail)}
+.hero-visibility .hero-body[data-state=uncertain] strong::before,.hero-visibility .hero-body[data-state=unknown] strong::before{content:"? ";color:var(--color-indeterminate)}
+.rail-note{margin:var(--space-4) 0 0;padding-top:var(--space-3);border-top:1px solid var(--color-border-subtle);font-size:var(--text-xs);line-height:1.5;color:var(--color-text-muted)}
+
+/* ---- Timeline (bottom, full width) -------------------------------------- */
+.scene-transport{grid-area:time;display:grid;grid-template-columns:auto auto minmax(0,1fr);align-items:center;gap:var(--space-2) var(--space-5);padding:var(--space-3) var(--space-4);background:var(--color-bg);border-top:1px solid var(--color-border-subtle)}
+.scene-play-buttons{display:flex;align-items:center;gap:var(--space-1);flex-wrap:nowrap}
+.scene-play-buttons button{width:auto;min-height:34px;padding:0 var(--space-3);border-radius:var(--radius-sm);font:var(--weight-medium) var(--text-xs)/1 var(--font-display);letter-spacing:.06em;text-transform:uppercase}
+#hero-play{border-color:var(--color-accent);color:var(--color-sun)}
+.hero-scope{display:inline-flex;margin-left:var(--space-3);border:1px solid var(--color-border);border-radius:var(--radius-sm);overflow:hidden}
+.hero-scope button{border:0;border-radius:0;background:transparent;color:var(--color-text-secondary)}
+.hero-scope button+button{border-left:1px solid var(--color-border)}
+.hero-scope button[aria-pressed=true]{background:var(--color-surface-elevated);color:var(--color-text)}
+.scene-play-buttons label{display:flex;align-items:center;gap:var(--space-2);margin:0 0 0 var(--space-3);font:var(--weight-medium) var(--text-xs)/1 var(--font-display);letter-spacing:.06em;text-transform:uppercase;color:var(--color-text-muted)}
+.scene-play-buttons select{width:92px;min-height:34px;padding:0 var(--space-2);font-size:var(--text-xs)}
+.timeline-clock{display:grid;gap:2px;min-width:0}
+.timeline-clock-label{font:var(--weight-medium) var(--text-xs)/1 var(--font-display);letter-spacing:var(--tracking-label);text-transform:uppercase;color:var(--color-text-muted)}
+.timeline-clock output{font:var(--weight-medium) var(--text-md)/1.3 var(--font-mono);color:var(--color-text);white-space:nowrap}
+.clock-track{display:grid;gap:3px;min-width:0}
+.scene-transport input[type=range]{width:100%;height:16px;margin:0;padding:0;accent-color:var(--color-accent)}
+.hero-lanes{display:grid;gap:3px;padding-inline:8px}
+.hero-lanes[hidden]{display:none}
+.hero-lane{position:relative}
+.hero-lane-label{position:absolute;right:calc(100% + var(--space-2));top:50%;transform:translateY(-50%);font:var(--weight-medium) 11px/1 var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--color-text-muted)}
+.hero-lane-track{position:relative;height:5px;border-radius:var(--radius-pill);background:var(--color-track);overflow:hidden}
+.hero-time-ends{display:flex;justify-content:space-between;gap:var(--space-3);font:var(--text-xs)/1.4 var(--font-mono);color:var(--color-text-muted)}
+.hero-scope-note{grid-column:1/-1;margin:0;padding:var(--space-1) var(--space-3);border-left:2px solid var(--color-sun);background:var(--color-sun-surface);font-size:var(--text-sm);line-height:1.5;color:var(--color-text)}
+.hero-scope-note[hidden]{display:none}
+
+.experience-status{display:flex;gap:var(--space-3);align-items:center;justify-content:space-between;padding:var(--space-2) var(--space-4);border-top:1px solid var(--color-border-subtle);background:var(--color-bg)}
+
+/* ---- Laptop and tablet: the telemetry rail moves under the timeline ---- */
+@media(max-width:1180px){
+ .scene-stage{height:auto;min-height:0;grid-template-columns:var(--console-width) minmax(0,1fr);grid-template-rows:auto auto auto auto auto;
+  grid-template-areas:"intro view" "picker view" "story view" "time time" "telemetry telemetry"}
+ .scene-mount{height:calc(100svh - var(--header-height) - var(--scene-toolbar-height) - 150px);min-height:340px;align-self:start}
+ .scene-caption{align-self:start;margin-top:calc(100svh - var(--header-height) - 150px - 4px)}
+ .orbital-story-slot{overflow:visible}
+ .telemetry-rail{border-left:0;border-top:1px solid var(--color-border-subtle);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 var(--space-5);overflow:visible}
+ .telemetry-rail .rail-heading,.telemetry-rail .rail-note{grid-column:1/-1}
+ .hero-visibility{grid-column:1/-1;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .environment-overview{grid-column:1/-1}
+ .scene-transport{grid-template-columns:auto minmax(0,1fr)}
+ .clock-track{grid-column:1/-1}
+ .geometry-note{display:none}
 }
+
+/* ---- Phone: scene first, then timeline, console and telemetry ---------- */
+@media(max-width:700px){
+ .mast-inner{flex-wrap:wrap;gap:var(--space-2) var(--space-3);padding-block:var(--space-2)}
+ .main-nav{align-self:auto;margin-left:auto}
+ .main-nav button{min-height:var(--control-height);padding:0 var(--space-2)}
+ .product-purpose{flex:1 0 100%;flex-wrap:wrap;margin-left:0;gap:var(--space-2)}
+ .purpose-copy{flex:1 0 100%}
+ .geometry-note{display:block;white-space:normal;font-size:var(--text-xs)}
+ #delay-shortcut,#tour-start{flex:1 1 auto;min-height:var(--control-height);letter-spacing:.04em}
+ .scene-stage{display:flex;flex-direction:column;height:auto;min-height:0;background:var(--color-bg)}
+ .experience-intro{order:0;border-right:0;padding-top:var(--space-3);padding-bottom:var(--space-2)}
+ .experience-intro h1{font-size:var(--text-lg)}
+ .scene-mode-switch{order:1;justify-content:center;height:auto;min-height:var(--control-height);padding-inline:var(--space-2)}
+ .scene-mode-switch button{min-height:36px;padding:0 var(--space-2);letter-spacing:.04em}
+ .scene-mount{order:2;margin-top:0;height:56svh;min-height:300px;flex:none}
+ .scene-caption{order:3;padding:var(--space-1) var(--space-4);background:var(--color-black)}
+ .scene-transport{order:4;grid-template-columns:minmax(0,1fr);gap:var(--space-2);padding:var(--space-3) var(--space-4)}
+ .scene-play-buttons{flex-wrap:wrap}
+ .scene-play-buttons button,.scene-play-buttons select{min-height:var(--control-height)}
+ .hero-scope{margin-left:0}.scene-play-buttons label{margin-left:0}
+ .hero-lanes{padding-left:52px}
+ .hero-lane-label{right:auto;left:-52px}
+ .scene-site-picker{order:5;border-right:0;border-top:1px solid var(--color-border-subtle)}
+ .scene-site-picker select,.scene-site-picker input{min-height:var(--control-height)}
+ .orbital-story-slot{order:6;border-right:0;overflow:visible}
+ .telemetry-rail{order:7;border-left:0;border-top:1px solid var(--color-border-subtle);overflow:visible}
+ .experience .mission-scene-caption{max-width:none;right:var(--space-3);left:var(--space-3)}
+ .experience .mission-scene-location strong{font-size:var(--text-lg)}
+ .scene-mount>.surface-focus{top:auto;bottom:var(--space-3);right:var(--space-3);transform:none;display:flex}
+ .scene-mount>.surface-focus button{min-height:var(--control-height);min-width:0;padding:0 var(--space-3)}
+ .mission-actions .find-opportunities{position:fixed;z-index:30;left:var(--space-4);right:var(--space-4);bottom:max(12px,env(safe-area-inset-bottom));width:auto;box-shadow:var(--shadow-2)}
+ .experience-status{flex-direction:column;align-items:flex-start;gap:var(--space-1)}
+}
+
+/* ---- Shell components: story stepper, result emphasis, timeline row ---- */
+.story-progress{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid var(--color-border);border-radius:var(--radius-sm);overflow:hidden;background:var(--color-bg)}
+.story-progress[hidden]{display:none}
+.story-progress button{display:grid;gap:3px;min-height:48px;padding:var(--space-1) var(--space-2);border:0;border-radius:0;background:transparent;color:var(--color-text-secondary);font:var(--weight-medium) var(--text-xs)/1.2 var(--font-body);text-align:left;cursor:pointer}
+.story-progress button+button{border-left:1px solid var(--color-border)}
+.story-progress button span{display:block;font:var(--weight-medium) 11px/1.2 var(--font-mono);letter-spacing:.04em;color:var(--color-text-muted)}
+.story-progress button[data-status=PASS] span::after{content:" \2713  PASS";color:var(--color-pass)}
+.story-progress button[data-status=FAIL] span::after{content:" \2715  FAIL";color:var(--color-fail)}
+.story-progress button[data-status=INDETERMINATE] span::after{content:" ? OPEN";color:var(--color-indeterminate)}
+.story-progress button[aria-pressed=true]{background:var(--color-surface-elevated);color:var(--color-text);box-shadow:inset 0 -2px 0 var(--color-accent)}
+body[data-delay-story="true"] #mission-story[data-status=FAIL] #story-title{color:var(--color-fail)}
+body[data-delay-story="true"] #mission-story[data-status=PASS] #story-title{color:var(--color-pass)}
+body[data-delay-story="true"] #story-title{font-size:var(--text-2xl)}
+body[data-delay-story="true"] #mission-story[data-status=FAIL] #story-explanation{padding:var(--space-2) var(--space-3);border-left:2px solid var(--color-fail);background:var(--color-fail-surface);color:var(--color-text);font-weight:var(--weight-medium)}
+.story-duration::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:var(--space-2);background:var(--color-sun)}
+.story-duration.earth::before{background:var(--color-earth)}
+.story-duration strong{font-weight:var(--weight-semibold);color:var(--color-text)}
+.story-joint{font:var(--text-xs)/1.5 var(--font-mono);color:var(--color-text-secondary)}
+.story-joint .recovery-wait{display:block;margin:0 0 var(--space-2);padding:var(--space-2) var(--space-3);border:1px solid var(--color-sun-border);border-left:2px solid var(--color-sun);border-radius:var(--radius-sm);background:var(--color-sun-surface);font:var(--weight-semibold) var(--text-lg)/1.3 var(--font-display);color:var(--color-text)}
+.visual-duration-field{display:block;font:var(--weight-medium) var(--text-xs)/1.4 var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--color-text-muted)}
+.visual-duration-field input{display:block;margin-top:var(--space-1)}
+.scene-site-picker input[type="datetime-local"]{font-size:var(--text-xs);padding-inline:var(--space-1)}
+#hero-pause,#hero-reset{min-width:38px;padding:0 var(--space-2)}
+.mission-scene-location strong+span{display:block}
+@media(max-width:700px){
+ .story-progress button{min-height:var(--control-height)}
+}
+
+/* ---- Shell refinements after the first rendered comparison ------------- */
+.experience-intro .eyebrow{display:none}
+body[data-delay-story="true"] .experience-intro{display:none}
+.experience-intro{padding-top:var(--space-3)}
+.experience-intro h1{font-size:var(--text-lg)}
+.scene-site-picker{padding-top:var(--space-3);padding-bottom:0}
+.scene-site-picker select,.scene-site-picker input{margin-bottom:var(--space-2)}
+.orbital-story-slot{padding-top:var(--space-2)}
+.mission-story{gap:var(--space-2)}
+.rail-heading{margin-bottom:var(--space-2)}
+#story-date{font:var(--text-xs)/1.4 var(--font-mono);letter-spacing:.02em;text-transform:none;color:var(--color-text-muted)}
+/* Timeline: controls and clock on the first row, the track across the full width below. */
+.scene-transport{grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto auto;row-gap:var(--space-2);padding-block:var(--space-2) var(--space-3);align-items:center}
+.timeline-clock{justify-self:end;grid-auto-flow:column;align-items:baseline;gap:var(--space-3)}
+.clock-track{grid-column:1/-1}
+.timeline-clock output{font-size:var(--text-base)}
+.hero-lanes{padding-left:56px}
+.hero-lane-label{left:-56px;right:auto;width:48px;text-align:right}
+.scene-transport input[type=range]{width:calc(100% - 48px);margin-left:48px}
+.hero-time-ends{padding-left:56px}
+.mission-scene-location .mission-scene-separator{display:none}
+@media(max-width:1180px){.scene-transport{grid-template-columns:minmax(0,1fr)}.timeline-clock{justify-self:start}}
+@media(max-width:700px){
+ .scene-transport input[type=range]{width:calc(100% - 44px);margin-left:44px}
+ .hero-lanes{padding-left:52px}.hero-lane-label{left:-52px;width:44px}.hero-time-ends{padding-left:52px}
+ .timeline-clock{grid-auto-flow:row;gap:2px}
+}
+/* A soft scrim keeps the site title legible over the lit surface. */
+.scene-mount::before{content:"";position:absolute;z-index:1;inset:0 auto 0 0;width:42%;background:linear-gradient(90deg,color-mix(in srgb,var(--color-black) 62%,transparent),transparent);pointer-events:none}
+.experience .mission-scene-caption{z-index:2}
+/* Shell fixes: phone layout must not inherit the laptop alignment, and empty rail sections collapse. */
+.telemetry-rail .rail-heading:has(+ .environment-overview[hidden]){display:none}
+@media(max-width:1180px){.scene-caption{margin-top:calc(100svh - var(--header-height) - 150px - 30px)}}
+@media(max-width:700px){
+ .scene-mode-switch,.scene-mount,.scene-caption{align-self:stretch}
+ .scene-caption{margin-top:0}
+ #delay-shortcut,#tour-start{white-space:normal;letter-spacing:.02em;padding:var(--space-1) var(--space-3)}
+ .brand{letter-spacing:.24em}
+ .main-nav button{letter-spacing:.04em}
+}
+@media(max-width:700px){.timeline-clock output{white-space:normal;font-size:var(--text-sm)}.scene-play-buttons button{padding:0 var(--space-2)}.hero-scope button{letter-spacing:.02em}.hero-time-ends{flex-wrap:wrap}}
+/* The console uses normal page scrolling; the top bar, viewport, telemetry and timeline stay pinned beside it. */
+@media(min-width:1181px){
+ .masthead{position:sticky;top:0}
+ .scene-stage{height:auto;min-height:calc(100svh - var(--header-height) - 1px)}
+ .orbital-story-slot{overflow:visible;padding-bottom:calc(var(--timeline-height) + var(--space-4))}
+ .scene-mode-switch{position:sticky;top:var(--header-height)}
+ .scene-mount{position:sticky;top:calc(var(--header-height) + var(--scene-toolbar-height));align-self:start;height:calc(100svh - var(--header-height) - var(--scene-toolbar-height) - var(--timeline-height) - 1px)}
+ .scene-caption{position:sticky;align-self:start;top:calc(100svh - var(--timeline-height) - 30px)}
+ .telemetry-rail{position:sticky;top:var(--header-height);align-self:start;max-height:calc(100svh - var(--header-height) - var(--timeline-height));padding-bottom:var(--space-5)}
+ .scene-transport{position:sticky;bottom:0;z-index:4;min-height:var(--timeline-height)}
+}
+@media(max-width:1180px){.orbital-story-slot{overflow:visible}}
