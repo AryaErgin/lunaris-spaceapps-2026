@@ -274,7 +274,10 @@ thead th{color:var(--color-text-secondary);font-weight:var(--weight-medium)}tbod
 .methods p,.sources,.explain-grid p{font-size:var(--text-sm);color:var(--color-text-secondary);margin-top:var(--space-3)}.sources{padding-left:var(--space-4)}.sources li{margin-top:var(--space-2)}
 .explain{padding:var(--space-5)}.explain summary{font-size:var(--text-xl)}.explain summary small{font-size:var(--text-sm);color:var(--color-text-secondary);margin-left:var(--space-3)}.explain-symbol{font-size:var(--text-3xl)}
 .footer{border-top:1px solid var(--color-border-subtle);color:var(--color-text-secondary);background:var(--color-bg)}
-.footer-inner{min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:var(--space-5);font-size:var(--text-sm)}
+.footer-inner{min-height:208px;display:grid;place-items:center;padding-block:var(--space-6);text-align:center}
+.footer-brand{position:relative;display:grid;place-items:center;min-height:160px;width:100%;min-width:0}
+.footer-mark{position:absolute;left:50%;top:50%;width:160px;height:160px;transform:translate(-50%,-50%);opacity:.16;pointer-events:none}
+.footer-name{position:relative;z-index:1;font:var(--weight-semibold) clamp(var(--text-3xl),4vw,var(--text-4xl))/var(--leading-tight) var(--font-display);letter-spacing:.16em;color:var(--color-text)}
 @media(max-width:1100px){
  .mast-inner{gap:var(--space-3)}.nav-link{padding-inline:var(--space-4)}.product-purpose{gap:var(--space-2)}
  .workspace{grid-template-columns:minmax(240px,280px) minmax(0,1fr)}.option-comparison[data-count='3']{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -297,7 +300,7 @@ thead th{color:var(--color-text-secondary);font-weight:var(--weight-medium)}tbod
  .decision-heading{flex-direction:column;gap:var(--space-3)}.decision-requirements,.visibility-definitions{grid-template-columns:1fr}.evidence-timeline-row{grid-template-columns:64px minmax(0,1fr);gap:var(--space-2)}.requirement-head{flex-wrap:wrap}
  .time-probe{grid-template-columns:1fr}.time-probe output{grid-column:auto}.telemetry-grid,.duration-telemetry,#visibility-overview,.environment-measurements{grid-template-columns:1fr}
  .timeline-row{grid-template-columns:62px minmax(0,1fr);gap:var(--space-2)}.timeline-legend{margin-left:70px}.console-frame{margin-left:0}.console-caption{gap:var(--space-3)}
- .methods-grid,.explain-grid{grid-template-columns:1fr}.atlas-site-list{grid-template-columns:1fr}.footer-inner{flex-direction:column;align-items:flex-start;padding-block:var(--space-5);gap:var(--space-3)}
+ .methods-grid,.explain-grid{grid-template-columns:1fr}.atlas-site-list{grid-template-columns:1fr}.footer-inner{padding-block:var(--space-5)}
  .science-guide>details>summary{font-size:var(--text-lg)}.plot svg{height:200px}.local-sky{min-height:180px}
 }
 @media(max-width:360px){.comparison-shared{display:grid;grid-template-columns:1fr;gap:var(--space-1)}.comparison-shared>label{width:100%;padding-block:var(--space-3)}.comparison-shared-details{width:100%}.container{width:calc(100% - var(--space-5))}.brand{letter-spacing:.08em}.product-purpose button{padding-inline:var(--space-2)}.field-pair{grid-template-columns:1fr}.nav-link{font-size:var(--text-sm)}}
