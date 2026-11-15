@@ -14,7 +14,7 @@
     "outputNormalBitDepth": 8
   },
   "credit": "Poly Haven / Spaceport Rostock; Dario Barresi, Greg Zaal, Jenelle van Heerden, Rico Cilliers",
-  "diffuseMeanLinear": 0.1849871412239445,
+  "diffuseMeanLinear": 0.18733758593150246,
   "displacementApplied": false,
   "displayOnly": true,
   "kind": "laboratory-regolith-simulant",
@@ -27,67 +27,67 @@
   "reproduce": "python tools/build_regolith_material.py --acquire",
   "schemaVersion": 1,
   "sourcePinsUrl": "source-pins.json",
-  "sourceUrl": "https://polyhaven.com/a/moon_macro_01",
+  "sourceUrl": "https://polyhaven.com/a/moon_01",
   "textures": {
     "desktop": {
       "diffuse": {
-        "byteLength": 206802,
+        "byteLength": 15028,
         "colorSpace": "srgb",
         "height": 1024,
-        "meanLinearLuminance": 0.1849871412239445,
-        "sha256": "07ce4806273e1a2898d08a0abb5fe647b8f580e63f1bcac9399b6f48605fd403",
+        "meanLinearLuminance": 0.18733758593150246,
+        "sha256": "71ee5c080e6d1154f45d6557459a17aa070efce38e39e0235d371a60a0741d04",
         "url": "regolith-diffuse-desktop.webp",
         "width": 1024
       },
       "normal": {
-        "byteLength": 2494608,
+        "byteLength": 2462723,
         "colorSpace": "linear",
         "encoding": "OpenGL tangent-space XYZ; normalized,8-bit RGB PNG",
         "height": 1024,
-        "sha256": "4d0eb12fd7ca0d1eeee85a63a9de66997bbd5ac3fb4a0e302c0b80709f43c0dc",
+        "sha256": "9bb999f13c86ca0345a9f7e7a277f7617735af307dae4663b9d6fee33ff91693",
         "url": "regolith-normal-desktop.png",
         "width": 1024
       },
       "roughness": {
-        "byteLength": 368662,
+        "byteLength": 148461,
         "colorSpace": "linear",
         "encoding": "8-bit grayscale PNG",
         "height": 1024,
-        "sha256": "3ed2c8b9ded13c49ae191bc75a10a971874506f888430b893c90b1743532f177",
+        "sha256": "9373f7236f6296aba95ddf05a40025d7d7b0ea16a6ee8aa4c24b8714e56c4b8a",
         "url": "regolith-roughness-desktop.png",
         "width": 1024
       }
     },
     "mobile": {
       "diffuse": {
-        "byteLength": 31918,
+        "byteLength": 3040,
         "colorSpace": "srgb",
         "height": 512,
-        "meanLinearLuminance": 0.1848327808681894,
-        "sha256": "c289088b37e4235425718b7112ce8116ed0307d307616be727dfe196e2270271",
+        "meanLinearLuminance": 0.18731193387473977,
+        "sha256": "0e5dd2936d9ba1e11db164c199445a0b590366e1d31fe3d8862d90d890263a1b",
         "url": "regolith-diffuse-mobile.webp",
         "width": 512
       },
       "normal": {
-        "byteLength": 588371,
+        "byteLength": 600224,
         "colorSpace": "linear",
         "encoding": "OpenGL tangent-space XYZ; normalized,8-bit RGB PNG",
         "height": 512,
-        "sha256": "9d5b92016a97580f616543dea4df50d7443e8990e4feea73dab68fe22a0fefb9",
+        "sha256": "88ffdd08ce18f5fed9d64c0fa7ce0f6369d55e7d59102d9a788da1c9f701f615",
         "url": "regolith-normal-mobile.png",
         "width": 512
       },
       "roughness": {
-        "byteLength": 80142,
+        "byteLength": 39202,
         "colorSpace": "linear",
         "encoding": "8-bit grayscale PNG",
         "height": 512,
-        "sha256": "e4eea52615ea6d2366e1e4a38b9c74d57665ddfd2fca365e84592c9c6e914b14",
+        "sha256": "a2f37c753cb77fefb25dcbf063e76c5fbc5436e542fd58cb4e59195e268075ea",
         "url": "regolith-roughness-mobile.png",
         "width": 512
       }
     }
   },
-  "tileHeightM": 0.4,
-  "tileWidthM": 0.4
+  "tileHeightM": 3.1000001430511475,
+  "tileWidthM": 3.1000001430511475
 }

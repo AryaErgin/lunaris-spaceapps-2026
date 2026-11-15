@@ -16,8 +16,8 @@ def test_material_declares_its_scale_and_non_geographic_scope():
     assert manifest["kind"] == "laboratory-regolith-simulant"
     assert manifest["displayOnly"] is True
     assert manifest["displacementApplied"] is False
-    assert manifest["tileWidthM"] == pytest.approx(.4, abs=1e-8)
-    assert manifest["sourceUrl"] == "https://polyhaven.com/a/moon_macro_01"
+    assert manifest["tileWidthM"] == 3.1000001430511475
+    assert manifest["sourceUrl"] == "https://polyhaven.com/a/moon_01"
     assert 0 < manifest["diffuseMeanLinear"] < 1
 
 

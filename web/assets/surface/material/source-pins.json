@@ -1,11 +1,11 @@
 {
   "apiDimensionsMm": [
-    399.9999761581421,
-    399.9999761581421
+    3100.0001430511475,
+    3100.0001430511475
   ],
-  "apiFilesUrl": "https://api.polyhaven.com/files/moon_macro_01",
-  "apiInfoUrl": "https://api.polyhaven.com/info/moon_macro_01",
-  "assetId": "moon_macro_01",
+  "apiFilesUrl": "https://api.polyhaven.com/files/moon_01",
+  "apiInfoUrl": "https://api.polyhaven.com/info/moon_01",
+  "assetId": "moon_01",
   "authors": {
     "Dario Barresi": "Processing",
     "Greg Zaal": "Photography",
@@ -19,41 +19,55 @@
   "license": "CC0-1.0",
   "licenseTextUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
   "licenseUrl": "https://polyhaven.com/license",
-  "pageUrl": "https://polyhaven.com/a/moon_macro_01",
+  "pageUrl": "https://polyhaven.com/a/moon_01",
   "previewRendersIncluded": false,
   "sourcePinsEstablishedUtcDate": "2026-11-15",
   "sources": {
     "diffuse": {
-      "byteLength": 607698,
-      "filename": "moon_macro_01_diff_1k.jpg",
+      "byteLength": 328631,
+      "filename": "moon_01_diff_1k.jpg",
       "format": "jpg",
-      "md5": "83a84a44cff8c7b43b7ca35bcdecde6c",
+      "md5": "edaf25012d783909bfc93946ee0b9628",
       "resolution": "1k",
-      "sha256": "752421a3505eaedf5cf4dfe37ec75c559fd3cefd28aa2e9b48be781a35704068",
-      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/moon_macro_01/moon_macro_01_diff_1k.jpg"
+      "sha256": "ebe99635c8babc05620fb532eba8459b9168b5b09f9704e320938c231900ed62",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/moon_01/moon_01_diff_1k.jpg"
     },
     "normal": {
-      "byteLength": 5994106,
-      "filename": "moon_macro_01_nor_gl_1k.png",
+      "byteLength": 5972979,
+      "filename": "moon_01_nor_gl_1k.png",
       "format": "png",
-      "md5": "d261def688694c890b695bcbf1990a09",
+      "md5": "49ecf9c3c13d541d479c5b690f4a1b04",
       "resolution": "1k",
-      "sha256": "91d5210eba6b49006577d0544b74deba8e2924af96d7f1d54ed0edbf05b03f97",
-      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/png/1k/moon_macro_01/moon_macro_01_nor_gl_1k.png"
+      "sha256": "324f388d6d2ca91535cdd935b9066216ecbe1f3f1bd8cb38d2de0dfbb533e3c4",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/png/1k/moon_01/moon_01_nor_gl_1k.png"
     },
     "roughness": {
-      "byteLength": 316490,
-      "filename": "moon_macro_01_rough_1k.jpg",
+      "byteLength": 111333,
+      "filename": "moon_01_rough_1k.jpg",
       "format": "jpg",
-      "md5": "9902e278c61635d3c1d1ccb4ebfe6589",
+      "md5": "cd4bda7f80fcd981cf4d2df3cc8e1be3",
       "resolution": "1k",
-      "sha256": "10c0ad79f340cd28fdbaa4c92d020a6886072122836d11e8e6ce21b823262b24",
-      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/moon_macro_01/moon_macro_01_rough_1k.jpg"
+      "sha256": "483d2254502ddfd8a2310ec623418477e8a55e4d150717aef049ab3588506ba6",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/moon_01/moon_01_rough_1k.jpg"
     }
   },
-  "tileHeightM": 0.4,
-  "tileWidthM": 0.4,
-  "totalSourceBytes": 6918294,
+  "tileHeightM": 3.1000001430511475,
+  "tileWidthM": 3.1000001430511475,
+  "totalSourceBytes": 6412943,
+  "unusedHeightCalibration": {
+    "applied": false,
+    "basis": "Publisher Blender material; laboratory only, not independent height metrology",
+    "blendSha256": "a591765aa95b03ca44ff0b34825626d0fb825f3c1e40fa52d2991628fba0e3b5",
+    "blendUrl": "https://dl.polyhaven.org/file/ph-assets/Textures/blend/1k/moon_01/moon_01_1k.blend",
+    "heightScaleM": 0.05,
+    "heightSha256": "95cd1f911c2c879784423f32d915224df903e84dd061f165894fba6335ec9e0a",
+    "heightUrl": "https://dl.polyhaven.org/file/ph-assets/Textures/png/1k/moon_01/moon_01_disp_1k.png",
+    "midlevel": 0.5,
+    "native1kPeakToValleyM": 0.04962233994748724,
+    "native1kRawMax": 65373,
+    "native1kRawMin": 333,
+    "note": "Reference only; acquire fetches just diffuse, OpenGL normal and roughness. No height asset, parallax or geometric displacement is applied."
+  },
   "unusedMaps": [
     "Displacement",
     "AO"

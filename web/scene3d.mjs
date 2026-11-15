@@ -342,11 +342,11 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     const geometry=track(new THREE.BufferGeometry());geometry.setAttribute('position',new THREE.Float32BufferAttribute([0,0,0,0,0,0],3));
     const line=new THREE.Line(geometry,track(new THREE.LineBasicMaterial({color,transparent:true,opacity:.4})));orbitalRays[key]=line;orbitalScene.add(line);
   }
-  const floorLight=new THREE.AmbientLight(0xd9d9d7,.18);surfaceScene.add(floorLight);
+  const floorLight=new THREE.AmbientLight(0xd9d9d9,.18);surfaceScene.add(floorLight);
   // A separate, explicitly illustrative fill shades actual DEM normals without casting shadows.
   const displayFill=new THREE.DirectionalLight(0xdfe4ec,.3);
   displayFill.castShadow=false;surfaceScene.add(displayFill,displayFill.target);
-  const sunlight=new THREE.DirectionalLight(0xfffbf3,2.3);
+  const sunlight=new THREE.DirectionalLight(0xffffff,2.3);
   sunlight.castShadow=false;
   surfaceScene.add(sunlight,sunlight.target);
 
@@ -372,7 +372,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   // Specular keeps its physical cosine; material detail never becomes relief data.
   let regolithShading='lambert';
   function regolithMaterial({fineTerrain=false}={}) {
-    const material=new THREE.MeshStandardMaterial({color:0x8f8f8d,roughness:1,metalness:0,side:THREE.FrontSide});
+    const material=new THREE.MeshStandardMaterial({color:0x8f8f8f,roughness:1,metalness:0,side:THREE.FrontSide});
     const chunk=THREE.ShaderChunk?.lights_physical_pars_fragment;
     const lunarChunk=regolithLightingChunk(chunk);
     if(!lunarChunk)return material;
@@ -405,10 +405,10 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   function photographedMaterial(photo,mask,bounds,displayGamma=1,regolith=null) {
     const gamma=Number.isFinite(displayGamma)&&displayGamma>=.25&&displayGamma<=1.5?displayGamma:1;
     const uniforms={surfacePhoto:{value:photo},surfaceMask:{value:mask},surfacePhotoGamma:{value:gamma},surfacePhotoLevel:{value:0},surfacePhotoEnabled:{value:surfaceImageryEnabled?1:0},surfaceEdge:{value:new THREE.Vector2(40/(bounds[2]-bounds[0]),40/(bounds[3]-bounds[1]))}};
-    const material=new THREE.MeshStandardMaterial({color:0x8f8f8d,roughness:1,metalness:0,side:THREE.FrontSide});
+    const material=new THREE.MeshStandardMaterial({color:0x8f8f8f,roughness:1,metalness:0,side:THREE.FrontSide});
     if(regolith){
       material.map=regolith.diffuse;material.normalMap=regolith.normal;material.roughnessMap=regolith.roughness;
-      material.normalScale.set(.5,.5);
+      material.normalScale.set(.35,.35);
       material.userData.regolithMaterial=regolith;
     }
     material.userData.surfaceUniforms=uniforms;
@@ -476,7 +476,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
             #endif`);
       }
     };
-    material.customProgramCacheKey=()=>`lunaris-registered-surface-10-${Boolean(regolith)}`;
+    material.customProgramCacheKey=()=>`lunaris-registered-surface-11-${Boolean(regolith)}`;
     return material;
   }
   function updateSurfaceSource(){
@@ -527,7 +527,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
       const response=await fetch(regolithMaterialUrl,{signal:regolithMaterialAbort.signal});
       if(!response.ok)throw Error(`Representative material: HTTP ${response.status}`);
       const manifest=await response.json(),width=manifest.tileWidthM;
-      if(manifest.schemaVersion!==1||manifest.kind!=='laboratory-regolith-simulant'||manifest.displayOnly!==true||manifest.displacementApplied!==false||!Number.isFinite(width)||width<=0||width>2||!Number.isFinite(manifest.diffuseMeanLinear)||manifest.diffuseMeanLinear<=0)throw Error('Invalid representative material identity or scale.');
+      if(manifest.schemaVersion!==1||manifest.kind!=='laboratory-regolith-simulant'||manifest.displayOnly!==true||manifest.displacementApplied!==false||!Number.isFinite(width)||width<=0||width>10||!Number.isFinite(manifest.diffuseMeanLinear)||manifest.diffuseMeanLinear<=0)throw Error('Invalid representative material identity or scale.');
       const records=manifest.textures[mobileQuality?'mobile':'desktop'];
       const names=['diffuse','normal','roughness'];
       const results=await Promise.allSettled(names.map((name,index)=>verifiedSurfaceTexture(records[name],regolithMaterialAbort.signal,index!==0,regolithMaterialUrl)));
@@ -1098,7 +1098,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
         disclosure:'Historical cloud-free Blue Marble composite. The phase follows the cached Sun direction; the geographic face and weather are not registered to the selected UTC.'},
       displayLighting:{ambientIntensity:floorLight.intensity,enhancedNight,shadowsLocalHalfExtentM:0,castShadowsRendered:false,proceduralMaterialGrain:regolithShading==='lommel-seeliger',proceduralNormalGrain:regolithShading==='lommel-seeliger'&&!mobileQuality&&!surfaceDetailMesh&&!surfaceVisualEntry?.photo,regolithShading,
         lightScope:'Direct display illumination follows confirmed Sun-center visibility. Dim ambient or enhanced fill is artificial; full-disc shadow, Earthshine and photometric brightness are not calculated.',
-        materialNote:surfaceVisualEntry?.material.userData.regolithMaterial?'Close-up color, normal and roughness detail comes from a laboratory lunar-soil simulant at its documented 0.40 m tile width. It is representative material, not measured at this site. No mesh displacement or terrain-cast shadows are added. NASA photographs retain historical lighting.':surfaceVisualEntry?(surfaceImageryEnabled&&surfaceVisualEntry.photo?'Registered LROC historical brightness blends with modeled shading using a documented display-only contrast curve. Fine material color grain is illustrative, not measured relief. The photographs are not calibrated albedo or current-epoch shadows.':surfaceDetailMesh?'NASA shape-from-shading display geometry, modeled reflectance; no procedural local relief.':'NASA LOLA geometry, modeled reflectance.'):'Lommel-Seeliger regolith reflectance with procedural display grain. Grain adds no relief; all slopes and ridges are LOLA data.',
+        materialNote:surfaceVisualEntry?.material.userData.regolithMaterial?'Close-up color, normal and roughness detail comes from a laboratory lunar-soil simulant at its documented 3.1 m tile width. It is representative material, not measured at this site. No mesh displacement or terrain-cast shadows are added. NASA photographs retain historical lighting.':surfaceVisualEntry?(surfaceImageryEnabled&&surfaceVisualEntry.photo?'Registered LROC historical brightness blends with modeled shading using a documented display-only contrast curve. Fine material color grain is illustrative, not measured relief. The photographs are not calibrated albedo or current-epoch shadows.':surfaceDetailMesh?'NASA shape-from-shading display geometry, modeled reflectance; no procedural local relief.':'NASA LOLA geometry, modeled reflectance.'):'Lommel-Seeliger regolith reflectance with procedural display grain. Grain adds no relief; all slopes and ridges are LOLA data.',
         fill:{intensity:displayFill.intensity,direction:displayFill.position.clone().normalize().toArray(),castsShadows:displayFill.castShadow,basis:'Illustrative display fill; actual DEM normals, independent of Sun visibility.'}},
       renderedFrames:renderer.info.render.frame,triangles:renderer.info.render.triangles,
       gpuResources:{geometries:renderer.info.memory.geometries,textures:renderer.info.memory.textures}};

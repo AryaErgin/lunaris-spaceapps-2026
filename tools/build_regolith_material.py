@@ -2,7 +2,7 @@
 
 Install the existing requirements-build.txt dependencies, then run
 ``python tools/build_regolith_material.py --acquire``. Only three pinned sources
-(6.92 MB total) are fetched; no displacement, AO, preview or geometry is used.
+(6.41 MB total) are fetched; no displacement, AO, preview or geometry is used.
 """
 from __future__ import annotations
 
@@ -17,17 +17,17 @@ import numpy as np
 from PIL import Image, __version__ as PILLOW_VERSION
 
 ROOT = Path(__file__).resolve().parents[1]
-ASSET = "moon_macro_01"
+ASSET = "moon_01"
 PAGE = f"https://polyhaven.com/a/{ASSET}"
 LICENSE = "https://polyhaven.com/license"
-TILE_WIDTH_M = .4
+TILE_WIDTH_M = 3.1000001430511475
 SOURCES = {
-    "diffuse": {"filename": "moon_macro_01_diff_1k.jpg", "format": "jpg", "resolution": "1k", "byteLength": 607698,
-                "md5": "83a84a44cff8c7b43b7ca35bcdecde6c", "sha256": "752421a3505eaedf5cf4dfe37ec75c559fd3cefd28aa2e9b48be781a35704068"},
-    "normal": {"filename": "moon_macro_01_nor_gl_1k.png", "format": "png", "resolution": "1k", "byteLength": 5994106,
-               "md5": "d261def688694c890b695bcbf1990a09", "sha256": "91d5210eba6b49006577d0544b74deba8e2924af96d7f1d54ed0edbf05b03f97"},
-    "roughness": {"filename": "moon_macro_01_rough_1k.jpg", "format": "jpg", "resolution": "1k", "byteLength": 316490,
-                  "md5": "9902e278c61635d3c1d1ccb4ebfe6589", "sha256": "10c0ad79f340cd28fdbaa4c92d020a6886072122836d11e8e6ce21b823262b24"},
+    "diffuse": {"filename": "moon_01_diff_1k.jpg", "format": "jpg", "resolution": "1k", "byteLength": 328631,
+                "md5": "edaf25012d783909bfc93946ee0b9628", "sha256": "ebe99635c8babc05620fb532eba8459b9168b5b09f9704e320938c231900ed62"},
+    "normal": {"filename": "moon_01_nor_gl_1k.png", "format": "png", "resolution": "1k", "byteLength": 5972979,
+               "md5": "49ecf9c3c13d541d479c5b690f4a1b04", "sha256": "324f388d6d2ca91535cdd935b9066216ecbe1f3f1bd8cb38d2de0dfbb533e3c4"},
+    "roughness": {"filename": "moon_01_rough_1k.jpg", "format": "jpg", "resolution": "1k", "byteLength": 111333,
+                  "md5": "cd4bda7f80fcd981cf4d2df3cc8e1be3", "sha256": "483d2254502ddfd8a2310ec623418477e8a55e4d150717aef049ab3588506ba6"},
 }
 for source in SOURCES.values():
     source["url"] = f"https://dl.polyhaven.org/file/ph-assets/Textures/{source['format']}/{source['resolution']}/{ASSET}/{source['filename']}"
@@ -151,10 +151,19 @@ def build(raw, output):
                    "apiInfoUrl": f"https://api.polyhaven.com/info/{ASSET}", "apiFilesUrl": f"https://api.polyhaven.com/files/{ASSET}",
                    "authors": {"Dario Barresi": "Processing", "Greg Zaal": "Photography", "Jenelle van Heerden": "Photography", "Rico Cilliers": "Photography"},
                    "captureLab": "Spaceport Rostock, Germany", "captureMaterial": "Laboratory regolith simulant, prepared and photographed on Earth",
-                   "tileWidthM": TILE_WIDTH_M, "tileHeightM": TILE_WIDTH_M, "apiDimensionsMm": [399.9999761581421, 399.9999761581421],
+                   "tileWidthM": TILE_WIDTH_M, "tileHeightM": TILE_WIDTH_M, "apiDimensionsMm": [3100.0001430511475, 3100.0001430511475],
                    "sourcePinsEstablishedUtcDate": "2026-11-15", "sources": SOURCES,
                    "totalSourceBytes": sum(row["byteLength"] for row in SOURCES.values()),
-                   "unusedMaps": ["Displacement", "AO"], "previewRendersIncluded": False}
+                   "unusedMaps": ["Displacement", "AO"], "previewRendersIncluded": False,
+                   "unusedHeightCalibration": {
+                       "applied": False, "basis": "Publisher Blender material; laboratory only, not independent height metrology",
+                       "heightScaleM": .05, "midlevel": .5, "native1kRawMin": 333, "native1kRawMax": 65373,
+                       "native1kPeakToValleyM": .04962233994748724,
+                       "blendUrl": "https://dl.polyhaven.org/file/ph-assets/Textures/blend/1k/moon_01/moon_01_1k.blend",
+                       "blendSha256": "a591765aa95b03ca44ff0b34825626d0fb825f3c1e40fa52d2991628fba0e3b5",
+                       "heightUrl": "https://dl.polyhaven.org/file/ph-assets/Textures/png/1k/moon_01/moon_01_disp_1k.png",
+                       "heightSha256": "95cd1f911c2c879784423f32d915224df903e84dd061f165894fba6335ec9e0a",
+                       "note": "Reference only; acquire fetches just diffuse, OpenGL normal and roughness. No height asset, parallax or geometric displacement is applied."}}
     manifest = {"schemaVersion": 1, "kind": "laboratory-regolith-simulant", "displayOnly": True,
                 "displacementApplied": False, "tileWidthM": TILE_WIDTH_M, "tileHeightM": TILE_WIDTH_M,
                 "diffuseMeanLinear": textures["desktop"]["diffuse"]["meanLinearLuminance"], "textures": textures,
