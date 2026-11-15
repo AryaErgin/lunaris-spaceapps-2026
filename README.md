@@ -1,6 +1,6 @@
 # LUNARIS
 
-**Integration preview:** ten modeled south-pole study points in the cinematic Mission / Compare / Advanced interface. This feature branch has not been merged into `main` or deployed; the live-app link below remains the separately managed public release.
+**LUNARIS:** ten modeled south-pole study points in the cinematic Mission / Compare / Advanced application. The source, scientific bundle and individual terrain meshes are integrated in `main`.
 
 Calculated terrain-aware coverage spans **426 days, from 1 November 2026 through 31 December 2027**, at ten NASA-sourced study points. The original November release remains preserved at `lunaris-stable-20261114` (`0d36904`); its 12-hour landing-delay example remains unchanged.
 
@@ -130,7 +130,7 @@ Historical four-site release checks: **117 Python tests and 137 Node tests passe
 
 Historical four-site local headless Chrome measurements at 1366×768 and 390×840: Intel integrated graphics loaded the textured scene in 1.03–1.11 s; fast full-cache playback measured 62–64 orbital and about 44 surface renderer-counted frames/s. SwiftShader software rendering measured 16–19 frames/s. These are fresh-document, cache-disabled local tests with uncontrolled OS file cache, not Internet-load or physical-phone results. That four-site primary JSON was 7,118,301 bytes (gzip estimate 2,178,787 bytes); packaged scientific data and all four display meshes total about 21.5 MB. Physical mobile performance and uncoached human comprehension remain unverified.
 
-Ten-site cinematic integration checks: **155 Node tests passed; 175 Python tests passed and three native-source checks skipped because the six added raw rasters are absent in this checkout**. The real-data analysis, 17-step onboarding, complete 3D/fallback journey, registry browser and ten-site browser checks passed. The latter checked all ten own mesh hashes, actual globe selections and comparison results at 1366, 1920, 390 and 320 px, plus actual certificate downloads. These are executed browser tests, not uncoached human or physical-phone validation. The public release remains unchanged pending approval.
+Ten-site cinematic integration checks: **155 Node tests passed; 175 Python tests passed and three native-source checks skipped because the six added raw rasters are absent in this checkout**. The real-data analysis, 17-step onboarding, complete 3D/fallback journey, registry browser and ten-site browser checks passed. The latter checked all ten own mesh hashes, actual globe selections and comparison results at 1366, 1920, 390 and 320 px, plus actual certificate downloads. These are executed browser tests, not uncoached human or physical-phone validation. The Pages workflow publishes `main` and stamps the exact application release identity.
 
 The ten-site primary JSON is **17,505,789 bytes**; ten lazy-loaded terrain meshes total **32,957,880 bytes**. Fresh local software-Chrome readiness measured 1.54–1.86 s across those four viewports; observed heaps after the ten-site workflows were approximately 143–162 MB. These local measurements are not Internet-load, hardware-GPU or physical-mobile guarantees.
 
