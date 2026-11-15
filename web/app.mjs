@@ -179,6 +179,7 @@ function syncAssessment(){
   byId('story-uncertainty').hidden=!requirementsEnabled;
   document.querySelector('.story-progress').hidden=!requirementsEnabled||!delayStoryEnabled;
   byId('story-status').hidden=!requirementsEnabled;byId('story-next').hidden=!requirementsEnabled;byId('story-witness').hidden=!requirementsEnabled;
+  byId('find-opportunities').hidden=requirementsEnabled&&!inspectClockArrival&&guidedPhase==='nominal';
   const jump=document.querySelector('.decision-jump');jump.href=requirementsEnabled?'#decision-evidence':'#explain';jump.textContent=requirementsEnabled?'See all mission requirements and proof ↓':'How to read these measurements ↓';
   exportButton.textContent=requirementsEnabled?'↓ Decision certificate':'↓ Environment record';
   byId('results-title').textContent=requirementsEnabled?'Mission decisions':'Environmental evidence';
@@ -1269,7 +1270,7 @@ for(const [id,target] of [['focus-earth','earth'],['focus-sun','sun'],['focus-te
 byId('focus-earth').addEventListener('click',()=>{byId('earth-inset').hidden=true;});
 byId('close-earth-inset').addEventListener('click',()=>{earthReferenceRequested=false;byId('earth-inset').hidden=true;});
 for(const button of document.querySelectorAll('[data-story]'))button.addEventListener('click',()=>showGuidedPhase(button.dataset.story));
-byId('story-next').addEventListener('click',()=>{if(inspectClockArrival){showGuidedPhase('nominal');return;}runRescueAction();});
+byId('story-next').addEventListener('click',()=>{if(inspectClockArrival){showGuidedPhase('nominal');return;}if(guidedPhase==='nominal'){void searchOpportunities();return;}runRescueAction();});
 byId('verified-demo').addEventListener('click',()=>{loadDemo();showGuidedPhase('nominal');enterSurface();});
 byId('site').addEventListener('change', updateSiteDetail);
 byId('reset-demo').addEventListener('click', () => {
@@ -1926,6 +1927,7 @@ function renderLandingAssessment(siteId,time,{pending=false}={}) {
   byId('story-explanation').textContent=view.reason;
   byId('story-witness').textContent='';byId('story-joint').hidden=true;
   byId('story-next').textContent='Show original arrival';
+  byId('find-opportunities').hidden=false;
 }
 
 function updateExperienceFrame(site,sample,mission) {
@@ -2144,8 +2146,7 @@ function renderMissionStory() {
     if(result.search.windowLimited)byId('story-explanation').textContent+=' '+searchQualification(result.search);
   }
   byId('story-witness').textContent=story.witness?`From ${shortTime(story.witness[0])} to ${shortTime(story.witness[1])}.` : '';
-  byId('story-next').textContent=guidedPhase==='nominal'?`Simulate ${inputs.delayHours}-hour delay`:guidedPhase==='delayed'?'Find next confirmed window':'Replay planned landing';
-  if(!delayStoryEnabled)byId('story-next').textContent=`Simulate ${inputs.delayHours}-hour delay (optional)`;
+  byId('story-next').textContent=guidedPhase==='nominal'?'Find landing opportunities':guidedPhase==='delayed'?'Find next confirmed window':'Replay planned landing';
   byId('story-requirements').textContent=`${inputs.durationHours} h mission. At most ${inputs.maxSunHours} h without qualified sunlight and ${inputs.maxEarthHours} h with Earth hidden.${inputs.minJointHours!==null?` At least ${inputs.minJointHours} h with both visible.`:''}${inputs.minContinuousJointHours!==null?` Including one uninterrupted ${inputs.minContinuousJointHours} h window.`:''} These geometric requirements do not establish electrical power, a radio link or landing safety.`;
   renderStoryJoint(story);
   renderDecisionEvidence(mission);
