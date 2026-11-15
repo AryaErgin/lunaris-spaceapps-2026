@@ -90,7 +90,7 @@ Browser checks require Node.js 24 and Chrome/Chromium; set `LUNARIS_CHROME` for 
 
 Set `LUNARIS_REQUIRE_EXTENDED=1` for strict annual unit checks (PowerShell: `$env:LUNARIS_REQUIRE_EXTENDED='1'`). Actual annual tests must not silently pass against a November-only fallback. Raw assets are optional for runtime; raw-dependent Python checks report skips when absent.
 
-To reproduce the extension, acquire the original NASA files with `python -m science.sources --clones`, then the pinned Site 07 with `python -m science.extended_sites --acquire --verify` (480,670,183 bytes total for the eleven scientific inputs). Preserve the four original reference files from the stable tag, without shell text conversion:
+To reproduce the extension, acquire the original NASA files with `python -m science.sources --clones`, then the pinned Site 07 with `python -m science.extended_sites --acquire` (480,670,183 bytes total for the eleven scientific inputs). Acquisition verifies existing/downloaded pins; `--verify` is a separate verification-only command. Preserve the four original reference files from the stable tag, without shell text conversion:
 
 ```sh
 python -c "from pathlib import Path; import subprocess; p=Path('data/reference/stable'); p.mkdir(parents=True,exist_ok=True); [p.joinpath(n).write_bytes(subprocess.check_output(['git','show','lunaris-stable-20261114:web/data/'+n])) for n in ['bundle.json','height-study.json','position-study.json','terrain-study.json']]"
