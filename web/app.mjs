@@ -2115,7 +2115,10 @@ function renderMissionStory() {
     byId('story-joint').hidden=true;byId('configuration-summary').hidden=true;
     byId('story-requirements').textContent='Sun-center visibility: the Sun’s center clears terrain and Earth’s apparent disc. Earth-center line of sight: a geometric direction to Earth’s center. Both at once: joint visibility. Full-disc illumination, electrical power and radio performance are not established.';
     document.querySelector('.story-footer summary').textContent='Visibility definitions';
-    environmentalMeasurements(byId('environment-overview'),mission,{timelines:true});return;
+    environmentalMeasurements(byId('environment-overview'),mission,{timelines:true});
+    // Applying custom requirements must also populate the existing detailed evidence.
+    if(requirementsEnabled)renderDecisionEvidence(mission);
+    return;
   }
   byId('story-durations').hidden=true;
   byId('story-joint').hidden=false;document.querySelector('.story-footer summary').textContent='Illustrative mission requirements';
