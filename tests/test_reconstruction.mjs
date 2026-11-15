@@ -153,14 +153,16 @@ try{
     for(const [channel,state]of [['sun','uncertain'],['earth','visible']]){
       const selector='.hero-lane[data-channel="'+channel+'"] .hero-lane-track';
       await evaluate(`document.querySelector(${JSON.stringify(selector)}).scrollIntoView({behavior:'instant',block:'center'})`);await sleep(90);
-      const point=await evaluate(`(()=>{const n=document.querySelector(${JSON.stringify(selector)}),s=n.querySelector('.hero-lane-strip'),p=s.querySelector('.timeline-${state}'),r=p.getBoundingClientRect(),t=s.getBoundingClientRect();return{x:r.x+r.width/2,y:r.y+r.height/2,fraction:(r.x+r.width/2-t.x)/t.width,clear:n.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2))}})()`);
+      await evaluate(`window.__timelineClickEvidence=[];{const n=document.querySelector(${JSON.stringify(selector)});for(const type of ['pointerdown','mousedown','focus','pointerup','mouseup','click'])n.addEventListener(type,event=>window.__timelineClickEvidence.push({type,detail:event.detail,pointerType:event.pointerType,clientX:event.clientX,clientY:event.clientY,trusted:event.isTrusted,rect:n.getBoundingClientRect().toJSON(),scrollY}),{capture:true,once:true})}`);
+      const point=await evaluate(`(()=>{const n=document.querySelector(${JSON.stringify(selector)}),s=n.querySelector('.hero-lane-strip'),p=s.querySelector('.timeline-${state}'),r=p.getBoundingClientRect(),t=s.getBoundingClientRect();return{x:r.x+r.width/2,y:r.y+r.height/2,fraction:(r.x+r.width/2-t.x)/t.width,strip:t.toJSON(),scrollY,clear:n.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2))}})()`);
       assert(point.clear,'A real pointer must reach the actual colored '+channel+' interval.');
       await command('Input.dispatchMouseEvent',{type:'mousePressed',x:point.x,y:point.y,button:'left',clickCount:1});
+      const afterPress=await evaluate(`({rect:document.querySelector(${JSON.stringify(selector)}).getBoundingClientRect().toJSON(),strip:document.querySelector(${JSON.stringify(selector)}+' .hero-lane-strip').getBoundingClientRect().toJSON(),scrollY})`);
       await command('Input.dispatchMouseEvent',{type:'mouseReleased',x:point.x,y:point.y,button:'left',clickCount:1});
-      const stateNow=await evaluate(`({hero:document.querySelector('#hero-time').value,probe:document.querySelector('#probe-slider').value,time:Number(document.querySelector('#scene-mount').dataset.time),horizon:Number(document.querySelector('#local-sky').dataset.time),inspection:document.querySelector('#hero-${channel}-inspection').textContent,hidden:document.querySelector('#hero-${channel}-inspection').hidden})`);
+      const stateNow=await evaluate(`({hero:document.querySelector('#hero-time').value,probe:document.querySelector('#probe-slider').value,time:Number(document.querySelector('#scene-mount').dataset.time),horizon:Number(document.querySelector('#local-sky').dataset.time),inspection:document.querySelector('#hero-${channel}-inspection').textContent,hidden:document.querySelector('#hero-${channel}-inspection').hidden,events:window.__timelineClickEvidence,scrollY})`);
       assert.equal(stateNow.hero,stateNow.probe);assert.equal(stateNow.time,stateNow.horizon);assert.equal(stateNow.hidden,false);assert.match(stateNow.inspection,/UTC.*View:/);
       const requested=defaultMission.start+point.fraction*(defaultMission.end-defaultMission.start);
-      assert(Math.abs(stateNow.time-requested)<=900.01,'A timeline click must seek the nearest30-minute cached sample.');
+      assert(Math.abs(stateNow.time-requested)<=900.01,'A timeline click must seek the nearest30-minute cached sample: '+JSON.stringify({channel,state,point,afterPress,requested,stateNow}));
       assert(bundle.sites.find(s=>s.id===unchanged.site).geometry.some(row=>row[0]===stateNow.time));
       assert.equal((await inspect()).time,stateNow.time);
       await screenshot('timeline-'+channel+'-'+viewport.name);interactions.push({channel,state,requestedTime:requested,...stateNow});

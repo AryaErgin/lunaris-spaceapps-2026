@@ -1,7 +1,7 @@
 /* LUNARIS interface foundation. Scene composition lives in experience.css. */
 *,*::before,*::after{box-sizing:border-box}
 [hidden]{display:none!important} /* Native hidden must beat component display declarations. */
-html{scroll-behavior:smooth;scroll-padding-top:calc(var(--header-height) + var(--space-4));color-scheme:dark}
+html{scrollbar-gutter:stable;scroll-behavior:smooth;scroll-padding-top:calc(var(--header-height) + var(--space-4));color-scheme:dark}
 body{margin:0;min-width:0;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);line-height:var(--leading-normal)}
 ::selection{background:var(--color-earth);color:var(--color-on-accent)}
 button,input,select,textarea{font:inherit;color:inherit}
