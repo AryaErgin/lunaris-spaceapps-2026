@@ -46,6 +46,7 @@ const stateNames = {
 
 let bundle;
 let landingAssessment;
+let inspectClockArrival=false;
 let inputs;
 let result;
 let selected = 'nominal';
@@ -301,6 +302,7 @@ function selectedMission() {
 }
 
 function selectDecision(value) {
+  inspectClockArrival=false;
   pausePlayback();
   selected = value;
   for (const button of document.querySelectorAll('[data-decision]')) {
@@ -886,6 +888,7 @@ function studyCertificate(record) {
 }
 
 function evaluate() {
+  inspectClockArrival=false;
   if (!form.reportValidity()) {isEdited=true;invalidateExperience();exportButton.disabled=true;return false;}
   try {
     const nextInputs = readInputs();
@@ -1261,12 +1264,12 @@ byId('hero-speed').addEventListener('change',()=>{
   byId('sky-speed').value=byId('hero-speed').value;
   if(playing){pausePlayback();startPlayback();}
 });
-byId('hero-time').addEventListener('input',()=>{pausePlayback();byId('probe-slider').value=byId('hero-time').value;updateProbe();});
+byId('hero-time').addEventListener('input',()=>{pausePlayback();inspectClockArrival=true;byId('probe-slider').value=byId('hero-time').value;updateProbe();});
 for(const [id,target] of [['focus-earth','earth'],['focus-sun','sun'],['focus-terrain','site']])byId(id).addEventListener('click',()=>sceneController?.focus(target));
 byId('focus-earth').addEventListener('click',()=>{byId('earth-inset').hidden=true;});
 byId('close-earth-inset').addEventListener('click',()=>{earthReferenceRequested=false;byId('earth-inset').hidden=true;});
 for(const button of document.querySelectorAll('[data-story]'))button.addEventListener('click',()=>showGuidedPhase(button.dataset.story));
-byId('story-next').addEventListener('click',runRescueAction);
+byId('story-next').addEventListener('click',()=>{if(inspectClockArrival){showGuidedPhase('nominal');return;}runRescueAction();});
 byId('verified-demo').addEventListener('click',()=>{loadDemo();showGuidedPhase('nominal');enterSurface();});
 byId('site').addEventListener('change', updateSiteDetail);
 byId('reset-demo').addEventListener('click', () => {
@@ -1276,7 +1279,7 @@ byId('reset-demo').addEventListener('click', () => {
 });
 byId('view-sun').addEventListener('click', () => chooseTarget('sun'));
 byId('view-earth').addEventListener('click', () => chooseTarget('earth'));
-byId('probe-slider').addEventListener('input', () => {pausePlayback();updateProbe();});
+byId('probe-slider').addEventListener('input', () => {pausePlayback();inspectClockArrival=true;updateProbe();});
 byId('sky-play').addEventListener('click',startPlayback);
 byId('sky-pause').addEventListener('click',() => pausePlayback());
 byId('sky-reset').addEventListener('click',() => {pausePlayback('Reset to the first cached sample in this domain.');byId('probe-slider').value=0;updateProbe();});
@@ -1525,6 +1528,7 @@ function pausePlayback(message) {
 
 function startPlayback() {
   if(!chart || isEdited || chart.samples.length<2) return;
+  inspectClockArrival=true;
   pausePlayback();
   const slider=byId('probe-slider');
   if(Number(slider.value)>=chart.samples.length-1) slider.value=0;
@@ -1550,7 +1554,7 @@ function jumpPlayback() {
   if(index===null) {
     byId('playback-status').textContent='This UTC time is outside the selected cached domain. No extrapolated positions are available.';return;
   }
-  byId('probe-slider').value=index;updateProbe();
+  inspectClockArrival=true;byId('probe-slider').value=index;updateProbe();
   byId('playback-status').textContent=`Jumped to nearest actual cached sample: ${formatTime(currentTime)}. Ties choose the earlier sample; geometry cadence is 30 minutes.`;
 }
 
@@ -1908,20 +1912,20 @@ async function enterSurface() {
 }
 
 function renderLandingAssessment(siteId,time,{pending=false}={}) {
-  const root=byId('hero-landing-verdict');
-  if(!root||!inputs)return;
+  if(!inputs||!requirementsEnabled||!inspectClockArrival)return;
   pending ||= isEdited;
-  const view=!requirementsEnabled?{status:null,reason:'Requirements not applied'}
-    :pending?{status:'INDETERMINATE',reason:'Inputs changed. Apply your changes to refresh this assessment.'}
+  const view=pending?{status:'INDETERMINATE',reason:'Apply your changes to refresh this result.'}
       :landingAssessment.assess(inputs,siteId,time,{requirementsApplied:true});
-  Object.assign(root.dataset,{status:view.status??'NOT_APPLIED',start:Number.isFinite(time)?String(time):'',site:siteId??''});
-  root.replaceChildren(element('span','hero-landing-verdict-label','If landing now:'));
-  if(view.status)root.append(statusChip(view.status));
-  else root.append(element('strong','','Requirements not applied'));
-  root.append(element('span','hero-landing-verdict-detail',view.status
-    ?`${shortTime(time)} · ${inputs.durationHours} h. ${view.reason}`
-    :'The view clock explores the sky. Apply mission requirements to assess a landing at this time.'));
-  if(view.status)root.append(element('span','hero-landing-verdict-scope',`${requirementsSource==='custom'?'Your requirements':'Illustrative requirements'}. Selected arrival stays unchanged.`));
+  const root=byId('mission-story');
+  Object.assign(root.dataset,{presentation:'hypothetical',displayStart:String(time),displayStatus:view.status});
+  byId('story-title').textContent='If landing now';
+  byId('story-date').textContent=`${shortTime(time)} · ${inputs.durationHours} h · ${requirementsSource==='custom'?'your requirements':'illustrative requirements'}`;
+  const status=byId('story-status');status.hidden=false;if(status.textContent!==view.status)status.textContent=view.status;
+  status.setAttribute('aria-label','Hypothetical landing result at the view clock');
+  status.className=`status status-${{PASS:'pass',FAIL:'fail',INDETERMINATE:'indeterminate'}[view.status]}`;
+  byId('story-explanation').textContent=view.reason;
+  byId('story-witness').textContent='';byId('story-joint').hidden=true;
+  byId('story-next').textContent='Show original arrival';
 }
 
 function updateExperienceFrame(site,sample,mission) {
@@ -2073,6 +2077,7 @@ function invalidateExperience() {
 
 function showGuidedPhase(phase) {
   if(isEdited)return;
+  inspectClockArrival=false;
   configurationsRequested=phase==='recommended';
   byId('time-scope').value='mission';
   guidedPhase=phase;
@@ -2082,6 +2087,8 @@ function showGuidedPhase(phase) {
 
 function renderMissionStory() {
   if(!result||isEdited)return;
+  byId('story-status').setAttribute('aria-label','Selected arrival result');
+  Object.assign(byId('mission-story').dataset,{presentation:'selected',displayStart:String(selectedMission().start),displayStatus:selectedMission().status});
   syncAssessment();
   if(!requirementsEnabled){
     const mission=selectedMission();
@@ -2113,7 +2120,8 @@ function renderMissionStory() {
   byId('mission-story').dataset.status=story.status;
   for(const button of document.querySelectorAll('[data-story]')){button.setAttribute('aria-pressed',String(button.dataset.story===guidedPhase));button.dataset.status=result[button.dataset.story]?.status??'NONE';}
   byId('story-title').textContent=story.heading;
-  if(!delayStoryEnabled)byId('story-title').textContent='Arrival assessment';
+  if(guidedPhase==='recommended'&&result.recommended)byId('story-title').textContent='Recovered arrival';
+  if(!delayStoryEnabled)byId('story-title').textContent='Original arrival';
   byId('story-explanation').textContent=story.message;
   const mission=selectedMission();
   if(mission.status==='PASS'){
