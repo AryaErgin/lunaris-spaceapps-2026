@@ -12,7 +12,7 @@ export const GUIDE_STEPS=Object.freeze([
   {id:'visibility',title:'How long are both visible?',description:'The main result summarizes confirmed Sun and Earth time together. Open the durations to inspect each body, outages and unresolved bounds. Next opens these details.',workspace:'explore',selectors:['#environment-overview','#story-title']},
   {id:'requirements',title:'A result needs your rules',description:'Optional requirements compare those durations with your chosen limits. PASS proves only these geometric rules, not power, a working radio link or landing safety.',workspace:'explore',selectors:['#apply-requirements','#mission-requirements-editor']},
   {id:'demo-consent',title:'Try a real landing delay?',description:'With your permission, load the 12-hour de Gerlache example and its illustrative requirements. This replaces the current plan; you can restore it afterward.',workspace:'explore',selectors:['#start-delay-demo']},
-  {id:'nominal',title:'Original arrival: confirmed PASS',description:'Read the calculated result and four requirements. Next performs the real 72-hour delay while keeping the same site, duration and limits.',workspace:'explore',selectors:['#story-next','#story-status']},
+  {id:'nominal',title:'Original arrival: confirmed PASS',description:'Read the calculated result and four requirements. Next performs the real 72-hour delay while keeping the same site, duration and limits.',workspace:'explore',selectors:['#story-delayed','#story-status']},
   {id:'delay',title:'72 hours later: sunlight lost',description:'Terrain blocks the Sun for 12 hours, exceeding the 7-hour limit by 5 hours. Next searches later starts at this same site without changing the rules.',workspace:'explore',selectors:['#story-next','#story-witness']},
   {id:'recovery',title:'A later window, with a cost',description:'Inspect the recovered date, waiting cost and proof below. It is the earliest confirmed hourly start; earlier uncertain starts are not proven failures.',workspace:'explore',selectors:['#story-joint','#recovery-choice']},
   {id:'compare',title:'Compare independent options',description:'Each card has its own site and arrival; duration and requirements are shared. Compare confirmed overlap, then View this option to explore that plan.',workspace:'compare',selectors:['#comparison-site-A','#comparison-arrival-A','#comparison-site-B','#comparison-arrival-B']},
@@ -155,7 +155,7 @@ export function initQuickTour(doc=document){
         const from=id==='nominal'?'nominal':'delayed',target=id==='nominal'?'delayed':'recommended';
         const targetButton='story-'+(target==='recommended'?'recovered':target);
         // Inspect the intended stage before advancing, using the existing evaluated result.
-        if($(targetButton)?.getAttribute('aria-pressed')!=='true'){click('story-'+from);click('story-next');}
+        if($(targetButton)?.getAttribute('aria-pressed')!=='true'){click('story-'+from);click(id==='nominal'?'story-delayed':'story-next');}
         if(!await until(()=>$(targetButton)?.getAttribute('aria-pressed')==='true'&&$('rescue-transition')?.hidden))throw Error('This calculation is not ready. Retry, or Skip to keep using the application.');
       }else if(id==='opportunities'){
         click('find-opportunities');
