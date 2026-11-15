@@ -1,35 +1,32 @@
 WEBVTT
 
-00:00.000 --> 00:03.600
+00:00.000 --> 00:03.000
+Lunar landing depends on WHERE and WHEN.
+
+00:03.000 --> 00:07.000
+10 terrain-modeled study sites.
+Choose your mission.
+
+00:07.000 --> 00:12.000
+NASA LOLA terrain + JPL ephemerides.
+
+00:12.000 --> 00:15.000
+Compare landing sites and dates.
+
+00:15.000 --> 00:18.000
+Set mission-specific constraints.
+
+00:18.000 --> 00:21.000
+Original arrival — PASS
+
+00:21.000 --> 00:24.000
+72-hour delay — FAIL
+12 h Sun outage. Your limit: 7 h.
+
+00:24.000 --> 00:27.000
+Alternative arrival — PASS
+17 Nov 03:00 UTC · Same limits.
+
+00:27.000 --> 00:29.000
 LUNARIS
-Find a lunar landing window.
-
-00:03.600 --> 00:07.200
-10 south-pole study points.
-Choose site, arrival and duration.
-
-00:07.200 --> 00:10.800
-NASA terrain.
-Modeled Sun and Earth visibility.
-
-00:10.800 --> 00:15.600
-Original arrival: PASS
-At least 7 h 53 min with Sun + Earth.
-
-00:15.600 --> 00:17.000
-Simulate a 72-hour delay.
-
-00:17.000 --> 00:21.000
-Delayed arrival: FAIL
-12 h Sun outage: 5 h over the limit.
-
-00:21.000 --> 00:22.200
-Find the next window.
-
-00:22.200 --> 00:26.400
-Recovered arrival: PASS
-17 Nov 03:00 UTC · Same limits · Wait: 12 d 21 h.
-
-00:26.400 --> 00:28.800
-LUNARIS
-Explain the change. Find the next window.
+Explore. Evaluate. Replan.

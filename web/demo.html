@@ -3,20 +3,20 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>LUNARIS · 28.8-second mission demonstration</title>
+  <title>LUNARIS · 29-second mission demonstration</title>
   <link rel="stylesheet" href="./tokens.css">
   <style>body{margin:0;background:var(--color-bg);color:var(--color-text);font:var(--weight-regular) 17px/1.6 var(--font-body)}main{max-width:1100px;margin:0 auto;padding:28px 20px}h1{font:var(--weight-semibold) clamp(25px,4vw,40px)/1.2 var(--font-display);letter-spacing:var(--tracking-tight)}a{color:var(--color-link)}a:focus-visible,video:focus-visible{outline:3px solid var(--color-focus);outline-offset:4px}video{display:block;width:100%;height:auto;background:var(--color-black);border:1px solid var(--color-border)}p{max-width:85ch}.note{font-size:var(--text-sm);color:var(--color-text-secondary)}</style>
 </head>
 <body><main>
   <a href="./">Open the live application →</a>
-  <h1>What if your lunar landing is late?</h1>
+  <h1>Lunar landing depends on where and when.</h1>
   <video controls playsinline preload="metadata" poster="./assets/moon-poster.jpg" aria-describedby="demo-description">
-    <source src="./assets/lunaris-demo.mp4?v=20261115-newdemo" type="video/mp4">
-    <track kind="captions" src="./assets/lunaris-demo.vtt?v=20261115-newdemo" srclang="en" label="English">
+    <source src="./assets/lunaris-demo.mp4?v=20261115-fulljourney" type="video/mp4">
+    <track kind="captions" src="./assets/lunaris-demo.vtt?v=20261115-fulljourney" srclang="en" label="English">
     <p><a href="./assets/lunaris-demo.mp4">Download the captioned demonstration.</a></p>
   </video>
-  <p id="demo-description">28.8 seconds from the actual deployed application: explore ten lunar south-pole study points, then follow a 12-hour de Gerlache Rim 1 mission from original PASS through a 72-hour delay and sunlight-rule FAIL to recovery PASS. The next confirmed hourly start is 17 Nov 2026, 03:00 UTC, a 12-day-21-hour wait after the delayed arrival. All four illustrative requirements stay unchanged.</p>
-  <p class="note">Recorded from <a href="https://github.com/AryaErgin/lunaris-spaceapps-2026/commit/7b4ab3f5fc61052fb3f12f55b28369369ac9333e">application release 7b4ab3f</a>. Actual screen capture with cuts, captions and encoding; no generated footage or voice. Mission results are deterministic. A later surface window does not establish trajectory reachability, electrical power, radio performance or landing safety.</p>
+  <p id="demo-description">29 seconds from the actual deployed application: choose among ten terrain-modeled south-pole study points, explore Sun and Earth geometry, compare sites and dates, and edit mission constraints. The de Gerlache Rim 1 example then shows original PASS, a 72-hour delay and FAIL, and an alternative PASS on 17 Nov 2026 at 03:00 UTC. Its 12-hour duration and four illustrative limits stay unchanged; the wait after the delayed arrival is 12 days 21 hours.</p>
+  <p class="note">Recorded application source: <a href="https://github.com/AryaErgin/lunaris-spaceapps-2026/commit/7b4ab3f5fc61052fb3f12f55b28369369ac9333e">release 7b4ab3f</a>, unchanged in the <a href="https://github.com/AryaErgin/lunaris-spaceapps-2026/commit/4cd4b84f6e1d8b495431fb23770dd77f27ad2bfd">media-only release 4cd4b84</a>. Actual screen capture with cuts, captions and encoding; no generated footage or voice. Mission results are deterministic. A later surface window does not establish trajectory reachability, electrical power, radio performance or landing safety.</p>
   <p class="note">Human teammates: Arya Ergin and Aras. AI-assisted research, code, tests, interface and writing: OpenAI Codex and Anthropic Claude. <a href="./attribution.json">Contribution metadata</a> · <a href="./assets/lunaris-demo.json">Recording provenance</a> · <a href="https://github.com/AryaErgin/lunaris-spaceapps-2026">Source code</a>.</p>
   <p class="note">NASA sources: <a href="https://pgda.gsfc.nasa.gov/products/78">LRO/LOLA terrain</a>, <a href="https://pgda.gsfc.nasa.gov/products/104">shape-from-shading display terrain</a>, <a href="https://data.lroc.im-ldi.com/lroc/view_rdr/NAC_POLE_SOUTH_CM_AVG">LROC surface photographs</a>, <a href="https://naif.jpl.nasa.gov/naif/">JPL NAIF SPICE</a>, <a href="https://ssd.jpl.nasa.gov/horizons/">Horizons direction checks</a>, <a href="https://svs.gsfc.nasa.gov/4720/">Goddard/SVS CGI Moon Kit</a> and <a href="https://svs.gsfc.nasa.gov/2915/">Blue Marble</a>. Credits include Ernie Wright, LRO/LROC/LOLA teams, Reto Stöckli and NASA Earth Observatory. Publisher terms apply; no NASA endorsement is implied.</p>
   <p class="note">Representative close-up material: <a href="https://polyhaven.com/collections/moon">Poly Haven / Spaceport Rostock laboratory lunar-soil simulant</a>, <a href="https://polyhaven.com/license">CC0</a>; Dario Barresi, Greg Zaal, Jenelle van Heerden and Rico Cilliers. This material detail is illustrative, not measured at the selected lunar site. Surface photographs retain historical lighting.</p>

@@ -212,7 +212,7 @@ try{
   await command('Page.navigate',{url:new URL('demo.html',url).href});
   await until(()=>evaluate("document.querySelector('video')?.readyState>=1"));
   video=await evaluate("(()=>{const v=document.querySelector('video');return {duration:v.duration,width:v.videoWidth,height:v.videoHeight}})()");
-  assert.equal(video.duration,28.8);assert(video.duration<30,'Submission video must stay under 30 seconds');assert.deepEqual([video.width,video.height],[1920,1080]);
+  assert.equal(video.duration,29);assert(video.duration<30,'Submission video must stay under 30 seconds');assert.deepEqual([video.width,video.height],[1920,1080]);
   await evaluate("document.querySelector('video').play()",true);
   await until(()=>evaluate("document.querySelector('video').currentTime>0.15"));
   await evaluate("document.querySelector('video').pause();document.querySelector('video').currentTime=27");

@@ -1,17 +1,17 @@
 {
   "title": "LUNARIS actual deployed-app demonstration",
-  "recorded_application_release_sha": "7b4ab3f5fc61052fb3f12f55b28369369ac9333e",
+  "recorded_application_release_sha": "4cd4b84f6e1d8b495431fb23770dd77f27ad2bfd",
   "recorded_url": "https://aryaergin.github.io/lunaris-spaceapps-2026/",
   "recorded_utc_date": "2026-11-15",
-  "duration_seconds": 28.8,
+  "duration_seconds": 29,
   "width": 1920,
   "height": 1080,
-  "frames": 864,
+  "frames": 870,
   "fps": 30,
-  "bytes": 2107272,
-  "sha256": "7cf5f909e57750bd70c52822168f34a9747f034c0ed9114a72e5029beb007249",
+  "bytes": 2241855,
+  "sha256": "393e9736b9214fe78b907854e31270665685270aa13aeb68159afbd18c56b61c",
   "scientific_bundle_file_sha256": "c5b4c18fba7052cd628d6b5af26ec255f2df4597b489c38b994a76809d80c7aa",
-  "method": "Actual anonymous Chrome recording of the deployed application: real ten-site selection, planning controls, Sun/Earth views and original/delayed/recovered decisions. Editorial crops, cuts, short still-frame holds and readable captions; 30 fps H.264 encoding. No generated imagery, voice or invented application behavior.",
+  "method": "Actual anonymous Chrome recordings of the deployed application. Editorial crops, cuts and close-ups show the Moon, ten-site selector, UTC/duration controls, Sun/Earth surface geometry, real playback, a confirmed terrain-blocked state, de Gerlache versus Shackleton comparison, editable mission requirements, and the original/delayed/recovered decisions. No generated footage, voice, invented calculations or altered application behavior.",
   "ai_assistance": "AI-assisted development and caption writing. Deterministic application decisions; no runtime AI.",
   "human_teammates": [
     "Arya Ergin",
@@ -23,5 +23,57 @@
   "pixel_format": "yuv420p",
   "audio": "none",
   "coverage": "10 terrain-aware study points; 426-day scientific bundle; nine additional geometry-only context locations.",
-  "encoding_tools": "FFmpeg 9.0.2 libx264; actual duration and stream dimensions verified using ffprobe."
+  "encoding_tools": "FFmpeg 9.0.2 libx264; actual duration and stream dimensions verified using ffprobe.",
+  "recorded_application_releases": [
+    "7b4ab3f5fc61052fb3f12f55b28369369ac9333e",
+    "4cd4b84f6e1d8b495431fb23770dd77f27ad2bfd"
+  ],
+  "source_consistency": "Application, renderer, engine and scientific bundle are identical between recorded releases; 4cd4b84 changes only the previous video/player/captions/provenance and media test expectation.",
+  "chapters": [
+    {
+      "start": 0,
+      "end": 3,
+      "scene": "Moon and Polar Vector branding"
+    },
+    {
+      "start": 3,
+      "end": 7,
+      "scene": "Ten terrain-modeled sites and mission controls"
+    },
+    {
+      "start": 7,
+      "end": 12,
+      "scene": "Sun/Earth geometry, playback and terrain obstruction"
+    },
+    {
+      "start": 12,
+      "end": 15,
+      "scene": "Independent de Gerlache/Shackleton comparison"
+    },
+    {
+      "start": 15,
+      "end": 18,
+      "scene": "Editable 7/2/6/2-hour illustrative requirements"
+    },
+    {
+      "start": 18,
+      "end": 21,
+      "scene": "November 1 original PASS"
+    },
+    {
+      "start": 21,
+      "end": 24,
+      "scene": "72-hour delay FAIL: 12-hour Sun outage exceeds 7-hour limit"
+    },
+    {
+      "start": 24,
+      "end": 27,
+      "scene": "November 17 03:00 UTC recovery PASS, unchanged limits"
+    },
+    {
+      "start": 27,
+      "end": 29,
+      "scene": "Explore. Evaluate. Replan."
+    }
+  ]
 }
