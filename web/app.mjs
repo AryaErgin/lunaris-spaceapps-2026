@@ -11,6 +11,7 @@ import {visibilityConclusion,comparisonConclusion,opportunityConclusion,conciseD
 import {coverageLabel,coverageTicks,utcMonthWindow,searchQualification,isCachedTime} from './coverage.mjs';
 import {automaticSearchOptions} from './search-scope.mjs';
 import {opportunityRange,opportunityPage,opportunityRequestInputs} from './opportunity-view.mjs';
+import {createLandingAssessmentCache} from './landing-assessment.mjs';
 
 import {NOTABLE_SITES,referenceDirections,skyAt,elevationSeries,nextLevelCrossing,levelSummary,validCoordinate} from './anysite.mjs';
 
@@ -44,6 +45,7 @@ const stateNames = {
 };
 
 let bundle;
+let landingAssessment;
 let inputs;
 let result;
 let selected = 'nominal';
@@ -665,6 +667,7 @@ function renderPlot(mission) {
   const [azimuth, elevation, horizon] = target === 'sun' ? [1, 2, 3] : [4, 5, 6];
   byId('plot-subtitle').textContent = `${site?.name ?? mission.siteId} · ${shortTime(mission.start)} to ${shortTime(mission.end)}`;
   if (samples.length === 0) {
+    renderLandingAssessment(mission.siteId,mission.start);
     pausePlayback();
     plot.append(element('p', 'plot-empty', 'This mission does not contain enough cached geometry samples for a curve. Inspect the computed intervals below.'));
     byId('live-telemetry').replaceChildren(element('p','secondary','No sampled geometry inside this mission and cache intersection. Interval-based mission evidence remains below.'));
@@ -1205,7 +1208,12 @@ for(const link of document.querySelectorAll('.main-nav a'))link.addEventListener
   if(link.getAttribute('href')!=='#experience')setExpert(true);
 });
 byId('scene-fallback').addEventListener('click',()=>{setExpert(true);byId('console').scrollIntoView({block:'start'});});
-byId('explore-site').addEventListener('click',enterSurface);
+byId('explore-site').addEventListener('click',()=>{pausePlayback();byId('delay-demo-confirm').showModal();});
+byId('delay-demo-load').addEventListener('click',()=>{
+  byId('delay-demo-confirm').close('load');
+  loadDemo();setProductMode('explore');showGuidedPhase('nominal');
+  scrollTo({top:0,behavior:'instant'});byId('story-next').focus({preventScroll:true});
+});
 byId('mode-surface').addEventListener('click',enterSurface);
 byId('night-visibility').addEventListener('click',()=>{
   const enabled=byId('night-visibility').getAttribute('aria-pressed')!=='true';
@@ -1241,7 +1249,6 @@ function showOtherSites(){
 }
 byId('more-sites').addEventListener('click',showOtherSites);
 byId('compare-more-sites').addEventListener('click',showOtherSites);
-byId('delay-shortcut').addEventListener('click',()=>{byId('start-delay-demo').click();scrollTo({top:0,behavior:'instant'});byId('story-next').focus({preventScroll:true});});
 byId('hero-speed').addEventListener('change',()=>{
   byId('sky-speed').value=byId('hero-speed').value;
   if(playing){pausePlayback();startPlayback();}
@@ -1290,6 +1297,7 @@ async function initialize() {
     const response = await fetch('./data/bundle.json');
     if (!response.ok) throw new Error(`Offline bundle request returned HTTP ${response.status}.`);
     bundle = await response.json();
+    landingAssessment=createLandingAssessmentCache(bundle);
     if (!bundle.sites?.length || bundle.coverage?.length !== 2 || !bundle.coverage.every(Number.isFinite)) {
       throw new Error('The offline bundle is incomplete.');
     }
@@ -1806,8 +1814,8 @@ function setExperienceMode(mode) {
   byId('mission-story').hidden=false;
   byId('night-visibility').hidden=mode!=='surface'||sceneDisabled;
   updateSceneCaption();
-  byId('explore-site').textContent='Explore surface';
-  byId('explore-site').setAttribute('aria-label','Explore the modeled lunar surface');
+  byId('explore-site').textContent='Try a 72-hour delay';
+  byId('explore-site').setAttribute('aria-label','Load the illustrative 72-hour landing-delay example, with your permission');
   if(sceneController&&!sceneDisabled)byId('scene-status').textContent=mode==='orbital'?'Drag to orbit · Scroll or pinch to zoom':'Drag to look · Scroll or pinch to zoom';
 }
 
@@ -1877,7 +1885,7 @@ async function enterSurface() {
   pausePlayback();
   if(isEdited){byId('scene-status').textContent='Evaluate the updated inputs in Expert mode before entering the surface scene.';setExpert(true);return;}
   const intent=++sceneIntent;requestedExperienceMode='surface';
-  byId('explore-site').disabled=true;
+  byId('mode-surface').disabled=true;
   try {
     if(!sceneController && sceneLoading)sceneController=await sceneLoading;
     if(intent!==sceneIntent||requestedExperienceMode!=='surface'||isEdited)return;
@@ -1888,10 +1896,28 @@ async function enterSurface() {
     if(latestSceneFrame)sceneController.setFrame(latestSceneFrame);
     byId('experience').scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
   } catch(error){setSceneStatus({kind:'error',message:error.message});}
-  finally{byId('explore-site').disabled=false;}
+  finally{byId('mode-surface').disabled=false;}
+}
+
+function renderLandingAssessment(siteId,time,{pending=false}={}) {
+  const root=byId('hero-landing-verdict');
+  if(!root||!inputs)return;
+  pending ||= isEdited;
+  const view=!requirementsEnabled?{status:null,reason:'Requirements not applied'}
+    :pending?{status:'INDETERMINATE',reason:'Inputs changed. Apply your changes to refresh this assessment.'}
+      :landingAssessment.assess(inputs,siteId,time,{requirementsApplied:true});
+  Object.assign(root.dataset,{status:view.status??'NOT_APPLIED',start:Number.isFinite(time)?String(time):'',site:siteId??''});
+  root.replaceChildren(element('span','hero-landing-verdict-label','If landing at this time:'));
+  if(view.status)root.append(statusChip(view.status));
+  else root.append(element('strong','','Requirements not applied'));
+  root.append(element('span','hero-landing-verdict-detail',view.status
+    ?`${shortTime(time)} · ${inputs.durationHours} h. ${view.reason}`
+    :'The view clock explores the sky. Apply mission requirements to assess a landing at this time.'));
+  if(view.status)root.append(element('span','hero-landing-verdict-scope',`${requirementsSource==='custom'?'Your requirements':'Illustrative requirements'}. Selected arrival stays unchanged.`));
 }
 
 function updateExperienceFrame(site,sample,mission) {
+  renderLandingAssessment(site.id,sample[0]);
   latestSceneFrame=sceneFrame(site,sample,bundle.coverage);
   if(isEdited)latestSceneFrame.states={sun:'unknown',earth:'unknown'};
   if(visualSiteId!==site.id) {
@@ -2017,6 +2043,7 @@ function updateExperienceFrame(site,sample,mission) {
 }
 
 function invalidateExperience() {
+  renderLandingAssessment(inputs?.siteId,currentTime,{pending:true});
   clearOpportunities();
   ++rescueAnimation;
   cancelSceneEntry();
@@ -2087,7 +2114,7 @@ function renderMissionStory() {
   }
   if(mission.start<bundle.coverage[0]||mission.end>bundle.coverage[1])byId('story-explanation').textContent='The full mission extends outside the displayed cached coverage. Complete visibility is not known; choose a covered arrival or duration.';
   else if(mission.startAllowed===false)byId('story-explanation').textContent='This arrival is outside your allowed start schedule. Scheduling exclusion is separate from the environmental results below.';
-  byId('story-date').textContent=story.start!==undefined?`${shortTime(story.start)} · ${inputs.durationHours} h mission`:'No confirmed start inside the search range';
+  byId('story-date').textContent=story.start!==undefined?`${shortTime(story.start)} · ${inputs.durationHours} h · ${requirementsSource==='custom'?'your requirements':'illustrative requirements'}`:'No confirmed start inside the search range';
   const status=byId('story-status');status.textContent=story.status;status.className=`status status-${{PASS:'pass',FAIL:'fail',INDETERMINATE:'indeterminate'}[story.status]??'unavailable'}`;
   if(guidedPhase==='recommended'&&!result.recommended){
     const noData=result.search.from>bundle.coverage[1]-inputs.durationHours*3600||result.search.to<bundle.coverage[0];

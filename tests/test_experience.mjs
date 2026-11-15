@@ -346,7 +346,7 @@ try{
   await until(async()=>JSON.stringify((await inspect()).camera.position)!==JSON.stringify(initialCamera));
   await evaluate("document.querySelector('#reset-orbit').click()");
   await until(async()=>{const camera=(await inspect()).camera;return camera.position.every((v,i)=>Math.abs(v-camera.overviewPosition[i])<1e-5);});
-  await evaluate("document.querySelector('#explore-site').click()");await sleep(30);
+  await evaluate("document.querySelector('#mode-surface').click()");await sleep(30);
   await evaluate("document.querySelector('#scene-mount canvas').focus()");
   await command('Input.dispatchKeyEvent',{type:'keyDown',key:'+',code:'Equal',windowsVirtualKeyCode:187});
   await command('Input.dispatchKeyEvent',{type:'keyUp',key:'+',code:'Equal',windowsVirtualKeyCode:187});
