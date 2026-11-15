@@ -28,6 +28,7 @@
 .mission-terrain-marker::after{content:"";position:absolute;left:50%;top:50%;width:4px;height:4px;border-radius:50%;background:currentColor;transform:translate(-50%,-50%)}
 .mission-terrain-marker:hover,.mission-terrain-marker:focus-visible{background:var(--color-sun-surface)}
 .mission-terrain-cluster{position:absolute;z-index:4;transform:translate(-100%,-50%);color:var(--color-sun)}
+.mission-terrain-cluster[open]{z-index:10}
 .mission-terrain-leader{position:absolute;z-index:3;pointer-events:none;border-top:1px solid var(--color-sun);transform-origin:left center}
 .mission-terrain-cluster>summary{display:flex;align-items:center;gap:var(--space-2);min-height:44px;padding:var(--space-2) var(--space-3);border:1px solid var(--color-sun-border);border-radius:var(--radius-pill);background:var(--surface-overlay);font:500 var(--text-sm)/var(--leading-snug) var(--font-body);color:var(--color-sun);white-space:nowrap;list-style:none}
 .mission-terrain-cluster>summary::-webkit-details-marker{display:none}

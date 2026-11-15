@@ -82,7 +82,7 @@ try{
     const ids=['visual-site','visual-arrival','visual-duration','story-title','find-opportunities','explore-site','mode-orbital','mode-surface','night-visibility','focus-earth','focus-sun','focus-terrain','scene-coordinate-caption','marker-legend','story-nominal','story-delayed','story-recovered','hero-play','hero-pause','hero-reset','hero-time','scene-mount','mission-story','scene-transport','story-next'];
     const boxes=Object.fromEntries(ids.map(id=>{const n=id==='marker-legend'?document.querySelector('.mission-marker-legend'):document.getElementById(id);if(!n)return[id,null];const r=n.getBoundingClientRect(),s=getComputedStyle(n),points=[[r.x+r.width/2,r.y+r.height/2],[r.x+r.width/2,r.y+4],[r.x+r.width/2,r.bottom-4],[r.x+4,r.y+r.height/2],[r.right-4,r.y+r.height/2]];return[id,{x:r.x,y:r.y,width:r.width,height:r.height,right:r.right,bottom:r.bottom,visible:!!n.getClientRects().length&&s.visibility!=='hidden',disabled:n.disabled??false,hit:r.width>0&&r.height>0&&n.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2)),hitExtent:points.every(([x,y])=>n.contains(document.elementFromPoint(x,y))),font:s.fontFamily,fontSize:s.fontSize}]}));
     const visibleButtons=[...document.querySelectorAll('#experience button,.main-nav button,#tour-start')].filter(n=>{const r=n.getBoundingClientRect();return n.getClientRects().length&&r.top>=0&&r.bottom<=innerHeight&&getComputedStyle(n).visibility!=='hidden'}).map(n=>{const r=n.getBoundingClientRect();return{id:n.id,text:n.textContent.trim(),width:r.width,height:r.height}});
-    return{width:innerWidth,height:innerHeight,missionUiScale:Number(getComputedStyle(document.documentElement).getPropertyValue('--mission-ui-scale'))||1,scrollWidth:document.documentElement.scrollWidth,scrollHeight:document.documentElement.scrollHeight,scrollY,boxes,visibleButtons};
+    return{width:innerWidth,clientWidth:document.documentElement.clientWidth,height:innerHeight,missionUiScale:Number(getComputedStyle(document.documentElement).getPropertyValue('--mission-ui-scale'))||1,scrollWidth:document.documentElement.scrollWidth,scrollHeight:document.documentElement.scrollHeight,scrollY,boxes,visibleButtons};
   })()`);
   const click=async selector=>{
     await evaluate(`document.querySelector(${JSON.stringify(selector)}).scrollIntoView({behavior:'instant',block:'center'})`);await sleep(90);
@@ -203,7 +203,7 @@ try{
     evidence.viewports.at(-1).sceneFrame=await inspect();
     await screenshot('mission-'+viewport.name);
     if(['desktop','mobile'].includes(viewport.name))await screenshot('mission-'+viewport.name+'-full',true);
-    gate(layout.scrollWidth<=viewport.width,viewport.name+': no horizontal page overflow.',layout.scrollWidth);
+    gate(layout.scrollWidth<=layout.clientWidth,viewport.name+': no horizontal page overflow.',layout.scrollWidth);
     checkSceneControls(layout,viewport);
     if(['laptop','desktop'].includes(viewport.name)){
       for(const id of ['visual-site','visual-arrival','visual-duration','story-title','find-opportunities','explore-site']){
@@ -233,8 +233,8 @@ try{
     evidence.terrainMarkerSelections=[];
     for(const target of bundle.sites){
       await click('#reset-orbit');
-      await until(async()=>{const frame=await inspect();return frame.mode==='orbital'&&frame.terrainCluster?.visible&&frame.terrainCluster.ids.length===4&&frame.camera.position.every((n,i)=>Math.abs(n-frame.camera.overviewPosition[i])<1e-5);},'cold overview exposes all four geographical study points');
-      const frame=await inspect();assert.equal(frame.terrainMarkers.length,4);
+      await until(async()=>{const frame=await inspect();return frame.mode==='orbital'&&frame.terrainCluster?.visible&&frame.terrainCluster.ids.length===bundle.sites.length&&frame.camera.position.every((n,i)=>Math.abs(n-frame.camera.overviewPosition[i])<1e-5);},'cold overview exposes all '+bundle.sites.length+' geographical study points');
+      const frame=await inspect();assert.equal(frame.terrainMarkers.length,bundle.sites.length);
       assert.deepEqual([...frame.terrainCluster.ids].sort(),bundle.sites.map(s=>s.id).sort());
       for(const marker of frame.terrainMarkers){
         const site=bundle.sites.find(s=>s.id===marker.id);assert(site);assert.equal(marker.lat,site.lat);assert.equal(marker.lon,site.lon);
@@ -248,9 +248,9 @@ try{
       }
       await click('.mission-terrain-cluster>summary');
       const choices=await evaluate("[...document.querySelectorAll('.mission-terrain-choices button')].map(n=>{const r=n.getBoundingClientRect();return{id:n.dataset.terrainSite,text:n.textContent,width:r.width,height:r.height}})");
-      assert.equal(choices.length,4);
+      assert.equal(choices.length,bundle.sites.length);
       for(const site of bundle.sites){const choice=choices.find(c=>c.id===site.id);assert(choice?.text.includes(site.name));assert(choice.width>=44&&choice.height>=44,'Unscaled study-point choices retain44px targets despite desktop overlay scaling.');}
-      if(evidence.terrainMarkerSelections.length===0)await screenshot('four-study-point-chooser-desktop');
+      if(evidence.terrainMarkerSelections.length===0)await screenshot('all-study-point-chooser-desktop');
       await click(`.mission-terrain-choices button[data-terrain-site="${target.id}"]`);
       await until(async()=>{const state=await inspect();return state.siteId===target.id;},'globe choice synchronizes '+target.id);
       assert.equal(await evaluate("document.querySelector('#visual-site').value"),target.id);assert.equal(await evaluate("document.querySelector('#site').value"),target.id);
@@ -311,7 +311,7 @@ try{
       if(await evaluate("document.querySelector('#night-visibility').getAttribute('aria-pressed')!=='true'"))await click('#night-visibility');
       const frame=await inspect();assert.equal(frame.displayLighting.enhancedNight,true);assert.equal(frame.sun.visible,false);assert.equal(frame.sun.directLightIntensity,0,'Artificial tablet night fill must never invent direct sunlight.');
       const layout=await metrics();checkSceneControls(layout,{...viewport,name:viewport.name+' surface/night assist'});
-      gate(layout.scrollWidth<=viewport.width,viewport.name+': surface toolbar with Night assist ON must not overflow horizontally.',layout.scrollWidth);
+      gate(layout.scrollWidth<=layout.clientWidth,viewport.name+': surface toolbar with Night assist ON must not overflow horizontally.',layout.scrollWidth);
       await screenshot('surface-night-'+viewport.name);evidence.tabletNightAssist.push({viewport:[viewport.width,viewport.height],mode:frame.mode,nightAssist:true,sunVisible:frame.sun.visible,directSunLight:frame.sun.directLightIntensity});
       await click('#night-visibility');
     }
@@ -326,9 +326,9 @@ try{
       await evaluate('scrollTo(0,0)');await click('#mode-orbital');await click('#mode-surface');
       await screenshot('surface-'+viewport.name);
       await click('#product-compare');await screenshot('compare-'+viewport.name);await screenshot('compare-'+viewport.name+'-full',true);
-      gate(await evaluate('document.documentElement.scrollWidth<=innerWidth'),viewport.name+': Compare must not overflow horizontally.');
+      gate(await evaluate('document.documentElement.scrollWidth<=document.documentElement.clientWidth'),viewport.name+': Compare must not overflow horizontally.');
       await click('#product-analyst');await screenshot('advanced-'+viewport.name);
-      gate(await evaluate('document.documentElement.scrollWidth<=innerWidth'),viewport.name+': Advanced must not overflow horizontally.');
+      gate(await evaluate('document.documentElement.scrollWidth<=document.documentElement.clientWidth'),viewport.name+': Advanced must not overflow horizontally.');
       await click('#product-explore');
     }
     await command('Emulation.setDeviceMetricsOverride',{width:1920,height:1080,deviceScaleFactor:1,mobile:false});
@@ -358,7 +358,7 @@ try{
       for(const [id,index,lat,lon]of [['apollo-11',0,.67416,23.47314],['change-4',8,-45.4446,177.5991]]){
         await chooseContext(index,id);
         await evaluate("document.querySelector('.any-site-controls').scrollIntoView({behavior:'instant',block:'center'})");await sleep(120);
-        const data=await evaluate(`(()=>{const q=s=>document.querySelector(s);return{selected:q('#any-site-select').value,latitude:Number(q('#any-site-lat').value),longitude:Number(q('#any-site-lon').value),time:Number(q('#any-site-result').dataset.time),text:q('#any-site-result').textContent,qualification:q('.any-site-note').textContent,hasStatus:!!q('#any-site-result .status'),bodies:[...document.querySelectorAll('#any-site-result .any-site-body')].map(n=>({...n.dataset})),paths:[...document.querySelectorAll('#any-site-chart path')].map(n=>({className:n.getAttribute('class'),fill:getComputedStyle(n).fill,stroke:getComputedStyle(n).stroke,points:n.getAttribute('d').length})),controls:['any-site-select','any-site-lat','any-site-lon'].map(id=>{const n=document.getElementById(id),r=n.getBoundingClientRect();return{id,rect:r.toJSON(),clear:r.left>=0&&r.right<=innerWidth&&r.top>=0&&r.bottom<=innerHeight&&n.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2))}}),overflow:document.documentElement.scrollWidth>innerWidth}})()`);
+        const data=await evaluate(`(()=>{const q=s=>document.querySelector(s);return{selected:q('#any-site-select').value,latitude:Number(q('#any-site-lat').value),longitude:Number(q('#any-site-lon').value),time:Number(q('#any-site-result').dataset.time),text:q('#any-site-result').textContent,qualification:q('.any-site-note').textContent,hasStatus:!!q('#any-site-result .status'),bodies:[...document.querySelectorAll('#any-site-result .any-site-body')].map(n=>({...n.dataset})),paths:[...document.querySelectorAll('#any-site-chart path')].map(n=>({className:n.getAttribute('class'),fill:getComputedStyle(n).fill,stroke:getComputedStyle(n).stroke,points:n.getAttribute('d').length})),controls:['any-site-select','any-site-lat','any-site-lon'].map(id=>{const n=document.getElementById(id),r=n.getBoundingClientRect();return{id,rect:r.toJSON(),clear:r.left>=0&&r.right<=innerWidth&&r.top>=0&&r.bottom<=innerHeight&&n.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2))}}),overflow:document.documentElement.scrollWidth>document.documentElement.clientWidth}})()`);
         assert.equal(data.selected,id);assert.equal(data.latitude,lat);assert.equal(data.longitude,lon);assert(Number.isFinite(data.time)&&data.time>0);
         assert.match(data.qualification,/Level-horizon geometry only/);assert.equal(data.hasStatus,false);assert.doesNotMatch(data.text,/\b(?:PASS|FAIL|INDETERMINATE)\b/,'Context directions must not masquerade as a terrain-aware mission decision.');
         assert.deepEqual(data.bodies.map(b=>b.body),['sun','earth']);

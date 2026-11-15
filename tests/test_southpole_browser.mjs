@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import {spawn} from 'node:child_process';
 import {createServer} from 'node:http';
 import {once} from 'node:events';
-import {mkdir,readFile,writeFile} from 'node:fs/promises';
+import {mkdir,readFile,readdir,writeFile} from 'node:fs/promises';
 import {resolve,extname,sep} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {createHash} from 'node:crypto';
@@ -20,13 +20,18 @@ const digest=bytes=>createHash('sha256').update(bytes).digest('hex');
 const readJson=async name=>JSON.parse(await readFile(resolve(root,name),'utf8'));
 const source=await readFile(resolve(root,'web/data/bundle.json'));
 const bundle=JSON.parse(source),scenes=await readJson('web/data/terrain-scenes.json');
+const frozen=await readJson('tests/fixtures/southpole-baseline.json');
+const canonical=value=>Array.isArray(value)?'['+value.map(canonical).join(',')+']':value&&typeof value==='object'?'{'+Object.keys(value).sort().map(key=>JSON.stringify(key)+':'+canonical(value[key])).join(',')+'}':JSON.stringify(value);
 assert(bundle.sites?.length>=10,`PRECONDITION: requires the assembled actual >=10-site bundle; found ${bundle.sites?.length??0} at ${root}. No browser checks ran.`);
 const ids=bundle.sites.map(site=>site.id);
 assert.equal(new Set(ids).size,ids.length,'Duplicate scientific study-point identities');
 for(const id of requiredIds)assert(ids.includes(id),`PRECONDITION: missing requested study point ${id}`);
+assert.deepEqual(Object.keys(frozen.sites),originalIds,'The immutable baseline must still identify the original four records.');
+for(const[id,hash]of Object.entries(frozen.sites))assert.equal(digest(Buffer.from(canonical(bundle.sites.find(site=>site.id===id)))),hash,`${id}: original scientific record was changed`);
 assert.equal(scenes.bundleSha256,digest(source),'PRECONDITION: terrain-scenes.json is stale relative to the exact serialized bundle file');
 const sceneById=new Map(scenes.sites.map(record=>[record.siteId,record]));
 assert.equal(sceneById.size,scenes.sites.length,'Duplicate display terrain identities');
+for(const[id,hash]of Object.entries(frozen.meshes))assert.equal(sceneById.get(id)?.sha256,hash,`${id}: original terrain mesh was changed`);
 for(const site of bundle.sites){
   const record=sceneById.get(site.id);assert(record,`PRECONDITION: no own display mesh for ${site.id}`);
   for(const key of ['lat','lon','heightM','groundM'])assert.equal(record[key],site[key],`PRECONDITION: mesh observer ${site.id}/${key}`);
@@ -38,11 +43,12 @@ for(const site of bundle.sites){
 const engine=await import(pathToFileURL(resolve(root,'web/engine.mjs')).href);
 const {missionMetrics}=await import(pathToFileURL(resolve(root,'web/operations.mjs')).href);
 const {communicationDemo}=await import(pathToFileURL(resolve(root,'web/overview.mjs')).href);
-const {sceneFrame}=await import(pathToFileURL(resolve(root,'web/scene-model.mjs')).href);
+const {sceneFrame,moonPoint}=await import(pathToFileURL(resolve(root,'web/scene-model.mjs')).href);
 const {farHorizonData}=await import(pathToFileURL(resolve(root,'web/scene3d.mjs')).href);
 const {projectToMap,inspectCoordinate}=await import(pathToFileURL(resolve(root,'web/atlas.mjs')).href);
 const atlas=await readJson('web/data/terrain-atlas.json');
 const releaseDescriptor=await readJson('web/release.json').catch(error=>{if(error.code==='ENOENT')return null;throw error;});
+const optionalUnstampedMetadata=request=>!releaseDescriptor&&request.pathname==='/web/release.json'&&request.status===404;
 for(const site of bundle.sites){
   const p=projectToMap(site.lat,site.lon,atlas);
   assert(p.x>=13&&p.y>=13&&p.x<=atlas.display.width-13&&p.y<=atlas.display.height-13,`PRECONDITION: atlas clips ${site.id}`);
@@ -55,7 +61,7 @@ assert.equal(demo.delayed.start-demo.nominal.start,72*3600,'Original demonstrati
 assert.equal(demo.recommended.start,Date.parse('2026-11-17T03:00:00Z')/1000,'Original recommended start changed');
 const work=resolve(process.env.LUNARIS_SOUTHPOLE_EVIDENCE_DIR??resolve(process.cwd(),'progress',`southpole-browser-${Date.now()}-${process.pid}`));
 await mkdir(work,{recursive:true});
-const evidence={status:'RUNNING',scope:'Actual packaged local data; no deployment or release publication is verified. Fresh Chrome documents, disabled HTTP cache and reduced-motion. Actual desktop orbital canvas pointer hits, all-site selector/atlas wiring, native mesh identity, clock and metric parity, comparison parity, original delay story, rapid-load last-selection wins. Mobile uses a 390 px desktop-browser viewport, not a physical phone. No scientific accuracy or graphics-performance certification.',root,siteIds:ids,releaseDescriptor,releaseIdentityScope:releaseDescriptor?.application_release_sha?'Local descriptor names a commit; no deployment is checked.':'Unstamped local preview; no public release SHA is asserted.',
+const evidence={status:'RUNNING',scope:'Actual packaged local data; no deployment or release publication is verified. Fresh Chrome documents, disabled HTTP cache and reduced-motion. Actual native orbital marker/cluster pointer selections at every viewport, independently checked geographical positions, all-site selector/atlas wiring, native mesh identity, clock and metric parity, comparison parity, original delay story, rapid-load last-selection wins. Mobile uses 390/320 px desktop-browser viewports, not physical phones. No scientific accuracy or graphics-performance certification.',root,siteIds:ids,releaseDescriptor,releaseIdentityScope:releaseDescriptor?.application_release_sha?'Local descriptor names a commit; no deployment is checked.':'Unstamped local preview; no public release SHA is asserted.',
   bundle:{bytes:source.length,fileSha256:digest(source),payloadSha256:bundle.manifest.bundleSha256},terrainManifestSha256:digest(await readFile(resolve(root,'web/data/terrain-scenes.json'))),
   viewports:[],failures:[]};
 const mime={'.html':'text/html','.mjs':'text/javascript','.js':'text/javascript','.css':'text/css','.json':'application/json','.jpg':'image/jpeg','.png':'image/png','.svg':'image/svg+xml','.mesh':'application/octet-stream','.mp4':'video/mp4'};
@@ -87,7 +93,7 @@ const measurements=(actual,expected,label)=>{
   for(const row of actual){const split=row.metric.indexOf('-'),channel=row.metric.slice(0,split),key=row.metric.slice(split+1);assert.deepEqual([row.lower,row.upper],expected[channel][key],`${label}: ${row.metric}`);}
 };
 try{
-  for(const viewport of [{width:1440,height:1000,deviceScaleFactor:1,mobile:false},{width:390,height:840,deviceScaleFactor:1,mobile:false}]){
+  for(const viewport of [{width:1366,height:768,deviceScaleFactor:1,mobile:false},{width:1920,height:1080,deviceScaleFactor:1,mobile:false},{width:390,height:840,deviceScaleFactor:1,mobile:false},{width:320,height:840,deviceScaleFactor:1,mobile:false}]){
     const label=`${viewport.width}x${viewport.height}`,profile=resolve(work,'profile-'+label),hardware=process.argv.includes('--hardware-gpu');
     const flags=['--headless=new','--remote-debugging-port=0','--no-first-run','--disable-extensions','--disable-background-networking',`--user-data-dir=${profile}`,
       ...(!hardware?['--use-angle=swiftshader','--enable-unsafe-swiftshader']:[]),'about:blank'];
@@ -117,6 +123,15 @@ try{
       const inspect=()=>evaluate("import('/web/app.mjs').then(m=>m.inspectExperience())");
       const saved=()=>evaluate("import('/web/app.mjs').then(m=>m.captureOnboardingPlan())");
       const screenshot=async name=>{const result=await command('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});await writeFile(resolve(work,`${label}-${name}.png`),Buffer.from(result.data,'base64'));};
+      const clickNative=async selector=>{
+        await evaluate(`document.querySelector(${JSON.stringify(selector)}).scrollIntoView({behavior:'instant',block:'center',inline:'nearest'})`);await pause(100);
+        const point=await evaluate(`(()=>{const n=document.querySelector(${JSON.stringify(selector)}),r=n.getBoundingClientRect(),points=[[r.x+r.width/2,r.y+r.height/2],[r.x+r.width/2,r.y+4],[r.x+r.width/2,r.bottom-4],[r.x+4,r.y+r.height/2],[r.right-4,r.y+r.height/2]];return{x:r.x+r.width/2,y:r.y+r.height/2,rect:r.toJSON(),clear:!n.disabled&&r.width>0&&r.height>0&&r.left>=0&&r.right<=innerWidth&&r.top>=0&&r.bottom<=innerHeight&&points.every(([x,y])=>n.contains(document.elementFromPoint(x,y))),menuScrollTop:document.querySelector('.mission-terrain-choices')?.scrollTop??null}})()`);
+        assert(point.clear,`${label}: native control ${selector} must be visible and unobscured at its center and edges: ${JSON.stringify(point)}`);
+        await command('Input.dispatchMouseEvent',{type:'mouseMoved',x:point.x,y:point.y});
+        await command('Input.dispatchMouseEvent',{type:'mousePressed',x:point.x,y:point.y,button:'left',buttons:1,clickCount:1});
+        await command('Input.dispatchMouseEvent',{type:'mouseReleased',x:point.x,y:point.y,button:'left',buttons:0,clickCount:1});
+        return point;
+      };
       const assertCurrent=async id=>{
         const state=await evaluate(`({visual:document.querySelector('#visual-site').value,analyst:document.querySelector('#site').value,scene:document.querySelector('#scene-mount').dataset.site})`);
         assert.deepEqual(state,{visual:id,analyst:id,scene:id},`${label}: coherent selected site ${id}`);
@@ -140,6 +155,8 @@ try{
       await until(async()=>{const s=await inspect();return s?.webgl==='ready'&&s.renderedFrames>0&&s.moon.textured;},`${label}: actual textured WebGL scene`);
       report.coldReadyMs=performance.now()-loadStart;
       report.browser=await evaluate('navigator.userAgent');report.graphics=(await inspect()).graphics;
+      await until(()=>evaluate("!!document.querySelector('#quick-tour')"),`${label}: first-visit tour availability`);
+      if(await evaluate("!document.querySelector('#quick-tour').hidden"))await clickNative('.quick-tour-close');
       const optionIds=await evaluate("({visual:[...document.querySelector('#visual-site').options].map(o=>o.value),analyst:[...document.querySelector('#site').options].map(o=>o.value),atlas:[...document.querySelectorAll('#map-sites .atlas-site-button')].map(o=>o.dataset.siteId)})");
       assert.deepEqual(optionIds.visual,ids);assert.deepEqual(optionIds.analyst,ids);
       await until(()=>evaluate(`document.querySelectorAll('#map-sites .atlas-site-button').length===${ids.length}`),`${label}: atlas source load`);
@@ -181,33 +198,55 @@ try{
         for(const [key,az,el]of [['sun',1,2],['earth',4,5]]){assert.equal(moved[key].azimuth,sample[az]);assert.equal(moved[key].elevation,sample[el]);assert.equal(moved[key].state,authoritative.states[key]);assert.equal(moved[key].visible,authoritative.states[key]==='visible');}
         const times=await evaluate("({scene:Number(document.querySelector('#scene-mount').dataset.time),horizon:Number(document.querySelector('#local-sky').dataset.time),telemetry:Number(document.querySelector('#live-telemetry').dataset.time),hero:document.querySelector('#hero-time').value,probe:document.querySelector('#probe-slider').value})");
         for(const key of ['scene','horizon','telemetry'])assert.equal(times[key],moved.time);assert.equal(times.hero,times.probe);
-        report.sites.push({id:site.id,selectionRoutes:['visual selector','atlas SVG click event','atlas named button'],meshSha256:frame.terrain.sha256,farHorizonSectors:frame.farHorizonSectors,sampleUtc:moved.time,missionStatus:expected.status,observedMs:performance.now()-started});
-      }
-      if(viewport.width===1440){
-        report.stage='Actual orbital canvas pointer selection';
-        await evaluate("document.querySelector('#product-explore').click();document.querySelector('#mode-orbital').click();document.querySelector('#experience').scrollIntoView({block:'start',behavior:'instant'})");
-        for(const [index,site]of bundle.sites.entries()){
-          await select(ids[(index+1)%ids.length]);
-          const projected=await evaluate(`(async()=>{const app=await import('/web/app.mjs'),vendor=await import('/web/vendor/three-bundle.mjs'),THREE=vendor.THREE??vendor;
-            const state=app.inspectExperience();if(state.mode!=='orbital')throw Error('Orbital camera unavailable');const info=state.camera,[w,h]=info.canvasSize;
-            const camera=new THREE.PerspectiveCamera(info.fov,w/h,.001,1000);camera.position.fromArray(info.position);camera.zoom=info.orbitalZoom;
-            camera.lookAt(new THREE.Vector3().fromArray(info.position).add(new THREE.Vector3().fromArray(info.direction)));
-            camera.setViewOffset(w,h,0,info.orbitalViewLiftPx,w,h);camera.updateProjectionMatrix();camera.updateMatrixWorld();
-            const point=${JSON.stringify({lat:site.lat,lon:site.lon})},phi=point.lat*Math.PI/180,lam=point.lon*Math.PI/180;
-            const world=new THREE.Vector3(Math.cos(phi)*Math.cos(lam),Math.sin(phi),-Math.cos(phi)*Math.sin(lam)).multiplyScalar(1.014);
-            const facing=world.dot(camera.position.clone().sub(world))>0,ndc=world.clone().project(camera),canvas=document.querySelector('#scene-mount canvas'),rect=canvas.getBoundingClientRect();
-            const x=rect.left+(ndc.x*.5+.5)*rect.width,y=rect.top+(-ndc.y*.5+.5)*rect.height,top=document.elementFromPoint(x,y);
-            return {x,y,ndc:[ndc.x,ndc.y,ndc.z],facing,canvasHit:top===canvas,topElement:top?.id??top?.className??null,previousSite:state.siteId};})()`);
-          assert(projected.facing&&projected.ndc[0]>-1&&projected.ndc[0]<1&&projected.ndc[1]>-1&&projected.ndc[1]<1,`${site.id}: orbital marker is not projectable from the focused neighboring site: ${JSON.stringify(projected)}`);
-          assert(projected.canvasHit,`${site.id}: orbital marker is covered by another element: ${JSON.stringify(projected)}`);
-          assert.notEqual(projected.previousSite,site.id,'A pointer test must actually change site identity');
-          await command('Input.dispatchMouseEvent',{type:'mouseMoved',x:projected.x,y:projected.y});
-          await command('Input.dispatchMouseEvent',{type:'mousePressed',x:projected.x,y:projected.y,button:'left',buttons:1,clickCount:1});
-          await command('Input.dispatchMouseEvent',{type:'mouseReleased',x:projected.x,y:projected.y,button:'left',buttons:0,clickCount:1});
-          await until(async()=>{const s=await inspect();return s?.siteId===site.id&&await evaluate(`document.querySelector('#visual-site').value===${JSON.stringify(site.id)}`);},`${site.id}: real orbital pointer hit`);
-          await assertCurrent(site.id);report.orbitalPointerHits.push({id:site.id,from:projected.previousSite,x:projected.x,y:projected.y,method:'CDP real canvas mouse press/release, reconstructed live Three.js camera'});
+        let terrainScreenshot=null;
+        if(addedIds.includes(site.id)){
+          const frameBeforePaint=(await inspect()).renderedFrames;
+          await clickNative('#focus-terrain');
+          const assistedBefore=await evaluate("document.querySelector('#night-visibility').getAttribute('aria-pressed')==='true'");
+          if(!assistedBefore)await clickNative('#night-visibility');
+          const visibleTerrain=await until(async()=>{const s=await inspect();return s?.siteId===site.id&&s.terrain.siteId===site.id&&s.terrain.loaded&&s.renderedFrames>frameBeforePaint?s:null;},`${label}: newly rendered own terrain ${site.id}`);
+          assert.equal(visibleTerrain.displayLighting.enhancedNight,true,'Dark terrain inspection must be explicitly labeled artificial night fill');
+          for(const key of ['sun','earth'])for(const property of ['state','visible','azimuth','elevation'])assert.deepEqual(visibleTerrain[key][property],moved[key][property],`${site.id}: artificial fill must not alter ${key}/${property}`);
+          if(visibleTerrain.sun.state!=='visible')assert.equal(visibleTerrain.sun.directLightIntensity,0,'Artificial fill must not claim direct sunlight');
+          terrainScreenshot=`${label}-surface-${site.id}-artificial-fill.png`;
+          await screenshot('surface-'+site.id+'-artificial-fill');
+          if(!assistedBefore)await clickNative('#night-visibility');
         }
-      }else report.orbitalPointerScope='Desktop actual-pointer results are tested separately; mobile selector/atlas/mesh/clock checks are required above.';
+        report.sites.push({id:site.id,selectionRoutes:['visual selector','atlas SVG click event','atlas named button'],meshSha256:frame.terrain.sha256,farHorizonSectors:frame.farHorizonSectors,sampleUtc:moved.time,missionStatus:expected.status,terrainScreenshot,observedMs:performance.now()-started});
+      }
+      report.stage='Actual native orbital marker and cluster pointer selection';
+      await evaluate("document.querySelector('#product-explore').click();document.querySelector('#mode-orbital').click();document.querySelector('#experience').scrollIntoView({block:'start',behavior:'instant'})");
+      for(const [index,site]of bundle.sites.entries()){
+        await select(ids[(index+1)%ids.length]);
+        await evaluate("document.querySelector('#reset-orbit').click();scrollTo({top:0,behavior:'instant'})");
+        const overview=await until(async()=>{
+          const state=await inspect();return state?.mode==='orbital'&&state.camera.position.every((v,i)=>Math.abs(v-state.camera.overviewPosition[i])<1e-5)?state:null;
+        },`${label}: real overview camera before ${site.id}`);
+        assert.equal(overview.terrainMarkers.length,ids.length);
+        for(const marker of overview.terrainMarkers){
+          const sourceSite=bundle.sites.find(point=>point.id===marker.id);assert(sourceSite);
+          assert.equal(marker.lat,sourceSite.lat);assert.equal(marker.lon,sourceSite.lon);
+          const expected=moonPoint(sourceSite.lat,sourceSite.lon,1.008);
+          assert(marker.position.every((v,i)=>Math.abs(v-expected[i])<=8*Number.EPSILON*Math.max(1,Math.abs(expected[i]))),`${marker.id}: display pin must preserve its Moon-fixed source coordinate`);
+          assert(marker.visible,`${marker.id}: real overview marker must be front-facing and in the camera frustum`);
+        }
+        assert.notEqual(overview.siteId,site.id,'A pointer test must actually change site identity');
+        let selector,cluster=false;
+        if(overview.terrainCluster?.visible){
+          assert.deepEqual([...overview.terrainCluster.ids].sort(),[...ids].sort(),'Cluster must expose every modeled point, not the original subset');
+          await clickNative('.mission-terrain-cluster > summary');
+          const choices=await evaluate("[...document.querySelectorAll('.mission-terrain-choices button')].map(n=>({id:n.dataset.terrainSite,text:n.textContent}))");
+          assert.equal(choices.length,ids.length);for(const point of bundle.sites)assert(choices.some(c=>c.id===point.id&&c.text.includes(point.name)));
+          selector=`.mission-terrain-choices button[data-terrain-site="${site.id}"]`;cluster=true;
+        }else selector=`.mission-terrain-marker[data-terrain-site="${site.id}"]`;
+        const point=await clickNative(selector);
+        assert(point.rect.width>=44&&point.rect.height>=44,'Unscaled native globe selection targets retain44px size at every viewport');
+        await until(async()=>{const state=await inspect();return state?.siteId===site.id&&await evaluate(`document.querySelector('#visual-site').value===${JSON.stringify(site.id)}`);},`${label}: real native orbital selection ${site.id}`);
+        await assertCurrent(site.id);
+        report.orbitalPointerHits.push({id:site.id,from:overview.siteId,cluster,selector,x:point.x,y:point.y,menuScrollTop:point.menuScrollTop,coordinates:[site.lat,site.lon],method:'CDP actual native marker/cluster pointer press/release; independent live Moon-fixed position check'});
+        if(index===ids.length-1&&cluster&&viewport.width<=390)assert(point.menuScrollTop>0,'Bottom-row native globe selection must exercise the mobile menu scroll area');
+        if(index===0||index===ids.length-1)await screenshot('orbital-pointer-'+site.id);
+      }
       report.stage='Comparison A/B direct-engine parity';
       await evaluate("document.querySelector('#product-compare').click()");
       const compareBase=canonicalInputs(await saved());
@@ -225,11 +264,23 @@ try{
       await until(async()=>{const s=await inspect();return s?.siteId===transfer.id;},`${label}: comparison-to-Mission transfer`);await assertCurrent(transfer.id);
       const transferInputs=canonicalInputs(await saved());assert.equal(transferInputs.siteId,transfer.id);assert.equal(transferInputs.nominal,transferStart);assert.equal(transferInputs.durationHours,compareBase.durationHours);
       report.comparisonTransfer={siteId:transfer.id,start:transferStart,durationHours:transferInputs.durationHours};
+      const downloads=resolve(work,label+'-identity-certificate');await mkdir(downloads,{recursive:true});
+      await command('Page.setDownloadBehavior',{behavior:'allow',downloadPath:downloads});
+      await until(()=>evaluate("!document.querySelector('#export').disabled"),`${label}: selected-plan certificate ready`);
+      await evaluate("document.querySelector('#export').click()");
+      const certificateName=await until(async()=>(await readdir(downloads)).find(name=>name.endsWith('.json')),`${label}: actual certificate download`);
+      const certificate=JSON.parse(await readFile(resolve(downloads,certificateName),'utf8'));
+      assert.equal(certificate.application_release_sha,releaseDescriptor?.application_release_sha??null,'An unstamped local preview must not invent a deployed application identity');
+      assert.equal(certificate.engine_commit,releaseDescriptor?.application_release_sha??null);
+      assert.equal(certificate.data_generator_commit,bundle.manifest.engineCommit);
+      assert.equal(certificate.site_id,transfer.id);assert.equal(Date.parse(certificate.mission_start_utc)/1000,transferStart);
+      assert.deepEqual(certificate.selected_plan,engine.evaluateStart(bundle,transferInputs,transfer.id,transferStart));
+      report.localCertificateIdentity={filename:certificateName,applicationReleaseSha:certificate.application_release_sha,dataGeneratorCommit:certificate.data_generator_commit,siteId:certificate.site_id};
       await evaluate("document.querySelector('#product-explore').click();document.querySelector('#experience').scrollIntoView({block:'start',behavior:'instant'})");
-      assert(await evaluate('document.documentElement.scrollWidth<=innerWidth'),`${label}: horizontal overflow in Mission`);
+      assert(await evaluate('document.documentElement.scrollWidth<=document.documentElement.clientWidth'),`${label}: horizontal overflow in Mission, including scrollbar gutters`);
       await screenshot('mission');
       await evaluate("document.querySelector('#product-compare').click();scrollTo(0,0)");
-      assert(await evaluate('document.documentElement.scrollWidth<=innerWidth'),`${label}: horizontal overflow in Compare`);
+      assert(await evaluate('document.documentElement.scrollWidth<=document.documentElement.clientWidth'),`${label}: horizontal overflow in Compare, including scrollbar gutters`);
       await screenshot('compare');
       for(const id of ids)assert(requests.includes(new URL(sceneById.get(id).positionFile,new URL('data/',url)).href),`${label}: browser never requested own mesh ${id}`);
       const remote=requests.filter(request=>/^https?:/.test(request)&&!request.startsWith(origin+'/'));
@@ -239,7 +290,11 @@ try{
     }catch(error){report.stage+=' FAILED';report.error=error.stack??String(error);report.browserLog=browserLog;throw error;}
     finally{socket?.close();browser.kill();}
   }
-  assert.deepEqual(served.filter(request=>request.status),[],'Local release contains missing or failed assets');
+  // A generated deployment stamp is intentionally absent from an unstamped local
+  // checkout. Its exact404 is recorded separately, and the downloaded certificate
+  // above must retain null application identity. Every required asset stays strict.
+  assert.deepEqual(served.filter(request=>request.status&&!optionalUnstampedMetadata(request)),[],'Local release contains missing or failed required assets');
+  if(!releaseDescriptor)assert.equal(served.filter(optionalUnstampedMetadata).length,evidence.viewports.length,'Each fresh local document must honestly use the missing deployment-stamp fallback');
   evidence.status='PASSED';evidence.servedRequestCount=served.length;
 }catch(error){evidence.status='FAILED';evidence.failures.push(error.stack??String(error));process.exitCode=1;console.error(error.stack??error);}
-finally{server.close();evidence.servedRequestCount=served.length;evidence.localAssetFailures=served.filter(request=>request.status);evidence.servedBodyBytes=served.reduce((sum,request)=>sum+(request.bytes??0),0);await writeFile(resolve(work,'evidence.json'),JSON.stringify(evidence,null,2)+'\n');console.log(`South-pole browser evidence: ${work}`);}
+finally{server.close();evidence.servedRequestCount=served.length;evidence.optionalUnstampedReleaseMetadata=served.filter(optionalUnstampedMetadata);evidence.localAssetFailures=served.filter(request=>request.status&&!optionalUnstampedMetadata(request));evidence.servedBodyBytes=served.reduce((sum,request)=>sum+(request.bytes??0),0);await writeFile(resolve(work,'evidence.json'),JSON.stringify(evidence,null,2)+'\n');console.log(`South-pole browser evidence: ${work}`);}

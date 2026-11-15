@@ -545,11 +545,21 @@ try{
   const viewedExpected=runMission(bundle,{...communicationDemo(bundle),siteId:viewed.site,nominal:viewed.start});
   checkCertificate(await download('opportunity-view-certificate'),viewedExpected.nominal,'nominal');
   await evaluate("document.querySelector('#earliest').value='2026-11-04T06:00:00';document.querySelector('#latest').value='2026-11-04T06:00:00';for(const id of ['earliest','latest'])document.querySelector('#'+id).dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('#visual-arrival').value='2026-11-04T06:00:00';document.querySelector('#visual-date-go').click();document.querySelector('#find-opportunities').click()");
+  // The expanded inventory includes an unresolved Kocher option on Nov4.
+  // Assert that it remains unknown, then use a genuinely all-failing date.
+  if(bundle.sites.some(site=>site.id==='de-gerlache-kocher')){
+    await until(()=>evaluate("document.querySelector('#landing-opportunities').dataset.kind==='UNRESOLVED'"));
+    assert(bundle.sites.some(site=>evaluateStart(bundle,{...communicationDemo(bundle),nominal:Date.parse('2026-11-04T06:00:00Z')/1000,earliest:Date.parse('2026-11-04T06:00:00Z')/1000,latest:Date.parse('2026-11-04T06:00:00Z')/1000},site.id).status==='INDETERMINATE'));
+    await screenshot('opportunities-unresolved-desktop');
+    const failedStart=Date.parse('2026-11-06T06:00:00Z')/1000;
+    assert(bundle.sites.every(site=>evaluateStart(bundle,{...communicationDemo(bundle),nominal:failedStart,earliest:failedStart,latest:failedStart},site.id).status==='FAIL'),'The no-passing-option fixture must independently fail for every included site.');
+    await evaluate("document.querySelector('#earliest').value='2026-11-06T06:00:00';document.querySelector('#latest').value='2026-11-06T06:00:00';for(const id of ['earliest','latest'])document.querySelector('#'+id).dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('#visual-arrival').value='2026-11-06T06:00:00';document.querySelector('#visual-date-go').click();document.querySelector('#find-opportunities').click()");
+  }
   await until(()=>evaluate("document.querySelector('#landing-opportunities').dataset.kind==='NO_PASS'"));
   assert(await evaluate("!document.querySelector('#opportunity-other').hidden&&document.querySelector('#opportunity-near-misses').textContent.includes('broken')"));await screenshot('opportunities-near-misses-desktop');
   await evaluate("document.querySelector('#visual-arrival').value='2026-11-17T03:00:00';document.querySelector('#visual-date-go').click();document.querySelector('#find-opportunities').click()");
   await until(()=>evaluate("document.querySelector('#landing-opportunities').dataset.kind==='SCHEDULE_EMPTY'"));
-  assert.equal(await evaluate("Date.parse(document.querySelector('#latest').value+'Z')"),Date.parse('2026-11-04T06:00:00Z'),'Explicitly edited schedule limits must remain fixed.');await screenshot('opportunities-schedule-excluded-desktop');
+  assert.equal(await evaluate("Date.parse(document.querySelector('#latest').value+'Z')"),Date.parse(bundle.sites.some(site=>site.id==='de-gerlache-kocher')?'2026-11-06T06:00:00Z':'2026-11-04T06:00:00Z'),'Explicitly edited schedule limits must remain fixed.');await screenshot('opportunities-schedule-excluded-desktop');
   await evaluate("document.querySelector('#verified-demo').click();document.querySelector('#visual-duration').value=6;document.querySelector('#visual-arrival').value='2026-11-30T18:00:00';document.querySelector('#visual-date-go').click()");
   assert.equal(await evaluate("Date.parse(document.querySelector('#latest').value+'Z')"),(bundle.coverage[1]-6*3600)*1000);
   await evaluate(`document.querySelector('#verified-demo').click();document.querySelector('#visual-arrival').value=${JSON.stringify(inputUtc(outsideArrival))};document.querySelector('#visual-date-go').click();document.querySelector('#find-opportunities').click()`);

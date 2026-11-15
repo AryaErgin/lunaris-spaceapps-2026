@@ -163,10 +163,12 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   markerLegend.innerHTML='<span>○ Terrain study points</span><span>◇ Other landing locations · level horizon only</span>';container.append(markerLegend);
   const terrainCluster=document.createElement('details');terrainCluster.className='mission-terrain-cluster';terrainCluster.hidden=true;
   const terrainLeader=document.createElement('span');terrainLeader.className='mission-terrain-leader';terrainLeader.hidden=true;container.append(terrainLeader);
-  const terrainClusterSummary=document.createElement('summary');terrainClusterSummary.textContent='4 study points';
+  const terrainClusterSummary=document.createElement('summary');terrainClusterSummary.textContent=`${bundle.sites.length} study points`;
   terrainClusterSummary.setAttribute('aria-label','Choose a terrain-aware south-pole study point');
   const terrainClusterList=document.createElement('div');terrainClusterList.className='mission-terrain-choices';
   terrainCluster.append(terrainClusterSummary,terrainClusterList);container.append(terrainCluster);
+  listen(terrainCluster,'toggle',()=>{if(terrainCluster.open)updateTerrainPins();});
+  listen(window,'scroll',()=>{if(terrainCluster.open)updateTerrainPins();},{passive:true});
   listen(terrainCluster,'keydown',event=>{if(event.key==='Escape'){event.preventDefault();terrainCluster.open=false;terrainClusterSummary.focus();}});
   listen(document,'pointerdown',event=>{if(terrainCluster.open&&!terrainCluster.contains(event.target))terrainCluster.open=false;});
   // Orbital bodies are drawn at fixed approximate angular sizes, so small labels make them findable.
@@ -542,12 +544,18 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
       // The pin stays at its true projection. Only the label moves clear of
       // the mobile camera row, with a leader back to the exact geographic anchor.
       const labelY=width<=740?Math.min(y,height-92):y;
-      const labelRight=clamp(x-18,terrainClusterSummary.offsetWidth+8,width-8),above=labelY>height/2;
+      const labelRight=clamp(x-18,terrainClusterSummary.offsetWidth+8,width-8);
+      // Size the transient chooser to the visible part of the scene, including
+      // ordinary page scrolling. Dataset growth must not push choices offscreen.
+      const rect=container.getBoundingClientRect(),halfSummary=terrainClusterSummary.offsetHeight/2;
+      const visibleTop=Math.max(0,-rect.top),visibleBottom=Math.min(height,window.innerHeight-rect.top);
+      const spaceAbove=labelY-halfSummary-16-visibleTop,spaceBelow=visibleBottom-labelY-halfSummary-16;
+      const above=spaceAbove>=spaceBelow;
       terrainCluster.style.left=`${labelRight}px`;terrainCluster.style.top=`${labelY}px`;
       terrainLeader.style.left=`${labelRight}px`;terrainLeader.style.top=`${labelY}px`;
       terrainLeader.style.width=`${Math.hypot(x-labelRight,y-labelY)}px`;
       terrainLeader.style.transform=`rotate(${Math.atan2(y-labelY,x-labelRight)}rad)`;
-      terrainCluster.style.setProperty('--terrain-menu-height',`${Math.max(86,(above?labelY:height-labelY)-46)}px`);
+      terrainCluster.style.setProperty('--terrain-menu-height',`${Math.max(0,Math.min(320,above?spaceAbove:spaceBelow))}px`);
       terrainCluster.dataset.placement=above?'above':'below';
     }else terrainCluster.open=false;
     return layout;
