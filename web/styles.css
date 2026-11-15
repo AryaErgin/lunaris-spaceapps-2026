@@ -27,7 +27,7 @@ svg,img,canvas{max-width:100%}img{height:auto}
 .masthead{height:var(--header-height);position:relative;z-index:30;background:var(--color-bg);border-bottom:1px solid var(--color-border-subtle)}
 .mast-inner{height:100%;padding-inline:var(--scene-inset);display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:var(--space-5)}
 .brand{display:inline-flex;align-items:center;gap:var(--space-3);justify-self:start;color:var(--color-text);font:var(--weight-semibold) var(--text-lg)/1 var(--font-display);letter-spacing:.16em;text-decoration:none}
-.brand svg{width:32px;height:32px;flex:none}
+.brand svg,.brand img{width:32px;height:32px;flex:none}
 .main-nav{display:flex;align-items:center;gap:var(--space-2)}
 .nav-link{min-height:var(--control-height);border:0;background:transparent;border-radius:var(--radius-pill);padding-inline:var(--space-5);color:var(--color-text-secondary);font-size:var(--text-sm)}
 .nav-link[aria-pressed=true]{color:var(--color-text);background:var(--color-surface-elevated)}
@@ -283,7 +283,7 @@ thead th{color:var(--color-text-secondary);font-weight:var(--weight-medium)}tbod
 }
 @media(max-width:740px){
  .container{width:calc(100% - var(--space-6))}.mast-inner{grid-template-columns:1fr auto;grid-template-rows:54px 52px;gap:0;padding-inline:var(--space-4)}
- .brand{font-size:var(--text-base);gap:var(--space-2)}.brand svg{width:28px;height:28px}.main-nav{grid-row:2;grid-column:1/-1;justify-content:center;gap:var(--space-2)}
+ .brand{font-size:var(--text-base);gap:var(--space-2)}.brand svg,.brand img{width:28px;height:28px}.main-nav{grid-row:2;grid-column:1/-1;justify-content:center;gap:var(--space-2)}
  .main-nav button{flex:1;padding-inline:var(--space-3);min-height:44px}.product-purpose{grid-row:1;grid-column:2;gap:var(--space-2)}
  .product-purpose button{padding-inline:var(--space-3);font-size:var(--text-sm)}
  .intro{grid-template-columns:1fr;gap:var(--space-5);margin-bottom:var(--space-6)}.data-card{padding-left:var(--space-4)}

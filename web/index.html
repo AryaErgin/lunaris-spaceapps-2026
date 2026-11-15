@@ -6,6 +6,10 @@
     <meta name="theme-color" content="#030609">
     <meta name="description" content="Explore 426 days at ten NASA-sourced lunar south-pole study points. Compare terrain-aware Sun and Earth visibility and replan landing delays.">
     <title>LUNARIS · Lunar Landing Site Navigator</title>
+    <link rel="icon" href="./favicon.ico" type="image/x-icon" sizes="16x16 32x32">
+    <link rel="icon" href="./favicon-16.png" type="image/png" sizes="16x16">
+    <link rel="icon" href="./favicon-32.png" type="image/png" sizes="32x32">
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" sizes="any">
     <link rel="preload" href="./fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="./fonts/space-grotesk-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="./tokens.css">
@@ -13,6 +17,8 @@
     <link rel="stylesheet" href="./experience.css">
     <link rel="stylesheet" href="./scene3d.css">
     <link rel="stylesheet" href="./judge.css">
+    <!-- Temporarily hidden for NASA Space Apps presentation — restore afterward. -->
+    <style id="presentation-navigation">#product-analyst{display:none}</style>
     <script type="module" src="./app.mjs"></script>
     <script type="module" src="./guide.mjs"></script>
   </head>
@@ -21,18 +27,13 @@
     <header class="masthead">
       <div class="mast-inner">
         <a class="brand" href="#experience" aria-label="LUNARIS home">
-          <svg aria-hidden="true" viewBox="0 0 40 40" width="36" height="36" fill="none">
-            <circle cx="20" cy="20" r="14.75" stroke="currentColor" stroke-width="1.2"/>
-            <path d="M20 5.25c-5.5 3.2-8 8-8 14.75s2.5 11.55 8 14.75M5.5 20H34.5m-24-8h19m-19 16h19" stroke="currentColor" stroke-width=".75"/>
-            <path d="M19.5 25.5 24 14l.5 8.5 5 4.5z" style="fill:var(--color-sun);stroke:var(--color-bg)"/>
-          </svg>
+          <img class="brand-symbol" src="./assets/brand/lunaris-polar-mark.svg" width="32" height="32" alt="" aria-hidden="true">
           <span translate="no">LUNARIS</span>
         </a>
         <nav class="main-nav" aria-label="Main navigation">
           <button id="product-explore" class="nav-link" type="button" data-workspace="explore" aria-pressed="true">Mission</button>
           <button id="product-compare" class="nav-link" type="button" data-workspace="compare" aria-pressed="false">Compare</button>
-          <!-- Temporarily hidden for NASA Space Apps presentation — restore afterward. -->
-          <button id="product-analyst" class="nav-link" type="button" data-workspace="analyst" aria-pressed="false" hidden>Advanced</button>
+          <button id="product-analyst" class="nav-link" type="button" data-workspace="analyst" aria-pressed="false">Advanced</button>
         </nav>
         <div class="product-purpose"><button id="tour-start" class="outline" type="button">Show me how</button></div>
         <button id="expert-toggle" class="outline expert-toggle" type="button" aria-expanded="false" aria-controls="top" hidden>Analyst mode</button>

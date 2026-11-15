@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80" role="img" aria-labelledby="polar-title">
+  <title id="polar-title">LUNARIS — Polar Vector</title>
+  <!-- Refined from the supplied Concept 03: circular Moon, orbital reference and south-pole vector. -->
+  <defs>
+    <mask id="polar-hub" maskUnits="userSpaceOnUse" x="0" y="0" width="80" height="80">
+      <rect width="80" height="80" fill="#fff"/>
+      <circle cx="40" cy="42" r="2.7" fill="#000"/>
+    </mask>
+  </defs>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="40" cy="40" r="29" stroke="#f3f5f7" stroke-width="3.5"/>
+    <path d="M34 68.373A29 29 0 0 0 46 68.373" stroke="#efbd70" stroke-width="3.5"/>
+    <path d="M40 14V18.5" stroke="#f3f5f7" stroke-width="2" opacity=".65"/>
+    <path d="M15.5 40.5Q22 37.4 28.5 37.4M51.5 37.4Q58 37.4 64.5 40.5" stroke="#f3f5f7" stroke-width="2" opacity=".45"/>
+  </g>
+  <g mask="url(#polar-hub)">
+    <path d="M40 23L50 42H30Z" fill="#f3f5f7"/>
+    <path d="M30 42H50L40 64Z" fill="#efbd70"/>
+  </g>
+</svg>
