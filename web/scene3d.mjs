@@ -27,8 +27,18 @@ export function orbitalOverviewDistance(width,height) {
   return Math.max(3.3,1/Math.sin(horizontalHalfFov*.67));
 }
 export function orbitalOverviewPosition(width,height) {
-  const radius=orbitalOverviewDistance(width,height),length=Math.hypot(3.2,-.65,-.4);
-  return [3.2,-.65,-.4].map(value=>value*radius/length);
+  const radius=orbitalOverviewDistance(width,height),length=Math.hypot(3.2,-1.9,-.4);
+  // Keep the actual south-pole points in front of the finite-distance limb.
+  return [3.2,-1.9,-.4].map(value=>value*radius/length);
+}
+// Geographical pins never move. Only overlapping selection targets are combined.
+export function terrainMarkerLayout(views,width,height,targetSize=44) {
+  const visible=views.filter(view=>view.visible&&view.projectedPosition?.every(Number.isFinite));
+  const grouped=visible.length>1&&visible.some((a,i)=>visible.slice(i+1).some(b=>
+    Math.hypot((a.projectedPosition[0]-b.projectedPosition[0])*width,
+      (a.projectedPosition[1]-b.projectedPosition[1])*height)<targetSize));
+  return {grouped,ids:visible.map(view=>view.id),anchor:visible.length?
+    [0,1].map(axis=>visible.reduce((sum,view)=>sum+view.projectedPosition[axis],0)/visible.length):null};
 }
 export function terrainFocusBearing(site) {
   let best=null;
@@ -100,6 +110,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   const THREE=vendor.THREE??vendor,OrbitControls=vendor.OrbitControls;
   let disposed=false,lost=false,mode='orbital',site=bundle.sites[0],sample=null,states={};
   let raf=0,intersecting=true,flight=null,pendingMode=null,pendingFocus=null,terrainRequest=0,terrainMetadataPromise;
+  let modeTransition=0,transitionTimer=0;
   let terrainMesh=null,terrainSiteId=null,terrainRecord=null,terrainError=null;
   let moonTextureLoaded=false,earthTextureLoaded=false,moonBumpLoaded=false;
   let moonDetail='loading',moonHighDetailPromise=null,farHorizonMesh=null,farHorizonRecord=null,farHorizonSiteId=null;
@@ -150,6 +161,14 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   const markerLabel=document.createElement('div');markerLabel.className='mission-scene-marker-label';container.append(markerLabel);
   const markerLegend=document.createElement('div');markerLegend.className='mission-marker-legend';
   markerLegend.innerHTML='<span>○ Terrain study points</span><span>◇ Other landing locations · level horizon only</span>';container.append(markerLegend);
+  const terrainCluster=document.createElement('details');terrainCluster.className='mission-terrain-cluster';terrainCluster.hidden=true;
+  const terrainLeader=document.createElement('span');terrainLeader.className='mission-terrain-leader';terrainLeader.hidden=true;container.append(terrainLeader);
+  const terrainClusterSummary=document.createElement('summary');terrainClusterSummary.textContent='4 study points';
+  terrainClusterSummary.setAttribute('aria-label','Choose a terrain-aware south-pole study point');
+  const terrainClusterList=document.createElement('div');terrainClusterList.className='mission-terrain-choices';
+  terrainCluster.append(terrainClusterSummary,terrainClusterList);container.append(terrainCluster);
+  listen(terrainCluster,'keydown',event=>{if(event.key==='Escape'){event.preventDefault();terrainCluster.open=false;terrainClusterSummary.focus();}});
+  listen(document,'pointerdown',event=>{if(terrainCluster.open&&!terrainCluster.contains(event.target))terrainCluster.open=false;});
   // Orbital bodies are drawn at fixed approximate angular sizes, so small labels make them findable.
   const bodyLabels={};
   const obstruction=document.createElement('div');obstruction.className='mission-terrain-obstruction';obstruction.hidden=true;
@@ -189,7 +208,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     const ring=new THREE.Mesh(kind==='context'?contextGeometry:ringGeometry,material);group.add(ring);
     const dot=new THREE.Mesh(dotGeometry,material);dot.position.z=.006;group.add(dot);
     ring.userData.siteId=dot.userData.siteId=point.id;orbitalScene.add(group);
-    let button=null;
+    let button=null,pin=null,choice=null;
     if(kind==='context'){
       button=document.createElement('button');button.className='mission-context-marker';button.type='button';button.hidden=true;
       button.dataset.contextSite=point.id;button.textContent=record.symbol;
@@ -211,8 +230,18 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
         }
         selectContextSite(chosen.id);onContextSelect(chosen);
       });container.append(button);
+    }else{
+      pin=document.createElement('span');pin.className='mission-terrain-pin';pin.dataset.siteId=point.id;pin.hidden=true;pin.setAttribute('aria-hidden','true');container.append(pin);
+      button=document.createElement('button');button.className='mission-terrain-marker';button.type='button';button.hidden=true;button.dataset.terrainSite=point.id;
+      button.setAttribute('aria-label',`Select ${point.name}, terrain-aware study point`);button.title=point.name;container.append(button);
+      choice=document.createElement('button');choice.type='button';choice.dataset.terrainSite=point.id;
+      const name=document.createElement('strong');name.textContent=point.name;
+      const coordinates=document.createElement('span');coordinates.textContent=`${Math.abs(point.lat).toFixed(4)}\u00b0 S \u00b7 ${point.lon.toFixed(4)}\u00b0 E`;
+      choice.append(name,coordinates);terrainClusterList.append(choice);
+      const choose=()=>{terrainCluster.open=false;selectSite(point.id);onSiteSelect(point.id);};
+      listen(button,'click',choose);listen(choice,'click',choose);
     }
-    markers.push({group,ring,dot,material,site:point,index,kind,button});
+    markers.push({group,ring,dot,material,site:point,index,kind,button,pin,choice});
   });
 
   // Both sky objects retain their angular scale. Focus changes the camera FOV.
@@ -359,7 +388,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   }
   const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2(),projected=new THREE.Vector3();
   function invalidate(){needsRender=true;schedule();}
-  function schedule(){if(!disposed&&!lost&&!raf&&intersecting&&!document.hidden)raf=requestAnimationFrame(draw);}
+  function schedule(){if(!disposed&&!lost&&!raf&&(intersecting||flight)&&!document.hidden)raf=requestAnimationFrame(draw);}
   function setSurfaceLook() {
     surfaceCamera.position.set(0,Number.isFinite(site.heightM)?site.heightM:2,0);
     const direction=bodyDirection(yaw/RAD,pitch/RAD);
@@ -427,6 +456,15 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     }
     bodyStatus.hidden=mode==='orbital'&&Boolean(contextSite);
   }
+  function updateObstruction() {
+    const earthDirection=bodyDirection(sample?.[4],sample?.[5]),earthFraming=viewInfo(earthDirection);
+    obstruction.hidden=mode!=='surface'||states.earth!=='blocked'||!earthDirection||!earthFraming.inFrustum;
+    if(!obstruction.hidden){
+      obstruction.style.left=`${clamp(earthFraming.projectedPosition[0]*100,18,82)}%`;
+      obstruction.style.top=`${clamp(earthFraming.projectedPosition[1]*100,30,72)}%`;
+      obstruction.title=`Earth-center direction: bearing ${sample[4].toFixed(1)} degrees, elevation ${sample[5].toFixed(1)} degrees. The calculated horizon blocks its center; no Earth body is drawn.`;
+    }
+  }
   function updateFrame() {
     const show=renderedBodies(sample,states);
     sun.visible=!lost&&!disposed&&mode==='surface'&&show.sun;
@@ -469,13 +507,14 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     sunlight.target.position.set(0,0,0);
     displayFill.position.fromArray(bodyDirection(terrainBearingDeg-55,35)).multiplyScalar(700);
     displayFill.target.position.set(0,0,0);
-    captionUpdate();invalidate();
+    captionUpdate();updateObstruction();invalidate();
   }
   function updateMarkers() {
     for(const marker of markers) {
       const active=marker.kind==='context'?marker.site.id===contextSite?.id:!contextSite&&marker.site.id===site.id;
       marker.material.color.set(marker.kind==='context'?(active?0xc6f3ff:0x8edbea):active?0xeebf74:0xb9c9dd);
       marker.group.scale.setScalar(active?1.3:.8);marker.button?.setAttribute('aria-pressed',String(active));
+      if(marker.pin)marker.pin.dataset.selected=String(active);marker.choice?.setAttribute('aria-pressed',String(active));
     }
     markerLabel.dataset.kind=contextSite?'context':'terrain';
     markerLabel.textContent=contextSite?`${contextSite.name} · level horizon only`:site.name;
@@ -484,11 +523,37 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   function markerView(marker){
     const projected=marker.group.position.clone().project(orbitalCamera);
     const facing=marker.group.position.dot(orbitalCamera.position.clone().sub(marker.group.position))>0;
-    return {visible:mode==='orbital'&&!lost&&!disposed&&facing&&Math.abs(projected.x)<=1&&Math.abs(projected.y)<=1&&projected.z<=1,
+    return {facing,visible:mode==='orbital'&&!lost&&!disposed&&facing&&Math.abs(projected.x)<=1&&Math.abs(projected.y)<=1&&projected.z<=1,
       projectedPosition:[projected.x*.5+.5,-projected.y*.5+.5]};
   }
-  function draw(now) {
-    raf=0;if(disposed||lost||!intersecting||document.hidden)return;
+  function updateTerrainPins(){
+    const terrain=markers.filter(marker=>marker.kind==='terrain'),views=terrain.map(marker=>({id:marker.site.id,...markerView(marker)}));
+    const layout=terrainMarkerLayout(views,container.clientWidth,container.clientHeight);
+    for(const marker of terrain){
+      const view=views.find(item=>item.id===marker.site.id);
+      marker.pin.hidden=!view.visible;marker.button.hidden=!view.visible||layout.grouped;
+      for(const node of [marker.pin,marker.button]){node.style.left=`${view.projectedPosition[0]*100}%`;node.style.top=`${view.projectedPosition[1]*100}%`;}
+      marker.choice.hidden=!view.visible;
+    }
+    terrainCluster.hidden=terrainLeader.hidden=!layout.grouped;
+    if(layout.grouped){
+      terrainClusterSummary.textContent=`${layout.ids.length} study points`;
+      const width=container.clientWidth,height=container.clientHeight,x=layout.anchor[0]*width,y=layout.anchor[1]*height;
+      // The pin stays at its true projection. Only the label moves clear of
+      // the mobile camera row, with a leader back to the exact geographic anchor.
+      const labelY=width<=740?Math.min(y,height-92):y;
+      const labelRight=clamp(x-18,terrainClusterSummary.offsetWidth+8,width-8),above=labelY>height/2;
+      terrainCluster.style.left=`${labelRight}px`;terrainCluster.style.top=`${labelY}px`;
+      terrainLeader.style.left=`${labelRight}px`;terrainLeader.style.top=`${labelY}px`;
+      terrainLeader.style.width=`${Math.hypot(x-labelRight,y-labelY)}px`;
+      terrainLeader.style.transform=`rotate(${Math.atan2(y-labelY,x-labelRight)}rad)`;
+      terrainCluster.style.setProperty('--terrain-menu-height',`${Math.max(86,(above?labelY:height-labelY)-46)}px`);
+      terrainCluster.dataset.placement=above?'above':'below';
+    }else terrainCluster.open=false;
+    return layout;
+  }
+  function draw(now,force=false) {
+    raf=0;if(disposed||lost||(!force&&(document.hidden||(!intersecting&&!flight))))return;
     if(flight) {
       const t=clamp((now-flight.start)/flight.duration,0,1),eased=t*t*(3-2*t);
       if(flight.rotation) {
@@ -502,13 +567,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     }
     const controlsMoving=mode==='orbital'&&controls.update();
     if(mode==='orbital'&&controlsMoving)captionUpdate();
-    const earthDirection=bodyDirection(sample?.[4],sample?.[5]),earthFraming=viewInfo(earthDirection);
-    obstruction.hidden=mode!=='surface'||states.earth!=='blocked'||!earthDirection||!earthFraming.inFrustum;
-    if(!obstruction.hidden){
-      obstruction.style.left=`${clamp(earthFraming.projectedPosition[0]*100,18,82)}%`;
-      obstruction.style.top=`${clamp(earthFraming.projectedPosition[1]*100,30,72)}%`;
-      obstruction.title=`Earth-center direction: bearing ${sample[4].toFixed(1)} degrees, elevation ${sample[5].toFixed(1)} degrees. The calculated horizon blocks its center; no Earth body is drawn.`;
-    }
+    updateObstruction();
     if(needsRender||flight) {
       renderer.toneMappingExposure=mode==='orbital'?1.15:1.3;
       renderer.render(mode==='orbital'?orbitalScene:surfaceScene,mode==='orbital'?orbitalCamera:surfaceCamera);
@@ -519,10 +578,12 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
         const facing=marker.group.position.dot(orbitalCamera.position.clone().sub(marker.group.position))>0;
         markerLabel.hidden=!facing||Math.abs(projected.x)>1||Math.abs(projected.y)>1||projected.z>1;
         markerLabel.style.left=`${(projected.x*.5+.5)*100}%`;markerLabel.style.top=`${(-projected.y*.5+.5)*100}%`;
-        for(const marker of markers.filter(item=>item.button)){
+        for(const marker of markers.filter(item=>item.kind==='context'&&item.button)){
           const view=markerView(marker);marker.button.hidden=!view.visible;
           marker.button.style.left=`${view.projectedPosition[0]*100}%`;marker.button.style.top=`${view.projectedPosition[1]*100}%`;
         }
+        const terrainLayout=updateTerrainPins();
+        if(!contextSite&&terrainLayout.grouped)markerLabel.hidden=true;
         markerLegend.hidden=false;
         for(const [key,object] of [['earth',orbitalEarth],['sun',orbitalSun]]) {
           const label=bodyLabels[key],toBody=object.position.clone().sub(orbitalCamera.position),range=toBody.length();
@@ -532,7 +593,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
           label.hidden=!object.visible||projected.z>1||Math.abs(projected.x)>1||Math.abs(projected.y)>1||(along>0&&along<range&&miss<1);
           label.style.left=`${(projected.x*.5+.5)*100}%`;label.style.top=`${(-projected.y*.5+.5)*100}%`;
         }
-      } else {markerLabel.hidden=true;bodyLabels.earth.hidden=bodyLabels.sun.hidden=true;markerLegend.hidden=true;for(const marker of markers)if(marker.button)marker.button.hidden=true;}
+      } else {markerLabel.hidden=true;bodyLabels.earth.hidden=bodyLabels.sun.hidden=true;markerLegend.hidden=true;terrainCluster.hidden=terrainLeader.hidden=true;terrainCluster.open=false;for(const marker of markers){if(marker.button)marker.button.hidden=true;if(marker.pin)marker.pin.hidden=true;}}
     }
     if(flight||controlsMoving&&controls.enableDamping)schedule();
   }
@@ -643,6 +704,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     captionUpdate();invalidate();return true;
   }
   function commitMode(next) {
+    ++modeTransition;clearTimeout(transitionTimer);transitionTimer=0;
     pendingMode=null;
     mode=next;flight=null;controls.enabled=mode==='orbital';container.dataset.mode=mode;
     if(!reducedMotion&&typeof canvas.animate==='function')canvas.animate([{opacity:.15},{opacity:1}],{duration:420,easing:'ease-out'});
@@ -658,12 +720,18 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   }
   function setMode(next) {
     if(!['orbital','surface'].includes(next)||disposed)return false;
-    if(next==='orbital'){pendingMode=null;pendingFocus=null;flight=null;controls.enabled=true;if(mode===next){invalidate();return true;}return commitMode(next);}
+    if(next==='orbital'){++modeTransition;clearTimeout(transitionTimer);transitionTimer=0;pendingMode=null;pendingFocus=null;flight=null;controls.enabled=true;if(mode===next){invalidate();return true;}return commitMode(next);}
     if(next===mode||pendingMode===next)return true;
     if(!reducedMotion) {
       pendingMode='surface';controls.enabled=false;
       report('loading','Approaching the selected south-pole study point.');
-      focusSite(520,()=>{if(pendingMode==='surface'&&!disposed)commitMode('surface');});return true;
+      const intent=++modeTransition;
+      const finish=()=>{if(intent===modeTransition&&pendingMode==='surface'&&!disposed&&!lost)commitMode('surface');};
+      focusSite(520,finish);
+      // The presentation tween must not be the only completion path: RAF is
+      // deliberately paused when the scene leaves the viewport or tab hides.
+      // Commit the requested camera mode even if no animation frames can run.
+      clearTimeout(transitionTimer);transitionTimer=setTimeout(finish,680);return true;
     }
     return commitMode(next);
   }
@@ -731,11 +799,16 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   function resize() {
     if(disposed)return;
     const width=Math.max(1,container.clientWidth),height=Math.max(1,container.clientHeight);
-    renderer.setSize(width,height,false);
+    const previous=renderer.getSize(new THREE.Vector2());
+    if(previous.x!==width||previous.y!==height)renderer.setSize(width,height,false);
     if(!flight&&orbitalFocus==='Moon')orbitalCamera.position.setLength(orbitalOverviewDistance(width,height));
     applyOrbitalFraming(width,height);
     for(const camera of [orbitalCamera,surfaceCamera]){camera.aspect=width/height;camera.updateProjectionMatrix();}
-    invalidate();
+    // Resizing clears the WebGL drawing buffer. Paint it immediately even if
+    // an IntersectionObserver entry from the previous viewport is still stale.
+    // Continuous rendering remains paused offscreen; this is one explicit paint.
+    if(raf){cancelAnimationFrame(raf);raf=0;}
+    needsRender=true;draw(performance.now(),true);
   }
   function zoom(direction) {
     if(disposed||lost||![-1,1].includes(direction))return;
@@ -759,6 +832,10 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     const gl=renderer.getContext(),gpuExtension=gl.getExtension('WEBGL_debug_renderer_info');
     return {mode,siteId:site.id,time:sample?.[0]??null,webgl:disposed?'disposed':lost?'lost':'ready',
       contextSiteId:contextSite?.id??null,
+      terrainMarkers:markers.filter(marker=>marker.kind==='terrain').map(marker=>({id:marker.site.id,lat:marker.site.lat,lon:marker.site.lon,
+        selected:marker.site.id===site.id&&!contextSite,terrainAware:true,position:marker.group.position.toArray(),
+        pinVisible:!marker.pin.hidden,selectionTargetVisible:!marker.button.hidden,...markerView(marker)})),
+      terrainCluster:{...terrainMarkerLayout(markers.filter(marker=>marker.kind==='terrain').map(marker=>({id:marker.site.id,...markerView(marker)})),container.clientWidth,container.clientHeight),visible:!terrainCluster.hidden,open:terrainCluster.open},
       contextMarkers:markers.filter(marker=>marker.kind==='context').map(marker=>({id:marker.site.id,lat:marker.site.lat,lon:marker.site.lon,group:marker.site.group,
         selected:marker.site.id===contextSite?.id,terrainAware:false,position:marker.group.position.toArray(),...markerView(marker)})),
       graphics:{renderer:gpuExtension?gl.getParameter(gpuExtension.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER),quality:mobileQuality?'mobile-2K':'desktop-auto-4K'},
@@ -856,7 +933,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     event.preventDefault();lost=true;cancelAnimationFrame(raf);raf=0;
     sun.visible=earth.visible=orbitalSun.visible=orbitalEarth.visible=false;Object.values(orbitalRays).forEach(ray=>{ray.visible=false;});container.dataset.sunRendered=container.dataset.earthRendered='false';
     container.dataset.webgl=container.dataset.webglStatus='lost';
-    markerLabel.hidden=markerLegend.hidden=true;for(const marker of markers)if(marker.button)marker.button.hidden=true;
+    markerLabel.hidden=markerLegend.hidden=terrainCluster.hidden=terrainLeader.hidden=true;terrainCluster.open=false;for(const marker of markers){if(marker.button)marker.button.hidden=true;if(marker.pin)marker.pin.hidden=true;}
     report('error','The WebGL context was lost. The accessible mission views remain available.');
   });
   listen(document,'visibilitychange',()=>{if(document.hidden){cancelAnimationFrame(raf);raf=0;}else invalidate();});
@@ -866,11 +943,11 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   const resizeObserver=typeof ResizeObserver==='function'?new ResizeObserver(resize):null;resizeObserver?.observe(container);
   listen(window,'resize',resize);
   function dispose() {
-    if(disposed)return;disposed=true;++terrainRequest;cancelAnimationFrame(raf);raf=0;
+    if(disposed)return;disposed=true;++terrainRequest;++modeTransition;clearTimeout(transitionTimer);transitionTimer=0;cancelAnimationFrame(raf);raf=0;
     observer?.disconnect();resizeObserver?.disconnect();listeners.forEach(remove=>remove());controls.dispose();
     resources.forEach(resource=>resource.dispose());renderer.dispose();
     canvas.remove();caption.remove();bodyStatus.remove();markerLabel.remove();markerLegend.remove();obstruction.remove();bodyLabels.earth.remove();bodyLabels.sun.remove();
-    for(const marker of markers)marker.button?.remove();
+    terrainCluster.remove();terrainLeader.remove();for(const marker of markers){marker.button?.remove();marker.pin?.remove();}
     container.dataset.webgl=container.dataset.webglStatus='disposed';
     container.dataset.sunRendered=container.dataset.earthRendered='false';
     sun.visible=earth.visible=orbitalSun.visible=orbitalEarth.visible=false;

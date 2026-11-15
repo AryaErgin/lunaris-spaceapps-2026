@@ -1805,6 +1805,8 @@ async function initializeExperience() {
     if(sceneDisabled){sceneController.dispose();return;}
     const coordinateCaption=byId('scene-mount').querySelector('.mission-scene-caption');
     if(coordinateCaption)byId('scene-coordinate-caption').append(coordinateCaption);
+    const markerLegend=byId('scene-mount').querySelector('.mission-marker-legend');
+    if(markerLegend)byId('scene-coordinate-caption').append(markerLegend);
     sceneController.selectSite(visualSiteId??inputs.siteId,{focus:false});
     if(latestSceneFrame)sceneController.setFrame(latestSceneFrame);
     byId('experience').dataset.ready='true';
@@ -1865,15 +1867,59 @@ function updateExperienceFrame(site,sample,mission) {
   byId('hero-scope-stay').setAttribute('aria-pressed',String(!wholeMonth));byId('hero-scope-month').setAttribute('aria-pressed',String(wholeMonth));
   byId('hero-scope-note').hidden=!wholeMonth;
   const lanes=byId('hero-lanes'),laneKey=`${mission.siteId}|${mission.start}|${mission.end}`;
+  lanes.removeAttribute('aria-hidden');
   lanes.hidden=wholeMonth||isEdited;
   if(!lanes.hidden&&lanes.dataset.key!==laneKey){
     lanes.dataset.key=laneKey;lanes.replaceChildren();
     for(const [key,title] of [['sun','Sun'],['earth','Earth']]){
-      const lane=element('div','hero-lane'),track=element('div','hero-lane-track');lane.dataset.channel=key;
+      const lane=element('div','hero-lane'),track=element('button','hero-lane-track');lane.dataset.channel=key;
+      track.type='button';track.dataset.channel=key;
+      const summary=visibilitySummary(mission.timeline[key],mission.start,mission.end).seconds;
+      const total=mission.end-mission.start,unresolved=summary.uncertain+summary.unknown;
+      const compactDuration=seconds=>conciseDuration(seconds).replace(/\s+\d+\s+s$/,'').replace(/(\d+)\s+h/g,'$1h').replace(/(\d+)\s+min/g,'$1m').replace(/(\d+)\s+s/g,'$1s').replace(/([hms])\s+(?=\d)/g,'$1');
+      const caption=summary.visible===total?'Visible for the whole stay':summary.blocked===total?'Blocked for the whole stay'
+        :`${compactDuration(summary.visible)} confirmed${unresolved>0?` · ${compactDuration(unresolved)} unresolved`:''}`;
+      const meanings={visible:'center visible',blocked:'center blocked',uncertain:'unresolved visibility',unknown:'missing data'};
+      track.setAttribute('aria-label',`${title}: ${caption}. ${conciseDuration(summary.blocked)} blocked; ${conciseDuration(unresolved)} unresolved or missing. Click a time to inspect the nearest cached sample. Enter inspects the current time; the time slider supports arrow-key scrubbing.`);
+      track.title=`${title}: ${caption}. Solid color is visible; dark is blocked; diagonal stripes are unresolved; crosshatching is missing data.`;
+      const captionNode=element('span','hero-lane-caption',caption),strip=element('span','hero-lane-strip timeline-unknown');
+      captionNode.setAttribute('aria-hidden','true');strip.setAttribute('aria-hidden','true');
       for(const [a,b,state] of mission.timeline[key]){
         const piece=element('span',`timeline-piece timeline-${state}`);
-        piece.style.left=`${100*(a-mission.start)/(mission.end-mission.start)}%`;piece.style.width=`${100*(b-a)/(mission.end-mission.start)}%`;track.append(piece);
+        Object.assign(piece.dataset,{start:a,end:b,state});
+        piece.title=`${title}: ${meanings[state]??'missing data'} · ${formatTime(a)} to ${formatTime(b)}`;
+        piece.style.left=`${100*(a-mission.start)/total}%`;piece.style.width=`${100*(b-a)/total}%`;strip.append(piece);
       }
+      const head=element('span','timeline-playhead story-joint-playhead hero-lane-playhead');
+      head.dataset.start=mission.start;head.dataset.end=mission.end;strip.append(head);
+      const inspection=element('span','hero-lane-inspection');inspection.id=`hero-${key}-inspection`;inspection.hidden=true;
+      inspection.setAttribute('role','status');inspection.setAttribute('aria-live','off');track.setAttribute('aria-describedby',inspection.id);
+      const inspectTime=(time,announce=false)=>{
+        const interval=mission.timeline[key].find(([a,b])=>a<=time&&time<b);
+        inspection.setAttribute('aria-live',announce?'polite':'off');
+        inspection.textContent=interval?`${title}: ${meanings[interval[2]]??'missing data'} · ${formatTime(interval[0])} to ${formatTime(interval[1])}. View: ${formatTime(time)}.`
+          :`${title}: no interval established at ${formatTime(time)}. No visibility is assumed.`;
+        inspection.hidden=false;
+      };
+      const pointerTime=event=>{
+        const rect=strip.getBoundingClientRect(),fraction=Math.max(0,Math.min(1,(event.clientX-rect.left)/Math.max(1,rect.width)));
+        // Keep the existing half-open mission domain; the right edge selects its last cached sample.
+        return Math.min(mission.end-0.001,mission.start+fraction*total);
+      };
+      track.addEventListener('pointermove',event=>{
+        if(!chart)return;const index=nearestSample(chart.samples,pointerTime(event),chart.domain);
+        if(index!==null)inspectTime(chart.samples[index][0]);
+      });
+      track.addEventListener('pointerleave',()=>{if(document.activeElement!==track)inspection.hidden=true;});
+      track.addEventListener('focus',()=>inspectTime(currentTime??mission.start));
+      track.addEventListener('blur',()=>{inspection.hidden=true;});
+      track.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();inspection.hidden=true;}});
+      track.addEventListener('click',event=>{
+        if(isEdited||!chart)return;const time=event.detail===0?(currentTime??mission.start):pointerTime(event);
+        const index=nearestSample(chart.samples,time,chart.domain);if(index===null)return;
+        pausePlayback();byId('probe-slider').value=index;updateProbe();inspectTime(chart.samples[index][0],true);
+      });
+      track.append(captionNode,strip,inspection);
       lane.append(element('span','hero-lane-label',title),track);lanes.append(lane);
     }
   }

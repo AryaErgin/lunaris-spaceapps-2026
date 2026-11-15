@@ -9,6 +9,13 @@ import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import {resolve,sep,extname} from 'node:path';
 import {runMission} from '../web/engine.mjs';
 import {communicationDemo} from '../web/overview.mjs';
+import {moonPoint,sceneFrame} from '../web/scene-model.mjs';
+
+// The latest approved design requests a real 0.8 presentation transform on
+// fine-pointer desktops >=1201px. getBoundingClientRect reports displayed size:
+// a 44 CSS-pixel overlay control therefore measures35.2px. Test that explicit
+// 44*--mission-ui-scale contract AND the24px WCAG AA floor. Mobile/tablet,
+// globe marker menus and other unscaled controls still require44px.
 
 const baseline=process.argv.includes('--baseline');
 const layoutOnly=process.argv.includes('--layout-only');
@@ -72,10 +79,10 @@ try{
     await screenshot('failure').catch(()=>{});await writeFile(resolve(work,'verification.json'),JSON.stringify(evidence,null,2));
   };
   const metrics=()=>evaluate(`(()=>{
-    const ids=['visual-site','visual-arrival','visual-duration','story-title','find-opportunities','explore-site','mode-orbital','mode-surface','night-visibility','focus-earth','focus-sun','focus-terrain','scene-coordinate-caption','hero-play','hero-pause','hero-reset','hero-time','scene-mount','mission-story','scene-transport','story-next'];
-    const boxes=Object.fromEntries(ids.map(id=>{const n=document.getElementById(id);if(!n)return[id,null];const r=n.getBoundingClientRect(),s=getComputedStyle(n),points=[[r.x+r.width/2,r.y+r.height/2],[r.x+r.width/2,r.y+4],[r.x+r.width/2,r.bottom-4],[r.x+4,r.y+r.height/2],[r.right-4,r.y+r.height/2]];return[id,{x:r.x,y:r.y,width:r.width,height:r.height,right:r.right,bottom:r.bottom,visible:!!n.getClientRects().length&&s.visibility!=='hidden',disabled:n.disabled??false,hit:r.width>0&&r.height>0&&n.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2)),hitExtent:points.every(([x,y])=>n.contains(document.elementFromPoint(x,y))),font:s.fontFamily,fontSize:s.fontSize}]}));
+    const ids=['visual-site','visual-arrival','visual-duration','story-title','find-opportunities','explore-site','mode-orbital','mode-surface','night-visibility','focus-earth','focus-sun','focus-terrain','scene-coordinate-caption','marker-legend','story-nominal','story-delayed','story-recovered','hero-play','hero-pause','hero-reset','hero-time','scene-mount','mission-story','scene-transport','story-next'];
+    const boxes=Object.fromEntries(ids.map(id=>{const n=id==='marker-legend'?document.querySelector('.mission-marker-legend'):document.getElementById(id);if(!n)return[id,null];const r=n.getBoundingClientRect(),s=getComputedStyle(n),points=[[r.x+r.width/2,r.y+r.height/2],[r.x+r.width/2,r.y+4],[r.x+r.width/2,r.bottom-4],[r.x+4,r.y+r.height/2],[r.right-4,r.y+r.height/2]];return[id,{x:r.x,y:r.y,width:r.width,height:r.height,right:r.right,bottom:r.bottom,visible:!!n.getClientRects().length&&s.visibility!=='hidden',disabled:n.disabled??false,hit:r.width>0&&r.height>0&&n.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2)),hitExtent:points.every(([x,y])=>n.contains(document.elementFromPoint(x,y))),font:s.fontFamily,fontSize:s.fontSize}]}));
     const visibleButtons=[...document.querySelectorAll('#experience button,.main-nav button,#tour-start')].filter(n=>{const r=n.getBoundingClientRect();return n.getClientRects().length&&r.top>=0&&r.bottom<=innerHeight&&getComputedStyle(n).visibility!=='hidden'}).map(n=>{const r=n.getBoundingClientRect();return{id:n.id,text:n.textContent.trim(),width:r.width,height:r.height}});
-    return{width:innerWidth,height:innerHeight,scrollWidth:document.documentElement.scrollWidth,scrollHeight:document.documentElement.scrollHeight,scrollY,boxes,visibleButtons};
+    return{width:innerWidth,height:innerHeight,missionUiScale:Number(getComputedStyle(document.documentElement).getPropertyValue('--mission-ui-scale'))||1,scrollWidth:document.documentElement.scrollWidth,scrollHeight:document.documentElement.scrollHeight,scrollY,boxes,visibleButtons};
   })()`);
   const click=async selector=>{
     await evaluate(`document.querySelector(${JSON.stringify(selector)}).scrollIntoView({behavior:'instant',block:'center'})`);await sleep(90);
@@ -112,22 +119,69 @@ try{
   const cases=[{width:1366,height:768,name:'laptop'},{width:1920,height:1080,name:'desktop'},{width:768,height:1024,name:'tablet-768'},{width:900,height:768,name:'tablet-900'},{width:1024,height:768,name:'tablet-1024'},{width:390,height:844,name:'mobile'},{width:320,height:740,name:'mobile-320'},{width:1366,height:600,name:'short-laptop'},{width:683,height:384,name:'zoom-equivalent'}];
   const inside=(box,v)=>box?.visible&&box.width>0&&box.height>0&&box.x>=-1&&box.right<=v.width+1&&box.y>=-1&&box.bottom<=v.height+1;
   const checkSceneControls=(layout,viewport)=>{
-    for(const id of ['mode-orbital','mode-surface','night-visibility','focus-earth','focus-sun','focus-terrain','find-opportunities','explore-site']){
+    for(const id of ['mode-orbital','mode-surface','night-visibility','focus-earth','focus-sun','focus-terrain','find-opportunities','explore-site','story-nominal','story-delayed','story-recovered']){
       const box=layout.boxes[id];if(!inside(box,viewport))continue;
       gate(box.hit&&box.hitExtent,viewport.name+': an onscreen scene/action control must be unobscured at center and all four edges: '+id,box);
-      gate(box.width>=44&&box.height>=44,viewport.name+': scene/action target must be at least44px: '+id,box);
+      const minimum=44*layout.missionUiScale;
+      gate(box.width>=minimum-.01&&box.height>=minimum-.01&&box.width>=24&&box.height>=24,
+        viewport.name+': overlay target must meet44 CSSpx at the explicitly requested presentation scale and the24px AA floor: '+id,{...box,scale:layout.missionUiScale,minimum});
     }
-    const caption=layout.boxes['scene-coordinate-caption'];
-    for(const id of ['focus-earth','focus-sun','focus-terrain']){
-      const action=layout.boxes[id];if(!action?.visible||!caption?.visible)continue;
+    for(const captionId of ['scene-coordinate-caption','marker-legend'])for(const id of ['focus-earth','focus-sun','focus-terrain']){
+      const action=layout.boxes[id],caption=layout.boxes[captionId];if(!action?.visible||!caption?.visible)continue;
       const overlap=Math.min(action.right,caption.right)-Math.max(action.x,caption.x)>1&&Math.min(action.bottom,caption.bottom)-Math.max(action.y,caption.y)>1;
-      gate(!overlap,viewport.name+': camera action must not overlap selected-coordinate caption: '+id,{action,caption});
+      gate(!overlap,viewport.name+': camera action must not overlap coordinate caption or marker legend: '+id+' / '+captionId,{action,caption});
     }
   };
+  const defaultMission=runMission(bundle,communicationDemo(bundle)).nominal;
+  const checkInteractiveTimelines=async viewport=>{
+    const unchanged=await evaluate("({arrival:document.querySelector('#visual-arrival').value,duration:document.querySelector('#visual-duration').value,site:document.querySelector('#visual-site').value,result:document.querySelector('#story-title').textContent})");
+    const laneStyles=await evaluate(`['sun','earth'].map(channel=>{const n=document.querySelector('.hero-lane[data-channel='+channel+'] .hero-lane-track'),s=n.querySelector('.hero-lane-strip'),r=n.getBoundingClientRect();return{channel,native:n.tagName,caption:n.querySelector('.hero-lane-caption').textContent,label:n.getAttribute('aria-label'),height:r.height,scale:Number(getComputedStyle(document.documentElement).getPropertyValue('--mission-ui-scale'))||1,stripHeight:s.getBoundingClientRect().height,pieces:[...s.querySelectorAll('.timeline-piece')].map(p=>({start:Number(p.dataset.start),end:Number(p.dataset.end),state:p.dataset.state,title:p.title,background:getComputedStyle(p).backgroundColor,pattern:getComputedStyle(p).backgroundImage}))}})`);
+    for(const lane of laneStyles){
+      assert.equal(lane.native,'BUTTON','Visibility rows must be keyboard-operable native buttons.');
+      const minimum=(viewport.width<=740?44:32)*lane.scale;
+      assert(lane.height>=minimum-.01&&lane.height>=24,'Timeline targets must retain their explicit32pxdesktop/44pxmobile size and the24pxAA floor.');
+      assert(Math.abs(lane.stripHeight-8*lane.scale)<.1,'The visible channel strip must remain8CSSpx inside its larger interaction target.');
+      assert.match(lane.label,/Enter inspects the current time/);
+      assert.deepEqual(lane.pieces.map(p=>[p.start,p.end,p.state]),defaultMission.timeline[lane.channel]);
+      assert(lane.pieces.every(p=>p.title.includes('UTC')),'Every colored interval must expose its actual bounded UTC interval.');
+    }
+    const sun=laneStyles[0],earth=laneStyles[1],visibleSun=sun.pieces.find(p=>p.state==='visible'),uncertainSun=sun.pieces.find(p=>p.state==='uncertain'),visibleEarth=earth.pieces.find(p=>p.state==='visible');
+    assert(visibleSun&&uncertainSun&&visibleEarth,'The nominal witness must demonstrate confirmed, unresolved and full-stay Earth visibility.');
+    assert.equal(visibleSun.pattern,'none');assert.match(uncertainSun.pattern,/repeating-linear-gradient/);assert.notEqual(visibleSun.background,visibleEarth.background,'Sun and Earth need distinct channel colors.');
+    assert.equal(earth.caption,'Visible for the whole stay');assert.match(sun.caption,/confirmed.*unresolved/);
+    const interactions=[];
+    for(const [channel,state]of [['sun','uncertain'],['earth','visible']]){
+      const selector='.hero-lane[data-channel="'+channel+'"] .hero-lane-track';
+      await evaluate(`document.querySelector(${JSON.stringify(selector)}).scrollIntoView({behavior:'instant',block:'center'})`);await sleep(90);
+      const point=await evaluate(`(()=>{const n=document.querySelector(${JSON.stringify(selector)}),s=n.querySelector('.hero-lane-strip'),p=s.querySelector('.timeline-${state}'),r=p.getBoundingClientRect(),t=s.getBoundingClientRect();return{x:r.x+r.width/2,y:r.y+r.height/2,fraction:(r.x+r.width/2-t.x)/t.width,clear:n.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2))}})()`);
+      assert(point.clear,'A real pointer must reach the actual colored '+channel+' interval.');
+      await command('Input.dispatchMouseEvent',{type:'mousePressed',x:point.x,y:point.y,button:'left',clickCount:1});
+      await command('Input.dispatchMouseEvent',{type:'mouseReleased',x:point.x,y:point.y,button:'left',clickCount:1});
+      const stateNow=await evaluate(`({hero:document.querySelector('#hero-time').value,probe:document.querySelector('#probe-slider').value,time:Number(document.querySelector('#scene-mount').dataset.time),horizon:Number(document.querySelector('#local-sky').dataset.time),inspection:document.querySelector('#hero-${channel}-inspection').textContent,hidden:document.querySelector('#hero-${channel}-inspection').hidden})`);
+      assert.equal(stateNow.hero,stateNow.probe);assert.equal(stateNow.time,stateNow.horizon);assert.equal(stateNow.hidden,false);assert.match(stateNow.inspection,/UTC.*View:/);
+      const requested=defaultMission.start+point.fraction*(defaultMission.end-defaultMission.start);
+      assert(Math.abs(stateNow.time-requested)<=900.01,'A timeline click must seek the nearest30-minute cached sample.');
+      assert(bundle.sites.find(s=>s.id===unchanged.site).geometry.some(row=>row[0]===stateNow.time));
+      assert.equal((await inspect()).time,stateNow.time);
+      await screenshot('timeline-'+channel+'-'+viewport.name);interactions.push({channel,state,requestedTime:requested,...stateNow});
+      await command('Input.dispatchKeyEvent',{type:'keyDown',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
+      await command('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
+      assert.equal(Number(await evaluate("document.querySelector('#scene-mount').dataset.time")),stateNow.time,'Enter inspects the current time without moving the mission clock.');
+      await command('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});
+      assert.equal(await evaluate(`document.querySelector('#hero-${channel}-inspection').hidden`),true);
+    }
+    assert.deepEqual(await evaluate("({arrival:document.querySelector('#visual-arrival').value,duration:document.querySelector('#visual-duration').value,site:document.querySelector('#visual-site').value,result:document.querySelector('#story-title').textContent})"),unchanged,'Visibility timeline inspection must preserve the evaluated arrival, duration, site and environmental conclusion.');
+    evidence.interactiveTimelines??=[];evidence.interactiveTimelines.push({viewport:[viewport.width,viewport.height],styles:laneStyles,interactions,missionUnchanged:true});
+    await click('#hero-reset');
+  };
   for(const viewport of cases){
+    const previousFrame=await inspect();
     await command('Emulation.setDeviceMetricsOverride',{width:viewport.width,height:viewport.height,deviceScaleFactor:1,mobile:false});
     await evaluate('scrollTo(0,0)');await sleep(300);
+    const canvasSize=await evaluate("[document.querySelector('#scene-mount').clientWidth,document.querySelector('#scene-mount').clientHeight]");
+    if(previousFrame.camera.canvasSize.some((value,index)=>value!==canvasSize[index]))await until(async()=>{const frame=await inspect(),live=await evaluate("[document.querySelector('#scene-mount').clientWidth,document.querySelector('#scene-mount').clientHeight]");return frame.renderedFrames>previousFrame.renderedFrames&&frame.camera.canvasSize.every((value,index)=>value===live[index]);},viewport.name+' must paint the resized visible Moon canvas');
     const layout=await metrics();evidence.viewports.push({...viewport,...layout});
+    evidence.viewports.at(-1).sceneFrame=await inspect();
     await screenshot('mission-'+viewport.name);
     if(['desktop','mobile'].includes(viewport.name))await screenshot('mission-'+viewport.name+'-full',true);
     gate(layout.scrollWidth<=viewport.width,viewport.name+': no horizontal page overflow.',layout.scrollWidth);
@@ -145,17 +199,46 @@ try{
       const transport=layout.boxes['scene-transport'];
       gate(inside(transport,viewport),viewport.name+': timeline transport must be integrated into the visible scene.',transport);
       const controlIds=['visual-site','visual-arrival','visual-duration','find-opportunities','explore-site','mode-orbital','mode-surface','hero-play','hero-pause'];
-      for(const id of controlIds){const b=layout.boxes[id];gate(b?.width>=44&&b?.height>=44,viewport.name+': primary target must be at least44px: '+id,b);}
+      for(const id of controlIds){const b=layout.boxes[id],minimum=44*layout.missionUiScale;gate(b?.width>=minimum-.01&&b?.height>=minimum-.01&&b.width>=24&&b.height>=24,viewport.name+': primary target must meet44 CSSpx at the approved overlay scale: '+id,{...b,scale:layout.missionUiScale,minimum});}
       for(let a=0;a<controlIds.length;a++)for(let b=a+1;b<controlIds.length;b++){
         const x=layout.boxes[controlIds[a]],y=layout.boxes[controlIds[b]];
         const overlap=x?.visible&&y?.visible&&Math.min(x.right,y.right)-Math.max(x.x,y.x)>1&&Math.min(x.bottom,y.bottom)-Math.max(x.y,y.y)>1;
         gate(!overlap,viewport.name+': controls must not overlap: '+controlIds[a]+' / '+controlIds[b],{x,y});
       }
     }
+    if(!baseline&&!layoutOnly&&['laptop','mobile','mobile-320'].includes(viewport.name))await checkInteractiveTimelines(viewport);
   }
   if(!baseline&&!layoutOnly){
     await command('Emulation.setDeviceMetricsOverride',{width:1366,height:768,deviceScaleFactor:1,mobile:false});
     await evaluate("document.querySelector('#product-explore').click();scrollTo(0,0)");
+    evidence.terrainMarkerSelections=[];
+    for(const target of bundle.sites){
+      await click('#reset-orbit');
+      await until(async()=>{const frame=await inspect();return frame.mode==='orbital'&&frame.terrainCluster?.visible&&frame.terrainCluster.ids.length===4&&frame.camera.position.every((n,i)=>Math.abs(n-frame.camera.overviewPosition[i])<1e-5);},'cold overview exposes all four geographical study points');
+      const frame=await inspect();assert.equal(frame.terrainMarkers.length,4);
+      assert.deepEqual([...frame.terrainCluster.ids].sort(),bundle.sites.map(s=>s.id).sort());
+      for(const marker of frame.terrainMarkers){
+        const site=bundle.sites.find(s=>s.id===marker.id);assert(site);assert.equal(marker.lat,site.lat);assert.equal(marker.lon,site.lon);
+        const expectedPosition=moonPoint(site.lat,site.lon,1.008);
+        // Chrome and Node libm can differ in their last trig-result bits. This
+        // eight-ULP absolute floor is about3nm at lunar radius, not a terrain or
+        // ephemeris tolerance; the input coordinates remain exact comparisons.
+        assert(marker.position.every((value,i)=>Math.abs(value-expectedPosition[i])<=8*Number.EPSILON*Math.max(1,Math.abs(expectedPosition[i]))),'Study-point labels must not relocate their actual Moon-fixed pins.');
+        assert.equal(marker.visible,true,'Every terrain-aware point must be in the cold overview frustum.');
+        assert(marker.position.reduce((sum,p,i)=>sum+p*(frame.camera.position[i]-p),0)>0,'Every selectable cold-start study pin must face the actual camera.');
+      }
+      await click('.mission-terrain-cluster>summary');
+      const choices=await evaluate("[...document.querySelectorAll('.mission-terrain-choices button')].map(n=>{const r=n.getBoundingClientRect();return{id:n.dataset.terrainSite,text:n.textContent,width:r.width,height:r.height}})");
+      assert.equal(choices.length,4);
+      for(const site of bundle.sites){const choice=choices.find(c=>c.id===site.id);assert(choice?.text.includes(site.name));assert(choice.width>=44&&choice.height>=44,'Unscaled study-point choices retain44px targets despite desktop overlay scaling.');}
+      if(evidence.terrainMarkerSelections.length===0)await screenshot('four-study-point-chooser-desktop');
+      await click(`.mission-terrain-choices button[data-terrain-site="${target.id}"]`);
+      await until(async()=>{const state=await inspect();return state.siteId===target.id;},'globe choice synchronizes '+target.id);
+      assert.equal(await evaluate("document.querySelector('#visual-site').value"),target.id);assert.equal(await evaluate("document.querySelector('#site').value"),target.id);
+      evidence.terrainMarkerSelections.push({siteId:target.id,coordinates:[target.lat,target.lon],realPointerSelection:true});
+    }
+    await evaluate("document.querySelector('#visual-site').value='de-gerlache-rim';document.querySelector('#visual-site').dispatchEvent(new Event('change'))");
+    await until(async()=>(await inspect()).siteId==='de-gerlache-rim','default study point restored before demonstration');
     await click('#mode-surface');await until(async()=>(await inspect()).mode==='surface','surface view');
     await screenshot('surface-desktop');
     await click('#mode-orbital');await until(async()=>(await inspect()).mode==='orbital','orbital view');
@@ -232,6 +315,79 @@ try{
     await command('Emulation.setDeviceMetricsOverride',{width:1920,height:1080,deviceScaleFactor:1,mobile:false});
     await click('#product-compare');await screenshot('compare-desktop');await click('#product-analyst');await screenshot('advanced-desktop');
     await click('#product-explore');
+    const terrainPlan=()=>evaluate("JSON.stringify({fields:[...document.querySelectorAll('#mission-form input,#mission-form select')].map(n=>[n.id,n.value,n.checked]),compact:['visual-site','visual-arrival','visual-duration'].map(id=>[id,document.querySelector('#'+id).value]),requirements:document.querySelector('#apply-requirements').checked,start:document.querySelector('#mission-story').dataset.start})");
+    const chooseContext=async(index,expected)=>{
+      await click('#any-site-select');
+      for(const key of ['Home',...Array(index).fill('ArrowDown'),'Enter']){
+        const code=key==='Home'?36:key==='ArrowDown'?40:13;
+        await command('Input.dispatchKeyEvent',{type:'keyDown',key,code:key,windowsVirtualKeyCode:code});
+        await command('Input.dispatchKeyEvent',{type:'keyUp',key,code:key,windowsVirtualKeyCode:code});
+      }
+      await until(()=>evaluate(`document.querySelector('#any-site-select').value===${JSON.stringify(expected)}`),'native context-location selection '+expected);
+    };
+    const captureContextSection=async name=>{
+      const clip=await evaluate("(()=>{const r=document.querySelector('#any-site').getBoundingClientRect();return{x:r.x,y:r.y+scrollY,width:r.width,height:r.height,scale:1}})()");
+      const result=await command('Page.captureScreenshot',{format:'png',captureBeyondViewport:true,clip});
+      await writeFile(resolve(work,name+'-section.png'),Buffer.from(result.data,'base64'));
+    };
+    evidence.levelHorizonExplorer=[];
+    for(const viewport of [{width:1366,height:768,name:'desktop'},{width:390,height:844,name:'mobile'},{width:320,height:740,name:'mobile-320'}]){
+      await command('Emulation.setDeviceMetricsOverride',{width:viewport.width,height:viewport.height,deviceScaleFactor:1,mobile:false});
+      const beforeContext=await terrainPlan();
+      await click('#product-compare');await click('#compare-more-sites');
+      await until(()=>evaluate("document.querySelector('#any-site').open"),'Compare opens real level-horizon explorer');
+      for(const [id,index,lat,lon]of [['apollo-11',0,.67416,23.47314],['change-4',8,-45.4446,177.5991]]){
+        await chooseContext(index,id);
+        await evaluate("document.querySelector('.any-site-controls').scrollIntoView({behavior:'instant',block:'center'})");await sleep(120);
+        const data=await evaluate(`(()=>{const q=s=>document.querySelector(s);return{selected:q('#any-site-select').value,latitude:Number(q('#any-site-lat').value),longitude:Number(q('#any-site-lon').value),time:Number(q('#any-site-result').dataset.time),text:q('#any-site-result').textContent,qualification:q('.any-site-note').textContent,hasStatus:!!q('#any-site-result .status'),bodies:[...document.querySelectorAll('#any-site-result .any-site-body')].map(n=>({...n.dataset})),paths:[...document.querySelectorAll('#any-site-chart path')].map(n=>({className:n.getAttribute('class'),fill:getComputedStyle(n).fill,stroke:getComputedStyle(n).stroke,points:n.getAttribute('d').length})),controls:['any-site-select','any-site-lat','any-site-lon'].map(id=>{const n=document.getElementById(id),r=n.getBoundingClientRect();return{id,rect:r.toJSON(),clear:r.left>=0&&r.right<=innerWidth&&r.top>=0&&r.bottom<=innerHeight&&n.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2))}}),overflow:document.documentElement.scrollWidth>innerWidth}})()`);
+        assert.equal(data.selected,id);assert.equal(data.latitude,lat);assert.equal(data.longitude,lon);assert(Number.isFinite(data.time)&&data.time>0);
+        assert.match(data.qualification,/Level-horizon geometry only/);assert.equal(data.hasStatus,false);assert.doesNotMatch(data.text,/\b(?:PASS|FAIL|INDETERMINATE)\b/,'Context directions must not masquerade as a terrain-aware mission decision.');
+        assert.deepEqual(data.bodies.map(b=>b.body),['sun','earth']);
+        for(const body of data.bodies){assert(Number.isFinite(Number(body.azimuth)));assert(Number.isFinite(Number(body.elevation)));}
+        assert.equal(data.paths.length,4,'The explorer must draw Sun and Earth for the selected context and the study-point comparison.');
+        for(const path of data.paths){assert.equal(path.fill,'none','Elevation curves must never become opaque filled polygons.');assert.notEqual(path.stroke,'none');assert(path.points>100);}
+        assert(data.controls.every(c=>c.clear&&c.rect.height>=44),'Location and coordinate controls must be readable, inside the page and unobscured.');assert.equal(data.overflow,false);
+        assert.equal(await terrainPlan(),beforeContext,'Apollo/international context selection must preserve every terrain-aware mission input and decision identity.');
+        await screenshot('anysite-'+id+'-'+viewport.name);await captureContextSection('anysite-'+id+'-'+viewport.name);
+        evidence.levelHorizonExplorer.push({viewport:[viewport.width,viewport.height],...data,terrainMissionUnchanged:true});
+      }
+    }
+    // Pause actual animation callbacks, as well as scene intersection. Explicit
+    // resize paints remain permitted; they must not be needed to complete an
+    // animation-dependent mode change or update a derived obstruction annotation.
+    const observerFixture=await command('Page.addScriptToEvaluateOnNewDocument',{source:`window.__lunarisPausedRaf={requested:0,callbacks:0,queue:[]};window.requestAnimationFrame=callback=>{const state=window.__lunarisPausedRaf;state.requested++;state.queue.push(()=>{state.callbacks++;callback(performance.now())});return state.requested};window.cancelAnimationFrame=()=>{};window.IntersectionObserver=class PausedSceneObserver{constructor(callback){this.callback=callback}observe(target){queueMicrotask(()=>this.callback([{isIntersecting:false,target}],this))}unobserve(){}disconnect(){}};`});
+    try{
+      await command('Emulation.setDeviceMetricsOverride',{width:1366,height:768,deviceScaleFactor:1,mobile:false});
+      await command('Page.reload');
+      await until(()=>evaluate("!!document.querySelector('#export:not([disabled])')"),'paused-renderer fixture science ready');
+      await until(async()=>(await inspect())?.webgl==='ready','paused-renderer fixture WebGL loaded');
+      const initialFrame=await inspect();
+      const pausedRaf=()=>evaluate("({requested:window.__lunarisPausedRaf.requested,callbacks:window.__lunarisPausedRaf.callbacks})");
+      assert((await pausedRaf()).requested>0,'The fixture must intercept real animation-frame requests.');assert.equal((await pausedRaf()).callbacks,0,'No intercepted animation callback may run.');
+      await click('#mode-surface');
+      const requestedAt=Date.now();await until(async()=>(await inspect()).mode==='surface','surface transition with rendering paused',20);
+      const completedMs=Date.now()-requestedAt;assert(completedMs<=2000,'Surface entry must complete within two seconds even when intersection gating pauses RAF.');
+      const completed=await inspect();assert.equal((await pausedRaf()).callbacks,0);
+      const pausedSite=bundle.sites.find(site=>site.id===completed.siteId);
+      const blockedIndex=pausedSite.geometry.findIndex(row=>row[0]<bundle.coverage[1]&&sceneFrame(pausedSite,row,bundle.coverage).states.earth==='blocked');
+      assert(blockedIndex>=0,'The real cache must contain an Earth-blocked sample for this regression.');
+      await evaluate(`document.querySelector('#time-scope').value='coverage';document.querySelector('#time-scope').dispatchEvent(new Event('change'));document.querySelector('#hero-time').value=${blockedIndex};document.querySelector('#hero-time').dispatchEvent(new Event('input'));document.querySelector('#focus-earth').click()`);
+      const blockedFrame=await inspect(),annotationHidden=await evaluate("document.querySelector('.mission-terrain-obstruction').hidden");
+      assert.equal(blockedFrame.earth.state,'blocked');assert.equal(blockedFrame.earth.visible,false);assert.equal(annotationHidden,false,'A blocked-Earth directional explanation must update even when animation callbacks cannot run.');assert.equal((await pausedRaf()).callbacks,0);
+      evidence.pausedRendererEarthBlock={index:blockedIndex,time:blockedFrame.time,state:blockedFrame.earth.state,bodyVisible:blockedFrame.earth.visible,annotationHidden,renderedFrames:blockedFrame.renderedFrames,animationCallbacks:0};
+      await screenshot('paused-renderer-earth-obstruction');
+      await click('#mode-orbital');assert.equal((await inspect()).mode,'orbital');
+      await click('#mode-surface');await click('#mode-orbital');await sleep(1100);
+      const canceled=await inspect();assert.equal(canceled.mode,'orbital','A superseded surface timer must not override the latest orbital view request.');
+      const finalRaf=await pausedRaf();assert.equal(finalRaf.callbacks,0);
+      evidence.pausedRendererTransition={initialRenderedFrames:initialFrame.renderedFrames,renderedFrames:completed.renderedFrames,animationRequests:finalRaf.requested,animationCallbacks:finalRaf.callbacks,completedMs,firstMode:completed.mode,latestIntentMode:canceled.mode,cancellationWaitMs:1100};
+      await screenshot('paused-renderer-latest-orbital-intent');
+    }finally{
+      await command('Page.removeScriptToEvaluateOnNewDocument',{identifier:observerFixture.identifier});
+      await command('Page.reload');
+    }
+    await until(async()=>{const frame=await inspect();return frame?.webgl==='ready'&&frame.renderedFrames>0&&frame.moon.textured;},'real IntersectionObserver and Moon renderer restored');
+    await screenshot('restored-real-renderer');
   }
   gate(evidence.exceptions.length===0,'No uncaught JavaScript exceptions.',evidence.exceptions);
   evidence.browser=await command('Browser.getVersion');

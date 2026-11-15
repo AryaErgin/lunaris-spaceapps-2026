@@ -52,14 +52,14 @@ test('mobile overview fits a complete Moon silhouette inside seventy percent can
   assert.equal(orbitalOverviewDistance(1440,755),3.3);
 });
 
-test('overview reset targets the familiar near side at a modest southern latitude', async () => {
+test('overview reset keeps a recognizable near side and exposes the modeled south-pole points', async () => {
   const { orbitalOverviewPosition,orbitalOverviewDistance } = await sceneModule();
   assert.equal(typeof orbitalOverviewPosition,'function','overview reset pose is missing');
   for(const [width,height] of [[1440,755],[390,680]]) {
     const [x,y,z]=orbitalOverviewPosition(width,height),radius=Math.hypot(x,y,z);
     assert(Math.abs(radius-orbitalOverviewDistance(width,height))<1e-12);
     const longitude=-Math.atan2(z,x)*180/Math.PI,latitude=Math.asin(y/radius)*180/Math.PI;
-    assert(longitude>5&&longitude<10);assert(latitude>-15&&latitude<-5);
+    assert(longitude>5&&longitude<10);assert(latitude>-35&&latitude<-25);
   }
 });
 

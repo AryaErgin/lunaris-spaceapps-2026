@@ -45,28 +45,20 @@
           <img id="scene-poster" class="scene-poster" src="./assets/moon-poster.jpg" width="1920" height="1080" fetchpriority="high" alt="NASA LRO-derived cratered Moon, shown while the interactive model loads.">
         </div>
         <div class="scene-vignette" aria-hidden="true"></div>
+        <div class="mission-composition" aria-label="Landing plan and result">
         <div class="experience-intro">
           <p class="eyebrow">Lunar Landing Site Navigator</p>
           <h1 id="experience-title">Explore the Moon. Find a landing window.</h1>
           <p class="hero-support">Choose a location and date.</p>
         </div>
         <div class="scene-site-picker" aria-label="Plan your exploration">
-          <div class="mission-site-field"><div class="site-label-row"><label for="visual-site">Landing site</label><button id="more-sites" class="link-button" type="button">Other locations</button></div>
+          <div class="mission-site-field"><div class="site-label-row"><label for="visual-site">Landing site</label><button id="more-sites" class="link-button" type="button">Other sites</button></div>
           <select id="visual-site" disabled aria-describedby="visual-site-detail"></select><p id="visual-site-detail">NASA terrain-aware study points.</p></div>
           <div class="mission-arrival-field"><label for="visual-arrival">Arrival <span>UTC</span></label>
           <input id="visual-arrival" type="datetime-local" step="1" autocomplete="off"></div>
           <div class="visual-duration-field"><label for="visual-duration">Duration <span>hours</span></label><input id="visual-duration" type="number" min="0.001" step="any" value="12" aria-label="Mission duration in hours" autocomplete="off"></div>
           <button id="visual-date-go" type="button" hidden tabindex="-1" aria-hidden="true">Apply</button>
         </div>
-        <div class="scene-mode-switch" role="group" aria-label="Scene view">
-          <button id="mode-orbital" type="button" aria-pressed="true">Orbit</button>
-          <button id="mode-surface" type="button" aria-pressed="false" disabled>Surface</button>
-          <button id="night-visibility" type="button" aria-pressed="false" title="Artificial illumination only; not sunlight or a shadow calculation." hidden>Night assist</button>
-          <button id="reset-orbit" type="button" aria-label="Reset Moon camera" title="Reset Moon camera">Reset view</button>
-        </div>
-        <aside id="telemetry-rail" class="scene-conditions" aria-label="Sun and Earth at the view clock">
-          <div id="hero-visibility" class="hero-visibility" aria-label="Sun and Earth at the time shown"></div>
-        </aside>
         <div id="orbital-story-slot" class="orbital-story-slot">      <section id="mission-story" class="mission-story" aria-labelledby="story-title" hidden>
 
         <div class="story-progress" role="group" aria-label="Mission demonstration steps">
@@ -83,6 +75,16 @@
         <a class="decision-jump" href="#decision-evidence">See the evidence</a>
       </section>
 </div>
+        </div>
+        <div class="scene-mode-switch" role="group" aria-label="Scene view">
+          <button id="mode-orbital" type="button" aria-pressed="true">Orbit</button>
+          <button id="mode-surface" type="button" aria-pressed="false" disabled>Surface</button>
+          <button id="night-visibility" type="button" aria-pressed="false" title="Artificial illumination only; not sunlight or a shadow calculation." hidden>Night assist</button>
+          <button id="reset-orbit" type="button" aria-label="Reset Moon camera" title="Reset Moon camera">Reset view</button>
+        </div>
+        <aside id="telemetry-rail" class="scene-conditions" aria-label="Sun and Earth at the view clock">
+          <div id="hero-visibility" class="hero-visibility" aria-label="Sun and Earth at the time shown"></div>
+        </aside>
         <div id="surface-focus" class="surface-focus" role="group" aria-label="Camera direction" hidden>
           <button id="focus-earth" type="button">Look at Earth</button><button id="focus-sun" type="button">Look at Sun</button><button id="focus-terrain" type="button">Study sites</button>
         </div>
@@ -93,8 +95,8 @@
           <button id="hero-pause" class="outline" type="button" aria-label="Pause" title="Pause"><span aria-hidden="true">❚❚</span></button>
           <button id="hero-reset" class="outline" type="button" aria-label="Reset to the start" title="Reset to the start"><span aria-hidden="true">↺</span></button>
           <button id="guide-open" class="outline" type="button" hidden>Landing-delay story</button>
-          <div class="hero-scope" role="group" aria-label="Playback range"><button id="hero-scope-stay" type="button" aria-pressed="true">This stay</button><button id="hero-scope-month" type="button" aria-pressed="false">All cached dates</button></div>
-          <label for="hero-speed">Speed <select id="hero-speed"><option value="1">30 min/s</option><option value="4" selected>2 h/s</option><option value="12">6 h/s</option><option value="48">24 h/s</option></select></label>
+          <details class="transport-options"><summary>Playback options</summary><div class="transport-options-content"><div class="hero-scope" role="group" aria-label="Playback range"><button id="hero-scope-stay" type="button" aria-pressed="true">This stay</button><button id="hero-scope-month" type="button" aria-pressed="false">All cached dates</button></div>
+          <label for="hero-speed">Speed <select id="hero-speed"><option value="1">30 min/s</option><option value="4" selected>2 h/s</option><option value="12">6 h/s</option><option value="48">24 h/s</option></select></label></div></details>
         </div>
         <div class="timeline-clock"><span class="timeline-clock-label">View clock · UTC</span><output id="hero-time-label" for="hero-time"></output></div>
         <div class="clock-track">
