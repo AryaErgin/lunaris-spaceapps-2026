@@ -178,7 +178,7 @@ function syncAssessment(){
   byId('environment-overview').hidden=delayStoryEnabled&&requirementsEnabled;
   byId('story-uncertainty').hidden=!requirementsEnabled;
   document.querySelector('.story-progress').hidden=!requirementsEnabled||!delayStoryEnabled;
-  byId('story-status').hidden=!requirementsEnabled;byId('story-next').hidden=!requirementsEnabled||!delayStoryEnabled;byId('story-witness').hidden=!requirementsEnabled||!delayStoryEnabled;
+  byId('story-status').hidden=delayStoryEnabled&&!requirementsEnabled;byId('story-next').hidden=!requirementsEnabled||!delayStoryEnabled;byId('story-witness').hidden=!requirementsEnabled||!delayStoryEnabled;
   byId('find-opportunities').hidden=false;
   const outcome=document.querySelector('.story-outcome');
   if(delayStoryEnabled){outcome.append(byId('find-opportunities'));actions.prepend(byId('story-next'));}
@@ -1919,15 +1919,18 @@ async function enterSurface() {
 function renderLandingAssessment(siteId,time,{pending=false}={}) {
   if(!inputs||delayStoryEnabled)return;
   const status=byId('story-status');
-  if(!requirementsEnabled){status.hidden=true;status.textContent='';return;}
+  // Normal Mission always assesses the existing illustrative limits (or applied custom
+  // limits) for the proposed landing start. This does not enable the separate delay demo.
   pending ||= isEdited;
   const start=inspectClockArrival?time:selectedMission().start;
   const view=pending?{status:'INDETERMINATE'}
       :landingAssessment.assess(inputs,siteId,start,{requirementsApplied:true});
   const root=byId('mission-story');
   Object.assign(root.dataset,{presentation:inspectClockArrival?'hypothetical':'selected',displayStart:String(start),displayStatus:view.status});
-  const resolved=view.status==='PASS'||view.status==='FAIL';
+  const resolved=(view.status==='PASS'||view.status==='FAIL')&&!view.scheduleExcluded;
   status.hidden=!resolved;status.textContent=resolved?view.status:'';
+  status.dataset.assessmentBasis=requirementsEnabled?'applied-requirements':'illustrative-requirements';
+  status.dataset.assessmentStart=String(start);
   status.setAttribute('aria-label',inspectClockArrival?'Hypothetical landing result at the view clock':'Selected arrival result');
   status.className=resolved?`status status-${view.status.toLowerCase()}`:'status';
 }
