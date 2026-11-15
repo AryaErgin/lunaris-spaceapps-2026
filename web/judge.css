@@ -292,9 +292,10 @@ body[data-delay-story='true'] .story-outcome button{font:600 15px/1.4 system-ui,
 .quick-tour-target{scroll-margin-top:105px}
 @media(min-width:701px) and (max-width:1100px){.experience{--rail:400px}.experience-intro,.scene-site-picker,.orbital-story-slot{padding-left:22px;padding-right:22px}.experience-intro h1{font-size:30px}}
 @media(max-width:700px){
- .experience{--rail:0px}.product-purpose{padding:8px 16px;flex-wrap:nowrap;align-items:center;gap:12px}
- .product-purpose .purpose-copy>.geometry-note:first-child{font-size:13px}
- #tour-start{min-height:42px;padding:8px 10px;font-size:14px}#tour-start span{display:none}
+ .experience{--rail:0px}.product-purpose{padding:8px 16px;flex-wrap:wrap;align-items:center;gap:12px}
+ .product-purpose .purpose-copy{flex:1 0 100%}
+ .product-purpose .purpose-copy>.geometry-note:first-child{font-size:14px}
+ #tour-start{min-height:44px;padding:8px 10px;font-size:14px}#tour-start span{display:none}
  .experience-intro{padding:18px 20px 14px}.experience-intro h1{font-size:28px;max-width:18ch;margin:5px 0 10px}
  .hero-support{font-size:16px;line-height:1.45;max-width:none}
  .scene-site-picker{padding:14px 20px 6px}.scene-site-picker select{min-height:46px}
@@ -427,7 +428,7 @@ body[data-delay-story='true'] #delay-shortcut{display:none}
 .any-site-body .any-site-versus{margin-top:6px;padding-top:6px;border-top:1px solid #2a3e4f;color:#b9cbd8}
 #compare-more-sites{font-size:15px;text-align:left}
 @media(max-width:700px){
- #delay-shortcut{min-height:42px;padding:8px 13px;white-space:normal}
+ #delay-shortcut{min-height:44px;padding:8px 13px;white-space:normal;flex:1 1 175px}
  .hero-scope{margin-left:0}.hero-scope+label{margin-left:0!important}
  .hero-time-ends{grid-template-columns:1fr 1fr}.hero-time-ends output{grid-column:1/-1;grid-row:1;text-align:left}
 }

@@ -4,13 +4,33 @@ import {createServer} from 'node:http';
 import {once} from 'node:events';
 import {mkdir,readFile,readdir,writeFile} from 'node:fs/promises';
 import {resolve,sep,extname} from 'node:path';
+import {createHash} from 'node:crypto';
 import {bodyDirection,sceneFrame,localToMoonDirection} from '../web/scene-model.mjs';
 import {runMission,evaluateStart} from '../web/engine.mjs';
 import {communicationDemo} from '../web/overview.mjs';
 
 const root=process.cwd(),work=resolve(root,'progress',`experience-${Date.now()}`);
-const bundle=JSON.parse(await readFile(resolve(root,'web/data/bundle.json'),'utf8'));
-const requireExtended=process.argv.includes('--require-extended')||process.env.LUNARIS_REQUIRE_EXTENDED==='1';
+const bundleBytes=await readFile(resolve(root,'web/data/bundle.json')),bundle=JSON.parse(bundleBytes);
+const requireExtendedSite=process.argv.includes('--require-extended-site')||process.env.LUNARIS_REQUIRE_EXTENDED_SITE==='1';
+const requireExtended=requireExtendedSite||process.argv.includes('--require-extended')||process.env.LUNARIS_REQUIRE_EXTENDED==='1';
+const extraSite=bundle.sites.find(site=>site.id==='peak-near-shackleton');
+if(requireExtendedSite)assert(extraSite,'--require-extended-site needs the actual NASA R07 observer and its own evidence, not the three-site cache.');
+let extraTerrainMetadata=null,extraSiteEvidence=null;
+if(extraSite){
+  assert.equal(extraSite.lat,-88.811);assert.equal(extraSite.lon,123.6901);assert.equal(extraSite.heightM,2);
+  const metadata=JSON.parse(await readFile(resolve(root,'web/data/terrain-scenes.json'),'utf8'));
+  assert.equal(metadata.frame,bundle.manifest.frame.working);assert.equal(metadata.verticalExaggeration,1);assert.equal(metadata.metresPerUnit,1);
+  extraTerrainMetadata=metadata.sites.find(row=>row.siteId===extraSite.id);assert(extraTerrainMetadata,'R07 needs its own display terrain metadata.');
+  assert.equal(metadata.bundleSha256,createHash('sha256').update(bundleBytes).digest('hex'),'Display metadata must identify the actual expanded bundle bytes.');
+  for(const key of ['lat','lon','groundM','heightM'])assert.equal(extraTerrainMetadata[key],extraSite[key],`R07 mesh observer ${key}`);
+  const meshPath=resolve(root,'web/data',extraTerrainMetadata.positionFile);
+  assert(meshPath.startsWith(resolve(root,'web/data')+sep),'The R07 mesh must be a local bundled asset.');
+  const mesh=await readFile(meshPath),meshSha256=createHash('sha256').update(mesh).digest('hex');
+  assert.equal(mesh.length,extraTerrainMetadata.byteLength);assert.equal(meshSha256,extraTerrainMetadata.sha256);
+  assert(metadata.sites.filter(row=>row.siteId!==extraSite.id).every(row=>row.sha256!==meshSha256),'R07 must not borrow another study point\'s display mesh.');
+  extraSiteEvidence={siteId:extraSite.id,coordinates:[extraSite.lat,extraSite.lon],meshBytes:mesh.length,meshSha256,
+    mission:false,compare:false,atlas:false,exactCoordinate:false,unsupportedNeighbor:false,sensitivityIsolation:false,mobile:false,noWebGL:false};
+}
 const plannedExtendedDates=['2026-12-31T18:00:00Z','2027-07-01T06:00:00Z','2027-12-31T06:00:00Z'].map(value=>Date.parse(value)/1000);
 if(requireExtended){
   assert.deepEqual(bundle.coverage,[Date.parse('2026-11-01T00:00:00Z')/1000,Date.parse('2028-01-01T00:00:00Z')/1000],
@@ -93,6 +113,23 @@ try{
     assert.equal(Date.parse(record.mission_start_utc)/1000,plan.start);assert.equal(Date.parse(record.mission_end_utc)/1000,plan.end);
     assert.equal(record.status,plan.status);assert.deepEqual(record.constraints,plan.constraints);
     assert.deepEqual(record.inspected_mission,{role,alternativeIndex:index,siteId:plan.siteId,start:plan.start,end:plan.end,status:plan.status});
+  };
+  const checkExtraFrame=async time=>{
+    const frame=await inspect(),sample=extraSite.geometry.find(row=>row[0]===time),expected=sceneFrame(extraSite,sample,bundle.coverage);
+    assert.equal(frame.siteId,extraSite.id);assert.equal(frame.time,time);assert.equal(frame.mode,'surface');assert(sample);
+    assert.equal(frame.terrain.siteId,extraSite.id);assert.equal(frame.terrain.loaded,true);
+    assert.equal(frame.terrain.sha256,extraTerrainMetadata.sha256);assert.equal(frame.terrain.vertexCount,extraTerrainMetadata.vertexCount);
+    assert.equal(frame.farHorizon.siteId,extraSite.id);assert.equal(frame.farHorizon.rendered,true);assert.equal(frame.camera.position[1],extraSite.heightM);
+    for(const [key,az,el]of [['sun',1,2],['earth',4,5]]){
+      assert.equal(frame[key].azimuth,sample[az]);assert.equal(frame[key].elevation,sample[el]);
+      assert.deepEqual(frame[key].direction,bodyDirection(sample[az],sample[el]));
+      assert.equal(frame[key].state,expected.states[key]);assert.equal(frame[key].visible,expected.states[key]==='visible');
+      const world=localToMoonDirection(extraSite,bodyDirection(sample[az],sample[el]));
+      assert.deepEqual(frame.orbital[key].direction,world);
+      const actual=frame.orbital[key].position.map((value,index)=>value-frame.orbital.rayOrigin[index]),length=Math.hypot(...actual);
+      assert(actual.every((value,index)=>Math.abs(value/length-world[index])<1e-12),'R07 rendered orbital positions must use its own ENU-to-Moon frame.');
+    }
+    return frame;
   };
   const desktop={width:1366,height:768,deviceScaleFactor:1,mobile:false};
   await command('Network.enable');await command('Runtime.enable');await command('Page.enable');await command('Performance.enable');await command('Emulation.setDeviceMetricsOverride',desktop);
@@ -437,6 +474,62 @@ try{
     if(bundle.coverage[1]-43200-first>30*86400)assert.match(await evaluate("document.querySelector('#opportunities-basis').textContent"),/later dates remain unsearched/i);
     await screenshot('extended-opportunities');
   }
+  if(extraSite){
+    // Load actual de Gerlache sensitivity evidence first, then prove it cannot be
+    // relabeled or exported as an assessment of the new observation point.
+    await evaluate("document.querySelector('#verified-demo').click();document.querySelector('#story-recovered').click();document.querySelector('#product-analyst').click();document.querySelector('#analysis-tools').open=true");
+    for(const kind of ['height','position','terrain']){
+      await evaluate(`document.querySelector('#${kind}-panel').open=true;document.querySelector('#run-${kind}s').click()`);
+      await until(()=>evaluate(`!document.querySelector('#${kind}-results').hidden&&document.querySelector('#${kind}-results').childElementCount>0`));
+    }
+    const time=Date.parse('2027-07-01T06:00:00Z')/1000;
+    await evaluate(`document.querySelector('#product-explore').click();document.querySelector('#visual-site').value=${JSON.stringify(extraSite.id)};document.querySelector('#visual-site').dispatchEvent(new Event('change'));document.querySelector('#visual-arrival').value=${JSON.stringify(inputUtc(time))};document.querySelector('#visual-date-go').click();document.querySelector('#mode-surface').click()`);
+    await until(async()=>{const frame=await inspect();return frame.mode==='surface'&&frame.siteId===extraSite.id&&frame.time===time&&frame.terrain.siteId===extraSite.id&&frame.terrain.loaded;});
+    await checkExtraFrame(time);extraSiteEvidence.mission=true;
+    assert.match(await evaluate("document.querySelector('#visual-site-detail').textContent"),/88\.8110.*123\.6901/);
+    assert(requests.some(url=>url.endsWith('/'+extraTerrainMetadata.positionFile)),'The browser must request the actual R07 terrain asset.');
+    for(const kind of ['height','position','terrain']){
+      assert(await evaluate(`document.querySelector('#run-${kind}s').disabled&&document.querySelector('#${kind}-results').hidden&&document.querySelector('#${kind}-results').childElementCount===0`));
+      assert.match(await evaluate(`document.querySelector('#${kind}-status').textContent`),/de Gerlache/);
+    }
+    const record=await download('r07-no-sensitivity-leak');
+    checkCertificate(record,evaluateStart(bundle,record.inputs,extraSite.id,time),'nominal');
+    assert.deepEqual(record.scenario_ids,[]);assert.deepEqual(record.scenario_results,[]);
+    assert(!Object.keys(record).some(key=>key.startsWith('height_study')));
+    for(const key of ['position_study','terrain_study','one_factor_configurations'])assert.equal(record[key],undefined);
+    assert.deepEqual(record.point_coordinates,{latitude_deg:extraSite.lat,longitude_east_deg:extraSite.lon});
+    extraSiteEvidence.sensitivityIsolation=true;await evaluate("scrollTo(0,0)");await screenshot('r07-mission-desktop');
+
+    // Independent option editing must not move the inspected mission. Only the
+    // existing View action applies the option to the shared scene and clock.
+    const comparisonTime=time+86400,beforeCompare=await inspect();
+    await evaluate("document.querySelector('#product-compare').click()");
+    const a=await evaluate("document.querySelector('#comparison-arrival-A').value+'|'+document.querySelector('#comparison-site-A').value");
+    await evaluate(`document.querySelector('#comparison-site-B').value=${JSON.stringify(extraSite.id)};document.querySelector('#comparison-site-B').dispatchEvent(new Event('change'));document.querySelector('#comparison-arrival-B').value=${JSON.stringify(inputUtc(comparisonTime))};document.querySelector('#comparison-arrival-B').dispatchEvent(new Event('change'))`);
+    assert.equal(await evaluate("document.querySelector('#comparison-arrival-A').value+'|'+document.querySelector('#comparison-site-A').value"),a);
+    assert.equal((await inspect()).time,beforeCompare.time);assert.equal((await inspect()).siteId,beforeCompare.siteId);
+    const compared=evaluateStart(bundle,{...record.inputs,nominal:comparisonTime},extraSite.id,comparisonTime);
+    assert.equal(await evaluate("document.querySelector('#option-comparison [data-option=B]').dataset.status"),compared.status);
+    await screenshot('r07-compare-desktop');await evaluate("document.querySelector('#comparison-view-B').click()");
+    await until(async()=>{const frame=await inspect();return frame.siteId===extraSite.id&&frame.time===comparisonTime;});
+    await checkExtraFrame(comparisonTime);
+    checkCertificate(await download('r07-comparison-certificate'),compared,'nominal');extraSiteEvidence.compare=true;
+
+    // The atlas and coordinate form recognize only the exact cached observer.
+    await evaluate("document.querySelector('#visual-site').value='de-gerlache-rim';document.querySelector('#visual-site').dispatchEvent(new Event('change'));document.querySelector('#product-analyst').click();document.querySelector('#analysis-tools').open=true");
+    await until(()=>evaluate(`!!document.querySelector('.atlas-site-button[data-site-id="${extraSite.id}"]')`));
+    await evaluate(`document.querySelector('.atlas-site-button[data-site-id="${extraSite.id}"]').click()`);
+    assert.equal((await inspect()).siteId,extraSite.id);extraSiteEvidence.atlas=true;
+    await evaluate(`document.querySelector('#visual-site').value='de-gerlache-rim';document.querySelector('#visual-site').dispatchEvent(new Event('change'));document.querySelector('#explore-lat').value=${extraSite.lat};document.querySelector('#explore-lon').value=${extraSite.lon};document.querySelector('#coordinate-form').requestSubmit()`);
+    assert.equal((await inspect()).siteId,extraSite.id);assert.equal(await evaluate("document.querySelector('#coordinate-feedback').dataset.supported"),'true');extraSiteEvidence.exactCoordinate=true;
+    const beforeNeighbor=await evaluate("document.querySelector('#site').value+'|'+document.querySelector('#nominal').value");
+    await evaluate(`document.querySelector('#explore-lat').value=${extraSite.lat+.0001};document.querySelector('#coordinate-form').requestSubmit()`);
+    assert.equal(await evaluate("document.querySelector('#coordinate-feedback').dataset.supported"),'false');
+    assert.match(await evaluate("document.querySelector('#coordinate-feedback').textContent"),/Unsupported terrain-aware calculation/);
+    assert.equal(await evaluate("document.querySelector('#site').value+'|'+document.querySelector('#nominal').value"),beforeNeighbor);extraSiteEvidence.unsupportedNeighbor=true;
+    await screenshot('r07-atlas-desktop');
+    await evaluate("document.querySelector('#verified-demo').click();document.querySelector('#product-explore').click()");
+  }
   // Custom planning is separate from a delayed same-site recovery.
   await evaluate("document.querySelector('#solar-demo').click();document.querySelector('#product-explore').click();document.querySelector('#visual-arrival').value='2026-11-17T03:00:00';document.querySelector('#visual-date-go').click()");
   assert.equal(await evaluate("Date.parse(document.querySelector('#latest').value+'Z')"),(bundle.coverage[1]-12*3600)*1000,'A custom arrival must not inherit the solar teaching preset\'s Nov7 cap.');
@@ -491,11 +584,28 @@ try{
   assert(await evaluate("document.querySelector('#find-opportunities').getBoundingClientRect().bottom<=innerHeight"),'The mobile landing-opportunity action must be visible before advanced analysis.');
   await evaluate("document.querySelector('#apply-requirements').checked=false;document.querySelector('#apply-requirements').dispatchEvent(new Event('change'));scrollTo(0,0)");
   await screenshot('environment-mission-mobile');
+  assert(await evaluate("(()=>{const note=document.querySelector('.product-purpose .geometry-note').getBoundingClientRect(),banner=document.querySelector('.product-purpose').getBoundingClientRect();return note.width>=innerWidth*.8&&banner.height<=155;})()"),'The mobile scientific qualification must use a readable full-width row, not a narrow vertical column between buttons.');
   assert(await evaluate("document.querySelector('#find-opportunities').getBoundingClientRect().bottom<=innerHeight&&document.querySelector('#story-status').hidden"));
   await evaluate("document.querySelector('#find-opportunities').click()");await until(()=>evaluate("document.querySelector('#landing-opportunities').dataset.kind==='VISIBILITY_FOUND'"));
   await evaluate("document.querySelector('#landing-opportunities').scrollIntoView({block:'start',behavior:'instant'})");await screenshot('environment-opportunities-mobile');
   assert(await evaluate("[...document.querySelectorAll('#opportunity-options article')].every(n=>n.getBoundingClientRect().right<=innerWidth)"));
   await evaluate("document.querySelector('#product-compare').click()");await screenshot('environment-compare-mobile');
+  if(extraSite){
+    const time=Date.parse('2027-07-01T06:00:00Z')/1000;
+    await evaluate(`document.querySelector('#product-explore').click();document.querySelector('#visual-site').value=${JSON.stringify(extraSite.id)};document.querySelector('#visual-site').dispatchEvent(new Event('change'));document.querySelector('#visual-arrival').value=${JSON.stringify(inputUtc(time))};document.querySelector('#visual-date-go').click();document.querySelector('#mode-surface').click();scrollTo(0,0)`);
+    await until(async()=>{const frame=await inspect();return frame.mode==='surface'&&frame.terrain.siteId===extraSite.id&&frame.terrain.loaded&&frame.time===time;});
+    await checkExtraFrame(time);assert(await evaluate('document.documentElement.scrollWidth<=innerWidth'));
+    assert.equal(await evaluate("document.querySelector('#visual-site').value"),extraSite.id);await screenshot('r07-mission-mobile');
+    await evaluate("document.querySelector('#product-compare').click()");
+    await evaluate(`document.querySelector('#comparison-site-B').value=${JSON.stringify(extraSite.id)};document.querySelector('#comparison-site-B').dispatchEvent(new Event('change'));document.querySelector('#comparison-arrival-B').value=${JSON.stringify(inputUtc(time+1800))};document.querySelector('#comparison-arrival-B').dispatchEvent(new Event('change'))`);
+    assert(await evaluate("[...document.querySelectorAll('#option-comparison>article')].every(n=>{const r=n.getBoundingClientRect();return r.width>0&&r.left>=0&&r.right<=innerWidth})"));
+    await screenshot('r07-compare-mobile');await evaluate("document.querySelector('#comparison-view-B').click()");
+    assert.equal((await inspect()).siteId,extraSite.id);assert.equal((await inspect()).time,time+1800);
+    await evaluate(`document.querySelector('#product-analyst').click();document.querySelector('#analysis-tools').open=true;document.querySelector('.atlas-site-button[data-site-id="${extraSite.id}"]').scrollIntoView({block:'center',behavior:'instant'})`);
+    assert(await evaluate(`(()=>{const n=document.querySelector('.atlas-site-button[data-site-id="${extraSite.id}"]'),r=n.getBoundingClientRect();return r.width>0&&r.left>=0&&r.right<=innerWidth})()`));
+    assert.equal(await evaluate("document.querySelectorAll('.atlas-site-button').length"),bundle.sites.length);
+    await screenshot('r07-atlas-mobile');extraSiteEvidence.mobile=true;
+  }
   await evaluate("document.querySelector('#product-explore').click();document.querySelector('#start-delay-demo').click()");
   await command('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]});
   assert(await evaluate("getComputedStyle(document.querySelector('.scene-poster')).transitionDuration==='0s'"));
@@ -524,6 +634,17 @@ try{
   });
   assert(await evaluate("!document.querySelector('#top').hidden&&!document.querySelector('#export').disabled"));
   await screenshot('fallback-mobile');
+  if(extraSite){
+    const time=Date.parse('2027-07-01T06:00:00Z')/1000;
+    await evaluate(`document.querySelector('#visual-site').value=${JSON.stringify(extraSite.id)};document.querySelector('#visual-site').dispatchEvent(new Event('change'));document.querySelector('#visual-arrival').value=${JSON.stringify(inputUtc(time))};document.querySelector('#visual-date-go').click();document.querySelector('#apply-requirements').checked=true;document.querySelector('#apply-requirements').dispatchEvent(new Event('change'))`);
+    assert.equal(await evaluate("document.querySelector('#site').value"),extraSite.id);
+    assert.equal(Number(await evaluate("document.querySelector('#local-sky').dataset.time")),time);
+    assert.match(await evaluate("document.querySelector('#local-sky').textContent"),/Peak Near Shackleton/);
+    assert.equal(await evaluate("document.querySelector('#experience').dataset.ready"),'false');
+    const record=await download('r07-no-webgl-certificate');checkCertificate(record,evaluateStart(bundle,record.inputs,extraSite.id,time),'nominal');
+    assert.deepEqual(record.scenario_ids,[]);assert.deepEqual(record.scenario_results,[]);
+    await screenshot('r07-fallback-mobile');extraSiteEvidence.noWebGL=true;
+  }
   await command('Network.setBlockedURLs',{urls:['*/data/bundle.json']});
   await command('Page.navigate',{url});
   await until(()=>evaluate("!document.querySelector('#load-error').hidden"));
@@ -534,10 +655,11 @@ try{
     assert.deepEqual(extendedBrowserEvidence.map(row=>Date.parse(row.startUtc)/1000),plannedExtendedDates);
     assert.equal(extendedPlaybackEvidence?.sampleCount,426*48,'The actual annual full-cache playback check must execute.');
   }
+  if(requireExtendedSite)assert(extraSiteEvidence&&Object.values(extraSiteEvidence).every(value=>value!==false),'Every required R07 interaction must execute, including mobile and no-WebGL evidence.');
   await writeFile(resolve(work,'verification.json'),JSON.stringify({viewports:[[1024,768],[1366,768],[1440,900],[390,840]],
     defaultMode:'environment-without-requirements',optionalExampleInitialStatus:'PASS',delayedStatus:'FAIL',recoveredStatus:'PASS',certificateRoles:['nominal','delayed','recommended','cross-site alternative'],
     invalidArrivalRejected:true,exportSelectionRace:true,allSiteVisibilityGates:true,noExternalRequests:true,customOpportunitySearch:true,automaticAndExplicitSchedules:true,opportunityCertificateIdentity:true,ordinaryWheelZoomAndPageScrollOutsideCanvas:['orbital','surface'],keyboardZoom:['orbital','surface'],surfaceTouchPinch:true,
-    webglFallback:true,missingBundleError:true,physicalDevice:false,humanComprehension:false,requireExtended,extendedBrowserEvidence,extendedPlaybackEvidence,
+    webglFallback:true,missingBundleError:true,physicalDevice:false,humanComprehension:false,requireExtended,requireExtendedSite,extendedBrowserEvidence,extendedPlaybackEvidence,extraSiteEvidence,
     dataBundlePayloadSha256:bundle.manifest.bundleSha256,coverageUtc:bundle.coverage.map(time=>new Date(time*1000).toISOString()),siteIds:bundle.sites.map(site=>site.id),
     browser:await command('Browser.getVersion'),performance:performanceEvidence},null,2));
   console.log(`3D experience passed: textured GPU Moon/Earth, real DEM meshes, camera controls, PASS/FAIL/PASS story, all-site obstruction gating, lazy/offline assets, mobile, reduced motion and lost/absent WebGL fallback. Evidence: ${work}`);

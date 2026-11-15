@@ -1,7 +1,7 @@
 {
   "aiUse": "OpenAI Codex and Anthropic Claude assisted implementation, tests and writing under human teammates Arya Ergin and Aras. Mesh vertices are deterministic NASA DEM derivatives, not generative artwork.",
   "binaryFormat": "little-endian contiguous Float32 XYZ, followed by Uint32 triangle indices",
-  "bundleSha256": "8fffeeba500f5e627eca46560c71516f62b1bd14dc25066fbebccd54fe34cc73",
+  "bundleSha256": "21a59be9b936ad4780d7ad3ea58a2d8ffaae4fff7f3cbea4a965398b370f8f67",
   "coordinateConvention": "x=eastM, y=radialUpM above exact bundle ground, z=-northM; right handed",
   "frame": "MOON_ME_DE440_ME421",
   "gridProjection": "Inverse gnomonic directions from local east/north reference-sphere tangent coordinates",
@@ -207,6 +207,69 @@
       "sha256": "862d8c0fdccb10d07fae55c8f2e7a9427b847f73de185cdef69104a8d9336c47",
       "siteId": "de-gerlache-rim",
       "vertexCount": 91897
+    },
+    {
+      "boundsM": [
+        [
+          -32001.237025370658,
+          -4714.412887461683,
+          -32003.674252049135
+        ],
+        [
+          32001.81651243646,
+          3.065332621512074,
+          32022.5997659851
+        ]
+      ],
+      "byteLength": 3295788,
+      "chunks": [
+        {
+          "gridSize": 101,
+          "indexCount": 60000,
+          "indexOffset": 0,
+          "innerHalfExtentM": 0,
+          "name": "native-core",
+          "nativeSourceSpacingM": 5,
+          "nominalGridSpacingM": 5.0,
+          "outerHalfExtentM": 250.0
+        },
+        {
+          "gridSize": 129,
+          "indexCount": 99264,
+          "indexOffset": 60000,
+          "innerHalfExtentM": 250.0,
+          "name": "local-relief",
+          "nativeSourceSpacingM": 5,
+          "nominalGridSpacingM": 62.5,
+          "outerHalfExtentM": 4000.0
+        },
+        {
+          "gridSize": 257,
+          "indexCount": 388992,
+          "indexOffset": 159264,
+          "innerHalfExtentM": 4000.0,
+          "name": "regional-relief",
+          "nativeSourceSpacingM": 80,
+          "nominalGridSpacingM": 250.0,
+          "outerHalfExtentM": 32000.0
+        }
+      ],
+      "elevationRangeM": [
+        -2863.26025390625,
+        1648.617919921875
+      ],
+      "groundM": 1645.548828125,
+      "heightM": 2.0,
+      "indexCount": 548256,
+      "indicesByteOffset": 1102764,
+      "lat": -88.811,
+      "lon": 123.6901,
+      "missingCellCount": 0,
+      "positionFile": "terrain-peak-near-shackleton.mesh",
+      "positionsByteOffset": 0,
+      "sha256": "e51dc164d71237347bf314659e66933013fc1744befd4e60422c653885b6075c",
+      "siteId": "peak-near-shackleton",
+      "vertexCount": 91897
     }
   ],
   "sources": [
@@ -357,6 +420,45 @@
       },
       "sha256": "58f3372c35bbd6baf38ffd5633c1c96b59bd89dbd252150581d12893a43136e5",
       "url": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/Site11/Site11_final_adj_5mpp_surf.tif"
+    },
+    {
+      "acquiredUtc": "2026-11-14T22:54:32.292859+00:00",
+      "bytes": 40980808,
+      "checksumOrigin": "Locally computed SHA-256 retrieval pin after HTTPS acquisition; not a publisher checksum",
+      "citation": "https://pgda.gsfc.nasa.gov/products/78",
+      "expectedBytes": 40980808,
+      "filename": "Site07_final_adj_5mpp_surf.tif",
+      "publisherChecksumAvailable": false,
+      "raster": {
+        "affine": [
+          5.0,
+          0.0,
+          22000.0,
+          0.0,
+          -5.0,
+          -12000.0
+        ],
+        "areaOrPoint": "Area",
+        "boundsM": [
+          22000.0,
+          -28000.0,
+          38000.0,
+          -12000.0
+        ],
+        "dimensions": [
+          3200,
+          3200
+        ],
+        "filename": "Site07_final_adj_5mpp_surf.tif",
+        "maskFlags": [
+          "nodata"
+        ],
+        "noData": "NaN",
+        "spacingM": 5.0,
+        "wkt": "PROJCRS[\"unnamed\",BASEGEOGCRS[\"unnamed ellipse\",DATUM[\"unknown\",ELLIPSOID[\"unnamed\",1737400,0,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]]]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9122]]]],CONVERSION[\"unnamed\",METHOD[\"Polar Stereographic (variant B)\",ID[\"EPSG\",9829]],PARAMETER[\"Latitude of standard parallel\",-90,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8832]],PARAMETER[\"Longitude of origin\",0,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8833]],PARAMETER[\"False easting\",0,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8806]],PARAMETER[\"False northing\",0,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8807]]],CS[Cartesian,2],AXIS[\"easting\",north,ORDER[1],LENGTHUNIT[\"metre\",1]],AXIS[\"northing\",north,ORDER[2],LENGTHUNIT[\"metre\",1]]]"
+      },
+      "sha256": "38aaee10bb4da4d63e7427aa1ca25c79bdbc649d212079a04990e135462091f8",
+      "url": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/Site07/Site07_final_adj_5mpp_surf.tif"
     }
   ],
   "version": "1.0.0",

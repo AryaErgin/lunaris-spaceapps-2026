@@ -1,5 +1,5 @@
 {
-  "aiUse": "OpenAI Codex assisted derivative implementation, tests and interface text under sole human entrant Arya Ergin. Image pixels are a deterministic NASA DEM transformation, not generative artwork.",
+  "aiUse": "OpenAI Codex and Anthropic Claude assisted derivative implementation, tests and interface text under human teammates Arya Ergin and Aras. Image pixels are a deterministic NASA DEM transformation, not generative artwork.",
   "display": {
     "boundsM": [
       -64000.0,
@@ -48,7 +48,7 @@
     "Relief shading uses an artificial fixed map light, not Sun geometry or actual lunar illumination.",
     "This reduced 200 m display is not used to compute any horizon, visibility interval or mission decision.",
     "A valid display cell establishes only valid source pixels in this reduced map; it is not a terrain-aware calculation at that coordinate.",
-    "Only the three exact cached study points have mission calculations; any other entered or clicked point is unsupported.",
+    "Only exact cached study points have terrain-aware mission calculations; other coordinates support level-horizon exploration, not terrain-aware feasibility.",
     "This regional crop omits the rest of the source raster. Transparent cells would indicate missing terrain, never flat terrain.",
     "Nominal raster spacing is not effective spatial resolution. Interpolation and unresolved small terrain remain limitations.",
     "Study-point labels are published region centers, not approved landing locations. No landing safety or trajectory claim is made."

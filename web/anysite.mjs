@@ -1,7 +1,7 @@
 // Sun and Earth directions above the LEVEL horizon for any lunar coordinate.
 // Presentation and education only: no terrain is modelled here, so nothing in this
 // module states whether a body is visible. Terrain-aware visibility exists only for
-// the three study points and comes from the scientific bundle.
+// the cached study points and comes from the scientific bundle.
 import {bodyDirection,localToMoonDirection,moonPoint} from './scene-model.mjs';
 
 const DEG=180/Math.PI;

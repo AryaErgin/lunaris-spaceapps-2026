@@ -6,12 +6,14 @@ import {resolve} from 'node:path';
 
 const url=process.argv[2]??'https://aryaergin.github.io/lunaris-spaceapps-2026/';
 const expectedSha=process.argv[3];
+assert.match(expectedSha??'',/^[a-f0-9]{40}$/i,'Supply the exact expected public release SHA after the URL.');
 const skipMedia=process.argv.includes('--skip-media');
 const work=resolve('progress',`public-${Date.now()}`);await mkdir(work,{recursive:true});
 const release=await fetch(new URL('release.json',url)).then(r=>{assert.equal(r.status,200);return r.json();});
-if(expectedSha)assert.equal(release.application_release_sha,expectedSha);
+assert.equal(release.application_release_sha,expectedSha);
 const bundle=await fetch(new URL('data/bundle.json',url)).then(r=>{assert.equal(r.status,200);return r.json();});
-assert.equal(bundle.sites.length,3);
+assert(bundle.sites.length>=3);assert.equal(new Set(bundle.sites.map(site=>site.id)).size,bundle.sites.length);
+for(const id of ['connecting-ridge','shackleton-rim','de-gerlache-rim'])assert(bundle.sites.some(site=>site.id===id),`Original verified study point ${id} must remain published.`);
 assert.equal((await fetch(new URL('data/terrain-atlas.png',url))).status,200);
 const profile=resolve(work,'anonymous-chrome');
 const browser=spawn(process.env.LUNARIS_CHROME??'C:/Program Files/Google/Chrome/Application/chrome.exe',[
@@ -40,7 +42,7 @@ try{
     await screenshot('anonymous-environment-desktop');
     await evaluate("document.querySelector('#find-opportunities').click()");
     await until(()=>evaluate("document.querySelector('#landing-opportunities').dataset.kind==='VISIBILITY_FOUND'"));
-    assert(await evaluate("!document.querySelector('#opportunity-options .status')&&document.querySelectorAll('#opportunity-options article').length===3"));
+    assert(await evaluate(`!document.querySelector('#opportunity-options .status')&&document.querySelectorAll('#opportunity-options article').length===${bundle.sites.length}`));
     await evaluate("document.querySelector('#landing-opportunities').scrollIntoView({block:'start',behavior:'instant'})");
     await screenshot('anonymous-environment-opportunities');
     await evaluate("document.querySelector('#start-delay-demo').click()");

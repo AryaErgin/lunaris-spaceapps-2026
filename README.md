@@ -2,9 +2,9 @@
 
 **Experimental branch — not deployed.** `experiment/extended-lunar-coverage` adds calculated coverage from **1 November 2026 through 31 December 2027**. The public application and `main` remain the original November release, protected by `lunaris-stable-20261114` (`0d36904`). Run this branch locally to inspect the expansion.
 
-Explore sunlight and Earth visibility at three NASA-sourced lunar south-pole study points. Compare arrivals, inspect bounded operating windows and find evaluated opportunities. Optional mission requirements and a landing-delay example explain what a changed schedule can cost.
+Explore sunlight and Earth visibility at four NASA-sourced lunar south-pole study points. Compare arrivals, inspect bounded operating windows and find evaluated opportunities. Optional mission requirements and a landing-delay example explain what a changed schedule can cost.
 
-[Open the application](https://aryaergin.github.io/lunaris-spaceapps-2026/) · [Watch the actual 29-second demonstration](https://aryaergin.github.io/lunaris-spaceapps-2026/demo.html).
+[Open the stable public application](https://aryaergin.github.io/lunaris-spaceapps-2026/) · [Existing stable demonstration](https://aryaergin.github.io/lunaris-spaceapps-2026/demo.html).
 
 ## Try it locally
 
@@ -39,18 +39,29 @@ Recovery also passes seven separately tested baseline/height/position/terrain ca
 
 - **Mission:** starts with environmental measurements and no mission verdict. Choose a study point, UTC arrival and view duration (12 hours if blank), then explore the Moon or LOLA surface. **Find landing opportunities** compares supported starts without requiring a delay. Environment searches show each site's largest confirmed joint-time lower bound on the selected grid; unresolved time can change the physical ranking. Open **Mission requirements & delay example** to enable or edit illustrative requirements; Advanced retains full controls. Explicit requirements produce PASS/FAIL/INDETERMINATE, signed margins and decision certificates. The delay story is optional. Scroll/pinch zooms over the scene; drag/arrow keys look; keyboard plus/minus zoom. Scroll outside the scene to move the page.
 - **Show me how:** a first-visit offer (remembered locally) starts a skippable, replayable tour of the actual controls. It covers planning, the sky, playback, durations, optional requirements, comparison, searches and evidence. The real 72-hour delay example loads only after consent; **Restore my plan & exit** returns your saved inputs. Scientific charts remain available if 3D fails.
-- **Orbital markers:** circles identify the three terrain-aware study points; cyan diamonds identify curated Apollo, CLPS and international locations. Selecting a diamond opens that location's level-horizon explorer without changing the terrain-aware mission. Unknown local terrain is never replaced with another site's skyline.
+- **Orbital markers:** circles identify the four terrain-aware study points; cyan diamonds identify curated Apollo, CLPS and international locations. Selecting a diamond opens that location's level-horizon explorer without changing the terrain-aware mission. Unknown local terrain is never replaced with another site's skyline.
 - **Other landing sites:** below the Mission scene (open by default; also linked from the site selector and from Compare), pick an Apollo site, a NASA CLPS site, a Chandrayaan-3 or Chang’e 4 site, or type any lunar coordinate. LUNARIS shows approximate Sun and Earth elevation and bearing above the **level** horizon at the Mission clock and a chart across the cached dates. No terrain is included there, so it makes no visibility claim. The selected study point is drawn dashed in the same level-horizon model for contrast. **All cached dates** expands playback beyond the selected stay; UTC jumping selects a specific cached instant. **Try a 72-hour landing delay** starts the optional example.
-- **Compare:** two independent sites/UTC arrivals share the same view duration, allowed schedule and any explicitly enabled requirements. Add an optional third. Environmental mode shows visibility bounds without mission badges; requirements mode explains each verdict. **View this option** synchronizes Mission. **Explore the month** shows a daily, three-site visibility calendar (or feasibility against enabled requirements). Automatic schedule bounds update when arrival/duration changes; bounds edited in Advanced remain fixed. Unsupported coverage, empty schedules, failed options and unresolved options are explained separately, with evaluated near misses when requirements apply.
+- **Compare:** two independent sites/UTC arrivals share the same view duration, allowed schedule and any explicitly enabled requirements. Add an optional third option card. Environmental mode shows visibility bounds without mission badges; requirements mode explains each verdict. **View this option** synchronizes Mission. **Explore the month** shows a daily, four-site calendar with previous/next month controls (or feasibility against enabled requirements). Automatic schedule bounds update when arrival/duration changes; bounds edited in Advanced remain fixed. Unsupported coverage, empty schedules, failed options and unresolved options are explained separately, with evaluated near misses when requirements apply.
 - **Advanced:** edit limits and scheduling bounds; inspect timelines, horizon/angle plots, bounded metrics and provenance. Environmental records contain measurements with no mission verdict. With requirements enabled, sensitivity studies and version 2 decision certificates retain the inspected plan's identity separately from the original search and frozen generator. Unstamped local development exports leave the application release SHA null.
 
 ## Data and visual limits
 
-Calculations cover the published Connecting Ridge, Shackleton Rim and de Gerlache Rim 1 region centers, with 2 m observers, over **[2026-11-01 00:00, 2028-01-01 00:00) UTC**: 426 days. These are study coordinates, not approved landing pads. Shackleton's sampled local DEM gradient is about 31.5 degrees. Other coordinates have no terrain-aware decision. Missing coverage and unresolved crossings remain explicit.
+Calculations cover these published region centers over **[2026-11-01 00:00, 2028-01-01 00:00) UTC**: 426 days. All observers stand 2 m above their own native DEM ground. Latitude is planetocentric, positive north; longitude is east-positive.
+
+| Study point | Latitude | Longitude E | NASA local terrain |
+|---|---:|---:|---|
+| Connecting Ridge | −89.4632° | 222.5100° | PGDA Site 01 |
+| Shackleton Rim | −89.7668° | 188.1300° | PGDA Site 04 |
+| de Gerlache Rim 1 | −88.6834° | 292.0679° | PGDA Site 11 |
+| Peak Near Shackleton | −88.8110° | 123.6901° | PGDA Site 07 |
+
+Coordinates come from the [NASA Lunar Surface Data Book](https://ntrs.nasa.gov/citations/20250002845); the additional point was checked against table A2.1-1, page 75. These are region centers, not approved landing pads. Shackleton's sampled native DEM gradient is about 31.5°; Peak Near Shackleton's is about 5.0°. Neither is a landing-safety determination. Every point has its own local/regional horizon and display mesh. Other coordinates have no terrain-aware decision. Missing coverage and unresolved crossings remain explicit.
 
 The engine uses curved local/regional NASA LRO/LOLA terrain and SPICE `CN+S` in `MOON_ME_DE440_ME421`. East-positive longitude and clockwise-from-north azimuth are explicit. The extension's 300 matched Horizons directions span 15 epochs at ten baseline/candidate/sensitivity observers; maximum separation is 0.000000517 degrees. Shared JPL lineage means this is an implementation check, not independent terrain or observational validation. Dense 60-second/interlaced 30-second checks and a separate kernel-polynomial motion enclosure support the unchanged solver assumptions. The enclosure is conditional on declared implementation allowances, not formal software verification or a physical-accuracy guarantee.
 
 Monthly temporal grids are stitched without gaps or resets; November geometry and retained/coarse/fine intervals match the stable release exactly. All six finite variants cover the same extended dates. Large terrain/refinement uncertainty remains in some seasons: calculating a date does not establish convergence or a passing mission. Future UTC dates use frozen `naif0012.tls`; future leap-second decisions require updated kernels and revalidation. Automatic searches inspect a disclosed **30-day candidate window** without changing your allowed schedule or requirements; move arrival forward to inspect later dates. The optional delay example retains its original November schedule.
+
+For Peak Near Shackleton, retained unresolved time is 23.53% for Sun and 10.61% for Earth across this period, with no missing-time intervals. Its monthly whole-period refinement diagnostic is not generally converged; per-mission decisions still require both numerical models to support each conclusion. The Site 07 SHA-256 is a locally computed retrieval pin, not a NASA-published checksum. Sparse independent native-point upper-envelope checks are model consistency evidence, not observational validation of the skyline.
 
 The reduced display mesh extends 32 km with no vertical exaggeration. More distant terrain uses the nominal angular skyline projected at an artificial 200 km distance. These visuals never decide visibility. Cached sky positions are 30 minutes apart; in surface view bodies are hidden unless retained/coarse/fine intervals all confirm visibility. Fixed approximate Sun/Earth diameters are 0.53/1.9 degrees, in both the surface and orbital views; orbital distances are schematic. Earth's approximate lit phase follows the cached Sun direction, while its historical cloud-free composite and geographic face stay unregistered. Surface brightness uses a Lommel-Seeliger regolith approximation with restrained procedural display grain that adds no relief. Direct light is withheld when Sun-center visibility is blocked or unresolved at the observer; otherwise it shades slopes by their orientation. This display gate is not a full-disc illumination or terrain-cast-shadow calculation. A faint artificial fill preserves silhouettes; optional **Night assist** adds explicitly artificial light for terrain inspection. Neither models Earthshine or calibrated night brightness. Sun focus uses optical zoom without enlarging the disc. Sun glare is a camera-style illustration. No rocks or landing hazards are resolved.
 
@@ -70,7 +81,7 @@ python -m pytest -q -rs
 node --test tests/*.test.mjs
 node tests/test_ui.mjs --require-recovery --height --position --terrain
 node tests/test_ui.mjs --fixture
-node tests/test_experience.mjs --require-extended
+node tests/test_experience.mjs --require-extended --require-extended-site
 node tests/test_onboarding.mjs
 node tests/test_extended_planning_grid.mjs
 ```
@@ -79,11 +90,11 @@ Browser checks require Node.js 24 and Chrome/Chromium; set `LUNARIS_CHROME` for 
 
 Set `LUNARIS_REQUIRE_EXTENDED=1` for strict annual unit checks (PowerShell: `$env:LUNARIS_REQUIRE_EXTENDED='1'`). Actual annual tests must not silently pass against a November-only fallback. Raw assets are optional for runtime; raw-dependent Python checks report skips when absent.
 
-To reproduce the extension, acquire the pinned original NASA files with `python -m science.sources --clones` (about 439 MB). Preserve the four original reference files from the stable tag, without shell text conversion:
+To reproduce the extension, acquire the original NASA files with `python -m science.sources --clones`, then the pinned Site 07 with `python -m science.extended_sites --acquire --verify` (480,670,183 bytes total for the eleven scientific inputs). Preserve the four original reference files from the stable tag, without shell text conversion:
 
 ```sh
 python -c "from pathlib import Path; import subprocess; p=Path('data/reference/stable'); p.mkdir(parents=True,exist_ok=True); [p.joinpath(n).write_bytes(subprocess.check_output(['git','show','lunaris-stable-20261114:web/data/'+n])) for n in ['bundle.json','height-study.json','position-study.json','terrain-study.json']]"
-python -m science.extended --reference data/reference/stable/bundle.json --domain-validation web/data/domain-validation.json --horizons-validation web/data/horizons-validation.json --motion-enclosure web/data/motion-envelope.json --engine-commit "$(git rev-parse HEAD)"
+python -m science.extended --reference data/reference/stable/bundle.json --domain-validation web/data/domain-validation.json --horizons-validation web/data/horizons-validation.json --motion-enclosure web/data/motion-envelope.json --engine-commit "$(git rev-parse HEAD)" --additional-site
 python -m science.scene_terrain
 python -m science.rendering_notes
 python -m science.validate_extension --bundle web/data/bundle.json --reference data/reference/stable/bundle.json --output data/cache/extended/point-validation.json
