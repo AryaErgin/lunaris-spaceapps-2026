@@ -12,22 +12,8 @@ const MOON_RADIUS_KM=1737.4;
 const MEAN_EARTH_DISTANCE_KM=384400;
 export const EARTH_DIRECTION_TOLERANCE_DEG=0.05;
 
-// Coordinates are planetocentric latitude north and longitude east, in degrees.
-const NSSDCA='https://nssdc.gsfc.nasa.gov/planetary/lunar/lunar_sites.html';
-export const NOTABLE_SITES=[
-  {id:'apollo-11',group:'Apollo (NASA)',name:'Apollo 11 · Tranquility Base',year:1969,lat:0.67416,lon:23.47314,source:NSSDCA},
-  {id:'apollo-12',group:'Apollo (NASA)',name:'Apollo 12 · Ocean of Storms',year:1969,lat:-3.0128,lon:-23.4219,source:NSSDCA},
-  {id:'apollo-14',group:'Apollo (NASA)',name:'Apollo 14 · Fra Mauro',year:1971,lat:-3.64589,lon:-17.47194,source:NSSDCA},
-  {id:'apollo-15',group:'Apollo (NASA)',name:'Apollo 15 · Hadley–Apennine',year:1971,lat:26.13239,lon:3.6333,source:NSSDCA},
-  {id:'apollo-16',group:'Apollo (NASA)',name:'Apollo 16 · Descartes',year:1972,lat:-8.9734,lon:15.5011,source:NSSDCA},
-  {id:'apollo-17',group:'Apollo (NASA)',name:'Apollo 17 · Taurus–Littrow',year:1972,lat:20.1911,lon:30.7723,source:NSSDCA},
-  {id:'blue-ghost-1',group:'NASA CLPS',name:'Blue Ghost Mission 1 · Mare Crisium',year:2025,lat:18.562,lon:61.81,
-    source:'https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2025-010A'},
-  {id:'chandrayaan-3',group:'Other national programs',name:'Chandrayaan-3 · India',year:2023,lat:-69.373,lon:32.319,
-    source:'https://en.wikipedia.org/wiki/Chandrayaan-3'},
-  {id:'change-4',group:'Other national programs',name:'Chang’e 4 · China · far side',year:2019,lat:-45.4446,lon:177.5991,
-    source:'https://doi.org/10.1038/s41467-019-12278-3'},
-];
+// Compatibility export; the unified registry owns the curated source records.
+export {NOTABLE_SITES} from './site-registry.mjs';
 
 const dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
 const cache=new WeakMap();

@@ -1,0 +1,610 @@
+{
+  "schemaVersion": "1.0",
+  "verifiedUtc": "2026-11-15",
+  "coordinateConvention": "Planetocentric latitude degrees north; longitude degrees east, preserving signed source values",
+  "scope": "Historical context coordinates with approximate 2026?2027 environmental predictions; terrain products are candidates, not computed visibility.",
+  "aiUse": "AI-assisted primary-source research, implementation, test design and documentation; no NASA certification is implied.",
+  "sites": [
+    {
+      "id": "apollo-11",
+      "group": "Apollo (NASA)",
+      "name": "Apollo 11 · Tranquility Base",
+      "year": 1969,
+      "lat": 0.67416,
+      "lon": 23.47314,
+      "source": "https://nssdc.gsfc.nasa.gov/planetary/lunar/lunar_sites.html",
+      "coordinateStatus": "Published historical lander location",
+      "sourceFrame": "DE421 mean Earth/polar-axis",
+      "coordinateConvention": "Planetocentric latitude degrees north; longitude degrees east",
+      "referenceRadiusM": 1737400,
+      "coordinateVerifiedUtc": "2026-11-15",
+      "predictionPeriodIsHistoricalReconstruction": false,
+      "coordinateEvidence": [
+        {
+          "url": "https://nssdc.gsfc.nasa.gov/planetary/lunar/lunar_sites.html",
+          "scope": "Published coordinate solution, not a surveyed or approved landing pad."
+        }
+      ],
+      "limitations": [
+        "Environmental predictions for 2026?2027 do not reconstruct conditions at the historical landing.",
+        "No local terrain horizon, terrain visibility or mission-feasibility verdict is supplied for this location.",
+        "Approximate directions reuse frozen cached apparent vectors; Earth parallax uses mean Earth?Moon range."
+      ],
+      "terrainAssessment": {
+        "status": "UNSUPPORTED",
+        "local": {
+          "productId": "NAC_DTM_APOLLO11",
+          "source": "https://data.lroc.im-ldi.com/lroc/view_rdr/NAC_DTM_APOLLO11",
+          "downloadPage": "https://data.lroc.im-ldi.com/lroc/view_rdr_product/NAC_DTM_APOLLO11",
+          "confidenceMap": "https://data.lroc.im-ldi.com/lroc/view_rdr_product/NAC_DTM_APOLLO11_CONF",
+          "nativePixelSpacingM": 2,
+          "instrument": "LRO LROC NAC stereo DTM controlled to LOLA",
+          "verticalDatum": "Radial elevation above 1737.4 km sphere; exact product label/control must be checked before use.",
+          "validationStatus": "IDENTIFIED_NOT_VALIDATED",
+          "gaps": "Footprint and confidence/nodata masks require inspection; a bounding rectangle does not prove complete coverage."
+        },
+        "regional": {
+          "productId": "SLDEM2015",
+          "source": "https://ode.rsl.wustl.edu/mars/pagehelp/Content/Missions_Instruments/LRO/LOLA/SLDEM.htm",
+          "citation": "https://doi.org/10.1016/j.icarus.2015.07.039",
+          "pixelsPerDegree": 512,
+          "equatorialPixelSpacingMApprox": 59.2253,
+          "latitudeCoverageDeg": [
+            -60,
+            60
+          ],
+          "sourceFrame": "DE421 mean Earth/polar-axis",
+          "verticalDatum": "Radial elevation above 1737.4 km sphere",
+          "instrument": "LOLA and SELENE Terrain Camera merged DEM",
+          "gaps": "Actual missing-data values and tile footprints must be inspected; one-degree RMS quality is not a per-pixel coverage or guaranteed-error bound.",
+          "validationStatus": "IDENTIFIED_NOT_VALIDATED"
+        },
+        "horizonStatus": "NOT_COMPUTED",
+        "visibilityStatus": "NOT_COMPUTED",
+        "upgradeRequirements": [
+          "Validate coordinate control registration, native projection, units, source hashes and confidence/nodata masks.",
+          "Assemble complete local and regional curved terrain with conservative cell coverage and far-field bounds.",
+          "Execute independent horizon/ray checks, spatial/temporal refinement and matched direction validation before a capability upgrade."
+        ]
+      }
+    },
+    {
+      "id": "apollo-12",
+      "group": "Apollo (NASA)",
+      "name": "Apollo 12 · Ocean of Storms",
+      "year": 1969,
+      "lat": -3.0128,
+      "lon": -23.4219,
+      "source": "https://nssdc.gsfc.nasa.gov/planetary/lunar/lunar_sites.html",
+      "coordinateStatus": "Published historical lander location",
+      "sourceFrame": "DE421 mean Earth/polar-axis",
+      "coordinateConvention": "Planetocentric latitude degrees north; longitude degrees east",
+      "referenceRadiusM": 1737400,
+      "coordinateVerifiedUtc": "2026-11-15",
+      "predictionPeriodIsHistoricalReconstruction": false,
+      "coordinateEvidence": [
+        {
+          "url": "https://nssdc.gsfc.nasa.gov/planetary/lunar/lunar_sites.html",
+          "scope": "Published coordinate solution, not a surveyed or approved landing pad."
+        }
+      ],
+      "limitations": [
+        "Environmental predictions for 2026?2027 do not reconstruct conditions at the historical landing.",
+        "No local terrain horizon, terrain visibility or mission-feasibility verdict is supplied for this location.",
+        "Approximate directions reuse frozen cached apparent vectors; Earth parallax uses mean Earth?Moon range."
+      ],
+      "terrainAssessment": {
+        "status": "UNSUPPORTED",
+        "local": {
+          "productId": "NAC_DTM_APOLLO12",
+          "source": "https://data.lroc.im-ldi.com/lroc/view_rdr/NAC_DTM_APOLLO12",
+          "downloadPage": "https://data.lroc.im-ldi.com/lroc/view_rdr_product/NAC_DTM_APOLLO12",
+          "confidenceMap": "https://data.lroc.im-ldi.com/lroc/view_rdr_product/NAC_DTM_APOLLO12_CONF",
+          "nativePixelSpacingM": 2,
+          "instrument": "LRO LROC NAC stereo DTM controlled to LOLA",
+          "verticalDatum": "Radial elevation above 1737.4 km sphere; exact product label/control must be checked before use.",
+          "validationStatus": "IDENTIFIED_NOT_VALIDATED",
+          "gaps": "Footprint and confidence/nodata masks require inspection; a bounding rectangle does not prove complete coverage."
+        },
+        "regional": {
+          "productId": "SLDEM2015",
+          "source": "https://ode.rsl.wustl.edu/mars/pagehelp/Content/Missions_Instruments/LRO/LOLA/SLDEM.htm",
+          "citation": "https://doi.org/10.1016/j.icarus.2015.07.039",
+          "pixelsPerDegree": 512,
+          "equatorialPixelSpacingMApprox": 59.2253,
+          "latitudeCoverageDeg": [
+            -60,
+            60
+          ],
+          "sourceFrame": "DE421 mean Earth/polar-axis",
+          "verticalDatum": "Radial elevation above 1737.4 km sphere",
+          "instrument": "LOLA and SELENE Terrain Camera merged DEM",
+          "gaps": "Actual missing-data values and tile footprints must be inspected; one-degree RMS quality is not a per-pixel coverage or guaranteed-error bound.",
+          "validationStatus": "IDENTIFIED_NOT_VALIDATED"
+        },
+        "horizonStatus": "NOT_COMPUTED",
+        "visibilityStatus": "NOT_COMPUTED",
+        "upgradeRequirements": [
+          "Validate coordinate control registration, native projection, units, source hashes and confidence/nodata masks.",
+          "Assemble complete local and regional curved terrain with conservative cell coverage and far-field bounds.",
+          "Execute independent horizon/ray checks, spatial/temporal refinement and matched direction validation before a capability upgrade."
+        ]
+      }
+    },
+    {
+      "id": "apollo-14",
+      "group": "Apollo (NASA)",
+      "name": "Apollo 14 · Fra Mauro",
+      "year": 1971,
+      "lat": -3.64589,
+      "lon": -17.47194,
+      "source": "https://nssdc.gsfc.nasa.gov/planetary/lunar/lunar_sites.html",
+      "coordinateStatus": "Published historical lander location",
+      "sourceFrame": "DE421 mean Earth/polar-axis",
+      "coordinateConvention": "Planetocentric latitude degrees north; longitude degrees east",
+      "referenceRadiusM": 1737400,
+      "coordinateVerifiedUtc": "2026-11-15",
+      "predictionPeriodIsHistoricalReconstruction": false,
+      "coordinateEvidence": [
+        {
+          "url": "https://nssdc.gsfc.nasa.gov/planetary/lunar/lunar_sites.html",
+          "scope": "Published coordinate solution, not a surveyed or approved landing pad."
+        }
+      ],
+      "limitations": [
+        "Environmental predictions for 2026?2027 do not reconstruct conditions at the historical landing.",
+        "No local terrain horizon, terrain visibility or mission-feasibility verdict is supplied for this location.",
+        "Approximate directions reuse frozen cached apparent vectors; Earth parallax uses mean Earth?Moon range."
+      ],
+      "terrainAssessment": {
+        "status": "UNSUPPORTED",
+        "local": {
+          "productId": "NAC_DTM_APOLLO14",
+          "source": "https://data.lroc.im-ldi.com/lroc/view_rdr/NAC_DTM_APOLLO14",
+          "downloadPage": "https://data.lroc.im-ldi.com/lroc/view_rdr_product/NAC_DTM_APOLLO14",
+          "confidenceMap": "https://data.lroc.im-ldi.com/lroc/view_rdr_product/NAC_DTM_APOLLO14_CONF",
+          "nativePixelSpacingM": 2,
+          "instrument": "LRO LROC NAC stereo DTM controlled to LOLA",
+          "verticalDatum": "Radial elevation above 1737.4 km sphere; exact product label/control must be checked before use.",
+          "validationStatus": "IDENTIFIED_NOT_VALIDATED",
+          "gaps": "Footprint and confidence/nodata masks require inspection; a bounding rectangle does not prove complete coverage."
+        },
+        "regional": {
+          "productId": "SLDEM2015",
+          "source": "https://ode.rsl.wustl.edu/mars/pagehelp/Content/Missions_Instruments/LRO/LOLA/SLDEM.htm",
+          "citation": "https://doi.org/10.1016/j.icarus.2015.07.039",
+          "pixelsPerDegree": 512,
+          "equatorialPixelSpacingMApprox": 59.2253,
+          "latitudeCoverageDeg": [
+            -60,
+            60
+          ],
+          "sourceFrame": "DE421 mean Earth/polar-axis",
+          "verticalDatum": "Radial elevation above 1737.4 km sphere",
+          "instrument": "LOLA and SELENE Terrain Camera merged DEM",
+          "gaps": "Actual missing-data values and tile footprints must be inspected; one-degree RMS quality is not a per-pixel coverage or guaranteed-error bound.",
+          "validationStatus": "IDENTIFIED_NOT_VALIDATED"
+        },
+        "horizonStatus": "NOT_COMPUTED",
+        "visibilityStatus": "NOT_COMPUTED",
+        "upgradeRequirements": [
+          "Validate coordinate control registration, native projection, units, source hashes and confidence/nodata masks.",
+          "Assemble complete local and regional curved terrain with conservative cell coverage and far-field bounds.",
+          "Execute independent horizon/ray checks, spatial/temporal refinement and matched direction validation before a capability upgrade."
+        ]
+      }
+    },
+    {
+      "id": "apollo-15",
+      "group": "Apollo (NASA)",
+      "name": "Apollo 15 · Hadley–Apennine",
+      "year": 1971,
+      "lat": 26.13239,
+      "lon": 3.6333,
+      "source": "https://nssdc.gsfc.nasa.gov/planetary/lunar/lunar_sites.html",
+      "coordinateStatus": "Published historical lander location",
+      "sourceFrame": "DE421 mean Earth/polar-axis",
+      "coordinateConvention": "Planetocentric latitude degrees north; longitude degrees east",
+      "referenceRadiusM": 1737400,
+      "coordinateVerifiedUtc": "2026-11-15",
+      "predictionPeriodIsHistoricalReconstruction": false,
+      "coordinateEvidence": [
+        {
+          "url": "https://nssdc.gsfc.nasa.gov/planetary/lunar/lunar_sites.html",
+          "scope": "Published coordinate solution, not a surveyed or approved landing pad."
+        }
+      ],
+      "limitations": [
+        "Environmental predictions for 2026?2027 do not reconstruct conditions at the historical landing.",
+        "No local terrain horizon, terrain visibility or mission-feasibility verdict is supplied for this location.",
+        "Approximate directions reuse frozen cached apparent vectors; Earth parallax uses mean Earth?Moon range."
+      ],
+      "terrainAssessment": {
+        "status": "UNSUPPORTED",
+        "local": {
+          "productId": "NAC_DTM_APOLLO15",
+          "source": "https://data.lroc.im-ldi.com/lroc/view_rdr/NAC_DTM_APOLLO15",
+          "downloadPage": "https://data.lroc.im-ldi.com/lroc/view_rdr_product/NAC_DTM_APOLLO15",
+          "confidenceMap": "https://data.lroc.im-ldi.com/lroc/view_rdr_product/NAC_DTM_APOLLO15_CONF",
+          "nativePixelSpacingM": 2,
+          "instrument": "LRO LROC NAC stereo DTM controlled to LOLA",
+          "verticalDatum": "Radial elevation above 1737.4 km sphere; exact product label/control must be checked before use.",
+          "validationStatus": "IDENTIFIED_NOT_VALIDATED",
+          "gaps": "Footprint and confidence/nodata masks require inspection; a bounding rectangle does not prove complete coverage."
+        },
+        "regional": {
+          "productId": "SLDEM2015",
+          "source": "https://ode.rsl.wustl.edu/mars/pagehelp/Content/Missions_Instruments/LRO/LOLA/SLDEM.htm",
+          "citation": "https://doi.org/10.1016/j.icarus.2015.07.039",
+          "pixelsPerDegree": 512,
+          "equatorialPixelSpacingMApprox": 59.2253,
+          "latitudeCoverageDeg": [
+            -60,
+            60
+          ],
+          "sourceFrame": "DE421 mean Earth/polar-axis",
+          "verticalDatum": "Radial elevation above 1737.4 km sphere",
+          "instrument": "LOLA and SELENE Terrain Camera merged DEM",
+          "gaps": "Actual missing-data values and tile footprints must be inspected; one-degree RMS quality is not a per-pixel coverage or guaranteed-error bound.",
+          "validationStatus": "IDENTIFIED_NOT_VALIDATED"
+        },
+        "horizonStatus": "NOT_COMPUTED",
+        "visibilityStatus": "NOT_COMPUTED",
+        "upgradeRequirements": [
+          "Validate coordinate control registration, native projection, units, source hashes and confidence/nodata masks.",
+          "Assemble complete local and regional curved terrain with conservative cell coverage and far-field bounds.",
+          "Execute independent horizon/ray checks, spatial/temporal refinement and matched direction validation before a capability upgrade."
+        ]
+      }
+    },
+    {
+      "id": "apollo-16",
+      "group": "Apollo (NASA)",
+      "name": "Apollo 16 · Descartes",
+      "year": 1972,
+      "lat": -8.9734,
+      "lon": 15.5011,
+      "source": "https://nssdc.gsfc.nasa.gov/planetary/lunar/lunar_sites.html",
+      "coordinateStatus": "Published historical lander location",
+      "sourceFrame": "DE421 mean Earth/polar-axis",
+      "coordinateConvention": "Planetocentric latitude degrees north; longitude degrees east",
+      "referenceRadiusM": 1737400,
+      "coordinateVerifiedUtc": "2026-11-15",
+      "predictionPeriodIsHistoricalReconstruction": false,
+      "coordinateEvidence": [
+        {
+          "url": "https://nssdc.gsfc.nasa.gov/planetary/lunar/lunar_sites.html",
+          "scope": "Published coordinate solution, not a surveyed or approved landing pad."
+        }
+      ],
+      "limitations": [
+        "Environmental predictions for 2026?2027 do not reconstruct conditions at the historical landing.",
+        "No local terrain horizon, terrain visibility or mission-feasibility verdict is supplied for this location.",
+        "Approximate directions reuse frozen cached apparent vectors; Earth parallax uses mean Earth?Moon range."
+      ],
+      "terrainAssessment": {
+        "status": "UNSUPPORTED",
+        "local": {
+          "productId": "NAC_DTM_APOLLO16",
+          "source": "https://data.lroc.im-ldi.com/lroc/view_rdr/NAC_DTM_APOLLO16",
+          "downloadPage": "https://data.lroc.im-ldi.com/lroc/view_rdr_product/NAC_DTM_APOLLO16",
+          "confidenceMap": "https://data.lroc.im-ldi.com/lroc/view_rdr_product/NAC_DTM_APOLLO16_CONF",
+          "nativePixelSpacingM": 2,
+          "instrument": "LRO LROC NAC stereo DTM controlled to LOLA",
+          "verticalDatum": "Radial elevation above 1737.4 km sphere; exact product label/control must be checked before use.",
+          "validationStatus": "IDENTIFIED_NOT_VALIDATED",
+          "gaps": "Footprint and confidence/nodata masks require inspection; a bounding rectangle does not prove complete coverage."
+        },
+        "regional": {
+          "productId": "SLDEM2015",
+          "source": "https://ode.rsl.wustl.edu/mars/pagehelp/Content/Missions_Instruments/LRO/LOLA/SLDEM.htm",
+          "citation": "https://doi.org/10.1016/j.icarus.2015.07.039",
+          "pixelsPerDegree": 512,
+          "equatorialPixelSpacingMApprox": 59.2253,
+          "latitudeCoverageDeg": [
+            -60,
+            60
+          ],
+          "sourceFrame": "DE421 mean Earth/polar-axis",
+          "verticalDatum": "Radial elevation above 1737.4 km sphere",
+          "instrument": "LOLA and SELENE Terrain Camera merged DEM",
+          "gaps": "Actual missing-data values and tile footprints must be inspected; one-degree RMS quality is not a per-pixel coverage or guaranteed-error bound.",
+          "validationStatus": "IDENTIFIED_NOT_VALIDATED"
+        },
+        "horizonStatus": "NOT_COMPUTED",
+        "visibilityStatus": "NOT_COMPUTED",
+        "upgradeRequirements": [
+          "Validate coordinate control registration, native projection, units, source hashes and confidence/nodata masks.",
+          "Assemble complete local and regional curved terrain with conservative cell coverage and far-field bounds.",
+          "Execute independent horizon/ray checks, spatial/temporal refinement and matched direction validation before a capability upgrade."
+        ]
+      }
+    },
+    {
+      "id": "apollo-17",
+      "group": "Apollo (NASA)",
+      "name": "Apollo 17 · Taurus–Littrow",
+      "year": 1972,
+      "lat": 20.1911,
+      "lon": 30.7723,
+      "source": "https://nssdc.gsfc.nasa.gov/planetary/lunar/lunar_sites.html",
+      "coordinateStatus": "Published historical lander location",
+      "sourceFrame": "DE421 mean Earth/polar-axis",
+      "coordinateConvention": "Planetocentric latitude degrees north; longitude degrees east",
+      "referenceRadiusM": 1737400,
+      "coordinateVerifiedUtc": "2026-11-15",
+      "predictionPeriodIsHistoricalReconstruction": false,
+      "coordinateEvidence": [
+        {
+          "url": "https://nssdc.gsfc.nasa.gov/planetary/lunar/lunar_sites.html",
+          "scope": "Published coordinate solution, not a surveyed or approved landing pad."
+        }
+      ],
+      "limitations": [
+        "Environmental predictions for 2026?2027 do not reconstruct conditions at the historical landing.",
+        "No local terrain horizon, terrain visibility or mission-feasibility verdict is supplied for this location.",
+        "Approximate directions reuse frozen cached apparent vectors; Earth parallax uses mean Earth?Moon range."
+      ],
+      "terrainAssessment": {
+        "status": "UNSUPPORTED",
+        "local": {
+          "productId": "NAC_DTM_APOLLO17",
+          "source": "https://data.lroc.im-ldi.com/lroc/view_rdr/NAC_DTM_APOLLO17",
+          "downloadPage": "https://data.lroc.im-ldi.com/lroc/view_rdr_product/NAC_DTM_APOLLO17",
+          "confidenceMap": "https://data.lroc.im-ldi.com/lroc/view_rdr_product/NAC_DTM_APOLLO17_CONF",
+          "nativePixelSpacingM": 5,
+          "instrument": "LRO LROC NAC stereo DTM controlled to LOLA",
+          "verticalDatum": "Radial elevation above 1737.4 km sphere; exact product label/control must be checked before use.",
+          "validationStatus": "IDENTIFIED_NOT_VALIDATED",
+          "gaps": "Footprint and confidence/nodata masks require inspection; a bounding rectangle does not prove complete coverage."
+        },
+        "regional": {
+          "productId": "SLDEM2015",
+          "source": "https://ode.rsl.wustl.edu/mars/pagehelp/Content/Missions_Instruments/LRO/LOLA/SLDEM.htm",
+          "citation": "https://doi.org/10.1016/j.icarus.2015.07.039",
+          "pixelsPerDegree": 512,
+          "equatorialPixelSpacingMApprox": 59.2253,
+          "latitudeCoverageDeg": [
+            -60,
+            60
+          ],
+          "sourceFrame": "DE421 mean Earth/polar-axis",
+          "verticalDatum": "Radial elevation above 1737.4 km sphere",
+          "instrument": "LOLA and SELENE Terrain Camera merged DEM",
+          "gaps": "Actual missing-data values and tile footprints must be inspected; one-degree RMS quality is not a per-pixel coverage or guaranteed-error bound.",
+          "validationStatus": "IDENTIFIED_NOT_VALIDATED"
+        },
+        "horizonStatus": "NOT_COMPUTED",
+        "visibilityStatus": "NOT_COMPUTED",
+        "upgradeRequirements": [
+          "Validate coordinate control registration, native projection, units, source hashes and confidence/nodata masks.",
+          "Assemble complete local and regional curved terrain with conservative cell coverage and far-field bounds.",
+          "Execute independent horizon/ray checks, spatial/temporal refinement and matched direction validation before a capability upgrade."
+        ]
+      }
+    },
+    {
+      "id": "blue-ghost-1",
+      "group": "NASA CLPS",
+      "name": "Blue Ghost Mission 1 · Mare Crisium",
+      "year": 2025,
+      "lat": 18.562,
+      "lon": 61.81,
+      "source": "https://lroc.im-ldi.com/images/1406",
+      "coordinateStatus": "Published historical lander location",
+      "sourceFrame": "DE421 mean Earth/polar-axis",
+      "coordinateConvention": "Planetocentric latitude degrees north; longitude degrees east",
+      "referenceRadiusM": 1737400,
+      "coordinateVerifiedUtc": "2026-11-15",
+      "predictionPeriodIsHistoricalReconstruction": false,
+      "coordinateEvidence": [
+        {
+          "url": "https://lroc.im-ldi.com/images/1406",
+          "scope": "Post-landing LROC location: 18.562 N, 61.81 E; elevation -3650 m."
+        },
+        {
+          "url": "https://nssdc.gsfc.nasa.gov/planetary/lunar/lunar_artifact_impacts.html",
+          "scope": "NASA coordinate table states DE421 mean Earth/polar-axis convention."
+        }
+      ],
+      "limitations": [
+        "Environmental predictions for 2026?2027 do not reconstruct conditions at the historical landing.",
+        "No local terrain horizon, terrain visibility or mission-feasibility verdict is supplied for this location.",
+        "Approximate directions reuse frozen cached apparent vectors; Earth parallax uses mean Earth?Moon range."
+      ],
+      "terrainAssessment": {
+        "status": "UNSUPPORTED",
+        "local": {
+          "validationStatus": "NO_COVERING_LOCAL_DTM_VERIFIED",
+          "nativePixelSpacingM": null,
+          "source": "https://data.lroc.im-ldi.com/lroc/view_rdr/SHAPEFILE_NAC_DTMS",
+          "reason": "Nearby CRISIUMVOLC and MRECRISIUM2 bounding footprints do not include this published lander coordinate."
+        },
+        "regional": {
+          "productId": "SLDEM2015",
+          "source": "https://ode.rsl.wustl.edu/mars/pagehelp/Content/Missions_Instruments/LRO/LOLA/SLDEM.htm",
+          "citation": "https://doi.org/10.1016/j.icarus.2015.07.039",
+          "pixelsPerDegree": 512,
+          "equatorialPixelSpacingMApprox": 59.2253,
+          "latitudeCoverageDeg": [
+            -60,
+            60
+          ],
+          "sourceFrame": "DE421 mean Earth/polar-axis",
+          "verticalDatum": "Radial elevation above 1737.4 km sphere",
+          "instrument": "LOLA and SELENE Terrain Camera merged DEM",
+          "gaps": "Actual missing-data values and tile footprints must be inspected; one-degree RMS quality is not a per-pixel coverage or guaranteed-error bound.",
+          "validationStatus": "IDENTIFIED_NOT_VALIDATED"
+        },
+        "horizonStatus": "NOT_COMPUTED",
+        "visibilityStatus": "NOT_COMPUTED",
+        "upgradeRequirements": [
+          "Validate coordinate control registration, native projection, units, source hashes and confidence/nodata masks.",
+          "Assemble complete local and regional curved terrain with conservative cell coverage and far-field bounds.",
+          "Execute independent horizon/ray checks, spatial/temporal refinement and matched direction validation before a capability upgrade."
+        ]
+      }
+    },
+    {
+      "id": "chandrayaan-3",
+      "group": "Other national programs",
+      "name": "Chandrayaan-3 · India",
+      "year": 2023,
+      "lat": -69.373,
+      "lon": 32.319,
+      "source": "https://ipnpr.jpl.nasa.gov/progress_report/42-240/42-240A.pdf",
+      "coordinateStatus": "Rounded published actual-landed coordinate; distinct from LROC solution and prelanding target",
+      "sourceFrame": "Published lunar planetocentric ME-type coordinate; exact geodetic-control registration with LROC unresolved",
+      "coordinateConvention": "Planetocentric latitude degrees north; longitude degrees east",
+      "referenceRadiusM": 1737400,
+      "coordinateVerifiedUtc": "2026-11-15",
+      "predictionPeriodIsHistoricalReconstruction": false,
+      "coordinateEvidence": [
+        {
+          "url": "https://ipnpr.jpl.nasa.gov/progress_report/42-240/42-240A.pdf",
+          "scope": "JPL DSN analysis gives 69.373 S, 32.319 E."
+        },
+        {
+          "url": "https://academic.oup.com/mnras/article/538/4/2330/8052793",
+          "scope": "Original ISRO instrument-team research uses the curated coordinates."
+        },
+        {
+          "url": "https://lroc.im-ldi.com/images/1314",
+          "scope": "LROC actual location is 69.3741 S, 32.32 E, elevation 532 m."
+        },
+        {
+          "url": "https://www.isro.gov.in/ISRO_EN/Chandrayaan3_Details.html",
+          "scope": "69.367621 S, 32.348126 E is prelanding target ellipse center, not the actual lander."
+        }
+      ],
+      "limitations": [
+        "Environmental predictions for 2026?2027 do not reconstruct conditions at the historical landing.",
+        "No local terrain horizon, terrain visibility or mission-feasibility verdict is supplied for this location.",
+        "Approximate directions reuse frozen cached apparent vectors; Earth parallax uses mean Earth?Moon range.",
+        "The curated rounded coordinate differs from LROC mapping; terrain registration must be resolved before using the NAC DTM."
+      ],
+      "terrainAssessment": {
+        "status": "UNSUPPORTED",
+        "local": {
+          "productId": "NAC_DTM_VIKRAMSITE1",
+          "source": "https://data.lroc.im-ldi.com/lroc/view_rdr/NAC_DTM_VIKRAMSITE1",
+          "downloadPage": "https://data.lroc.im-ldi.com/lroc/view_rdr_product/NAC_DTM_VIKRAMSITE1",
+          "confidenceMap": "https://data.lroc.im-ldi.com/lroc/view_rdr_product/NAC_DTM_VIKRAMSITE1_CONF",
+          "nativePixelSpacingM": 3,
+          "instrument": "LRO LROC NAC stereo DTM controlled to LOLA",
+          "verticalDatum": "Radial elevation above 1737.4 km sphere; exact product label/control must be checked before use.",
+          "validationStatus": "IDENTIFIED_NOT_VALIDATED",
+          "gaps": "Footprint and confidence/nodata masks require inspection; a bounding rectangle does not prove complete coverage."
+        },
+        "regional": {
+          "productId": "LDEM_60S_60MPP_ADJ",
+          "source": "https://pgda.gsfc.nasa.gov/products/90",
+          "download": "https://pgda.gsfc.nasa.gov/data/LOLA_20mpp/LDEM_60S_60MPP_ADJ.TIF",
+          "nativePixelSpacingM": 60,
+          "latitudeCoverageDeg": [
+            -90,
+            -60
+          ],
+          "sourceFrame": "DE421 MOON_ME",
+          "projection": "South-polar stereographic",
+          "verticalDatum": "Radial elevation above 1737.4 km sphere",
+          "instrument": "LRO LOLA",
+          "validationStatus": "IDENTIFIED_NOT_VALIDATED",
+          "gaps": "Counts, ERR and effective-resolution maps exist; native spacing is not effective resolution. SLDEM2015 does not cover this latitude."
+        },
+        "horizonStatus": "NOT_COMPUTED",
+        "visibilityStatus": "NOT_COMPUTED",
+        "upgradeRequirements": [
+          "Validate coordinate control registration, native projection, units, source hashes and confidence/nodata masks.",
+          "Assemble complete local and regional curved terrain with conservative cell coverage and far-field bounds.",
+          "Execute independent horizon/ray checks, spatial/temporal refinement and matched direction validation before a capability upgrade."
+        ]
+      },
+      "coordinateAlternatives": [
+        {
+          "lat": -69.3741,
+          "lon": 32.32,
+          "source": "https://lroc.im-ldi.com/images/1314",
+          "scope": "LROC-mapped actual lander; not silently substituted."
+        }
+      ]
+    },
+    {
+      "id": "change-4",
+      "group": "Other national programs",
+      "name": "Chang’e 4 · China · far side",
+      "year": 2019,
+      "lat": -45.4446,
+      "lon": 177.5991,
+      "source": "https://doi.org/10.1038/s41467-019-12278-3",
+      "coordinateStatus": "Published historical lander location",
+      "sourceFrame": "CE2TMap2015 mean Earth/polar-axis control; not interchangeable with LRO geolocation",
+      "coordinateConvention": "Planetocentric latitude degrees north; longitude degrees east",
+      "referenceRadiusM": 1737400,
+      "coordinateVerifiedUtc": "2026-11-15",
+      "predictionPeriodIsHistoricalReconstruction": false,
+      "coordinateEvidence": [
+        {
+          "url": "https://doi.org/10.1038/s41467-019-12278-3",
+          "scope": "Original paper reports curated CE2TMap2015 location and a 415 m discrepancy from LRO geolocation."
+        },
+        {
+          "url": "https://www.cnsa.gov.cn/n6758823/n6758838/c6807583/content.html",
+          "scope": "CNSA reports 45.4446 S, 177.5991 E."
+        }
+      ],
+      "limitations": [
+        "Environmental predictions for 2026?2027 do not reconstruct conditions at the historical landing.",
+        "No local terrain horizon, terrain visibility or mission-feasibility verdict is supplied for this location.",
+        "Approximate directions reuse frozen cached apparent vectors; Earth parallax uses mean Earth?Moon range.",
+        "The curated CE2TMap2015 coordinate cannot be assumed registered to the LRO DTM.",
+        "Direct Earth-center geometry excludes Queqiao relay communications; no radio-link verdict is made."
+      ],
+      "terrainAssessment": {
+        "status": "UNSUPPORTED",
+        "local": {
+          "productId": "NAC_DTM_CHANGE4",
+          "source": "https://data.lroc.im-ldi.com/lroc/view_rdr/NAC_DTM_CHANGE4",
+          "downloadPage": "https://data.lroc.im-ldi.com/lroc/view_rdr_product/NAC_DTM_CHANGE4",
+          "confidenceMap": "https://data.lroc.im-ldi.com/lroc/view_rdr_product/NAC_DTM_CHANGE4_CONF",
+          "nativePixelSpacingM": 5,
+          "instrument": "LRO LROC NAC stereo DTM controlled to LOLA",
+          "verticalDatum": "Radial elevation above 1737.4 km sphere; exact product label/control must be checked before use.",
+          "validationStatus": "IDENTIFIED_NOT_VALIDATED",
+          "gaps": "Footprint and confidence/nodata masks require inspection; a bounding rectangle does not prove complete coverage."
+        },
+        "regional": {
+          "productId": "SLDEM2015",
+          "source": "https://ode.rsl.wustl.edu/mars/pagehelp/Content/Missions_Instruments/LRO/LOLA/SLDEM.htm",
+          "citation": "https://doi.org/10.1016/j.icarus.2015.07.039",
+          "pixelsPerDegree": 512,
+          "equatorialPixelSpacingMApprox": 59.2253,
+          "latitudeCoverageDeg": [
+            -60,
+            60
+          ],
+          "sourceFrame": "DE421 mean Earth/polar-axis",
+          "verticalDatum": "Radial elevation above 1737.4 km sphere",
+          "instrument": "LOLA and SELENE Terrain Camera merged DEM",
+          "gaps": "Actual missing-data values and tile footprints must be inspected; one-degree RMS quality is not a per-pixel coverage or guaranteed-error bound.",
+          "validationStatus": "IDENTIFIED_NOT_VALIDATED"
+        },
+        "horizonStatus": "NOT_COMPUTED",
+        "visibilityStatus": "NOT_COMPUTED",
+        "upgradeRequirements": [
+          "Validate coordinate control registration, native projection, units, source hashes and confidence/nodata masks.",
+          "Assemble complete local and regional curved terrain with conservative cell coverage and far-field bounds.",
+          "Execute independent horizon/ray checks, spatial/temporal refinement and matched direction validation before a capability upgrade."
+        ]
+      },
+      "coordinateAlternatives": [
+        {
+          "lat": -45.4561,
+          "lon": 177.5885,
+          "source": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6760200/",
+          "scope": "LRO-derived solution from original localization paper; ~415 m control discrepancy."
+        }
+      ]
+    }
+  ]
+}
