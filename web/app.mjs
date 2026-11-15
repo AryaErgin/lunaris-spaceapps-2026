@@ -1207,6 +1207,11 @@ for(const link of document.querySelectorAll('.main-nav a'))link.addEventListener
 byId('scene-fallback').addEventListener('click',()=>{setExpert(true);byId('console').scrollIntoView({block:'start'});});
 byId('explore-site').addEventListener('click',enterSurface);
 byId('mode-surface').addEventListener('click',enterSurface);
+byId('surface-imagery').addEventListener('change',()=>sceneController?.setSurfaceImagery(byId('surface-imagery').checked));
+byId('scene-mount').addEventListener('surfacevisualchange',event=>{
+  byId('surface-imagery').disabled=!event.detail.available;
+  byId('surface-imagery').checked=event.detail.enabled;
+});
 byId('night-visibility').addEventListener('click',()=>{
   const enabled=byId('night-visibility').getAttribute('aria-pressed')!=='true';
   if(!sceneController||sceneDisabled||!sceneController.setEnhancedNight(enabled))return;

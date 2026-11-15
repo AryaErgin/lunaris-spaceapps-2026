@@ -1,0 +1,5117 @@
+{
+  "aiUse": "OpenAI Codex assisted source inspection, deterministic conversion, implementation and tests. Assets derive from credited NASA rasters, without generated topography.",
+  "analysisBundleSha256": "c5b4c18fba7052cd628d6b5af26ec255f2df4597b489c38b994a76809d80c7aa",
+  "coordinateConvention": "x=eastM, y=radialUpM above unchanged baseline ground, z=-northM",
+  "datum": "Radial heights in metres relative to sphere radius1737400m",
+  "frame": "MOON_ME_DE440_ME421",
+  "imagery": {
+    "bounds": [
+      155997.99991753,
+      93993.99994675,
+      157997.99991753,
+      95993.99994675
+    ],
+    "historicIllumination": true,
+    "masks": {
+      "desktop": {
+        "byteLength": 6485,
+        "height": 2000,
+        "sha256": "6631e84b1d6b393f5d9c5fc2f8aa60e5797746c02d9bf4cfa25290c0541b7e3c",
+        "url": "nobile-rim-2-photo-mask-desktop.png",
+        "validFraction": 1.0,
+        "width": 2000
+      },
+      "mobile": {
+        "byteLength": 2182,
+        "height": 1000,
+        "sha256": "49a6210f306758d27370e836dc083f9a452f77e184e8948f6d57661a9d242eb7",
+        "url": "nobile-rim-2-photo-mask-mobile.png",
+        "validFraction": 1.0,
+        "width": 1000
+      }
+    },
+    "nativeBounds": [
+      155999.99991753,
+      94000.99994675,
+      157999.99991753,
+      96000.99994675
+    ],
+    "nativeRaster": {
+      "bounds": [
+        155999.99991753,
+        94000.99994675,
+        157999.99991753,
+        96000.99994675
+      ],
+      "crsWkt": "PROJCS[\"POLAR_STEREOGRAPHIC MOON\",GEOGCS[\"GCS_MOON\",DATUM[\"D_MOON\",SPHEROID[\"MOON_polarRadius\",1737400,0]],PRIMEM[\"Reference_Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+      "dtype": "uint8",
+      "height": 2000,
+      "nodata": 0.0,
+      "registration": "Area",
+      "tags": {
+        "AREA_OR_POINT": "Area",
+        "CONTROL_LIMITATION": "Published5-20mabsoluteaccuracy; preciseMEvsPAframecontrolnotestablishedbyGeoTIFFlabel",
+        "DATA_SET_ID": "\"LRO-L-LROC-5-RDR-V1.0\"",
+        "DISPLAY_LIMITATION": "Historical2010-2021low-Sunmosaic; bakedlightingnotcurrentilluminationorcalibratedalbedo",
+        "INSTRUMENT_ID": "LROC",
+        "INSTRUMENT_NAME": "\"LUNAR RECONNAISSANCE ORBITER CAMERA\"",
+        "PRODUCER_INSTITUTION_NAME": "\"ARIZONA STATE UNIVERSITY\"",
+        "PRODUCT_CREATION_TIME": "2023-06-08T03:53:58",
+        "PRODUCT_ID": "NAC_ROI_NOBILE02LOC_P839S0587",
+        "PRODUCT_TYPE": "RDR",
+        "SOURCE_BYTE_RANGE": "180141575-220141574",
+        "SOURCE_FULL_FILE_HASH": "NOT_DOWNLOADED_NOT_COMPUTED",
+        "SOURCE_RANGE_SHA256": "14b4d66bbc0ae48558ec693957099eae22e2b57ac2aad6f5ebc3d05c39a27c1c",
+        "SOURCE_URL": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_ROI/NOBILE02LOC/NAC_ROI_NOBILE02LOC_P839S0587.TIF",
+        "TARGET_NAME": "MOON"
+      },
+      "transform": [
+        1.0,
+        0.0,
+        155999.99991753,
+        0.0,
+        -1.0,
+        96000.99994675,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "width": 2000
+    },
+    "nativeResolutionM": 1,
+    "photometricAlbedo": false,
+    "product": "NAC_ROI_NOBILE02LOC_P839S0587",
+    "projection": {
+      "centralMeridianDeg": 0,
+      "kind": "south-polar-stereographic",
+      "latitudeOriginDeg": -90,
+      "radiusM": 1737400.0
+    },
+    "registration": {
+      "derivedDisplayTransform": [
+        1.0,
+        0.0,
+        155997.99991753,
+        0.0,
+        -1.0,
+        95993.99994675,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "fourQuadrantGradientInternalRmsM": 2.49,
+      "intensityNcc": 0.831,
+      "limits": "Internal image alignment is not absolute physical control: published5\u201320m uncertainty,10m reference pixels and different baked illumination remain. No1m position-accuracy claim.",
+      "method": "Independent normalized cross-correlation of intensity and spatial gradients against the registered SfS orthomosaic; analytic sign fixture checked",
+      "projectedEastOffsetM": -2,
+      "projectedNorthOffsetM": -7,
+      "reference": "A301_GLDOMOS_005.tif",
+      "referenceSha256": "6ad04e5b6669bd222f7528c82b7a09ef92419a11cd625e55522df30e4b0a40f3",
+      "scope": "Derived display placement only; native pixels and geotransform unchanged"
+    },
+    "sourcePixelSha256": "819c41c65e43f2d0c73f5ac031860201a6a5463bbc55b5987731aa8242b9e541",
+    "sourceRangeBytes": [
+      180141575,
+      220141574
+    ],
+    "sourceRangeSha256": "14b4d66bbc0ae48558ec693957099eae22e2b57ac2aad6f5ebc3d05c39a27c1c",
+    "sourceUrl": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_ROI/NOBILE02LOC/NAC_ROI_NOBILE02LOC_P839S0587.TIF",
+    "textures": {
+      "desktop": {
+        "byteLength": 1351874,
+        "height": 2000,
+        "metersPerPixel": 1.0,
+        "sha256": "3a5c704ed3afe3351a817a6f26f38e39dfcfc6844343da55de6828bc5f97c3d8",
+        "url": "nobile-rim-2-photo-desktop.webp",
+        "width": 2000
+      },
+      "mobile": {
+        "byteLength": 430632,
+        "height": 1000,
+        "metersPerPixel": 2.0,
+        "sha256": "b75fdad7a966c2b5efca8df0e59956685031401b518ba1fb985921cea1bcfd4d",
+        "url": "nobile-rim-2-photo-mobile.webp",
+        "width": 1000
+      }
+    },
+    "uvConvention": "u=(projectedX-xmin)/(xmax-xmin); v=(projectedY-ymin)/(ymax-ymin). Image row zero is north/ymax; Three.js TextureLoader flipY=true. Outside bounds is unavailable, never repeat.",
+    "validFraction": 1.0
+  },
+  "kind": "Display-only registered NASA surface detail",
+  "limits": [
+    "Display geometry only. The frozen terrain-aware visibility engine and bundle remain authoritative.",
+    "SfS slopes are reconstructed from images over LOLA control; 5m posting is not a blanket5m physical-accuracy claim. Shadowed/poorly observed areas may retain smoother prior terrain.",
+    "The single1m NAC mosaic records historical illumination and shadows; it is not albedo or a current-epoch shadow simulation. It covers only the documented2km square.",
+    "Different source coordinate grids are preserved individually: SfS DEM5m; archive orthomosaic10m; count/solar-bin/best-resolution maps15m. The archiveorthomosaic is not used as the photo texture.",
+    "The3500\u20134000m transition belt is a declared display blend, not a new scientific terrain model."
+  ],
+  "observer": {
+    "baselineGroundM": 1009.5821533203125,
+    "cameraAboveNativeSfsCellM": 1.6256103515625,
+    "nativeSfsGroundM": 1009.95654296875,
+    "rigidVerticalOffsetAppliedM": 0,
+    "sfsMinusBaselineGroundM": 0.3743896484375
+  },
+  "qualityGates": {
+    "baselineObserverPreserved": true,
+    "completeFrozenSeam": true,
+    "lunarProjectionAndAreaRegistration": true,
+    "nativeSourceHashes": true,
+    "siteInsideSources": true,
+    "visibilityEngineChanged": false
+  },
+  "referenceRadiusM": 1737400.0,
+  "reproduce": "PYTHONPATH=.venv/vendor python tools/build_surface_visuals.py --acquire",
+  "schemaVersion": 1,
+  "site": {
+    "groundM": 1009.5821533203125,
+    "heightM": 2.0,
+    "id": "nobile-rim-2",
+    "lat": -83.954,
+    "lon": 58.82206
+  },
+  "sites": [
+    {
+      "aiUse": "OpenAI Codex assisted source inspection, deterministic conversion, implementation and tests. Assets derive from credited NASA rasters, without generated topography.",
+      "analysisBundleSha256": "c5b4c18fba7052cd628d6b5af26ec255f2df4597b489c38b994a76809d80c7aa",
+      "coordinateConvention": "x=eastM, y=radialUpM above unchanged baseline ground, z=-northM",
+      "datum": "Radial heights in metres relative to sphere radius1737400m",
+      "frame": "MOON_ME_DE440_ME421",
+      "imagery": {
+        "bounds": [
+          -12000,
+          -12999,
+          -10000,
+          -10999
+        ],
+        "historicIllumination": true,
+        "limitations": [
+          "Historicalaveragemosaicnotcurrentlighting/calibratedalbedo.",
+          "ConservativeDN0mask;sourcelegacynodataunrepresentableuint8.",
+          "ProjectionnotexplicitMEvsPAframecertification.",
+          "Notusedtoauthoritativelyevaluatevisibility."
+        ],
+        "masks": {
+          "desktop": {
+            "byteLength": 6485,
+            "height": 2000,
+            "sha256": "6631e84b1d6b393f5d9c5fc2f8aa60e5797746c02d9bf4cfa25290c0541b7e3c",
+            "url": "connecting-ridge-photo-mask-desktop.png",
+            "validFraction": 1.0,
+            "width": 2000
+          },
+          "mobile": {
+            "byteLength": 2182,
+            "height": 1000,
+            "sha256": "49a6210f306758d27370e836dc083f9a452f77e184e8948f6d57661a9d242eb7",
+            "url": "connecting-ridge-photo-mask-mobile.png",
+            "validFraction": 1.0,
+            "width": 1000
+          }
+        },
+        "nativeBounds": [
+          -12000,
+          -12999,
+          -10000,
+          -10999
+        ],
+        "nativeRaster": {
+          "bounds": [
+            -12000,
+            -12999,
+            -10000,
+            -10999
+          ],
+          "crsWkt": "PROJCS[\"POLAR_STEREOGRAPHIC MOON\",GEOGCS[\"GCS_MOON\",DATUM[\"D_MOON\",SPHEROID[\"MOON_polarRadius\",1737400,0]],PRIMEM[\"Reference_Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "height": 2000,
+          "nodata": 0,
+          "registration": "Area",
+          "transform": [
+            1.0,
+            0.0,
+            -12000.0,
+            0.0,
+            -1.0,
+            -10999.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 2000
+        },
+        "nativeResolutionM": 1,
+        "photometricAlbedo": false,
+        "product": "NASA LROC controlled polar mosaic",
+        "projection": {
+          "centralMeridianDeg": 0,
+          "kind": "south-polar-stereographic",
+          "latitudeOriginDeg": -90,
+          "radiusM": 1737400.0
+        },
+        "registration": {
+          "displayOffsetENM": [
+            0,
+            0
+          ],
+          "residualM": null,
+          "status": "NOMINAL_ONLY_RESIDUAL_NOT_MEASURED"
+        },
+        "sourceNativeRaster": [
+          {
+            "nativeRaster": {
+              "bigTiff": false,
+              "bits": 8,
+              "compression": 1,
+              "geoAscii": "unnamed|GCS Name = unnamed ellipse|Datum = unknown|Ellipsoid = unnamed|Primem = Greenwich||",
+              "geoDouble": [
+                1737400,
+                1737400,
+                0,
+                -90,
+                0,
+                0,
+                1,
+                0
+              ],
+              "geokeys": [
+                1,
+                1,
+                0,
+                20,
+                1024,
+                0,
+                1,
+                1,
+                1025,
+                0,
+                1,
+                1,
+                1026,
+                34737,
+                8,
+                0,
+                2048,
+                0,
+                1,
+                32767,
+                2049,
+                34737,
+                83,
+                8,
+                2050,
+                0,
+                1,
+                32767,
+                2054,
+                0,
+                1,
+                9102,
+                2056,
+                0,
+                1,
+                32767,
+                2057,
+                34736,
+                1,
+                0,
+                2058,
+                34736,
+                1,
+                1,
+                2061,
+                34736,
+                1,
+                2,
+                3072,
+                0,
+                1,
+                32767,
+                3074,
+                0,
+                1,
+                32767,
+                3075,
+                0,
+                1,
+                15,
+                3076,
+                0,
+                1,
+                9001,
+                3081,
+                34736,
+                1,
+                3,
+                3082,
+                34736,
+                1,
+                4,
+                3083,
+                34736,
+                1,
+                5,
+                3092,
+                34736,
+                1,
+                6,
+                3095,
+                34736,
+                1,
+                7
+              ],
+              "height": 45488,
+              "id": "NAC_POLE_SOUTH_CM_AVG_P892S2250",
+              "nodata": null,
+              "orientation": 1,
+              "pixelScale": [
+                1,
+                1,
+                0
+              ],
+              "samples": 1,
+              "tiepoint": [
+                0,
+                0,
+                0,
+                -45488,
+                0,
+                0
+              ],
+              "tileHeight": 256,
+              "tileWidth": 256,
+              "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P892S2250.PYR.TIF",
+              "width": 45488,
+              "x0": -45488,
+              "y0": 0
+            },
+            "sourceFullHashStatus": "NOT_FULLY_DOWNLOADED",
+            "sourceFullSha256": null,
+            "window": {
+              "col": 33488,
+              "destCol": 0,
+              "destRow": 0,
+              "height": 2000,
+              "row": 10999,
+              "width": 2000
+            }
+          }
+        ],
+        "sourcePixelSha256": "566778b3c4b0b42464da5c7e066d2b69f350b007e52ad019576f69d74de73f25",
+        "sourceUrl": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P892S2250.PYR.TIF",
+        "textures": {
+          "desktop": {
+            "byteLength": 847520,
+            "height": 2000,
+            "metersPerPixel": 1.0,
+            "sha256": "c2214baab2467d6967fd0a3f94876517d2f2d554479e5aa5b2ea3e9dfd64bf3a",
+            "url": "connecting-ridge-photo-desktop.webp",
+            "width": 2000
+          },
+          "mobile": {
+            "byteLength": 332162,
+            "height": 1000,
+            "metersPerPixel": 2.0,
+            "sha256": "70e48cb3570a9c73ee6cc7146045dc2410dfba721ab4062a427d1d8e72584b56",
+            "url": "connecting-ridge-photo-mobile.webp",
+            "width": 1000
+          }
+        },
+        "uvConvention": "u=(projectedX-xmin)/(xmax-xmin); v=(projectedY-ymin)/(ymax-ymin). Image row zero is north/ymax; Three.js TextureLoader flipY=true. Outside bounds is unavailable, never repeat.",
+        "validFraction": 1.0
+      },
+      "kind": "Display-only registered NASA surface detail",
+      "limits": [
+        "Display geometry only. The frozen terrain-aware visibility engine and bundle remain authoritative.",
+        "SfS slopes are reconstructed from images over LOLA control; 5m posting is not a blanket5m physical-accuracy claim. Shadowed/poorly observed areas may retain smoother prior terrain.",
+        "The single1m NAC mosaic records historical illumination and shadows; it is not albedo or a current-epoch shadow simulation. It covers only the documented2km square.",
+        "The3500\u20134000m transition belt is a declared display blend, not a new scientific terrain model.",
+        "Individual raster geotransforms govern registration and resolution; a shared filename suffix does not establish equal pixel grids."
+      ],
+      "observer": {
+        "baselineGroundM": 1944.632568359375,
+        "cameraAboveNativeSfsCellM": 1.5477294921875,
+        "nativeSfsGroundM": 1945.0848388671875,
+        "rigidVerticalOffsetAppliedM": 0,
+        "sfsMinusBaselineGroundM": 0.4522705078125
+      },
+      "observerSfsInputs": {
+        "bestInputResolutionM": 0.5,
+        "illuminatedImageCount": 34.0,
+        "solarAzimuthBinCount": 7.0
+      },
+      "qualityGates": {
+        "baselineObserverPreserved": true,
+        "completeFrozenSeam": true,
+        "imageDerivedDetailAtObserver": true,
+        "lunarProjectionAndAreaRegistration": true,
+        "nativeSourceHashes": true,
+        "siteInsideSources": true,
+        "visibilityEngineChanged": false
+      },
+      "referenceRadiusM": 1737400.0,
+      "reproduce": "PYTHONPATH=.venv/vendor python tools/build_surface_visuals.py --all --acquire",
+      "schemaVersion": 1,
+      "site": {
+        "groundM": 1944.632568359375,
+        "heightM": 2.0,
+        "id": "connecting-ridge",
+        "lat": -89.4632,
+        "lon": 222.51
+      },
+      "sourceArchive": {
+        "acquiredUtcDate": "2026-11-15",
+        "byteLength": 2206485514,
+        "fullArchiveDownloaded": false,
+        "fullArchiveMd5Verified": false,
+        "memberCrcAndSha256Verified": true,
+        "publisherMd5": "0ad982cf42319a300f2a2cff69d39322",
+        "url": "https://zenodo.org/api/records/17954508/files/A3CLR22_6_Connecting_Ridge.zip/content",
+        "version": "1.0.0"
+      },
+      "sourceFrameBasis": "PGDA104 retains the LOLA geodetic reference; PGDA78 declares DE421 MOON_ME. Raster WKT itself names Moon2015 sphere, not a DE ephemeris. No additional frame rotation applied.",
+      "sourceRasters": [
+        {
+          "bounds": [
+            -19000.0,
+            -20000.0,
+            -3000.0,
+            -4000.0
+          ],
+          "byteLength": 20953350,
+          "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "dtype": "float32",
+          "filename": "A306_GLDELEV_005.tif",
+          "height": 3200,
+          "nodata": -3.4028234663852886e+38,
+          "registration": "Area",
+          "sha256": "c914e52bf1e46c08b9c409d6ebd6a3605ad33756373571138b8d473dadaeddd0",
+          "tags": {
+            "AREA_OR_POINT": "Area",
+            "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+            "CREATED": "2025-12-17",
+            "REGION_NAME": "A3CLR22-#6",
+            "ROIID": "A306"
+          },
+          "transform": [
+            5.0,
+            0.0,
+            -19000.0,
+            0.0,
+            -5.0,
+            -4000.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 3200
+        },
+        {
+          "bounds": [
+            -19000.0,
+            -19990.0,
+            -3010.0,
+            -4000.0
+          ],
+          "byteLength": 234448,
+          "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "dtype": "float32",
+          "filename": "A306_GLDBRES_005.tif",
+          "height": 1066,
+          "nodata": null,
+          "registration": "Area",
+          "sha256": "1c0ca3858dcd42d91c7414ae8529f63b6dc0b3a5b56fb56823afa056652b4ad4",
+          "tags": {
+            "AREA_OR_POINT": "Area",
+            "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+            "CREATED": "2025-12-17",
+            "REGION_NAME": "A3CLR22-#6",
+            "ROIID": "A306"
+          },
+          "transform": [
+            15.0,
+            0.0,
+            -19000.0,
+            0.0,
+            -15.0,
+            -4000.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 1066
+        },
+        {
+          "bounds": [
+            -19000.0,
+            -19990.0,
+            -3010.0,
+            -4000.0
+          ],
+          "byteLength": 451536,
+          "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "dtype": "uint8",
+          "filename": "A306_GLDMASK_005.tif",
+          "height": 1066,
+          "nodata": null,
+          "registration": "Area",
+          "sha256": "ff3b395abf72c09fb18a75e4ed39c06e366faf9fdb94e45bb29fec5ba249ebdd",
+          "tags": {
+            "AREA_OR_POINT": "Area",
+            "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+            "CREATED": "2025-12-17",
+            "REGION_NAME": "A3CLR22-#6",
+            "ROIID": "A306"
+          },
+          "transform": [
+            15.0,
+            0.0,
+            -19000.0,
+            0.0,
+            -15.0,
+            -4000.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 1066
+        },
+        {
+          "bounds": [
+            -19000.0,
+            -19990.0,
+            -3010.0,
+            -4000.0
+          ],
+          "byteLength": 214068,
+          "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "dtype": "int16",
+          "filename": "A306_GLDSBCT_005.tif",
+          "height": 1066,
+          "nodata": null,
+          "registration": "Area",
+          "sha256": "b35131c9876c99dcb2fb31fac61406fd6df9e5aca03a909e33e332c87936a22c",
+          "tags": {
+            "AREA_OR_POINT": "Area",
+            "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+            "CREATED": "2025-12-17",
+            "REGION_NAME": "A3CLR22-#6",
+            "ROIID": "A306"
+          },
+          "transform": [
+            15.0,
+            0.0,
+            -19000.0,
+            0.0,
+            -15.0,
+            -4000.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 1066
+        }
+      ],
+      "sourceSamplesAtObserver": {
+        "A306_GLDBRES_005.tif": 0.5,
+        "A306_GLDELEV_005.tif": 1945.0848388671875,
+        "A306_GLDMASK_005.tif": 34.0,
+        "A306_GLDSBCT_005.tif": 7.0
+      },
+      "sources": [
+        {
+          "doi": "10.3847/PSJ/ae5b70",
+          "license": "CC-BY-4.0 (Zenodo record)",
+          "url": "https://pgda.gsfc.nasa.gov/products/104"
+        },
+        {
+          "doi": "10.5281/zenodo.17954508",
+          "url": "https://zenodo.org/records/17954508"
+        },
+        {
+          "url": "https://pgda.gsfc.nasa.gov/products/78"
+        },
+        {
+          "credit": "NASA/GSFC/Arizona State University LROC",
+          "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P892S2250.PYR.TIF"
+        }
+      ],
+      "surfaceReason": "Published SfS display patch; original observer and outer LOLA terrain retained.",
+      "surfaceStatus": "SFS_AVAILABLE",
+      "terrain": {
+        "desktop": {
+          "boundaryEqualsFrozenMesh": true,
+          "boundsM": [
+            [
+              -4003.55859375,
+              -1167.63134765625,
+              -4003.68212890625
+            ],
+            [
+              4003.069580078125,
+              14.927476939444016,
+              4003.609130859375
+            ]
+          ],
+          "byteLength": 4144716,
+          "chunks": [
+            {
+              "gridSize": 201,
+              "indexCount": 240000,
+              "indexOffset": 0,
+              "innerHalfExtentM": 0,
+              "name": "native-core",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 5.0,
+              "outerHalfExtentM": 500.0
+            },
+            {
+              "gridSize": 257,
+              "indexCount": 372480,
+              "indexOffset": 240000,
+              "innerHalfExtentM": 500.0,
+              "name": "local-relief",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 15.625,
+              "outerHalfExtentM": 2000.0
+            },
+            {
+              "gridSize": 129,
+              "indexCount": 77568,
+              "indexOffset": 612480,
+              "innerHalfExtentM": 2000.0,
+              "name": "regional-relief",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 62.5,
+              "outerHalfExtentM": 4000.0
+            }
+          ],
+          "indexCount": 690048,
+          "indicesByteOffset": 1384524,
+          "missingCellCount": 0,
+          "outerHalfExtentM": 4000,
+          "positionFile": "connecting-ridge-desktop.mesh",
+          "positionsByteOffset": 0,
+          "seamVertexCount": 512,
+          "sha256": "3281c5944d6f8bfb75b707483e9d1c172dcbfa3979def5fd8b80f48acc3e5e42",
+          "vertexCount": 115377
+        },
+        "mobile": {
+          "boundaryEqualsFrozenMesh": true,
+          "boundsM": [
+            [
+              -4003.55859375,
+              -1167.63134765625,
+              -4003.68212890625
+            ],
+            [
+              4003.069580078125,
+              14.745814784309873,
+              4003.609130859375
+            ]
+          ],
+          "byteLength": 1409388,
+          "chunks": [
+            {
+              "gridSize": 101,
+              "indexCount": 60000,
+              "indexOffset": 0,
+              "innerHalfExtentM": 0,
+              "name": "native-core",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 5.0,
+              "outerHalfExtentM": 250.0
+            },
+            {
+              "gridSize": 129,
+              "indexCount": 98304,
+              "indexOffset": 60000,
+              "innerHalfExtentM": 250.0,
+              "name": "local-relief",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 31.25,
+              "outerHalfExtentM": 2000.0
+            },
+            {
+              "gridSize": 129,
+              "indexCount": 76032,
+              "indexOffset": 158304,
+              "innerHalfExtentM": 2000.0,
+              "name": "regional-relief",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 62.5,
+              "outerHalfExtentM": 4000.0
+            }
+          ],
+          "indexCount": 234336,
+          "indicesByteOffset": 472044,
+          "missingCellCount": 0,
+          "outerHalfExtentM": 4000,
+          "positionFile": "connecting-ridge-mobile.mesh",
+          "positionsByteOffset": 0,
+          "seamVertexCount": 512,
+          "sha256": "2d10ce0743341aac459b72a146580e7c69e2f22a7438e97d90d6511432728b56",
+          "vertexCount": 39337
+        }
+      },
+      "transition": {
+        "innerHalfExtentM": 3500,
+        "method": "Display-only smoothstep height blend to frozen LOLA mesh; all512 outer seam vertices copied byte-exact. Original4\u201332km mesh and analytical skyline unchanged.",
+        "outerHalfExtentM": 4000
+      }
+    },
+    {
+      "aiUse": "OpenAI Codex assisted source inspection, deterministic conversion, implementation and tests. Assets derive from credited NASA rasters, without generated topography.",
+      "analysisBundleSha256": "c5b4c18fba7052cd628d6b5af26ec255f2df4597b489c38b994a76809d80c7aa",
+      "coordinateConvention": "x=eastM, y=radialUpM above unchanged baseline ground, z=-northM",
+      "datum": "Radial heights in metres relative to sphere radius1737400m",
+      "frame": "MOON_ME_DE440_ME421",
+      "imagery": null,
+      "kind": "Display-only registered NASA surface detail",
+      "limits": [
+        "Display geometry only. The frozen terrain-aware visibility engine and bundle remain authoritative.",
+        "SfS slopes are reconstructed from images over LOLA control; 5m posting is not a blanket5m physical-accuracy claim. Shadowed/poorly observed areas may retain smoother prior terrain.",
+        "The single1m NAC mosaic records historical illumination and shadows; it is not albedo or a current-epoch shadow simulation. It covers only the documented2km square.",
+        "The3500\u20134000m transition belt is a declared display blend, not a new scientific terrain model.",
+        "Individual raster geotransforms govern registration and resolution; a shared filename suffix does not establish equal pixel grids."
+      ],
+      "observer": {
+        "baselineGroundM": 771.043212890625,
+        "rigidVerticalOffsetAppliedM": 0
+      },
+      "qualityGates": {
+        "baselineObserverPreserved": true,
+        "completeFrozenSeam": false,
+        "lunarProjectionAndAreaRegistration": true,
+        "nativeSourceHashes": true,
+        "siteInsideSources": false,
+        "visibilityEngineChanged": false
+      },
+      "referenceRadiusM": 1737400.0,
+      "reproduce": "PYTHONPATH=.venv/vendor python tools/build_surface_visuals.py --all --acquire",
+      "schemaVersion": 1,
+      "site": {
+        "groundM": 771.043212890625,
+        "heightM": 2.0,
+        "id": "shackleton-rim",
+        "lat": -89.7668,
+        "lon": 188.13
+      },
+      "sourceArchive": null,
+      "sourceFrameBasis": "PGDA104 retains the LOLA geodetic reference; PGDA78 declares DE421 MOON_ME. Raster WKT itself names Moon2015 sphere, not a DE ephemeris. No additional frame rotation applied.",
+      "sourceRasters": [],
+      "sources": [
+        {
+          "doi": "10.3847/PSJ/ae5b70",
+          "license": "CC-BY-4.0 (Zenodo record)",
+          "url": "https://pgda.gsfc.nasa.gov/products/104"
+        },
+        {
+          "doi": "10.5281/zenodo.17954508",
+          "url": "https://zenodo.org/records/17954508"
+        },
+        {
+          "url": "https://pgda.gsfc.nasa.gov/products/78"
+        },
+        {
+          "credit": "NASA/GSFC/Arizona State University LROC",
+          "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_ROI/NOBILE02LOC/NAC_ROI_NOBILE02LOC_P839S0587.TIF"
+        }
+      ],
+      "surfaceReason": "None of the13 published SfS DEM footprints covers this observer point; original LOLA display terrain retained.",
+      "surfaceStatus": "SFS_NOT_COVERED",
+      "terrain": null,
+      "transition": {
+        "innerHalfExtentM": 3500,
+        "method": "Display-only smoothstep height blend to frozen LOLA mesh; all512 outer seam vertices copied byte-exact. Original4\u201332km mesh and analytical skyline unchanged.",
+        "outerHalfExtentM": 4000
+      }
+    },
+    {
+      "aiUse": "OpenAI Codex assisted source inspection, deterministic conversion, implementation and tests. Assets derive from credited NASA rasters, without generated topography.",
+      "analysisBundleSha256": "c5b4c18fba7052cd628d6b5af26ec255f2df4597b489c38b994a76809d80c7aa",
+      "coordinateConvention": "x=eastM, y=radialUpM above unchanged baseline ground, z=-northM",
+      "datum": "Radial heights in metres relative to sphere radius1737400m",
+      "frame": "MOON_ME_DE440_ME421",
+      "imagery": {
+        "bounds": [
+          -38001,
+          14001,
+          -36001,
+          16001
+        ],
+        "historicIllumination": true,
+        "limitations": [
+          "Historicalaveragemosaicnotcurrentlighting/calibratedalbedo.",
+          "ConservativeDN0mask;sourcelegacynodataunrepresentableuint8.",
+          "ProjectionnotexplicitMEvsPAframecertification.",
+          "Notusedtoauthoritativelyevaluatevisibility."
+        ],
+        "masks": {
+          "desktop": {
+            "byteLength": 6485,
+            "height": 2000,
+            "sha256": "6631e84b1d6b393f5d9c5fc2f8aa60e5797746c02d9bf4cfa25290c0541b7e3c",
+            "url": "de-gerlache-rim-photo-mask-desktop.png",
+            "validFraction": 1.0,
+            "width": 2000
+          },
+          "mobile": {
+            "byteLength": 2182,
+            "height": 1000,
+            "sha256": "49a6210f306758d27370e836dc083f9a452f77e184e8948f6d57661a9d242eb7",
+            "url": "de-gerlache-rim-photo-mask-mobile.png",
+            "validFraction": 1.0,
+            "width": 1000
+          }
+        },
+        "nativeBounds": [
+          -38001,
+          14001,
+          -36001,
+          16001
+        ],
+        "nativeRaster": {
+          "bounds": [
+            -38001,
+            14001,
+            -36001,
+            16001
+          ],
+          "crsWkt": "PROJCS[\"POLAR_STEREOGRAPHIC MOON\",GEOGCS[\"GCS_MOON\",DATUM[\"D_MOON\",SPHEROID[\"MOON_polarRadius\",1737400,0]],PRIMEM[\"Reference_Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "height": 2000,
+          "nodata": 0,
+          "registration": "Area",
+          "transform": [
+            1.0,
+            0.0,
+            -38001.0,
+            0.0,
+            -1.0,
+            16001.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 2000
+        },
+        "nativeResolutionM": 1,
+        "photometricAlbedo": false,
+        "product": "NASA LROC controlled polar mosaic",
+        "projection": {
+          "centralMeridianDeg": 0,
+          "kind": "south-polar-stereographic",
+          "latitudeOriginDeg": -90,
+          "radiusM": 1737400.0
+        },
+        "registration": {
+          "displayOffsetENM": [
+            0,
+            0
+          ],
+          "residualM": null,
+          "status": "NOMINAL_ONLY_RESIDUAL_NOT_MEASURED"
+        },
+        "sourceNativeRaster": [
+          {
+            "nativeRaster": {
+              "bigTiff": false,
+              "bits": 8,
+              "compression": 1,
+              "geoAscii": "unnamed|GCS Name = unnamed ellipse|Datum = unknown|Ellipsoid = unnamed|Primem = Greenwich||",
+              "geoDouble": [
+                1737400,
+                1737400,
+                0,
+                -90,
+                0,
+                0,
+                1,
+                0
+              ],
+              "geokeys": [
+                1,
+                1,
+                0,
+                20,
+                1024,
+                0,
+                1,
+                1,
+                1025,
+                0,
+                1,
+                1,
+                1026,
+                34737,
+                8,
+                0,
+                2048,
+                0,
+                1,
+                32767,
+                2049,
+                34737,
+                83,
+                8,
+                2050,
+                0,
+                1,
+                32767,
+                2054,
+                0,
+                1,
+                9102,
+                2056,
+                0,
+                1,
+                32767,
+                2057,
+                34736,
+                1,
+                0,
+                2058,
+                34736,
+                1,
+                1,
+                2061,
+                34736,
+                1,
+                2,
+                3072,
+                0,
+                1,
+                32767,
+                3074,
+                0,
+                1,
+                32767,
+                3075,
+                0,
+                1,
+                15,
+                3076,
+                0,
+                1,
+                9001,
+                3081,
+                34736,
+                1,
+                3,
+                3082,
+                34736,
+                1,
+                4,
+                3083,
+                34736,
+                1,
+                5,
+                3092,
+                34736,
+                1,
+                6,
+                3095,
+                34736,
+                1,
+                7
+              ],
+              "height": 45488,
+              "id": "NAC_POLE_SOUTH_CM_AVG_P892S3150",
+              "nodata": null,
+              "orientation": 1,
+              "pixelScale": [
+                1,
+                1,
+                0
+              ],
+              "samples": 1,
+              "tiepoint": [
+                0,
+                0,
+                0,
+                -45488,
+                45488,
+                0
+              ],
+              "tileHeight": 256,
+              "tileWidth": 256,
+              "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P892S3150.PYR.TIF",
+              "width": 45488,
+              "x0": -45488,
+              "y0": 45488
+            },
+            "sourceFullHashStatus": "NOT_FULLY_DOWNLOADED",
+            "sourceFullSha256": null,
+            "window": {
+              "col": 7487,
+              "destCol": 0,
+              "destRow": 0,
+              "height": 2000,
+              "row": 29487,
+              "width": 2000
+            }
+          }
+        ],
+        "sourcePixelSha256": "042287ed5bcc4b7d184b32e8d4f1757449cc6ad966b53dc565d049c160c5d1fe",
+        "sourceUrl": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P892S3150.PYR.TIF",
+        "textures": {
+          "desktop": {
+            "byteLength": 929542,
+            "height": 2000,
+            "metersPerPixel": 1.0,
+            "sha256": "b922f1778c32e5c9e1223873058f66bcc267eceef16bf4c565e6cfcb7eb26933",
+            "url": "de-gerlache-rim-photo-desktop.webp",
+            "width": 2000
+          },
+          "mobile": {
+            "byteLength": 341588,
+            "height": 1000,
+            "metersPerPixel": 2.0,
+            "sha256": "c3cd20f7db119d0046cef125ab60ac2bb71219e2349af4554ba59f508fce5f21",
+            "url": "de-gerlache-rim-photo-mobile.webp",
+            "width": 1000
+          }
+        },
+        "uvConvention": "u=(projectedX-xmin)/(xmax-xmin); v=(projectedY-ymin)/(ymax-ymin). Image row zero is north/ymax; Three.js TextureLoader flipY=true. Outside bounds is unavailable, never repeat.",
+        "validFraction": 1.0
+      },
+      "kind": "Display-only registered NASA surface detail",
+      "limits": [
+        "Display geometry only. The frozen terrain-aware visibility engine and bundle remain authoritative.",
+        "SfS slopes are reconstructed from images over LOLA control; 5m posting is not a blanket5m physical-accuracy claim. Shadowed/poorly observed areas may retain smoother prior terrain.",
+        "The single1m NAC mosaic records historical illumination and shadows; it is not albedo or a current-epoch shadow simulation. It covers only the documented2km square.",
+        "The3500\u20134000m transition belt is a declared display blend, not a new scientific terrain model.",
+        "No illuminated SfS input at the observer pixel: the finite regional product retains prior terrain there; improved image-derived local detail is not established.",
+        "Individual raster geotransforms govern registration and resolution; a shared filename suffix does not establish equal pixel grids."
+      ],
+      "observer": {
+        "baselineGroundM": 1793.7939453125,
+        "cameraAboveNativeSfsCellM": 1.7957763671875,
+        "nativeSfsGroundM": 1793.9981689453125,
+        "rigidVerticalOffsetAppliedM": 0,
+        "sfsMinusBaselineGroundM": 0.2042236328125
+      },
+      "observerSfsInputs": {
+        "bestInputResolutionM": null,
+        "illuminatedImageCount": 0.0,
+        "solarAzimuthBinCount": 0.0
+      },
+      "qualityGates": {
+        "baselineObserverPreserved": true,
+        "completeFrozenSeam": true,
+        "imageDerivedDetailAtObserver": false,
+        "lunarProjectionAndAreaRegistration": true,
+        "nativeSourceHashes": true,
+        "siteInsideSources": true,
+        "visibilityEngineChanged": false
+      },
+      "referenceRadiusM": 1737400.0,
+      "reproduce": "PYTHONPATH=.venv/vendor python tools/build_surface_visuals.py --all --acquire",
+      "schemaVersion": 1,
+      "site": {
+        "groundM": 1793.7939453125,
+        "heightM": 2.0,
+        "id": "de-gerlache-rim",
+        "lat": -88.6834,
+        "lon": 292.0679
+      },
+      "sourceArchive": {
+        "acquiredUtcDate": "2026-11-15",
+        "byteLength": 1340667387,
+        "fullArchiveDownloaded": false,
+        "fullArchiveMd5Verified": false,
+        "memberCrcAndSha256Verified": true,
+        "publisherMd5": "a34e603e9d2c2c9a2796fc237d24b1b4",
+        "url": "https://zenodo.org/api/records/17954508/files/A3CLR22_9_deGerlache_Rim.zip/content",
+        "version": "1.0.0"
+      },
+      "sourceFrameBasis": "PGDA104 retains the LOLA geodetic reference; PGDA78 declares DE421 MOON_ME. Raster WKT itself names Moon2015 sphere, not a DE ephemeris. No additional frame rotation applied.",
+      "sourceRasters": [
+        {
+          "bounds": [
+            -45000.0,
+            7000.0,
+            -29000.0,
+            23000.0
+          ],
+          "byteLength": 22145062,
+          "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "dtype": "float32",
+          "filename": "A309_GLDELEV_005.tif",
+          "height": 3200,
+          "nodata": -3.4028234663852886e+38,
+          "registration": "Area",
+          "sha256": "641532d0b3ab2661d6cb40612c3be1537baa8a27d71fa0996843ce92e9225dfe",
+          "tags": {
+            "AREA_OR_POINT": "Area",
+            "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+            "CREATED": "2025-12-17",
+            "REGION_NAME": "A3CLR22-#9",
+            "ROIID": "A309"
+          },
+          "transform": [
+            5.0,
+            0.0,
+            -45000.0,
+            0.0,
+            -5.0,
+            23000.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 3200
+        },
+        {
+          "bounds": [
+            -45000.0,
+            7010.0,
+            -29010.0,
+            23000.0
+          ],
+          "byteLength": 141281,
+          "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "dtype": "float32",
+          "filename": "A309_GLDBRES_005.tif",
+          "height": 1066,
+          "nodata": null,
+          "registration": "Area",
+          "sha256": "5f57a81fcf8c5153126ac6a69ac4aae901ad58c8cfdafba59ff18cbdb76781a3",
+          "tags": {
+            "AREA_OR_POINT": "Area",
+            "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+            "CREATED": "2025-12-17",
+            "REGION_NAME": "A3CLR22-#9",
+            "ROIID": "A309"
+          },
+          "transform": [
+            15.0,
+            0.0,
+            -45000.0,
+            0.0,
+            -15.0,
+            23000.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 1066
+        },
+        {
+          "bounds": [
+            -45000.0,
+            7010.0,
+            -29010.0,
+            23000.0
+          ],
+          "byteLength": 272900,
+          "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "dtype": "uint8",
+          "filename": "A309_GLDMASK_005.tif",
+          "height": 1066,
+          "nodata": null,
+          "registration": "Area",
+          "sha256": "61562947e28c6f9c4e8b187f1633f3ec1c28acd197a4ff91b2ce11fd50a95290",
+          "tags": {
+            "AREA_OR_POINT": "Area",
+            "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+            "CREATED": "2025-12-17",
+            "REGION_NAME": "A3CLR22-#9",
+            "ROIID": "A309"
+          },
+          "transform": [
+            15.0,
+            0.0,
+            -45000.0,
+            0.0,
+            -15.0,
+            23000.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 1066
+        },
+        {
+          "bounds": [
+            -45000.0,
+            7010.0,
+            -29010.0,
+            23000.0
+          ],
+          "byteLength": 150694,
+          "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "dtype": "int16",
+          "filename": "A309_GLDSBCT_005.tif",
+          "height": 1066,
+          "nodata": null,
+          "registration": "Area",
+          "sha256": "44c717808d6363dbabd2d62e0ef62d358b82afc30744835bf5c88cccc8727daa",
+          "tags": {
+            "AREA_OR_POINT": "Area",
+            "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+            "CREATED": "2025-12-17",
+            "REGION_NAME": "A3CLR22-#9",
+            "ROIID": "A309"
+          },
+          "transform": [
+            15.0,
+            0.0,
+            -45000.0,
+            0.0,
+            -15.0,
+            23000.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 1066
+        }
+      ],
+      "sourceSamplesAtObserver": {
+        "A309_GLDBRES_005.tif": null,
+        "A309_GLDELEV_005.tif": 1793.9981689453125,
+        "A309_GLDMASK_005.tif": 0.0,
+        "A309_GLDSBCT_005.tif": 0.0
+      },
+      "sources": [
+        {
+          "doi": "10.3847/PSJ/ae5b70",
+          "license": "CC-BY-4.0 (Zenodo record)",
+          "url": "https://pgda.gsfc.nasa.gov/products/104"
+        },
+        {
+          "doi": "10.5281/zenodo.17954508",
+          "url": "https://zenodo.org/records/17954508"
+        },
+        {
+          "url": "https://pgda.gsfc.nasa.gov/products/78"
+        },
+        {
+          "credit": "NASA/GSFC/Arizona State University LROC",
+          "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P892S3150.PYR.TIF"
+        }
+      ],
+      "surfaceReason": "Published SfS display patch; original observer and outer LOLA terrain retained.",
+      "surfaceStatus": "SFS_AVAILABLE",
+      "terrain": {
+        "desktop": {
+          "boundaryEqualsFrozenMesh": true,
+          "boundsM": [
+            [
+              -4001.30029296875,
+              -1606.15283203125,
+              -4003.798583984375
+            ],
+            [
+              4002.388671875,
+              24.80397009098898,
+              4002.74951171875
+            ]
+          ],
+          "byteLength": 4144716,
+          "chunks": [
+            {
+              "gridSize": 201,
+              "indexCount": 240000,
+              "indexOffset": 0,
+              "innerHalfExtentM": 0,
+              "name": "native-core",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 5.0,
+              "outerHalfExtentM": 500.0
+            },
+            {
+              "gridSize": 257,
+              "indexCount": 372480,
+              "indexOffset": 240000,
+              "innerHalfExtentM": 500.0,
+              "name": "local-relief",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 15.625,
+              "outerHalfExtentM": 2000.0
+            },
+            {
+              "gridSize": 129,
+              "indexCount": 77568,
+              "indexOffset": 612480,
+              "innerHalfExtentM": 2000.0,
+              "name": "regional-relief",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 62.5,
+              "outerHalfExtentM": 4000.0
+            }
+          ],
+          "indexCount": 690048,
+          "indicesByteOffset": 1384524,
+          "missingCellCount": 0,
+          "outerHalfExtentM": 4000,
+          "positionFile": "de-gerlache-rim-desktop.mesh",
+          "positionsByteOffset": 0,
+          "seamVertexCount": 512,
+          "sha256": "2d9947ce0e1956df757eaf61d65ecfb5f81e62bf82933f43c55e673ca2150020",
+          "vertexCount": 115377
+        },
+        "mobile": {
+          "boundaryEqualsFrozenMesh": true,
+          "boundsM": [
+            [
+              -4001.30029296875,
+              -1606.15283203125,
+              -4003.798583984375
+            ],
+            [
+              4002.388671875,
+              24.39292079843847,
+              4002.74951171875
+            ]
+          ],
+          "byteLength": 1409388,
+          "chunks": [
+            {
+              "gridSize": 101,
+              "indexCount": 60000,
+              "indexOffset": 0,
+              "innerHalfExtentM": 0,
+              "name": "native-core",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 5.0,
+              "outerHalfExtentM": 250.0
+            },
+            {
+              "gridSize": 129,
+              "indexCount": 98304,
+              "indexOffset": 60000,
+              "innerHalfExtentM": 250.0,
+              "name": "local-relief",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 31.25,
+              "outerHalfExtentM": 2000.0
+            },
+            {
+              "gridSize": 129,
+              "indexCount": 76032,
+              "indexOffset": 158304,
+              "innerHalfExtentM": 2000.0,
+              "name": "regional-relief",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 62.5,
+              "outerHalfExtentM": 4000.0
+            }
+          ],
+          "indexCount": 234336,
+          "indicesByteOffset": 472044,
+          "missingCellCount": 0,
+          "outerHalfExtentM": 4000,
+          "positionFile": "de-gerlache-rim-mobile.mesh",
+          "positionsByteOffset": 0,
+          "seamVertexCount": 512,
+          "sha256": "c25aede7ce3e8ef762dce5c908e4c846a725352eccfcbdab7df5f0cf631753d7",
+          "vertexCount": 39337
+        }
+      },
+      "transition": {
+        "innerHalfExtentM": 3500,
+        "method": "Display-only smoothstep height blend to frozen LOLA mesh; all512 outer seam vertices copied byte-exact. Original4\u201332km mesh and analytical skyline unchanged.",
+        "outerHalfExtentM": 4000
+      }
+    },
+    {
+      "aiUse": "OpenAI Codex assisted source inspection, deterministic conversion, implementation and tests. Assets derive from credited NASA rasters, without generated topography.",
+      "analysisBundleSha256": "c5b4c18fba7052cd628d6b5af26ec255f2df4597b489c38b994a76809d80c7aa",
+      "coordinateConvention": "x=eastM, y=radialUpM above unchanged baseline ground, z=-northM",
+      "datum": "Radial heights in metres relative to sphere radius1737400m",
+      "frame": "MOON_ME_DE440_ME421",
+      "imagery": {
+        "bounds": [
+          29000,
+          -20999.999999999996,
+          31000,
+          -18999.999999999996
+        ],
+        "historicIllumination": true,
+        "limitations": [
+          "Historicalaveragemosaicnotcurrentlighting/calibratedalbedo.",
+          "ConservativeDN0mask;sourcelegacynodataunrepresentableuint8.",
+          "ProjectionnotexplicitMEvsPAframecertification.",
+          "Notusedtoauthoritativelyevaluatevisibility."
+        ],
+        "masks": {
+          "desktop": {
+            "byteLength": 6485,
+            "height": 2000,
+            "sha256": "6631e84b1d6b393f5d9c5fc2f8aa60e5797746c02d9bf4cfa25290c0541b7e3c",
+            "url": "peak-near-shackleton-photo-mask-desktop.png",
+            "validFraction": 1.0,
+            "width": 2000
+          },
+          "mobile": {
+            "byteLength": 2182,
+            "height": 1000,
+            "sha256": "49a6210f306758d27370e836dc083f9a452f77e184e8948f6d57661a9d242eb7",
+            "url": "peak-near-shackleton-photo-mask-mobile.png",
+            "validFraction": 1.0,
+            "width": 1000
+          }
+        },
+        "nativeBounds": [
+          29000,
+          -20999.999999999996,
+          31000,
+          -18999.999999999996
+        ],
+        "nativeRaster": {
+          "bounds": [
+            29000,
+            -20999.999999999996,
+            31000,
+            -18999.999999999996
+          ],
+          "crsWkt": "PROJCS[\"POLAR_STEREOGRAPHIC MOON\",GEOGCS[\"GCS_MOON\",DATUM[\"D_MOON\",SPHEROID[\"MOON_polarRadius\",1737400,0]],PRIMEM[\"Reference_Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "height": 2000,
+          "nodata": 0,
+          "registration": "Area",
+          "transform": [
+            1.0,
+            0.0,
+            29000.0,
+            0.0,
+            -1.0,
+            -18999.999999999996,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 2000
+        },
+        "nativeResolutionM": 1,
+        "photometricAlbedo": false,
+        "product": "NASA LROC controlled polar mosaic",
+        "projection": {
+          "centralMeridianDeg": 0,
+          "kind": "south-polar-stereographic",
+          "latitudeOriginDeg": -90,
+          "radiusM": 1737400.0
+        },
+        "registration": {
+          "displayOffsetENM": [
+            0,
+            0
+          ],
+          "residualM": null,
+          "status": "NOMINAL_ONLY_RESIDUAL_NOT_MEASURED"
+        },
+        "sourceNativeRaster": [
+          {
+            "nativeRaster": {
+              "bigTiff": false,
+              "bits": 8,
+              "compression": 1,
+              "geoAscii": "unnamed|GCS Name = unnamed ellipse|Datum = unknown|Ellipsoid = unnamed|Primem = Greenwich||",
+              "geoDouble": [
+                1737400,
+                1737400,
+                0,
+                -90,
+                0,
+                0,
+                1,
+                0
+              ],
+              "geokeys": [
+                1,
+                1,
+                0,
+                20,
+                1024,
+                0,
+                1,
+                1,
+                1025,
+                0,
+                1,
+                1,
+                1026,
+                34737,
+                8,
+                0,
+                2048,
+                0,
+                1,
+                32767,
+                2049,
+                34737,
+                83,
+                8,
+                2050,
+                0,
+                1,
+                32767,
+                2054,
+                0,
+                1,
+                9102,
+                2056,
+                0,
+                1,
+                32767,
+                2057,
+                34736,
+                1,
+                0,
+                2058,
+                34736,
+                1,
+                1,
+                2061,
+                34736,
+                1,
+                2,
+                3072,
+                0,
+                1,
+                32767,
+                3074,
+                0,
+                1,
+                32767,
+                3075,
+                0,
+                1,
+                15,
+                3076,
+                0,
+                1,
+                9001,
+                3081,
+                34736,
+                1,
+                3,
+                3082,
+                34736,
+                1,
+                4,
+                3083,
+                34736,
+                1,
+                5,
+                3092,
+                34736,
+                1,
+                6,
+                3095,
+                34736,
+                1,
+                7
+              ],
+              "georeferenceInheritedFromMatchingPlainTiff": true,
+              "georeferenceSourceUrl": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P892S1350.TIF",
+              "height": 45488,
+              "id": "NAC_POLE_SOUTH_CM_AVG_P892S1350",
+              "nodata": null,
+              "orientation": 1,
+              "pixelScale": [
+                1,
+                1,
+                0
+              ],
+              "samples": 1,
+              "tiepoint": [
+                0,
+                0,
+                0,
+                0,
+                2.78531363986682e-12,
+                0
+              ],
+              "tileHeight": 256,
+              "tileWidth": 256,
+              "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P892S1350.PYR.TIF",
+              "width": 45488,
+              "x0": 0,
+              "y0": 2.78531363986682e-12
+            },
+            "sourceFullHashStatus": "NOT_FULLY_DOWNLOADED",
+            "sourceFullSha256": null,
+            "window": {
+              "col": 29000,
+              "destCol": 0,
+              "destRow": 0,
+              "height": 2000,
+              "row": 19000,
+              "width": 2000
+            }
+          }
+        ],
+        "sourcePixelSha256": "3c1e4f9f9b678af96efbd05a8b010e583458b9a5c0f89b894d3ef654ecd94f7d",
+        "sourceUrl": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P892S1350.PYR.TIF",
+        "textures": {
+          "desktop": {
+            "byteLength": 788184,
+            "height": 2000,
+            "metersPerPixel": 1.0,
+            "sha256": "0d95cd98e6140379afa18a5d9fd296ecfdcc34111e7d6a4a35c27b4ef30c881a",
+            "url": "peak-near-shackleton-photo-desktop.webp",
+            "width": 2000
+          },
+          "mobile": {
+            "byteLength": 323204,
+            "height": 1000,
+            "metersPerPixel": 2.0,
+            "sha256": "5f566200be94493534f066922d56e097ae64d2675eaca0307a78be0207058b95",
+            "url": "peak-near-shackleton-photo-mobile.webp",
+            "width": 1000
+          }
+        },
+        "uvConvention": "u=(projectedX-xmin)/(xmax-xmin); v=(projectedY-ymin)/(ymax-ymin). Image row zero is north/ymax; Three.js TextureLoader flipY=true. Outside bounds is unavailable, never repeat.",
+        "validFraction": 1.0
+      },
+      "kind": "Display-only registered NASA surface detail",
+      "limits": [
+        "Display geometry only. The frozen terrain-aware visibility engine and bundle remain authoritative.",
+        "SfS slopes are reconstructed from images over LOLA control; 5m posting is not a blanket5m physical-accuracy claim. Shadowed/poorly observed areas may retain smoother prior terrain.",
+        "The single1m NAC mosaic records historical illumination and shadows; it is not albedo or a current-epoch shadow simulation. It covers only the documented2km square.",
+        "The3500\u20134000m transition belt is a declared display blend, not a new scientific terrain model.",
+        "Individual raster geotransforms govern registration and resolution; a shared filename suffix does not establish equal pixel grids."
+      ],
+      "observer": {
+        "baselineGroundM": 1645.548828125,
+        "cameraAboveNativeSfsCellM": 1.8787841796875,
+        "nativeSfsGroundM": 1645.6700439453125,
+        "rigidVerticalOffsetAppliedM": 0,
+        "sfsMinusBaselineGroundM": 0.1212158203125
+      },
+      "observerSfsInputs": {
+        "bestInputResolutionM": 0.8999999761581421,
+        "illuminatedImageCount": 18.0,
+        "solarAzimuthBinCount": 6.0
+      },
+      "qualityGates": {
+        "baselineObserverPreserved": true,
+        "completeFrozenSeam": true,
+        "imageDerivedDetailAtObserver": true,
+        "lunarProjectionAndAreaRegistration": true,
+        "nativeSourceHashes": true,
+        "siteInsideSources": true,
+        "visibilityEngineChanged": false
+      },
+      "referenceRadiusM": 1737400.0,
+      "reproduce": "PYTHONPATH=.venv/vendor python tools/build_surface_visuals.py --all --acquire",
+      "schemaVersion": 1,
+      "site": {
+        "groundM": 1645.548828125,
+        "heightM": 2.0,
+        "id": "peak-near-shackleton",
+        "lat": -88.811,
+        "lon": 123.6901
+      },
+      "sourceArchive": {
+        "acquiredUtcDate": "2026-11-15",
+        "byteLength": 1360387336,
+        "fullArchiveDownloaded": false,
+        "fullArchiveMd5Verified": false,
+        "memberCrcAndSha256Verified": true,
+        "publisherMd5": "9ac25cc18b1290e679dfad9b1eaabad7",
+        "url": "https://zenodo.org/api/records/17954508/files/A3CLR22_8_Peak_Near_Shackleton.zip/content",
+        "version": "1.0.0"
+      },
+      "sourceFrameBasis": "PGDA104 retains the LOLA geodetic reference; PGDA78 declares DE421 MOON_ME. Raster WKT itself names Moon2015 sphere, not a DE ephemeris. No additional frame rotation applied.",
+      "sourceRasters": [
+        {
+          "bounds": [
+            22000.0,
+            -28000.0,
+            38000.0,
+            -12000.0
+          ],
+          "byteLength": 21731460,
+          "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "dtype": "float32",
+          "filename": "A308_GLDELEV_005.tif",
+          "height": 3200,
+          "nodata": -3.4028234663852886e+38,
+          "registration": "Area",
+          "sha256": "6eb1cdd1e2b95cd97e5fb0441f4c8c1c317d6f53c2bbfbf7990e50df8aa94d3b",
+          "tags": {
+            "AREA_OR_POINT": "Area",
+            "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+            "CREATED": "2025-12-17",
+            "REGION_NAME": "A3CLR22-#8",
+            "ROIID": "A308"
+          },
+          "transform": [
+            5.0,
+            0.0,
+            22000.0,
+            0.0,
+            -5.0,
+            -12000.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 3200
+        },
+        {
+          "bounds": [
+            22000.0,
+            -27990.0,
+            37990.0,
+            -12000.0
+          ],
+          "byteLength": 241646,
+          "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "dtype": "int16",
+          "filename": "A308_GLDSBCT_005.tif",
+          "height": 1066,
+          "nodata": null,
+          "registration": "Area",
+          "sha256": "af80b1a12d88c64cfd9024376f7899da01eabe31cac1942f5b249cc2120dc4b4",
+          "tags": {
+            "AREA_OR_POINT": "Area",
+            "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+            "CREATED": "2025-12-17",
+            "REGION_NAME": "A3CLR22-#8",
+            "ROIID": "A308"
+          },
+          "transform": [
+            15.0,
+            0.0,
+            22000.0,
+            0.0,
+            -15.0,
+            -12000.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 1066
+        },
+        {
+          "bounds": [
+            22000.0,
+            -27990.0,
+            37990.0,
+            -12000.0
+          ],
+          "byteLength": 360748,
+          "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "dtype": "uint8",
+          "filename": "A308_GLDMASK_005.tif",
+          "height": 1066,
+          "nodata": null,
+          "registration": "Area",
+          "sha256": "69767b06a6138b8d0646ace0f553d006e8541d9a96f85c6254a79b6b3deb4981",
+          "tags": {
+            "AREA_OR_POINT": "Area",
+            "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+            "CREATED": "2025-12-17",
+            "REGION_NAME": "A3CLR22-#8",
+            "ROIID": "A308"
+          },
+          "transform": [
+            15.0,
+            0.0,
+            22000.0,
+            0.0,
+            -15.0,
+            -12000.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 1066
+        },
+        {
+          "bounds": [
+            22000.0,
+            -27990.0,
+            37990.0,
+            -12000.0
+          ],
+          "byteLength": 206838,
+          "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "dtype": "float32",
+          "filename": "A308_GLDBRES_005.tif",
+          "height": 1066,
+          "nodata": null,
+          "registration": "Area",
+          "sha256": "6b42c48877ea2ff1abad4d33e85190d17b4d857e951c1a2e329335fa07fdb59c",
+          "tags": {
+            "AREA_OR_POINT": "Area",
+            "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+            "CREATED": "2025-12-17",
+            "REGION_NAME": "A3CLR22-#8",
+            "ROIID": "A308"
+          },
+          "transform": [
+            15.0,
+            0.0,
+            22000.0,
+            0.0,
+            -15.0,
+            -12000.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 1066
+        }
+      ],
+      "sourceSamplesAtObserver": {
+        "A308_GLDBRES_005.tif": 0.8999999761581421,
+        "A308_GLDELEV_005.tif": 1645.6700439453125,
+        "A308_GLDMASK_005.tif": 18.0,
+        "A308_GLDSBCT_005.tif": 6.0
+      },
+      "sources": [
+        {
+          "doi": "10.3847/PSJ/ae5b70",
+          "license": "CC-BY-4.0 (Zenodo record)",
+          "url": "https://pgda.gsfc.nasa.gov/products/104"
+        },
+        {
+          "doi": "10.5281/zenodo.17954508",
+          "url": "https://zenodo.org/records/17954508"
+        },
+        {
+          "url": "https://pgda.gsfc.nasa.gov/products/78"
+        },
+        {
+          "credit": "NASA/GSFC/Arizona State University LROC",
+          "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P892S1350.PYR.TIF"
+        }
+      ],
+      "surfaceReason": "Published SfS display patch; original observer and outer LOLA terrain retained.",
+      "surfaceStatus": "SFS_AVAILABLE",
+      "terrain": {
+        "desktop": {
+          "boundaryEqualsFrozenMesh": true,
+          "boundsM": [
+            [
+              -4002.28271484375,
+              -1246.880615234375,
+              -4002.4541015625
+            ],
+            [
+              4003.2421875,
+              3.4303285347747523,
+              4002.931396484375
+            ]
+          ],
+          "byteLength": 4144716,
+          "chunks": [
+            {
+              "gridSize": 201,
+              "indexCount": 240000,
+              "indexOffset": 0,
+              "innerHalfExtentM": 0,
+              "name": "native-core",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 5.0,
+              "outerHalfExtentM": 500.0
+            },
+            {
+              "gridSize": 257,
+              "indexCount": 372480,
+              "indexOffset": 240000,
+              "innerHalfExtentM": 500.0,
+              "name": "local-relief",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 15.625,
+              "outerHalfExtentM": 2000.0
+            },
+            {
+              "gridSize": 129,
+              "indexCount": 77568,
+              "indexOffset": 612480,
+              "innerHalfExtentM": 2000.0,
+              "name": "regional-relief",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 62.5,
+              "outerHalfExtentM": 4000.0
+            }
+          ],
+          "indexCount": 690048,
+          "indicesByteOffset": 1384524,
+          "missingCellCount": 0,
+          "outerHalfExtentM": 4000,
+          "positionFile": "peak-near-shackleton-desktop.mesh",
+          "positionsByteOffset": 0,
+          "seamVertexCount": 512,
+          "sha256": "de702b36ad825ed96fde00375f533244418976e37ea31b4f92e9546bc323c658",
+          "vertexCount": 115377
+        },
+        "mobile": {
+          "boundaryEqualsFrozenMesh": true,
+          "boundsM": [
+            [
+              -4002.28271484375,
+              -1246.880615234375,
+              -4002.4541015625
+            ],
+            [
+              4003.2421875,
+              3.4303285347747523,
+              4002.931396484375
+            ]
+          ],
+          "byteLength": 1409388,
+          "chunks": [
+            {
+              "gridSize": 101,
+              "indexCount": 60000,
+              "indexOffset": 0,
+              "innerHalfExtentM": 0,
+              "name": "native-core",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 5.0,
+              "outerHalfExtentM": 250.0
+            },
+            {
+              "gridSize": 129,
+              "indexCount": 98304,
+              "indexOffset": 60000,
+              "innerHalfExtentM": 250.0,
+              "name": "local-relief",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 31.25,
+              "outerHalfExtentM": 2000.0
+            },
+            {
+              "gridSize": 129,
+              "indexCount": 76032,
+              "indexOffset": 158304,
+              "innerHalfExtentM": 2000.0,
+              "name": "regional-relief",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 62.5,
+              "outerHalfExtentM": 4000.0
+            }
+          ],
+          "indexCount": 234336,
+          "indicesByteOffset": 472044,
+          "missingCellCount": 0,
+          "outerHalfExtentM": 4000,
+          "positionFile": "peak-near-shackleton-mobile.mesh",
+          "positionsByteOffset": 0,
+          "seamVertexCount": 512,
+          "sha256": "dc8ac4ba7755c1eb15fbd5d0778f4bfff29796f6dbf105728fedf09a53992261",
+          "vertexCount": 39337
+        }
+      },
+      "transition": {
+        "innerHalfExtentM": 3500,
+        "method": "Display-only smoothstep height blend to frozen LOLA mesh; all512 outer seam vertices copied byte-exact. Original4\u201332km mesh and analytical skyline unchanged.",
+        "outerHalfExtentM": 4000
+      }
+    },
+    {
+      "aiUse": "OpenAI Codex assisted source inspection, deterministic conversion, implementation and tests. Assets derive from credited NASA rasters, without generated topography.",
+      "analysisBundleSha256": "c5b4c18fba7052cd628d6b5af26ec255f2df4597b489c38b994a76809d80c7aa",
+      "coordinateConvention": "x=eastM, y=radialUpM above unchanged baseline ground, z=-northM",
+      "datum": "Radial heights in metres relative to sphere radius1737400m",
+      "frame": "MOON_ME_DE440_ME421",
+      "imagery": {
+        "bounds": [
+          83000,
+          109001,
+          85000,
+          111001
+        ],
+        "historicIllumination": true,
+        "limitations": [
+          "Historicalaveragemosaicnotcurrentlighting/calibratedalbedo.",
+          "ConservativeDN0mask;sourcelegacynodataunrepresentableuint8.",
+          "ProjectionnotexplicitMEvsPAframecertification.",
+          "Notusedtoauthoritativelyevaluatevisibility."
+        ],
+        "masks": {
+          "desktop": {
+            "byteLength": 6485,
+            "height": 2000,
+            "sha256": "6631e84b1d6b393f5d9c5fc2f8aa60e5797746c02d9bf4cfa25290c0541b7e3c",
+            "url": "nobile-rim-1-photo-mask-desktop.png",
+            "validFraction": 1.0,
+            "width": 2000
+          },
+          "mobile": {
+            "byteLength": 2182,
+            "height": 1000,
+            "sha256": "49a6210f306758d27370e836dc083f9a452f77e184e8948f6d57661a9d242eb7",
+            "url": "nobile-rim-1-photo-mask-mobile.png",
+            "validFraction": 1.0,
+            "width": 1000
+          }
+        },
+        "nativeBounds": [
+          83000,
+          109001,
+          85000,
+          111001
+        ],
+        "nativeRaster": {
+          "bounds": [
+            83000,
+            109001,
+            85000,
+            111001
+          ],
+          "crsWkt": "PROJCS[\"POLAR_STEREOGRAPHIC MOON\",GEOGCS[\"GCS_MOON\",DATUM[\"D_MOON\",SPHEROID[\"MOON_polarRadius\",1737400,0]],PRIMEM[\"Reference_Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "height": 2000,
+          "nodata": 0,
+          "registration": "Area",
+          "transform": [
+            1.0,
+            0.0,
+            83000.0,
+            0.0,
+            -1.0,
+            111001.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 2000
+        },
+        "nativeResolutionM": 1,
+        "photometricAlbedo": false,
+        "product": "NASA LROC controlled polar mosaic",
+        "projection": {
+          "centralMeridianDeg": 0,
+          "kind": "south-polar-stereographic",
+          "latitudeOriginDeg": -90,
+          "radiusM": 1737400.0
+        },
+        "registration": {
+          "displayOffsetENM": [
+            0,
+            0
+          ],
+          "residualM": null,
+          "status": "NOMINAL_ONLY_RESIDUAL_NOT_MEASURED"
+        },
+        "sourceNativeRaster": [
+          {
+            "nativeRaster": {
+              "bigTiff": true,
+              "bits": 8,
+              "compression": 1,
+              "geoAscii": "unnamed|GCS Name = unnamed ellipse|Datum = unknown|Ellipsoid = unnamed|Primem = Greenwich||",
+              "geoDouble": [
+                1737400,
+                1737400,
+                0,
+                -90,
+                0,
+                0,
+                1,
+                0
+              ],
+              "geokeys": [
+                1,
+                1,
+                0,
+                20,
+                1024,
+                0,
+                1,
+                1,
+                1025,
+                0,
+                1,
+                1,
+                1026,
+                34737,
+                8,
+                0,
+                2048,
+                0,
+                1,
+                32767,
+                2049,
+                34737,
+                83,
+                8,
+                2050,
+                0,
+                1,
+                32767,
+                2054,
+                0,
+                1,
+                9102,
+                2056,
+                0,
+                1,
+                32767,
+                2057,
+                34736,
+                1,
+                0,
+                2058,
+                34736,
+                1,
+                1,
+                2061,
+                34736,
+                1,
+                2,
+                3072,
+                0,
+                1,
+                32767,
+                3074,
+                0,
+                1,
+                32767,
+                3075,
+                0,
+                1,
+                15,
+                3076,
+                0,
+                1,
+                9001,
+                3081,
+                34736,
+                1,
+                3,
+                3082,
+                34736,
+                1,
+                4,
+                3083,
+                34736,
+                1,
+                5,
+                3092,
+                34736,
+                1,
+                6,
+                3095,
+                34736,
+                1,
+                7
+              ],
+              "height": 71707,
+              "id": "NAC_POLE_SOUTH_CM_AVG_P848S0337",
+              "nodata": null,
+              "orientation": 1,
+              "pixelScale": [
+                1,
+                1,
+                0
+              ],
+              "samples": 1,
+              "tiepoint": [
+                0,
+                0,
+                0,
+                52245,
+                168245,
+                0
+              ],
+              "tileHeight": 256,
+              "tileWidth": 256,
+              "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P848S0337.PYR.TIF",
+              "width": 76524,
+              "x0": 52245,
+              "y0": 168245
+            },
+            "sourceFullHashStatus": "NOT_FULLY_DOWNLOADED",
+            "sourceFullSha256": null,
+            "window": {
+              "col": 30755,
+              "destCol": 0,
+              "destRow": 0,
+              "height": 2000,
+              "row": 57244,
+              "width": 2000
+            }
+          }
+        ],
+        "sourcePixelSha256": "eada413707b34673ca82ebeb332a154dd2a45fb00a1e4d3199fa75a0289c3fa9",
+        "sourceUrl": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P848S0337.PYR.TIF",
+        "textures": {
+          "desktop": {
+            "byteLength": 754866,
+            "height": 2000,
+            "metersPerPixel": 1.0,
+            "sha256": "c3bad0508ce08c0ec91ff5dc5a55c74296156c16f9db46404e9c248bc1620f2c",
+            "url": "nobile-rim-1-photo-desktop.webp",
+            "width": 2000
+          },
+          "mobile": {
+            "byteLength": 276780,
+            "height": 1000,
+            "metersPerPixel": 2.0,
+            "sha256": "df8d06944f211bb1127dbd34aeaf9ef2221c83caade3b6619fc9efce2a30abf4",
+            "url": "nobile-rim-1-photo-mobile.webp",
+            "width": 1000
+          }
+        },
+        "uvConvention": "u=(projectedX-xmin)/(xmax-xmin); v=(projectedY-ymin)/(ymax-ymin). Image row zero is north/ymax; Three.js TextureLoader flipY=true. Outside bounds is unavailable, never repeat.",
+        "validFraction": 1.0
+      },
+      "kind": "Display-only registered NASA surface detail",
+      "limits": [
+        "Display geometry only. The frozen terrain-aware visibility engine and bundle remain authoritative.",
+        "SfS slopes are reconstructed from images over LOLA control; 5m posting is not a blanket5m physical-accuracy claim. Shadowed/poorly observed areas may retain smoother prior terrain.",
+        "The single1m NAC mosaic records historical illumination and shadows; it is not albedo or a current-epoch shadow simulation. It covers only the documented2km square.",
+        "The3500\u20134000m transition belt is a declared display blend, not a new scientific terrain model.",
+        "Individual raster geotransforms govern registration and resolution; a shared filename suffix does not establish equal pixel grids."
+      ],
+      "observer": {
+        "baselineGroundM": 5946.12841796875,
+        "cameraAboveNativeSfsCellM": 3.47998046875,
+        "nativeSfsGroundM": 5944.6484375,
+        "rigidVerticalOffsetAppliedM": 0,
+        "sfsMinusBaselineGroundM": -1.47998046875
+      },
+      "observerSfsInputs": {
+        "bestInputResolutionM": 1.2000000476837158,
+        "illuminatedImageCount": 8.0,
+        "solarAzimuthBinCount": 4.0
+      },
+      "qualityGates": {
+        "baselineObserverPreserved": true,
+        "completeFrozenSeam": true,
+        "imageDerivedDetailAtObserver": true,
+        "lunarProjectionAndAreaRegistration": true,
+        "nativeSourceHashes": true,
+        "siteInsideSources": true,
+        "visibilityEngineChanged": false
+      },
+      "referenceRadiusM": 1737400.0,
+      "reproduce": "PYTHONPATH=.venv/vendor python tools/build_surface_visuals.py --all --acquire",
+      "schemaVersion": 1,
+      "site": {
+        "groundM": 5946.12841796875,
+        "heightM": 2.0,
+        "id": "nobile-rim-1",
+        "lat": -85.4381,
+        "lon": 37.36667
+      },
+      "sourceArchive": {
+        "acquiredUtcDate": "2026-11-15",
+        "byteLength": 1962014939,
+        "fullArchiveDownloaded": false,
+        "fullArchiveMd5Verified": false,
+        "memberCrcAndSha256Verified": true,
+        "publisherMd5": "a8bcb60f432253f5fa97ff07899bd02a",
+        "url": "https://zenodo.org/api/records/17954508/files/A3CLR22_7_Nobile_Rim_1.zip/content",
+        "version": "1.0.0"
+      },
+      "sourceFrameBasis": "PGDA104 retains the LOLA geodetic reference; PGDA78 declares DE421 MOON_ME. Raster WKT itself names Moon2015 sphere, not a DE ephemeris. No additional frame rotation applied.",
+      "sourceRasters": [
+        {
+          "bounds": [
+            74000.0,
+            100000.0,
+            94000.0,
+            120000.0
+          ],
+          "byteLength": 27429327,
+          "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "dtype": "float32",
+          "filename": "A307_GLDELEV_005.tif",
+          "height": 4000,
+          "nodata": -3.4028234663852886e+38,
+          "registration": "Area",
+          "sha256": "6f422c88b7c4fc3ef147bde592596af1b7baef885dffbbab6de880fcf85c0dff",
+          "tags": {
+            "AREA_OR_POINT": "Area",
+            "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+            "CREATED": "2025-12-17",
+            "REGION_NAME": "A3CLR22-#7",
+            "ROIID": "A307"
+          },
+          "transform": [
+            5.0,
+            0.0,
+            74000.0,
+            0.0,
+            -5.0,
+            120000.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 4000
+        },
+        {
+          "bounds": [
+            74000.0,
+            100005.0,
+            93995.0,
+            120000.0
+          ],
+          "byteLength": 250386,
+          "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "dtype": "int16",
+          "filename": "A307_GLDSBCT_005.tif",
+          "height": 1333,
+          "nodata": null,
+          "registration": "Area",
+          "sha256": "522c435c2441864ecab8c7d4ef6380d96b9aea11d0d1b38071577329824de885",
+          "tags": {
+            "AREA_OR_POINT": "Area",
+            "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+            "CREATED": "2025-12-17",
+            "REGION_NAME": "A3CLR22-#7",
+            "ROIID": "A307"
+          },
+          "transform": [
+            15.0,
+            0.0,
+            74000.0,
+            0.0,
+            -15.0,
+            120000.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 1333
+        },
+        {
+          "bounds": [
+            74000.0,
+            100005.0,
+            93995.0,
+            120000.0
+          ],
+          "byteLength": 390838,
+          "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "dtype": "uint8",
+          "filename": "A307_GLDMASK_005.tif",
+          "height": 1333,
+          "nodata": null,
+          "registration": "Area",
+          "sha256": "ba4de0d69099527561bdca9b094342855d9388cef612c6425e55cc5e759322dd",
+          "tags": {
+            "AREA_OR_POINT": "Area",
+            "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+            "CREATED": "2025-12-17",
+            "REGION_NAME": "A3CLR22-#7",
+            "ROIID": "A307"
+          },
+          "transform": [
+            15.0,
+            0.0,
+            74000.0,
+            0.0,
+            -15.0,
+            120000.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 1333
+        },
+        {
+          "bounds": [
+            74000.0,
+            100005.0,
+            93995.0,
+            120000.0
+          ],
+          "byteLength": 254088,
+          "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "dtype": "float32",
+          "filename": "A307_GLDBRES_005.tif",
+          "height": 1333,
+          "nodata": null,
+          "registration": "Area",
+          "sha256": "9be26faebe86bd5a35386dede712b53dbeaa62e5472347dea1fa6379d9a246c4",
+          "tags": {
+            "AREA_OR_POINT": "Area",
+            "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+            "CREATED": "2025-12-17",
+            "REGION_NAME": "A3CLR22-#7",
+            "ROIID": "A307"
+          },
+          "transform": [
+            15.0,
+            0.0,
+            74000.0,
+            0.0,
+            -15.0,
+            120000.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 1333
+        }
+      ],
+      "sourceSamplesAtObserver": {
+        "A307_GLDBRES_005.tif": 1.2000000476837158,
+        "A307_GLDELEV_005.tif": 5944.6484375,
+        "A307_GLDMASK_005.tif": 8.0,
+        "A307_GLDSBCT_005.tif": 4.0
+      },
+      "sources": [
+        {
+          "doi": "10.3847/PSJ/ae5b70",
+          "license": "CC-BY-4.0 (Zenodo record)",
+          "url": "https://pgda.gsfc.nasa.gov/products/104"
+        },
+        {
+          "doi": "10.5281/zenodo.17954508",
+          "url": "https://zenodo.org/records/17954508"
+        },
+        {
+          "url": "https://pgda.gsfc.nasa.gov/products/78"
+        },
+        {
+          "credit": "NASA/GSFC/Arizona State University LROC",
+          "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P848S0337.PYR.TIF"
+        }
+      ],
+      "surfaceReason": "Published SfS display patch; original observer and outer LOLA terrain retained.",
+      "surfaceStatus": "SFS_AVAILABLE",
+      "terrain": {
+        "desktop": {
+          "boundaryEqualsFrozenMesh": true,
+          "boundsM": [
+            [
+              -4014.560302734375,
+              -1312.315673828125,
+              -4015.52587890625
+            ],
+            [
+              4011.387451171875,
+              797.5621948242188,
+              4013.87353515625
+            ]
+          ],
+          "byteLength": 4144716,
+          "chunks": [
+            {
+              "gridSize": 201,
+              "indexCount": 240000,
+              "indexOffset": 0,
+              "innerHalfExtentM": 0,
+              "name": "native-core",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 5.0,
+              "outerHalfExtentM": 500.0
+            },
+            {
+              "gridSize": 257,
+              "indexCount": 372480,
+              "indexOffset": 240000,
+              "innerHalfExtentM": 500.0,
+              "name": "local-relief",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 15.625,
+              "outerHalfExtentM": 2000.0
+            },
+            {
+              "gridSize": 129,
+              "indexCount": 77568,
+              "indexOffset": 612480,
+              "innerHalfExtentM": 2000.0,
+              "name": "regional-relief",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 62.5,
+              "outerHalfExtentM": 4000.0
+            }
+          ],
+          "indexCount": 690048,
+          "indicesByteOffset": 1384524,
+          "missingCellCount": 0,
+          "outerHalfExtentM": 4000,
+          "positionFile": "nobile-rim-1-desktop.mesh",
+          "positionsByteOffset": 0,
+          "seamVertexCount": 512,
+          "sha256": "619aa48380b6888b6fcdc597f38a270a1e79fb761b41cb65c7be8b59d5e4fbf1",
+          "vertexCount": 115377
+        },
+        "mobile": {
+          "boundaryEqualsFrozenMesh": true,
+          "boundsM": [
+            [
+              -4014.560302734375,
+              -1312.315673828125,
+              -4015.52587890625
+            ],
+            [
+              4011.387451171875,
+              797.5621948242188,
+              4013.87353515625
+            ]
+          ],
+          "byteLength": 1409388,
+          "chunks": [
+            {
+              "gridSize": 101,
+              "indexCount": 60000,
+              "indexOffset": 0,
+              "innerHalfExtentM": 0,
+              "name": "native-core",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 5.0,
+              "outerHalfExtentM": 250.0
+            },
+            {
+              "gridSize": 129,
+              "indexCount": 98304,
+              "indexOffset": 60000,
+              "innerHalfExtentM": 250.0,
+              "name": "local-relief",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 31.25,
+              "outerHalfExtentM": 2000.0
+            },
+            {
+              "gridSize": 129,
+              "indexCount": 76032,
+              "indexOffset": 158304,
+              "innerHalfExtentM": 2000.0,
+              "name": "regional-relief",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 62.5,
+              "outerHalfExtentM": 4000.0
+            }
+          ],
+          "indexCount": 234336,
+          "indicesByteOffset": 472044,
+          "missingCellCount": 0,
+          "outerHalfExtentM": 4000,
+          "positionFile": "nobile-rim-1-mobile.mesh",
+          "positionsByteOffset": 0,
+          "seamVertexCount": 512,
+          "sha256": "1ac7323903bb945f27ce3fc93d268b0be469f4ab0474dfe6866399f300c2b46a",
+          "vertexCount": 39337
+        }
+      },
+      "transition": {
+        "innerHalfExtentM": 3500,
+        "method": "Display-only smoothstep height blend to frozen LOLA mesh; all512 outer seam vertices copied byte-exact. Original4\u201332km mesh and analytical skyline unchanged.",
+        "outerHalfExtentM": 4000
+      }
+    },
+    {
+      "aiUse": "OpenAI Codex assisted source inspection, deterministic conversion, implementation and tests. Assets derive from credited NASA rasters, without generated topography.",
+      "analysisBundleSha256": "c5b4c18fba7052cd628d6b5af26ec255f2df4597b489c38b994a76809d80c7aa",
+      "coordinateConvention": "x=eastM, y=radialUpM above unchanged baseline ground, z=-northM",
+      "datum": "Radial heights in metres relative to sphere radius1737400m",
+      "frame": "MOON_ME_DE440_ME421",
+      "imagery": null,
+      "kind": "Display-only registered NASA surface detail",
+      "limits": [
+        "Display geometry only. The frozen terrain-aware visibility engine and bundle remain authoritative.",
+        "SfS slopes are reconstructed from images over LOLA control; 5m posting is not a blanket5m physical-accuracy claim. Shadowed/poorly observed areas may retain smoother prior terrain.",
+        "The single1m NAC mosaic records historical illumination and shadows; it is not albedo or a current-epoch shadow simulation. It covers only the documented2km square.",
+        "The3500\u20134000m transition belt is a declared display blend, not a new scientific terrain model.",
+        "Individual raster geotransforms govern registration and resolution; a shared filename suffix does not establish equal pixel grids."
+      ],
+      "observer": {
+        "baselineGroundM": 4783.62939453125,
+        "cameraAboveNativeSfsCellM": 2.84033203125,
+        "nativeSfsGroundM": 4782.7890625,
+        "rigidVerticalOffsetAppliedM": 0,
+        "sfsMinusBaselineGroundM": -0.84033203125
+      },
+      "observerSfsInputs": {
+        "bestInputResolutionM": 1.5,
+        "illuminatedImageCount": 1.0,
+        "solarAzimuthBinCount": 1.0
+      },
+      "qualityGates": {
+        "baselineObserverPreserved": true,
+        "completeFrozenSeam": true,
+        "imageDerivedDetailAtObserver": true,
+        "lunarProjectionAndAreaRegistration": true,
+        "nativeSourceHashes": true,
+        "siteInsideSources": true,
+        "visibilityEngineChanged": false
+      },
+      "referenceRadiusM": 1737400.0,
+      "reproduce": "PYTHONPATH=.venv/vendor python tools/build_surface_visuals.py --all --acquire",
+      "schemaVersion": 1,
+      "site": {
+        "groundM": 4783.62939453125,
+        "heightM": 2.0,
+        "id": "malapert-massif",
+        "lat": -85.9948,
+        "lon": 359.76422
+      },
+      "sourceArchive": {
+        "acquiredUtcDate": "2026-11-15",
+        "byteLength": 2213137537,
+        "fullArchiveDownloaded": false,
+        "fullArchiveMd5Verified": false,
+        "memberCrcAndSha256Verified": true,
+        "publisherMd5": "772a578b8f2ebdb078c5a04a3c07182a",
+        "url": "https://zenodo.org/api/records/17954508/files/A3CLR22_11_Malapert_Massif.zip/content",
+        "version": "1.0.0"
+      },
+      "sourceFrameBasis": "PGDA104 retains the LOLA geodetic reference; PGDA78 declares DE421 MOON_ME. Raster WKT itself names Moon2015 sphere, not a DE ephemeris. No additional frame rotation applied.",
+      "sourceRasters": [
+        {
+          "bounds": [
+            -11000.0,
+            111000.0,
+            10000.0,
+            132000.0
+          ],
+          "byteLength": 31171558,
+          "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "dtype": "float32",
+          "filename": "A311_GLDELEV_005.tif",
+          "height": 4200,
+          "nodata": -3.4028234663852886e+38,
+          "registration": "Area",
+          "sha256": "e71f946674a6dc4dcd910f37cee9c0ff42c0f5493900be81259e0acb8dea68d4",
+          "tags": {
+            "AREA_OR_POINT": "Area",
+            "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+            "CREATED": "2025-12-17",
+            "REGION_NAME": "A3CLR22-#11",
+            "ROIID": "A311"
+          },
+          "transform": [
+            5.0,
+            0.0,
+            -11000.0,
+            0.0,
+            -5.0,
+            132000.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 4200
+        },
+        {
+          "bounds": [
+            -11000.0,
+            111000.0,
+            10000.0,
+            132000.0
+          ],
+          "byteLength": 291549,
+          "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "dtype": "int16",
+          "filename": "A311_GLDSBCT_005.tif",
+          "height": 1400,
+          "nodata": null,
+          "registration": "Area",
+          "sha256": "c3d7390fab8e31925d9f92261d4449f0c15b3fbadd7c00e7c7fc05ea4121dff6",
+          "tags": {
+            "AREA_OR_POINT": "Area",
+            "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+            "CREATED": "2025-12-17",
+            "REGION_NAME": "A3CLR22-#11",
+            "ROIID": "A311"
+          },
+          "transform": [
+            15.0,
+            0.0,
+            -11000.0,
+            0.0,
+            -15.0,
+            132000.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 1400
+        },
+        {
+          "bounds": [
+            -11000.0,
+            111000.0,
+            10000.0,
+            132000.0
+          ],
+          "byteLength": 504129,
+          "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "dtype": "uint8",
+          "filename": "A311_GLDMASK_005.tif",
+          "height": 1400,
+          "nodata": null,
+          "registration": "Area",
+          "sha256": "194385c6bbc327e4fd472bf8a4b3f4bc15117ad84b57a56eddb556a8b9d08a7b",
+          "tags": {
+            "AREA_OR_POINT": "Area",
+            "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+            "CREATED": "2025-12-17",
+            "REGION_NAME": "A3CLR22-#11",
+            "ROIID": "A311"
+          },
+          "transform": [
+            15.0,
+            0.0,
+            -11000.0,
+            0.0,
+            -15.0,
+            132000.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 1400
+        },
+        {
+          "bounds": [
+            -11000.0,
+            111000.0,
+            10000.0,
+            132000.0
+          ],
+          "byteLength": 229937,
+          "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "dtype": "float32",
+          "filename": "A311_GLDBRES_005.tif",
+          "height": 1400,
+          "nodata": null,
+          "registration": "Area",
+          "sha256": "934ecb1036b7a7f96f048aa3e7c0961b066b0a8e3595e1adbd6a1e0ca61c105f",
+          "tags": {
+            "AREA_OR_POINT": "Area",
+            "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+            "CREATED": "2025-12-17",
+            "REGION_NAME": "A3CLR22-#11",
+            "ROIID": "A311"
+          },
+          "transform": [
+            15.0,
+            0.0,
+            -11000.0,
+            0.0,
+            -15.0,
+            132000.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 1400
+        }
+      ],
+      "sourceSamplesAtObserver": {
+        "A311_GLDBRES_005.tif": 1.5,
+        "A311_GLDELEV_005.tif": 4782.7890625,
+        "A311_GLDMASK_005.tif": 1.0,
+        "A311_GLDSBCT_005.tif": 1.0
+      },
+      "sources": [
+        {
+          "doi": "10.3847/PSJ/ae5b70",
+          "license": "CC-BY-4.0 (Zenodo record)",
+          "url": "https://pgda.gsfc.nasa.gov/products/104"
+        },
+        {
+          "doi": "10.5281/zenodo.17954508",
+          "url": "https://zenodo.org/records/17954508"
+        },
+        {
+          "url": "https://pgda.gsfc.nasa.gov/products/78"
+        },
+        {
+          "credit": "NASA/GSFC/Arizona State University LROC",
+          "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_ROI/NOBILE02LOC/NAC_ROI_NOBILE02LOC_P839S0587.TIF"
+        }
+      ],
+      "surfaceReason": "Published SfS display patch; original observer and outer LOLA terrain retained.",
+      "surfaceStatus": "SFS_AVAILABLE",
+      "terrain": {
+        "desktop": {
+          "boundaryEqualsFrozenMesh": true,
+          "boundsM": [
+            [
+              -4011.447265625,
+              -1218.158935546875,
+              -4010.07080078125
+            ],
+            [
+              4011.7490234375,
+              319.552734375,
+              4009.790283203125
+            ]
+          ],
+          "byteLength": 4144716,
+          "chunks": [
+            {
+              "gridSize": 201,
+              "indexCount": 240000,
+              "indexOffset": 0,
+              "innerHalfExtentM": 0,
+              "name": "native-core",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 5.0,
+              "outerHalfExtentM": 500.0
+            },
+            {
+              "gridSize": 257,
+              "indexCount": 372480,
+              "indexOffset": 240000,
+              "innerHalfExtentM": 500.0,
+              "name": "local-relief",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 15.625,
+              "outerHalfExtentM": 2000.0
+            },
+            {
+              "gridSize": 129,
+              "indexCount": 77568,
+              "indexOffset": 612480,
+              "innerHalfExtentM": 2000.0,
+              "name": "regional-relief",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 62.5,
+              "outerHalfExtentM": 4000.0
+            }
+          ],
+          "indexCount": 690048,
+          "indicesByteOffset": 1384524,
+          "missingCellCount": 0,
+          "outerHalfExtentM": 4000,
+          "positionFile": "malapert-massif-desktop.mesh",
+          "positionsByteOffset": 0,
+          "seamVertexCount": 512,
+          "sha256": "921a9651d34502eecdabf9dab9bd45d084c6ea1924aa4e3dc3d16ba472f31310",
+          "vertexCount": 115377
+        },
+        "mobile": {
+          "boundaryEqualsFrozenMesh": true,
+          "boundsM": [
+            [
+              -4011.447265625,
+              -1218.158935546875,
+              -4010.07080078125
+            ],
+            [
+              4011.7490234375,
+              319.552734375,
+              4009.790283203125
+            ]
+          ],
+          "byteLength": 1409388,
+          "chunks": [
+            {
+              "gridSize": 101,
+              "indexCount": 60000,
+              "indexOffset": 0,
+              "innerHalfExtentM": 0,
+              "name": "native-core",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 5.0,
+              "outerHalfExtentM": 250.0
+            },
+            {
+              "gridSize": 129,
+              "indexCount": 98304,
+              "indexOffset": 60000,
+              "innerHalfExtentM": 250.0,
+              "name": "local-relief",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 31.25,
+              "outerHalfExtentM": 2000.0
+            },
+            {
+              "gridSize": 129,
+              "indexCount": 76032,
+              "indexOffset": 158304,
+              "innerHalfExtentM": 2000.0,
+              "name": "regional-relief",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 62.5,
+              "outerHalfExtentM": 4000.0
+            }
+          ],
+          "indexCount": 234336,
+          "indicesByteOffset": 472044,
+          "missingCellCount": 0,
+          "outerHalfExtentM": 4000,
+          "positionFile": "malapert-massif-mobile.mesh",
+          "positionsByteOffset": 0,
+          "seamVertexCount": 512,
+          "sha256": "7f97114670b5ae185c5396aed4267ed3fd1a8921f630231c9719df50fd5572dd",
+          "vertexCount": 39337
+        }
+      },
+      "transition": {
+        "innerHalfExtentM": 3500,
+        "method": "Display-only smoothstep height blend to frozen LOLA mesh; all512 outer seam vertices copied byte-exact. Original4\u201332km mesh and analytical skyline unchanged.",
+        "outerHalfExtentM": 4000
+      }
+    },
+    {
+      "aiUse": "OpenAI Codex assisted source inspection, deterministic conversion, implementation and tests. Assets derive from credited NASA rasters, without generated topography.",
+      "analysisBundleSha256": "c5b4c18fba7052cd628d6b5af26ec255f2df4597b489c38b994a76809d80c7aa",
+      "coordinateConvention": "x=eastM, y=radialUpM above unchanged baseline ground, z=-northM",
+      "datum": "Radial heights in metres relative to sphere radius1737400m",
+      "frame": "MOON_ME_DE440_ME421",
+      "imagery": {
+        "bounds": [
+          71999,
+          117000,
+          73999,
+          119000
+        ],
+        "historicIllumination": true,
+        "limitations": [
+          "Historicalaveragemosaicnotcurrentlighting/calibratedalbedo.",
+          "ConservativeDN0mask;sourcelegacynodataunrepresentableuint8.",
+          "ProjectionnotexplicitMEvsPAframecertification.",
+          "Notusedtoauthoritativelyevaluatevisibility."
+        ],
+        "masks": {
+          "desktop": {
+            "byteLength": 6485,
+            "height": 2000,
+            "sha256": "6631e84b1d6b393f5d9c5fc2f8aa60e5797746c02d9bf4cfa25290c0541b7e3c",
+            "url": "leibnitz-beta-plateau-photo-mask-desktop.png",
+            "validFraction": 1.0,
+            "width": 2000
+          },
+          "mobile": {
+            "byteLength": 2182,
+            "height": 1000,
+            "sha256": "49a6210f306758d27370e836dc083f9a452f77e184e8948f6d57661a9d242eb7",
+            "url": "leibnitz-beta-plateau-photo-mask-mobile.png",
+            "validFraction": 1.0,
+            "width": 1000
+          }
+        },
+        "nativeBounds": [
+          71999,
+          117000,
+          73999,
+          119000
+        ],
+        "nativeRaster": {
+          "bounds": [
+            71999,
+            117000,
+            73999,
+            119000
+          ],
+          "crsWkt": "PROJCS[\"POLAR_STEREOGRAPHIC MOON\",GEOGCS[\"GCS_MOON\",DATUM[\"D_MOON\",SPHEROID[\"MOON_polarRadius\",1737400,0]],PRIMEM[\"Reference_Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "height": 2000,
+          "nodata": 0,
+          "registration": "Area",
+          "transform": [
+            1.0,
+            0.0,
+            71999.0,
+            0.0,
+            -1.0,
+            119000.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 2000
+        },
+        "nativeResolutionM": 1,
+        "photometricAlbedo": false,
+        "product": "NASA LROC controlled polar mosaic",
+        "projection": {
+          "centralMeridianDeg": 0,
+          "kind": "south-polar-stereographic",
+          "latitudeOriginDeg": -90,
+          "radiusM": 1737400.0
+        },
+        "registration": {
+          "displayOffsetENM": [
+            0,
+            0
+          ],
+          "residualM": null,
+          "status": "NOMINAL_ONLY_RESIDUAL_NOT_MEASURED"
+        },
+        "sourceNativeRaster": [
+          {
+            "nativeRaster": {
+              "bigTiff": true,
+              "bits": 8,
+              "compression": 1,
+              "geoAscii": "unnamed|GCS Name = unnamed ellipse|Datum = unknown|Ellipsoid = unnamed|Primem = Greenwich||",
+              "geoDouble": [
+                1737400,
+                1737400,
+                0,
+                -90,
+                0,
+                0,
+                1,
+                0
+              ],
+              "geokeys": [
+                1,
+                1,
+                0,
+                20,
+                1024,
+                0,
+                1,
+                1,
+                1025,
+                0,
+                1,
+                1,
+                1026,
+                34737,
+                8,
+                0,
+                2048,
+                0,
+                1,
+                32767,
+                2049,
+                34737,
+                83,
+                8,
+                2050,
+                0,
+                1,
+                32767,
+                2054,
+                0,
+                1,
+                9102,
+                2056,
+                0,
+                1,
+                32767,
+                2057,
+                34736,
+                1,
+                0,
+                2058,
+                34736,
+                1,
+                1,
+                2061,
+                34736,
+                1,
+                2,
+                3072,
+                0,
+                1,
+                32767,
+                3074,
+                0,
+                1,
+                32767,
+                3075,
+                0,
+                1,
+                15,
+                3076,
+                0,
+                1,
+                9001,
+                3081,
+                34736,
+                1,
+                3,
+                3082,
+                34736,
+                1,
+                4,
+                3083,
+                34736,
+                1,
+                5,
+                3092,
+                34736,
+                1,
+                6,
+                3095,
+                34736,
+                1,
+                7
+              ],
+              "height": 71707,
+              "id": "NAC_POLE_SOUTH_CM_AVG_P848S0337",
+              "nodata": null,
+              "orientation": 1,
+              "pixelScale": [
+                1,
+                1,
+                0
+              ],
+              "samples": 1,
+              "tiepoint": [
+                0,
+                0,
+                0,
+                52245,
+                168245,
+                0
+              ],
+              "tileHeight": 256,
+              "tileWidth": 256,
+              "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P848S0337.PYR.TIF",
+              "width": 76524,
+              "x0": 52245,
+              "y0": 168245
+            },
+            "sourceFullHashStatus": "NOT_FULLY_DOWNLOADED",
+            "sourceFullSha256": null,
+            "window": {
+              "col": 19754,
+              "destCol": 0,
+              "destRow": 0,
+              "height": 2000,
+              "row": 49245,
+              "width": 2000
+            }
+          }
+        ],
+        "sourcePixelSha256": "a976d9f37c59c7d28044eab1a2044b0f90d8b849e448140f6b7a0b5d3b5756b4",
+        "sourceUrl": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P848S0337.PYR.TIF",
+        "textures": {
+          "desktop": {
+            "byteLength": 895466,
+            "height": 2000,
+            "metersPerPixel": 1.0,
+            "sha256": "9aaca5e03b9036f77249a61e49b6619de6aac5f0f8b0b2b3f2bda6d01a2a914c",
+            "url": "leibnitz-beta-plateau-photo-desktop.webp",
+            "width": 2000
+          },
+          "mobile": {
+            "byteLength": 310352,
+            "height": 1000,
+            "metersPerPixel": 2.0,
+            "sha256": "c3b1d8f7c48d950e92c114e166054009c951f0d16b14441aa50af528ccc94df7",
+            "url": "leibnitz-beta-plateau-photo-mobile.webp",
+            "width": 1000
+          }
+        },
+        "uvConvention": "u=(projectedX-xmin)/(xmax-xmin); v=(projectedY-ymin)/(ymax-ymin). Image row zero is north/ymax; Three.js TextureLoader flipY=true. Outside bounds is unavailable, never repeat.",
+        "validFraction": 1.0
+      },
+      "kind": "Display-only registered NASA surface detail",
+      "limits": [
+        "Display geometry only. The frozen terrain-aware visibility engine and bundle remain authoritative.",
+        "SfS slopes are reconstructed from images over LOLA control; 5m posting is not a blanket5m physical-accuracy claim. Shadowed/poorly observed areas may retain smoother prior terrain.",
+        "The single1m NAC mosaic records historical illumination and shadows; it is not albedo or a current-epoch shadow simulation. It covers only the documented2km square.",
+        "The3500\u20134000m transition belt is a declared display blend, not a new scientific terrain model.",
+        "Individual raster geotransforms govern registration and resolution; a shared filename suffix does not establish equal pixel grids."
+      ],
+      "observer": {
+        "baselineGroundM": 6398.13671875,
+        "cameraAboveNativeSfsCellM": 1.77099609375,
+        "nativeSfsGroundM": 6398.36572265625,
+        "rigidVerticalOffsetAppliedM": 0,
+        "sfsMinusBaselineGroundM": 0.22900390625
+      },
+      "observerSfsInputs": {
+        "bestInputResolutionM": 0.800000011920929,
+        "illuminatedImageCount": 5.0,
+        "solarAzimuthBinCount": 3.0
+      },
+      "qualityGates": {
+        "baselineObserverPreserved": true,
+        "completeFrozenSeam": true,
+        "imageDerivedDetailAtObserver": true,
+        "lunarProjectionAndAreaRegistration": true,
+        "nativeSourceHashes": true,
+        "siteInsideSources": true,
+        "visibilityEngineChanged": false
+      },
+      "referenceRadiusM": 1737400.0,
+      "reproduce": "PYTHONPATH=.venv/vendor python tools/build_surface_visuals.py --all --acquire",
+      "schemaVersion": 1,
+      "site": {
+        "groundM": 6398.13671875,
+        "heightM": 2.0,
+        "id": "leibnitz-beta-plateau",
+        "lat": -85.4266,
+        "lon": 31.74276
+      },
+      "sourceArchive": {
+        "acquiredUtcDate": "2026-11-15",
+        "byteLength": 1050441742,
+        "fullArchiveDownloaded": false,
+        "fullArchiveMd5Verified": false,
+        "memberCrcAndSha256Verified": true,
+        "publisherMd5": "b0a606e6a4ce73faf2ea68c91ce0b93e",
+        "url": "https://zenodo.org/api/records/17954508/files/A3CLR22_10_Leibnitz_Beta_Plateau.zip/content",
+        "version": "1.0.0"
+      },
+      "sourceFrameBasis": "PGDA104 retains the LOLA geodetic reference; PGDA78 declares DE421 MOON_ME. Raster WKT itself names Moon2015 sphere, not a DE ephemeris. No additional frame rotation applied.",
+      "sourceRasters": [
+        {
+          "bounds": [
+            65000.0,
+            110000.0,
+            81000.0,
+            126000.0
+          ],
+          "byteLength": 16598431,
+          "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "dtype": "float32",
+          "filename": "A310_GLDELEV_005.tif",
+          "height": 3200,
+          "nodata": -3.4028234663852886e+38,
+          "registration": "Area",
+          "sha256": "55352520c0277a902a89fbd003f83956b238e4d0b4529494eaec1b5a51b1a4b1",
+          "tags": {
+            "AREA_OR_POINT": "Area",
+            "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+            "CREATED": "2025-12-17",
+            "REGION_NAME": "A3CLR22-#10",
+            "ROIID": "A310"
+          },
+          "transform": [
+            5.0,
+            0.0,
+            65000.0,
+            0.0,
+            -5.0,
+            126000.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 3200
+        },
+        {
+          "bounds": [
+            65000.0,
+            110010.0,
+            80990.0,
+            126000.0
+          ],
+          "byteLength": 203267,
+          "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "dtype": "float32",
+          "filename": "A310_GLDBRES_005.tif",
+          "height": 1066,
+          "nodata": null,
+          "registration": "Area",
+          "sha256": "499b1555a72bd2f84273800805071b373d5bacca242dfb2e3c7dbbc8276db9ea",
+          "tags": {
+            "AREA_OR_POINT": "Area",
+            "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+            "CREATED": "2025-12-17",
+            "REGION_NAME": "A3CLR22-#10",
+            "ROIID": "A310"
+          },
+          "transform": [
+            15.0,
+            0.0,
+            65000.0,
+            0.0,
+            -15.0,
+            126000.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 1066
+        },
+        {
+          "bounds": [
+            65000.0,
+            110010.0,
+            80990.0,
+            126000.0
+          ],
+          "byteLength": 232941,
+          "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "dtype": "uint8",
+          "filename": "A310_GLDMASK_005.tif",
+          "height": 1066,
+          "nodata": null,
+          "registration": "Area",
+          "sha256": "250776ca6d02497942d6b5f6a686057f0cdfa503f33855ce49011e7224aaaa09",
+          "tags": {
+            "AREA_OR_POINT": "Area",
+            "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+            "CREATED": "2025-12-17",
+            "REGION_NAME": "A3CLR22-#10",
+            "ROIID": "A310"
+          },
+          "transform": [
+            15.0,
+            0.0,
+            65000.0,
+            0.0,
+            -15.0,
+            126000.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 1066
+        },
+        {
+          "bounds": [
+            65000.0,
+            110010.0,
+            80990.0,
+            126000.0
+          ],
+          "byteLength": 172811,
+          "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "dtype": "int16",
+          "filename": "A310_GLDSBCT_005.tif",
+          "height": 1066,
+          "nodata": null,
+          "registration": "Area",
+          "sha256": "71b1e143a604434b9994caf7c01ef89c756f471dbde1b50f73e58599f904241d",
+          "tags": {
+            "AREA_OR_POINT": "Area",
+            "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+            "CREATED": "2025-12-17",
+            "REGION_NAME": "A3CLR22-#10",
+            "ROIID": "A310"
+          },
+          "transform": [
+            15.0,
+            0.0,
+            65000.0,
+            0.0,
+            -15.0,
+            126000.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 1066
+        }
+      ],
+      "sourceSamplesAtObserver": {
+        "A310_GLDBRES_005.tif": 0.800000011920929,
+        "A310_GLDELEV_005.tif": 6398.36572265625,
+        "A310_GLDMASK_005.tif": 5.0,
+        "A310_GLDSBCT_005.tif": 3.0
+      },
+      "sources": [
+        {
+          "doi": "10.3847/PSJ/ae5b70",
+          "license": "CC-BY-4.0 (Zenodo record)",
+          "url": "https://pgda.gsfc.nasa.gov/products/104"
+        },
+        {
+          "doi": "10.5281/zenodo.17954508",
+          "url": "https://zenodo.org/records/17954508"
+        },
+        {
+          "url": "https://pgda.gsfc.nasa.gov/products/78"
+        },
+        {
+          "credit": "NASA/GSFC/Arizona State University LROC",
+          "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P848S0337.PYR.TIF"
+        }
+      ],
+      "surfaceReason": "Published SfS display patch; original observer and outer LOLA terrain retained.",
+      "surfaceStatus": "SFS_AVAILABLE",
+      "terrain": {
+        "desktop": {
+          "boundaryEqualsFrozenMesh": true,
+          "boundsM": [
+            [
+              -4014.081298828125,
+              -1081.265625,
+              -4014.51318359375
+            ],
+            [
+              4013.991943359375,
+              65.93807956097058,
+              4012.830078125
+            ]
+          ],
+          "byteLength": 4144716,
+          "chunks": [
+            {
+              "gridSize": 201,
+              "indexCount": 240000,
+              "indexOffset": 0,
+              "innerHalfExtentM": 0,
+              "name": "native-core",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 5.0,
+              "outerHalfExtentM": 500.0
+            },
+            {
+              "gridSize": 257,
+              "indexCount": 372480,
+              "indexOffset": 240000,
+              "innerHalfExtentM": 500.0,
+              "name": "local-relief",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 15.625,
+              "outerHalfExtentM": 2000.0
+            },
+            {
+              "gridSize": 129,
+              "indexCount": 77568,
+              "indexOffset": 612480,
+              "innerHalfExtentM": 2000.0,
+              "name": "regional-relief",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 62.5,
+              "outerHalfExtentM": 4000.0
+            }
+          ],
+          "indexCount": 690048,
+          "indicesByteOffset": 1384524,
+          "missingCellCount": 0,
+          "outerHalfExtentM": 4000,
+          "positionFile": "leibnitz-beta-plateau-desktop.mesh",
+          "positionsByteOffset": 0,
+          "seamVertexCount": 512,
+          "sha256": "c4efcee8f07c9f953e3b35528e8ef901b7d8a3a9cc930ed6e760d538622a68fc",
+          "vertexCount": 115377
+        },
+        "mobile": {
+          "boundaryEqualsFrozenMesh": true,
+          "boundsM": [
+            [
+              -4014.081298828125,
+              -1081.265625,
+              -4014.51318359375
+            ],
+            [
+              4013.991943359375,
+              65.93807956097058,
+              4012.830078125
+            ]
+          ],
+          "byteLength": 1409388,
+          "chunks": [
+            {
+              "gridSize": 101,
+              "indexCount": 60000,
+              "indexOffset": 0,
+              "innerHalfExtentM": 0,
+              "name": "native-core",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 5.0,
+              "outerHalfExtentM": 250.0
+            },
+            {
+              "gridSize": 129,
+              "indexCount": 98304,
+              "indexOffset": 60000,
+              "innerHalfExtentM": 250.0,
+              "name": "local-relief",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 31.25,
+              "outerHalfExtentM": 2000.0
+            },
+            {
+              "gridSize": 129,
+              "indexCount": 76032,
+              "indexOffset": 158304,
+              "innerHalfExtentM": 2000.0,
+              "name": "regional-relief",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 62.5,
+              "outerHalfExtentM": 4000.0
+            }
+          ],
+          "indexCount": 234336,
+          "indicesByteOffset": 472044,
+          "missingCellCount": 0,
+          "outerHalfExtentM": 4000,
+          "positionFile": "leibnitz-beta-plateau-mobile.mesh",
+          "positionsByteOffset": 0,
+          "seamVertexCount": 512,
+          "sha256": "a423280874b40a31c5f4d7512440c95601e075a65bf856e178da7b3ca35c6e9a",
+          "vertexCount": 39337
+        }
+      },
+      "transition": {
+        "innerHalfExtentM": 3500,
+        "method": "Display-only smoothstep height blend to frozen LOLA mesh; all512 outer seam vertices copied byte-exact. Original4\u201332km mesh and analytical skyline unchanged.",
+        "outerHalfExtentM": 4000
+      }
+    },
+    {
+      "aiUse": "OpenAI Codex assisted source inspection, deterministic conversion, implementation and tests. Assets derive from credited NASA rasters, without generated topography.",
+      "analysisBundleSha256": "c5b4c18fba7052cd628d6b5af26ec255f2df4597b489c38b994a76809d80c7aa",
+      "coordinateConvention": "x=eastM, y=radialUpM above unchanged baseline ground, z=-northM",
+      "datum": "Radial heights in metres relative to sphere radius1737400m",
+      "frame": "MOON_ME_DE440_ME421",
+      "imagery": null,
+      "kind": "Display-only registered NASA surface detail",
+      "limits": [
+        "Display geometry only. The frozen terrain-aware visibility engine and bundle remain authoritative.",
+        "SfS slopes are reconstructed from images over LOLA control; 5m posting is not a blanket5m physical-accuracy claim. Shadowed/poorly observed areas may retain smoother prior terrain.",
+        "The single1m NAC mosaic records historical illumination and shadows; it is not albedo or a current-epoch shadow simulation. It covers only the documented2km square.",
+        "The3500\u20134000m transition belt is a declared display blend, not a new scientific terrain model.",
+        "Individual raster geotransforms govern registration and resolution; a shared filename suffix does not establish equal pixel grids."
+      ],
+      "observer": {
+        "baselineGroundM": 2705.663330078125,
+        "cameraAboveNativeSfsCellM": -1.475341796875,
+        "nativeSfsGroundM": 2709.138671875,
+        "rigidVerticalOffsetAppliedM": 0,
+        "sfsMinusBaselineGroundM": 3.475341796875
+      },
+      "observerSfsInputs": {
+        "bestInputResolutionM": 1.2000000476837158,
+        "illuminatedImageCount": 14.0,
+        "solarAzimuthBinCount": 6.0
+      },
+      "qualityGates": {
+        "baselineObserverPreserved": true,
+        "completeFrozenSeam": false,
+        "imageDerivedDetailAtObserver": true,
+        "lunarProjectionAndAreaRegistration": true,
+        "nativeSourceHashes": true,
+        "siteInsideSources": true,
+        "visibilityEngineChanged": false
+      },
+      "referenceRadiusM": 1737400.0,
+      "reproduce": "PYTHONPATH=.venv/vendor python tools/build_surface_visuals.py --all --acquire",
+      "schemaVersion": 1,
+      "site": {
+        "groundM": 2705.663330078125,
+        "heightM": 2.0,
+        "id": "de-gerlache-kocher",
+        "lat": -85.8296,
+        "lon": 243.678
+      },
+      "sourceArchive": {
+        "acquiredUtcDate": "2026-11-15",
+        "byteLength": 2108633565,
+        "fullArchiveDownloaded": false,
+        "fullArchiveMd5Verified": false,
+        "memberCrcAndSha256Verified": true,
+        "publisherMd5": "78b8a042d0c6be2923abdd288e436c23",
+        "url": "https://zenodo.org/api/records/17954508/files/A3CLR22_12_deGerlache_Kocher_Massif.zip/content",
+        "version": "1.0.0"
+      },
+      "sourceFrameBasis": "PGDA104 retains the LOLA geodetic reference; PGDA78 declares DE421 MOON_ME. Raster WKT itself names Moon2015 sphere, not a DE ephemeris. No additional frame rotation applied.",
+      "sourceRasters": [
+        {
+          "bounds": [
+            -123400.0,
+            -66095.0,
+            -103405.0,
+            -46100.0
+          ],
+          "byteLength": 244270,
+          "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "dtype": "int16",
+          "filename": "A312_GLDSBCT_005.tif",
+          "height": 1333,
+          "nodata": null,
+          "registration": "Area",
+          "sha256": "18d382580ee91a429f101b2616aca88a4a2813f59f419bec15fbdda80936c469",
+          "tags": {
+            "AREA_OR_POINT": "Area",
+            "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+            "CREATED": "2025-12-17",
+            "REGION_NAME": "A3CLR22-#12 'MALAPERT'",
+            "ROIID": "A312"
+          },
+          "transform": [
+            15.0,
+            0.0,
+            -123400.0,
+            0.0,
+            -15.0,
+            -46100.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 1333
+        },
+        {
+          "bounds": [
+            -123400.0,
+            -66095.0,
+            -103405.0,
+            -46100.0
+          ],
+          "byteLength": 219060,
+          "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "dtype": "float32",
+          "filename": "A312_GLDBRES_005.tif",
+          "height": 1333,
+          "nodata": null,
+          "registration": "Area",
+          "sha256": "b5062cc30c15b387bef02162181c5c4459c5312398bf4ef6e4ae5898b411e17e",
+          "tags": {
+            "AREA_OR_POINT": "Area",
+            "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+            "CREATED": "2025-12-17",
+            "REGION_NAME": "A3CLR22-#12 'MALAPERT'",
+            "ROIID": "A312"
+          },
+          "transform": [
+            15.0,
+            0.0,
+            -123400.0,
+            0.0,
+            -15.0,
+            -46100.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 1333
+        },
+        {
+          "bounds": [
+            -123400.0,
+            -66095.0,
+            -103405.0,
+            -46100.0
+          ],
+          "byteLength": 16017818,
+          "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "dtype": "uint8",
+          "filename": "A312_GLDMASK_005.tif",
+          "height": 3999,
+          "nodata": null,
+          "registration": "Area",
+          "sha256": "e1890834fc19914284d3a063b0929acbd3553b9c7a40880e8469309bd46cbb69",
+          "tags": {
+            "AREA_OR_POINT": "Area",
+            "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+            "CREATED": "2025-12-17",
+            "REGION_NAME": "A3CLR22-#12 'MALAPERT'",
+            "ROIID": "A312"
+          },
+          "transform": [
+            5.0,
+            0.0,
+            -123400.0,
+            0.0,
+            -5.0,
+            -46100.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 3999
+        },
+        {
+          "bounds": [
+            -123400.0,
+            -66100.0,
+            -103400.0,
+            -46100.0
+          ],
+          "byteLength": 32324244,
+          "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "dtype": "float32",
+          "filename": "A312_GLDELEV_005.tif",
+          "height": 4000,
+          "nodata": -3.4028234663852886e+38,
+          "registration": "Area",
+          "sha256": "f6a47cdaf083fae80400ee3ae13ed135ba5c1e6186a981205c075731bd6bc73b",
+          "tags": {
+            "AREA_OR_POINT": "Area",
+            "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+            "CREATED": "2025-12-17",
+            "REGION_NAME": "A3CLR22-#12 'de Gerlache-Kocher Massif'",
+            "ROIID": "A312"
+          },
+          "transform": [
+            5.0,
+            0.0,
+            -123400.0,
+            0.0,
+            -5.0,
+            -46100.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 4000
+        }
+      ],
+      "sourceSamplesAtObserver": {
+        "A312_GLDBRES_005.tif": 1.2000000476837158,
+        "A312_GLDELEV_005.tif": 2709.138671875,
+        "A312_GLDMASK_005.tif": 14.0,
+        "A312_GLDSBCT_005.tif": 6.0
+      },
+      "sources": [
+        {
+          "doi": "10.3847/PSJ/ae5b70",
+          "license": "CC-BY-4.0 (Zenodo record)",
+          "url": "https://pgda.gsfc.nasa.gov/products/104"
+        },
+        {
+          "doi": "10.5281/zenodo.17954508",
+          "url": "https://zenodo.org/records/17954508"
+        },
+        {
+          "url": "https://pgda.gsfc.nasa.gov/products/78"
+        },
+        {
+          "credit": "NASA/GSFC/Arizona State University LROC",
+          "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_ROI/NOBILE02LOC/NAC_ROI_NOBILE02LOC_P839S0587.TIF"
+        }
+      ],
+      "surfaceReason": "SfS ground intersects the unchanged observer; original LOLA display terrain retained. No vertical offset was applied.",
+      "surfaceStatus": "SFS_OBSERVER_CONFLICT",
+      "terrain": null,
+      "transition": {
+        "innerHalfExtentM": 3500,
+        "method": "Display-only smoothstep height blend to frozen LOLA mesh; all512 outer seam vertices copied byte-exact. Original4\u201332km mesh and analytical skyline unchanged.",
+        "outerHalfExtentM": 4000
+      }
+    },
+    {
+      "aiUse": "OpenAI Codex assisted source inspection, deterministic conversion, implementation and tests. Assets derive from credited NASA rasters, without generated topography.",
+      "analysisBundleSha256": "c5b4c18fba7052cd628d6b5af26ec255f2df4597b489c38b994a76809d80c7aa",
+      "coordinateConvention": "x=eastM, y=radialUpM above unchanged baseline ground, z=-northM",
+      "datum": "Radial heights in metres relative to sphere radius1737400m",
+      "frame": "MOON_ME_DE440_ME421",
+      "imagery": {
+        "bounds": [
+          -39001,
+          89502,
+          -37001,
+          91502
+        ],
+        "historicIllumination": true,
+        "limitations": [
+          "Historicalaveragemosaicnotcurrentlighting/calibratedalbedo.",
+          "ConservativeDN0mask;sourcelegacynodataunrepresentableuint8.",
+          "ProjectionnotexplicitMEvsPAframecertification.",
+          "Notusedtoauthoritativelyevaluatevisibility."
+        ],
+        "masks": {
+          "desktop": {
+            "byteLength": 6485,
+            "height": 2000,
+            "sha256": "6631e84b1d6b393f5d9c5fc2f8aa60e5797746c02d9bf4cfa25290c0541b7e3c",
+            "url": "haworth-photo-mask-desktop.png",
+            "validFraction": 1.0,
+            "width": 2000
+          },
+          "mobile": {
+            "byteLength": 2182,
+            "height": 1000,
+            "sha256": "49a6210f306758d27370e836dc083f9a452f77e184e8948f6d57661a9d242eb7",
+            "url": "haworth-photo-mask-mobile.png",
+            "validFraction": 1.0,
+            "width": 1000
+          }
+        },
+        "nativeBounds": [
+          -39001,
+          89502,
+          -37001,
+          91502
+        ],
+        "nativeRaster": {
+          "bounds": [
+            -39001,
+            89502,
+            -37001,
+            91502
+          ],
+          "crsWkt": "PROJCS[\"POLAR_STEREOGRAPHIC MOON\",GEOGCS[\"GCS_MOON\",DATUM[\"D_MOON\",SPHEROID[\"MOON_polarRadius\",1737400,0]],PRIMEM[\"Reference_Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "height": 2000,
+          "nodata": 0,
+          "registration": "Area",
+          "transform": [
+            1.0,
+            0.0,
+            -39001.0,
+            0.0,
+            -1.0,
+            91502.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 2000
+        },
+        "nativeResolutionM": 1,
+        "photometricAlbedo": false,
+        "product": "NASA LROC controlled polar mosaic",
+        "projection": {
+          "centralMeridianDeg": 0,
+          "kind": "south-polar-stereographic",
+          "latitudeOriginDeg": -90,
+          "radiusM": 1737400.0
+        },
+        "registration": {
+          "displayOffsetENM": [
+            0,
+            0
+          ],
+          "residualM": null,
+          "status": "NOMINAL_ONLY_RESIDUAL_NOT_MEASURED"
+        },
+        "sourceNativeRaster": [
+          {
+            "nativeRaster": {
+              "bigTiff": true,
+              "bits": 8,
+              "compression": 1,
+              "geoAscii": "unnamed|GCS Name = unnamed ellipse|Datum = unknown|Ellipsoid = unnamed|Primem = Greenwich||",
+              "geoDouble": [
+                1737400,
+                1737400,
+                0,
+                -90,
+                0,
+                0,
+                1,
+                0
+              ],
+              "geokeys": [
+                1,
+                1,
+                0,
+                20,
+                1024,
+                0,
+                1,
+                1,
+                1025,
+                0,
+                1,
+                1,
+                1026,
+                34737,
+                8,
+                0,
+                2048,
+                0,
+                1,
+                32767,
+                2049,
+                34737,
+                83,
+                8,
+                2050,
+                0,
+                1,
+                32767,
+                2054,
+                0,
+                1,
+                9102,
+                2056,
+                0,
+                1,
+                32767,
+                2057,
+                34736,
+                1,
+                0,
+                2058,
+                34736,
+                1,
+                1,
+                2061,
+                34736,
+                1,
+                2,
+                3072,
+                0,
+                1,
+                32767,
+                3074,
+                0,
+                1,
+                32767,
+                3075,
+                0,
+                1,
+                15,
+                3076,
+                0,
+                1,
+                9001,
+                3081,
+                34736,
+                1,
+                3,
+                3082,
+                34736,
+                1,
+                4,
+                3083,
+                34736,
+                1,
+                5,
+                3092,
+                34736,
+                1,
+                6,
+                3095,
+                34736,
+                1,
+                7
+              ],
+              "height": 57726,
+              "id": "NAC_POLE_SOUTH_CM_AVG_P863S3450",
+              "nodata": null,
+              "orientation": 1,
+              "pixelScale": [
+                1,
+                1,
+                0
+              ],
+              "samples": 1,
+              "tiepoint": [
+                0,
+                0,
+                0,
+                -68263,
+                136526,
+                0
+              ],
+              "tileHeight": 256,
+              "tileWidth": 256,
+              "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P863S3450.PYR.TIF",
+              "width": 68263,
+              "x0": -68263,
+              "y0": 136526
+            },
+            "sourceFullHashStatus": "NOT_FULLY_DOWNLOADED",
+            "sourceFullSha256": null,
+            "window": {
+              "col": 29262,
+              "destCol": 0,
+              "destRow": 0,
+              "height": 2000,
+              "row": 45024,
+              "width": 2000
+            }
+          }
+        ],
+        "sourcePixelSha256": "21f15619e3ee89a807893aca3ac8e7f00364a5f6d178854255f997a49122b012",
+        "sourceUrl": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P863S3450.PYR.TIF",
+        "textures": {
+          "desktop": {
+            "byteLength": 610102,
+            "height": 2000,
+            "metersPerPixel": 1.0,
+            "sha256": "2f4b2e1ed03b9b77ee4fca9612ea57f3f8c9ad61ffdd1c7c7a6f9252e09a9ddc",
+            "url": "haworth-photo-desktop.webp",
+            "width": 2000
+          },
+          "mobile": {
+            "byteLength": 232646,
+            "height": 1000,
+            "metersPerPixel": 2.0,
+            "sha256": "bc7e943b8202247bf90fba51910ee6d3ffa1c484f045237ab2ca11e924e57786",
+            "url": "haworth-photo-mobile.webp",
+            "width": 1000
+          }
+        },
+        "uvConvention": "u=(projectedX-xmin)/(xmax-xmin); v=(projectedY-ymin)/(ymax-ymin). Image row zero is north/ymax; Three.js TextureLoader flipY=true. Outside bounds is unavailable, never repeat.",
+        "validFraction": 1.0
+      },
+      "kind": "Display-only registered NASA surface detail",
+      "limits": [
+        "Display geometry only. The frozen terrain-aware visibility engine and bundle remain authoritative.",
+        "SfS slopes are reconstructed from images over LOLA control; 5m posting is not a blanket5m physical-accuracy claim. Shadowed/poorly observed areas may retain smoother prior terrain.",
+        "The single1m NAC mosaic records historical illumination and shadows; it is not albedo or a current-epoch shadow simulation. It covers only the documented2km square.",
+        "The3500\u20134000m transition belt is a declared display blend, not a new scientific terrain model.",
+        "Individual raster geotransforms govern registration and resolution; a shared filename suffix does not establish equal pixel grids."
+      ],
+      "observer": {
+        "baselineGroundM": 1628.816162109375,
+        "cameraAboveNativeSfsCellM": 3.24267578125,
+        "nativeSfsGroundM": 1627.573486328125,
+        "rigidVerticalOffsetAppliedM": 0,
+        "sfsMinusBaselineGroundM": -1.24267578125
+      },
+      "observerSfsInputs": {
+        "bestInputResolutionM": 1.5,
+        "illuminatedImageCount": 1.0,
+        "solarAzimuthBinCount": 1.0
+      },
+      "qualityGates": {
+        "baselineObserverPreserved": true,
+        "completeFrozenSeam": true,
+        "imageDerivedDetailAtObserver": true,
+        "lunarProjectionAndAreaRegistration": true,
+        "nativeSourceHashes": true,
+        "siteInsideSources": true,
+        "visibilityEngineChanged": false
+      },
+      "referenceRadiusM": 1737400.0,
+      "reproduce": "PYTHONPATH=.venv/vendor python tools/build_surface_visuals.py --all --acquire",
+      "schemaVersion": 1,
+      "site": {
+        "groundM": 1628.816162109375,
+        "heightM": 2.0,
+        "id": "haworth",
+        "lat": -86.7639,
+        "lon": 337.223
+      },
+      "sourceArchive": {
+        "acquiredUtcDate": "2026-11-15",
+        "byteLength": 4353812518,
+        "fullArchiveDownloaded": false,
+        "fullArchiveMd5Verified": false,
+        "memberCrcAndSha256Verified": true,
+        "publisherMd5": "e83a923c41c00be51396d06ab7cf6e9e",
+        "url": "https://zenodo.org/api/records/17954508/files/A3CLR22_2_Haworth.zip/content",
+        "version": "1.0.0"
+      },
+      "sourceFrameBasis": "PGDA104 retains the LOLA geodetic reference; PGDA78 declares DE421 MOON_ME. Raster WKT itself names Moon2015 sphere, not a DE ephemeris. No additional frame rotation applied.",
+      "sourceRasters": [
+        {
+          "bounds": [
+            -52900.0,
+            75610.0,
+            -23110.0,
+            105400.0
+          ],
+          "byteLength": 782787,
+          "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "dtype": "float32",
+          "filename": "A302_GLDBRES_005.tif",
+          "height": 1986,
+          "nodata": null,
+          "registration": "Area",
+          "sha256": "33c3e045a4061de7c9e2e6605a72eca493a6a61ce4be617f39be3cbe86daeebe",
+          "tags": {
+            "AREA_OR_POINT": "Area",
+            "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+            "CREATED": "2025-12-17",
+            "REGION_NAME": "A3CLR22-#2",
+            "ROIID": "A302"
+          },
+          "transform": [
+            15.0,
+            0.0,
+            -52900.0,
+            0.0,
+            -15.0,
+            105400.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 1986
+        },
+        {
+          "bounds": [
+            -52900.0,
+            75610.0,
+            -23110.0,
+            105400.0
+          ],
+          "byteLength": 1040892,
+          "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "dtype": "uint8",
+          "filename": "A302_GLDMASK_005.tif",
+          "height": 1986,
+          "nodata": null,
+          "registration": "Area",
+          "sha256": "d96ddd0f8478781241ba99ceb4f5c4dc6594e4496778e3543b587112a2cffa46",
+          "tags": {
+            "AREA_OR_POINT": "Area",
+            "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+            "CREATED": "2025-12-17",
+            "REGION_NAME": "A3CLR22-#2",
+            "ROIID": "A302"
+          },
+          "transform": [
+            15.0,
+            0.0,
+            -52900.0,
+            0.0,
+            -15.0,
+            105400.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 1986
+        },
+        {
+          "bounds": [
+            -52900.0,
+            75610.0,
+            -23110.0,
+            105400.0
+          ],
+          "byteLength": 658708,
+          "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "dtype": "int16",
+          "filename": "A302_GLDSBCT_005.tif",
+          "height": 1986,
+          "nodata": null,
+          "registration": "Area",
+          "sha256": "352549c721f4757f2724d9ff26c9a4b99a93107f96ec4affe4b2f8c5ca45bc5a",
+          "tags": {
+            "AREA_OR_POINT": "Area",
+            "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+            "CREATED": "2025-12-17",
+            "REGION_NAME": "A3CLR22-#2",
+            "ROIID": "A302"
+          },
+          "transform": [
+            15.0,
+            0.0,
+            -52900.0,
+            0.0,
+            -15.0,
+            105400.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 1986
+        },
+        {
+          "bounds": [
+            -52900.0,
+            75600.0,
+            -23100.0,
+            105400.0
+          ],
+          "byteLength": 73017526,
+          "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "dtype": "float32",
+          "filename": "A302_GLDELEV_005.tif",
+          "height": 5960,
+          "nodata": -3.4028234663852886e+38,
+          "registration": "Area",
+          "sha256": "7126ae857336f2781b7e72caa07a7162e63b8e3ab50ebcd9ee30390b3d6f4d94",
+          "tags": {
+            "AREA_OR_POINT": "Area",
+            "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+            "CREATED": "2025-12-17",
+            "REGION_NAME": "A3CLR22-#2",
+            "ROIID": "A302"
+          },
+          "transform": [
+            5.0,
+            0.0,
+            -52900.0,
+            0.0,
+            -5.0,
+            105400.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 5960
+        }
+      ],
+      "sourceSamplesAtObserver": {
+        "A302_GLDBRES_005.tif": 1.5,
+        "A302_GLDELEV_005.tif": 1627.573486328125,
+        "A302_GLDMASK_005.tif": 1.0,
+        "A302_GLDSBCT_005.tif": 1.0
+      },
+      "sources": [
+        {
+          "doi": "10.3847/PSJ/ae5b70",
+          "license": "CC-BY-4.0 (Zenodo record)",
+          "url": "https://pgda.gsfc.nasa.gov/products/104"
+        },
+        {
+          "doi": "10.5281/zenodo.17954508",
+          "url": "https://zenodo.org/records/17954508"
+        },
+        {
+          "url": "https://pgda.gsfc.nasa.gov/products/78"
+        },
+        {
+          "credit": "NASA/GSFC/Arizona State University LROC",
+          "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_POLE/NAC_POLE_SOUTH_CM_AVG/NAC_POLE_SOUTH_CM_AVG_P863S3450.PYR.TIF"
+        }
+      ],
+      "surfaceReason": "Published SfS display patch; original observer and outer LOLA terrain retained.",
+      "surfaceStatus": "SFS_AVAILABLE",
+      "terrain": {
+        "desktop": {
+          "boundaryEqualsFrozenMesh": true,
+          "boundsM": [
+            [
+              -4003.63818359375,
+              -626.15576171875,
+              -4004.49853515625
+            ],
+            [
+              4004.3720703125,
+              325.1683349609375,
+              4004.2451171875
+            ]
+          ],
+          "byteLength": 4144716,
+          "chunks": [
+            {
+              "gridSize": 201,
+              "indexCount": 240000,
+              "indexOffset": 0,
+              "innerHalfExtentM": 0,
+              "name": "native-core",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 5.0,
+              "outerHalfExtentM": 500.0
+            },
+            {
+              "gridSize": 257,
+              "indexCount": 372480,
+              "indexOffset": 240000,
+              "innerHalfExtentM": 500.0,
+              "name": "local-relief",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 15.625,
+              "outerHalfExtentM": 2000.0
+            },
+            {
+              "gridSize": 129,
+              "indexCount": 77568,
+              "indexOffset": 612480,
+              "innerHalfExtentM": 2000.0,
+              "name": "regional-relief",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 62.5,
+              "outerHalfExtentM": 4000.0
+            }
+          ],
+          "indexCount": 690048,
+          "indicesByteOffset": 1384524,
+          "missingCellCount": 0,
+          "outerHalfExtentM": 4000,
+          "positionFile": "haworth-desktop.mesh",
+          "positionsByteOffset": 0,
+          "seamVertexCount": 512,
+          "sha256": "3f56766d1145a33d89dbb7d71cd72235e9137a428848a7b085b42d40c32e0960",
+          "vertexCount": 115377
+        },
+        "mobile": {
+          "boundaryEqualsFrozenMesh": true,
+          "boundsM": [
+            [
+              -4003.63818359375,
+              -626.15576171875,
+              -4004.49853515625
+            ],
+            [
+              4004.3720703125,
+              325.1683349609375,
+              4004.2451171875
+            ]
+          ],
+          "byteLength": 1409388,
+          "chunks": [
+            {
+              "gridSize": 101,
+              "indexCount": 60000,
+              "indexOffset": 0,
+              "innerHalfExtentM": 0,
+              "name": "native-core",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 5.0,
+              "outerHalfExtentM": 250.0
+            },
+            {
+              "gridSize": 129,
+              "indexCount": 98304,
+              "indexOffset": 60000,
+              "innerHalfExtentM": 250.0,
+              "name": "local-relief",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 31.25,
+              "outerHalfExtentM": 2000.0
+            },
+            {
+              "gridSize": 129,
+              "indexCount": 76032,
+              "indexOffset": 158304,
+              "innerHalfExtentM": 2000.0,
+              "name": "regional-relief",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 62.5,
+              "outerHalfExtentM": 4000.0
+            }
+          ],
+          "indexCount": 234336,
+          "indicesByteOffset": 472044,
+          "missingCellCount": 0,
+          "outerHalfExtentM": 4000,
+          "positionFile": "haworth-mobile.mesh",
+          "positionsByteOffset": 0,
+          "seamVertexCount": 512,
+          "sha256": "d56d3322dcf3616ced83f3c3d517856415f00fd909489003ba5af658f7836fe3",
+          "vertexCount": 39337
+        }
+      },
+      "transition": {
+        "innerHalfExtentM": 3500,
+        "method": "Display-only smoothstep height blend to frozen LOLA mesh; all512 outer seam vertices copied byte-exact. Original4\u201332km mesh and analytical skyline unchanged.",
+        "outerHalfExtentM": 4000
+      }
+    },
+    {
+      "aiUse": "OpenAI Codex assisted source inspection, deterministic conversion, implementation and tests. Assets derive from credited NASA rasters, without generated topography.",
+      "analysisBundleSha256": "c5b4c18fba7052cd628d6b5af26ec255f2df4597b489c38b994a76809d80c7aa",
+      "coordinateConvention": "x=eastM, y=radialUpM above unchanged baseline ground, z=-northM",
+      "datum": "Radial heights in metres relative to sphere radius1737400m",
+      "frame": "MOON_ME_DE440_ME421",
+      "imagery": {
+        "bounds": [
+          155997.99991753,
+          93993.99994675,
+          157997.99991753,
+          95993.99994675
+        ],
+        "historicIllumination": true,
+        "masks": {
+          "desktop": {
+            "byteLength": 6485,
+            "height": 2000,
+            "sha256": "6631e84b1d6b393f5d9c5fc2f8aa60e5797746c02d9bf4cfa25290c0541b7e3c",
+            "url": "nobile-rim-2-photo-mask-desktop.png",
+            "validFraction": 1.0,
+            "width": 2000
+          },
+          "mobile": {
+            "byteLength": 2182,
+            "height": 1000,
+            "sha256": "49a6210f306758d27370e836dc083f9a452f77e184e8948f6d57661a9d242eb7",
+            "url": "nobile-rim-2-photo-mask-mobile.png",
+            "validFraction": 1.0,
+            "width": 1000
+          }
+        },
+        "nativeBounds": [
+          155999.99991753,
+          94000.99994675,
+          157999.99991753,
+          96000.99994675
+        ],
+        "nativeRaster": {
+          "bounds": [
+            155999.99991753,
+            94000.99994675,
+            157999.99991753,
+            96000.99994675
+          ],
+          "crsWkt": "PROJCS[\"POLAR_STEREOGRAPHIC MOON\",GEOGCS[\"GCS_MOON\",DATUM[\"D_MOON\",SPHEROID[\"MOON_polarRadius\",1737400,0]],PRIMEM[\"Reference_Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "dtype": "uint8",
+          "height": 2000,
+          "nodata": 0.0,
+          "registration": "Area",
+          "tags": {
+            "AREA_OR_POINT": "Area",
+            "CONTROL_LIMITATION": "Published5-20mabsoluteaccuracy; preciseMEvsPAframecontrolnotestablishedbyGeoTIFFlabel",
+            "DATA_SET_ID": "\"LRO-L-LROC-5-RDR-V1.0\"",
+            "DISPLAY_LIMITATION": "Historical2010-2021low-Sunmosaic; bakedlightingnotcurrentilluminationorcalibratedalbedo",
+            "INSTRUMENT_ID": "LROC",
+            "INSTRUMENT_NAME": "\"LUNAR RECONNAISSANCE ORBITER CAMERA\"",
+            "PRODUCER_INSTITUTION_NAME": "\"ARIZONA STATE UNIVERSITY\"",
+            "PRODUCT_CREATION_TIME": "2023-06-08T03:53:58",
+            "PRODUCT_ID": "NAC_ROI_NOBILE02LOC_P839S0587",
+            "PRODUCT_TYPE": "RDR",
+            "SOURCE_BYTE_RANGE": "180141575-220141574",
+            "SOURCE_FULL_FILE_HASH": "NOT_DOWNLOADED_NOT_COMPUTED",
+            "SOURCE_RANGE_SHA256": "14b4d66bbc0ae48558ec693957099eae22e2b57ac2aad6f5ebc3d05c39a27c1c",
+            "SOURCE_URL": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_ROI/NOBILE02LOC/NAC_ROI_NOBILE02LOC_P839S0587.TIF",
+            "TARGET_NAME": "MOON"
+          },
+          "transform": [
+            1.0,
+            0.0,
+            155999.99991753,
+            0.0,
+            -1.0,
+            96000.99994675,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 2000
+        },
+        "nativeResolutionM": 1,
+        "photometricAlbedo": false,
+        "product": "NAC_ROI_NOBILE02LOC_P839S0587",
+        "projection": {
+          "centralMeridianDeg": 0,
+          "kind": "south-polar-stereographic",
+          "latitudeOriginDeg": -90,
+          "radiusM": 1737400.0
+        },
+        "registration": {
+          "derivedDisplayTransform": [
+            1.0,
+            0.0,
+            155997.99991753,
+            0.0,
+            -1.0,
+            95993.99994675,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "fourQuadrantGradientInternalRmsM": 2.49,
+          "intensityNcc": 0.831,
+          "limits": "Internal image alignment is not absolute physical control: published5\u201320m uncertainty,10m reference pixels and different baked illumination remain. No1m position-accuracy claim.",
+          "method": "Independent normalized cross-correlation of intensity and spatial gradients against the registered SfS orthomosaic; analytic sign fixture checked",
+          "projectedEastOffsetM": -2,
+          "projectedNorthOffsetM": -7,
+          "reference": "A301_GLDOMOS_005.tif",
+          "referenceSha256": "6ad04e5b6669bd222f7528c82b7a09ef92419a11cd625e55522df30e4b0a40f3",
+          "scope": "Derived display placement only; native pixels and geotransform unchanged"
+        },
+        "sourcePixelSha256": "819c41c65e43f2d0c73f5ac031860201a6a5463bbc55b5987731aa8242b9e541",
+        "sourceRangeBytes": [
+          180141575,
+          220141574
+        ],
+        "sourceRangeSha256": "14b4d66bbc0ae48558ec693957099eae22e2b57ac2aad6f5ebc3d05c39a27c1c",
+        "sourceUrl": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_ROI/NOBILE02LOC/NAC_ROI_NOBILE02LOC_P839S0587.TIF",
+        "textures": {
+          "desktop": {
+            "byteLength": 1351874,
+            "height": 2000,
+            "metersPerPixel": 1.0,
+            "sha256": "3a5c704ed3afe3351a817a6f26f38e39dfcfc6844343da55de6828bc5f97c3d8",
+            "url": "nobile-rim-2-photo-desktop.webp",
+            "width": 2000
+          },
+          "mobile": {
+            "byteLength": 430632,
+            "height": 1000,
+            "metersPerPixel": 2.0,
+            "sha256": "b75fdad7a966c2b5efca8df0e59956685031401b518ba1fb985921cea1bcfd4d",
+            "url": "nobile-rim-2-photo-mobile.webp",
+            "width": 1000
+          }
+        },
+        "uvConvention": "u=(projectedX-xmin)/(xmax-xmin); v=(projectedY-ymin)/(ymax-ymin). Image row zero is north/ymax; Three.js TextureLoader flipY=true. Outside bounds is unavailable, never repeat.",
+        "validFraction": 1.0
+      },
+      "kind": "Display-only registered NASA surface detail",
+      "limits": [
+        "Display geometry only. The frozen terrain-aware visibility engine and bundle remain authoritative.",
+        "SfS slopes are reconstructed from images over LOLA control; 5m posting is not a blanket5m physical-accuracy claim. Shadowed/poorly observed areas may retain smoother prior terrain.",
+        "The single1m NAC mosaic records historical illumination and shadows; it is not albedo or a current-epoch shadow simulation. It covers only the documented2km square.",
+        "Different source coordinate grids are preserved individually: SfS DEM5m; archive orthomosaic10m; count/solar-bin/best-resolution maps15m. The archiveorthomosaic is not used as the photo texture.",
+        "The3500\u20134000m transition belt is a declared display blend, not a new scientific terrain model."
+      ],
+      "observer": {
+        "baselineGroundM": 1009.5821533203125,
+        "cameraAboveNativeSfsCellM": 1.6256103515625,
+        "nativeSfsGroundM": 1009.95654296875,
+        "rigidVerticalOffsetAppliedM": 0,
+        "sfsMinusBaselineGroundM": 0.3743896484375
+      },
+      "observerSfsInputs": {
+        "bestInputResolutionM": 1.100000023841858,
+        "illuminatedImageCount": 26.0,
+        "solarAzimuthBinCount": 5.0
+      },
+      "qualityGates": {
+        "baselineObserverPreserved": true,
+        "completeFrozenSeam": true,
+        "imageDerivedDetailAtObserver": true,
+        "lunarProjectionAndAreaRegistration": true,
+        "nativeSourceHashes": true,
+        "siteInsideSources": true,
+        "visibilityEngineChanged": false
+      },
+      "referenceRadiusM": 1737400.0,
+      "reproduce": "PYTHONPATH=.venv/vendor python tools/build_surface_visuals.py --all --acquire",
+      "schemaVersion": 1,
+      "site": {
+        "groundM": 1009.5821533203125,
+        "heightM": 2.0,
+        "id": "nobile-rim-2",
+        "lat": -83.954,
+        "lon": 58.82206
+      },
+      "sourceArchive": {
+        "acquiredUtcDate": "2026-11-15",
+        "byteLength": 1839070131,
+        "fullArchiveDownloaded": false,
+        "fullArchiveMd5Verified": false,
+        "memberCrcAndSha256Verified": true,
+        "publisherMd5": "964310cb7f2a5033e2e12cd34e7aa7b1",
+        "url": "https://zenodo.org/api/records/17954508/files/A3CLR22_1_Nobile_Rim_2.zip/content",
+        "version": "1.0.0"
+      },
+      "sourceFrameBasis": "PGDA104 retains the LOLA geodetic reference; PGDA78 declares DE421 MOON_ME. Raster WKT itself names Moon2015 sphere, not a DE ephemeris. No additional frame rotation applied.",
+      "sourceRasters": [
+        {
+          "bounds": [
+            147000.0,
+            85000.0,
+            167000.0,
+            105000.0
+          ],
+          "byteLength": 32817469,
+          "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "dtype": "float32",
+          "filename": "A301_GLDELEV_005.tif",
+          "height": 4000,
+          "nodata": -3.4028234663852886e+38,
+          "registration": "Area",
+          "sha256": "4e75ed06a48af4d2dfaaed3476cefce636d4bf0dfd004d66193fc714df0011a8",
+          "tags": {
+            "AREA_OR_POINT": "Area",
+            "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+            "CREATED": "2025-12-17",
+            "REGION_NAME": "A3CLR22-#1",
+            "ROIID": "A301"
+          },
+          "transform": [
+            5.0,
+            0.0,
+            147000.0,
+            0.0,
+            -5.0,
+            105000.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 4000
+        },
+        {
+          "bounds": [
+            147000.0,
+            85005.0,
+            166995.0,
+            105000.0
+          ],
+          "byteLength": 439788,
+          "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "dtype": "uint8",
+          "filename": "A301_GLDMASK_005.tif",
+          "height": 1333,
+          "nodata": null,
+          "registration": "Area",
+          "sha256": "ca288f61a76f8f7319f8b808b5a0a5884e439f0082f09cbbd3519b9651b5147f",
+          "tags": {
+            "AREA_OR_POINT": "Area",
+            "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+            "CREATED": "2025-12-17",
+            "REGION_NAME": "A3CLR22-#1",
+            "ROIID": "A301"
+          },
+          "transform": [
+            15.0,
+            0.0,
+            147000.0,
+            0.0,
+            -15.0,
+            105000.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 1333
+        },
+        {
+          "bounds": [
+            147000.0,
+            85005.0,
+            166995.0,
+            105000.0
+          ],
+          "byteLength": 243366,
+          "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "dtype": "int16",
+          "filename": "A301_GLDSBCT_005.tif",
+          "height": 1333,
+          "nodata": null,
+          "registration": "Area",
+          "sha256": "1b982641e9a65d1161e2fcf70bec41a88e444f6632528f2361380d78326ccc46",
+          "tags": {
+            "AREA_OR_POINT": "Area",
+            "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+            "CREATED": "2025-12-17",
+            "REGION_NAME": "A3CLR22-#1",
+            "ROIID": "A301"
+          },
+          "transform": [
+            15.0,
+            0.0,
+            147000.0,
+            0.0,
+            -15.0,
+            105000.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 1333
+        },
+        {
+          "bounds": [
+            147000.0,
+            85005.0,
+            166995.0,
+            105000.0
+          ],
+          "byteLength": 260387,
+          "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "dtype": "float32",
+          "filename": "A301_GLDBRES_005.tif",
+          "height": 1333,
+          "nodata": null,
+          "registration": "Area",
+          "sha256": "f4fd05ca1e7ce9d4f1292b891637e45132bce962d0999c2a9c4eb7012020570a",
+          "tags": {
+            "AREA_OR_POINT": "Area",
+            "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+            "CREATED": "2025-12-17",
+            "REGION_NAME": "A3CLR22-#1",
+            "ROIID": "A301"
+          },
+          "transform": [
+            15.0,
+            0.0,
+            147000.0,
+            0.0,
+            -15.0,
+            105000.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "width": 1333
+        }
+      ],
+      "sources": [
+        {
+          "doi": "10.3847/PSJ/ae5b70",
+          "license": "CC-BY-4.0 (Zenodo record)",
+          "url": "https://pgda.gsfc.nasa.gov/products/104"
+        },
+        {
+          "doi": "10.5281/zenodo.17954508",
+          "url": "https://zenodo.org/records/17954508"
+        },
+        {
+          "url": "https://pgda.gsfc.nasa.gov/products/78"
+        },
+        {
+          "credit": "NASA/GSFC/Arizona State University LROC",
+          "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_ROI/NOBILE02LOC/NAC_ROI_NOBILE02LOC_P839S0587.TIF"
+        }
+      ],
+      "surfaceStatus": "SFS_AVAILABLE",
+      "terrain": {
+        "desktop": {
+          "boundaryEqualsFrozenMesh": true,
+          "boundsM": [
+            [
+              -4003.368896484375,
+              -581.9599609375,
+              -4002.427978515625
+            ],
+            [
+              4002.5546875,
+              456.31195050449656,
+              4003.37060546875
+            ]
+          ],
+          "byteLength": 4144716,
+          "chunks": [
+            {
+              "gridSize": 201,
+              "indexCount": 240000,
+              "indexOffset": 0,
+              "innerHalfExtentM": 0,
+              "name": "native-core",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 5.0,
+              "outerHalfExtentM": 500.0
+            },
+            {
+              "gridSize": 257,
+              "indexCount": 372480,
+              "indexOffset": 240000,
+              "innerHalfExtentM": 500.0,
+              "name": "local-relief",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 15.625,
+              "outerHalfExtentM": 2000.0
+            },
+            {
+              "gridSize": 129,
+              "indexCount": 77568,
+              "indexOffset": 612480,
+              "innerHalfExtentM": 2000.0,
+              "name": "regional-relief",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 62.5,
+              "outerHalfExtentM": 4000.0
+            }
+          ],
+          "indexCount": 690048,
+          "indicesByteOffset": 1384524,
+          "missingCellCount": 0,
+          "outerHalfExtentM": 4000,
+          "positionFile": "nobile-rim-2-desktop.mesh",
+          "positionsByteOffset": 0,
+          "seamVertexCount": 512,
+          "sha256": "649852503dc18dd12ffdacf8b290d48bd0a6ede850ad8aa0e73817cd40a7f9b3",
+          "vertexCount": 115377
+        },
+        "mobile": {
+          "boundaryEqualsFrozenMesh": true,
+          "boundsM": [
+            [
+              -4003.368896484375,
+              -581.9599609375,
+              -4002.427978515625
+            ],
+            [
+              4002.5546875,
+              456.31195050449656,
+              4003.37060546875
+            ]
+          ],
+          "byteLength": 1409388,
+          "chunks": [
+            {
+              "gridSize": 101,
+              "indexCount": 60000,
+              "indexOffset": 0,
+              "innerHalfExtentM": 0,
+              "name": "native-core",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 5.0,
+              "outerHalfExtentM": 250.0
+            },
+            {
+              "gridSize": 129,
+              "indexCount": 98304,
+              "indexOffset": 60000,
+              "innerHalfExtentM": 250.0,
+              "name": "local-relief",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 31.25,
+              "outerHalfExtentM": 2000.0
+            },
+            {
+              "gridSize": 129,
+              "indexCount": 76032,
+              "indexOffset": 158304,
+              "innerHalfExtentM": 2000.0,
+              "name": "regional-relief",
+              "nativeSourceSpacingM": 5,
+              "nominalGridSpacingM": 62.5,
+              "outerHalfExtentM": 4000.0
+            }
+          ],
+          "indexCount": 234336,
+          "indicesByteOffset": 472044,
+          "missingCellCount": 0,
+          "outerHalfExtentM": 4000,
+          "positionFile": "nobile-rim-2-mobile.mesh",
+          "positionsByteOffset": 0,
+          "seamVertexCount": 512,
+          "sha256": "a3d9a6a9a7b7acd0a403fbd545e6352f366931906c3dd7f3ef79cddf8b6494e6",
+          "vertexCount": 39337
+        }
+      },
+      "transition": {
+        "innerHalfExtentM": 3500,
+        "method": "Display-only smoothstep height blend to frozen LOLA mesh; all512 outer seam vertices copied byte-exact. Original4\u201332km mesh and analytical skyline unchanged.",
+        "outerHalfExtentM": 4000
+      }
+    }
+  ],
+  "sourceArchive": {
+    "acquiredUtcDate": "2026-11-15",
+    "byteLength": 1839070131,
+    "fullArchiveDownloaded": false,
+    "fullArchiveMd5Verified": false,
+    "memberCrcAndSha256Verified": true,
+    "publisherMd5": "964310cb7f2a5033e2e12cd34e7aa7b1",
+    "url": "https://zenodo.org/api/records/17954508/files/A3CLR22_1_Nobile_Rim_2.zip/content",
+    "version": "1.0.0"
+  },
+  "sourceFrameBasis": "PGDA104 retains the LOLA geodetic reference; PGDA78 declares DE421 MOON_ME. Raster WKT itself names Moon2015 sphere, not a DE ephemeris. No additional frame rotation applied.",
+  "sourceRasters": [
+    {
+      "bounds": [
+        147000.0,
+        85000.0,
+        167000.0,
+        105000.0
+      ],
+      "byteLength": 32817469,
+      "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+      "dtype": "float32",
+      "filename": "A301_GLDELEV_005.tif",
+      "height": 4000,
+      "nodata": -3.4028234663852886e+38,
+      "registration": "Area",
+      "sha256": "4e75ed06a48af4d2dfaaed3476cefce636d4bf0dfd004d66193fc714df0011a8",
+      "tags": {
+        "AREA_OR_POINT": "Area",
+        "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+        "CREATED": "2025-12-17",
+        "REGION_NAME": "A3CLR22-#1",
+        "ROIID": "A301"
+      },
+      "transform": [
+        5.0,
+        0.0,
+        147000.0,
+        0.0,
+        -5.0,
+        105000.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "width": 4000
+    },
+    {
+      "bounds": [
+        147000.0,
+        85005.0,
+        166995.0,
+        105000.0
+      ],
+      "byteLength": 439788,
+      "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+      "dtype": "uint8",
+      "filename": "A301_GLDMASK_005.tif",
+      "height": 1333,
+      "nodata": null,
+      "registration": "Area",
+      "sha256": "ca288f61a76f8f7319f8b808b5a0a5884e439f0082f09cbbd3519b9651b5147f",
+      "tags": {
+        "AREA_OR_POINT": "Area",
+        "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+        "CREATED": "2025-12-17",
+        "REGION_NAME": "A3CLR22-#1",
+        "ROIID": "A301"
+      },
+      "transform": [
+        15.0,
+        0.0,
+        147000.0,
+        0.0,
+        -15.0,
+        105000.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "width": 1333
+    },
+    {
+      "bounds": [
+        147000.0,
+        85005.0,
+        166995.0,
+        105000.0
+      ],
+      "byteLength": 243366,
+      "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+      "dtype": "int16",
+      "filename": "A301_GLDSBCT_005.tif",
+      "height": 1333,
+      "nodata": null,
+      "registration": "Area",
+      "sha256": "1b982641e9a65d1161e2fcf70bec41a88e444f6632528f2361380d78326ccc46",
+      "tags": {
+        "AREA_OR_POINT": "Area",
+        "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+        "CREATED": "2025-12-17",
+        "REGION_NAME": "A3CLR22-#1",
+        "ROIID": "A301"
+      },
+      "transform": [
+        15.0,
+        0.0,
+        147000.0,
+        0.0,
+        -15.0,
+        105000.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "width": 1333
+    },
+    {
+      "bounds": [
+        147000.0,
+        85005.0,
+        166995.0,
+        105000.0
+      ],
+      "byteLength": 260387,
+      "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+      "dtype": "float32",
+      "filename": "A301_GLDBRES_005.tif",
+      "height": 1333,
+      "nodata": null,
+      "registration": "Area",
+      "sha256": "f4fd05ca1e7ce9d4f1292b891637e45132bce962d0999c2a9c4eb7012020570a",
+      "tags": {
+        "AREA_OR_POINT": "Area",
+        "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+        "CREATED": "2025-12-17",
+        "REGION_NAME": "A3CLR22-#1",
+        "ROIID": "A301"
+      },
+      "transform": [
+        15.0,
+        0.0,
+        147000.0,
+        0.0,
+        -15.0,
+        105000.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "width": 1333
+    }
+  ],
+  "sources": [
+    {
+      "doi": "10.3847/PSJ/ae5b70",
+      "license": "CC-BY-4.0 (Zenodo record)",
+      "url": "https://pgda.gsfc.nasa.gov/products/104"
+    },
+    {
+      "doi": "10.5281/zenodo.17954508",
+      "url": "https://zenodo.org/records/17954508"
+    },
+    {
+      "url": "https://pgda.gsfc.nasa.gov/products/78"
+    },
+    {
+      "credit": "NASA/GSFC/Arizona State University LROC",
+      "url": "https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/EXTRAS/BROWSE/NAC_ROI/NOBILE02LOC/NAC_ROI_NOBILE02LOC_P839S0587.TIF"
+    }
+  ],
+  "surfaceStatus": "SFS_AVAILABLE",
+  "terrain": {
+    "desktop": {
+      "boundaryEqualsFrozenMesh": true,
+      "boundsM": [
+        [
+          -4003.368896484375,
+          -581.9599609375,
+          -4002.427978515625
+        ],
+        [
+          4002.5546875,
+          456.31195050449656,
+          4003.37060546875
+        ]
+      ],
+      "byteLength": 4144716,
+      "chunks": [
+        {
+          "gridSize": 201,
+          "indexCount": 240000,
+          "indexOffset": 0,
+          "innerHalfExtentM": 0,
+          "name": "native-core",
+          "nativeSourceSpacingM": 5,
+          "nominalGridSpacingM": 5.0,
+          "outerHalfExtentM": 500.0
+        },
+        {
+          "gridSize": 257,
+          "indexCount": 372480,
+          "indexOffset": 240000,
+          "innerHalfExtentM": 500.0,
+          "name": "local-relief",
+          "nativeSourceSpacingM": 5,
+          "nominalGridSpacingM": 15.625,
+          "outerHalfExtentM": 2000.0
+        },
+        {
+          "gridSize": 129,
+          "indexCount": 77568,
+          "indexOffset": 612480,
+          "innerHalfExtentM": 2000.0,
+          "name": "regional-relief",
+          "nativeSourceSpacingM": 5,
+          "nominalGridSpacingM": 62.5,
+          "outerHalfExtentM": 4000.0
+        }
+      ],
+      "indexCount": 690048,
+      "indicesByteOffset": 1384524,
+      "missingCellCount": 0,
+      "outerHalfExtentM": 4000,
+      "positionFile": "nobile-rim-2-desktop.mesh",
+      "positionsByteOffset": 0,
+      "seamVertexCount": 512,
+      "sha256": "649852503dc18dd12ffdacf8b290d48bd0a6ede850ad8aa0e73817cd40a7f9b3",
+      "vertexCount": 115377
+    },
+    "mobile": {
+      "boundaryEqualsFrozenMesh": true,
+      "boundsM": [
+        [
+          -4003.368896484375,
+          -581.9599609375,
+          -4002.427978515625
+        ],
+        [
+          4002.5546875,
+          456.31195050449656,
+          4003.37060546875
+        ]
+      ],
+      "byteLength": 1409388,
+      "chunks": [
+        {
+          "gridSize": 101,
+          "indexCount": 60000,
+          "indexOffset": 0,
+          "innerHalfExtentM": 0,
+          "name": "native-core",
+          "nativeSourceSpacingM": 5,
+          "nominalGridSpacingM": 5.0,
+          "outerHalfExtentM": 250.0
+        },
+        {
+          "gridSize": 129,
+          "indexCount": 98304,
+          "indexOffset": 60000,
+          "innerHalfExtentM": 250.0,
+          "name": "local-relief",
+          "nativeSourceSpacingM": 5,
+          "nominalGridSpacingM": 31.25,
+          "outerHalfExtentM": 2000.0
+        },
+        {
+          "gridSize": 129,
+          "indexCount": 76032,
+          "indexOffset": 158304,
+          "innerHalfExtentM": 2000.0,
+          "name": "regional-relief",
+          "nativeSourceSpacingM": 5,
+          "nominalGridSpacingM": 62.5,
+          "outerHalfExtentM": 4000.0
+        }
+      ],
+      "indexCount": 234336,
+      "indicesByteOffset": 472044,
+      "missingCellCount": 0,
+      "outerHalfExtentM": 4000,
+      "positionFile": "nobile-rim-2-mobile.mesh",
+      "positionsByteOffset": 0,
+      "seamVertexCount": 512,
+      "sha256": "a3d9a6a9a7b7acd0a403fbd545e6352f366931906c3dd7f3ef79cddf8b6494e6",
+      "vertexCount": 39337
+    }
+  },
+  "transition": {
+    "innerHalfExtentM": 3500,
+    "method": "Display-only smoothstep height blend to frozen LOLA mesh; all512 outer seam vertices copied byte-exact. Original4\u201332km mesh and analytical skyline unchanged.",
+    "outerHalfExtentM": 4000
+  }
+}

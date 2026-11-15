@@ -1,0 +1,782 @@
+{
+  "acquiredUtcDate": "2026-11-15",
+  "record": "https://zenodo.org/records/17954508",
+  "records": [
+    {
+      "archive": {
+        "checksum": "md5:78b8a042d0c6be2923abdd288e436c23",
+        "id": "3ea53962-b34d-42d3-beee-6353590bba3e",
+        "key": "A3CLR22_12_deGerlache_Kocher_Massif.zip",
+        "links": {
+          "self": "https://zenodo.org/api/records/17954508/files/A3CLR22_12_deGerlache_Kocher_Massif.zip/content"
+        },
+        "size": 2108633565
+      },
+      "files": [
+        {
+          "bytes": 244270,
+          "compressedBytes": 238962,
+          "crc": "c72124ef",
+          "filename": "A312_GLDSBCT_005.tif",
+          "headerOffset": 13449909,
+          "method": 8,
+          "name": "A3CLR22_12_deGerlache_Kocher_Massif/A312_GLDSBCT_005.tif",
+          "sha256": "18d382580ee91a429f101b2616aca88a4a2813f59f419bec15fbdda80936c469"
+        },
+        {
+          "bytes": 219060,
+          "compressedBytes": 198712,
+          "crc": "a0244725",
+          "filename": "A312_GLDBRES_005.tif",
+          "headerOffset": 106472670,
+          "method": 8,
+          "name": "A3CLR22_12_deGerlache_Kocher_Massif/A312_GLDBRES_005.tif",
+          "sha256": "b5062cc30c15b387bef02162181c5c4459c5312398bf4ef6e4ae5898b411e17e"
+        },
+        {
+          "bytes": 16017818,
+          "compressedBytes": 1640717,
+          "crc": "b2b5757f",
+          "filename": "A312_GLDMASK_005.tif",
+          "headerOffset": 106671516,
+          "method": 8,
+          "name": "A3CLR22_12_deGerlache_Kocher_Massif/A312_GLDMASK_005.tif",
+          "sha256": "e1890834fc19914284d3a063b0929acbd3553b9c7a40880e8469309bd46cbb69"
+        },
+        {
+          "bytes": 32324244,
+          "compressedBytes": 32327277,
+          "crc": "e005a595",
+          "filename": "A312_GLDELEV_005.tif",
+          "headerOffset": 153695039,
+          "method": 8,
+          "name": "A3CLR22_12_deGerlache_Kocher_Massif/A312_GLDELEV_005.tif",
+          "sha256": "f6a47cdaf083fae80400ee3ae13ed135ba5c1e6186a981205c075731bd6bc73b"
+        }
+      ],
+      "rasterHeader": {
+        "bounds": [
+          -123400.0,
+          -66100.0,
+          -103400.0,
+          -46100.0
+        ],
+        "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+        "nodata": -3.4028234663852886e+38,
+        "shape": [
+          4000,
+          4000
+        ],
+        "tags": {
+          "AREA_OR_POINT": "Area",
+          "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+          "CREATED": "2025-12-17",
+          "REGION_NAME": "A3CLR22-#12 'de Gerlache-Kocher Massif'",
+          "ROIID": "A312"
+        },
+        "transform": [
+          5.0,
+          0.0,
+          -123400.0,
+          0.0,
+          -5.0,
+          -46100.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "siteId": "de-gerlache-kocher"
+    },
+    {
+      "archive": {
+        "checksum": "md5:b0a606e6a4ce73faf2ea68c91ce0b93e",
+        "id": "ebf88d3e-951f-4cb7-b34f-84e1438b148e",
+        "key": "A3CLR22_10_Leibnitz_Beta_Plateau.zip",
+        "links": {
+          "self": "https://zenodo.org/api/records/17954508/files/A3CLR22_10_Leibnitz_Beta_Plateau.zip/content"
+        },
+        "size": 1050441742
+      },
+      "files": [
+        {
+          "bytes": 16598431,
+          "compressedBytes": 16562146,
+          "crc": "8ec7d204",
+          "filename": "A310_GLDELEV_005.tif",
+          "headerOffset": 414,
+          "method": 8,
+          "name": "A3CLR22_10_Leibnitz_Beta_Plateau/A310_GLDELEV_005.tif",
+          "sha256": "55352520c0277a902a89fbd003f83956b238e4d0b4529494eaec1b5a51b1a4b1"
+        },
+        {
+          "bytes": 203267,
+          "compressedBytes": 183744,
+          "crc": "e0238a83",
+          "filename": "A310_GLDBRES_005.tif",
+          "headerOffset": 49316452,
+          "method": 8,
+          "name": "A3CLR22_10_Leibnitz_Beta_Plateau/A310_GLDBRES_005.tif",
+          "sha256": "499b1555a72bd2f84273800805071b373d5bacca242dfb2e3c7dbbc8276db9ea"
+        },
+        {
+          "bytes": 232941,
+          "compressedBytes": 230799,
+          "crc": "dc37c417",
+          "filename": "A310_GLDMASK_005.tif",
+          "headerOffset": 49500428,
+          "method": 8,
+          "name": "A3CLR22_10_Leibnitz_Beta_Plateau/A310_GLDMASK_005.tif",
+          "sha256": "250776ca6d02497942d6b5f6a686057f0cdfa503f33855ce49011e7224aaaa09"
+        },
+        {
+          "bytes": 172811,
+          "compressedBytes": 169121,
+          "crc": "1f71b737",
+          "filename": "A310_GLDSBCT_005.tif",
+          "headerOffset": 49733539,
+          "method": 8,
+          "name": "A3CLR22_10_Leibnitz_Beta_Plateau/A310_GLDSBCT_005.tif",
+          "sha256": "71b1e143a604434b9994caf7c01ef89c756f471dbde1b50f73e58599f904241d"
+        }
+      ],
+      "rasterHeader": {
+        "bounds": [
+          65000.0,
+          110000.0,
+          81000.0,
+          126000.0
+        ],
+        "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+        "nodata": -3.4028234663852886e+38,
+        "shape": [
+          3200,
+          3200
+        ],
+        "tags": {
+          "AREA_OR_POINT": "Area",
+          "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+          "CREATED": "2025-12-17",
+          "REGION_NAME": "A3CLR22-#10",
+          "ROIID": "A310"
+        },
+        "transform": [
+          5.0,
+          0.0,
+          65000.0,
+          0.0,
+          -5.0,
+          126000.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "siteId": "leibnitz-beta-plateau"
+    },
+    {
+      "archive": {
+        "checksum": "md5:772a578b8f2ebdb078c5a04a3c07182a",
+        "id": "76a3bb9d-8585-4715-b876-f7c3a9f01970",
+        "key": "A3CLR22_11_Malapert_Massif.zip",
+        "links": {
+          "self": "https://zenodo.org/api/records/17954508/files/A3CLR22_11_Malapert_Massif.zip/content"
+        },
+        "size": 2213137537
+      },
+      "files": [
+        {
+          "bytes": 31171558,
+          "compressedBytes": 31143328,
+          "crc": "a9603987",
+          "filename": "A311_GLDELEV_005.tif",
+          "headerOffset": 14095231,
+          "method": 8,
+          "name": "A3CLR22_11_Malapert_Massif/A311_GLDELEV_005.tif",
+          "sha256": "e71f946674a6dc4dcd910f37cee9c0ff42c0f5493900be81259e0acb8dea68d4"
+        },
+        {
+          "bytes": 291549,
+          "compressedBytes": 278819,
+          "crc": "7d50edb7",
+          "filename": "A311_GLDSBCT_005.tif",
+          "headerOffset": 190938105,
+          "method": 8,
+          "name": "A3CLR22_11_Malapert_Massif/A311_GLDSBCT_005.tif",
+          "sha256": "c3d7390fab8e31925d9f92261d4449f0c15b3fbadd7c00e7c7fc05ea4121dff6"
+        },
+        {
+          "bytes": 504129,
+          "compressedBytes": 499811,
+          "crc": "0df66cd5",
+          "filename": "A311_GLDMASK_005.tif",
+          "headerOffset": 191219101,
+          "method": 8,
+          "name": "A3CLR22_11_Malapert_Massif/A311_GLDMASK_005.tif",
+          "sha256": "194385c6bbc327e4fd472bf8a4b3f4bc15117ad84b57a56eddb556a8b9d08a7b"
+        },
+        {
+          "bytes": 229937,
+          "compressedBytes": 205883,
+          "crc": "f5abd626",
+          "filename": "A311_GLDBRES_005.tif",
+          "headerOffset": 191719140,
+          "method": 8,
+          "name": "A3CLR22_11_Malapert_Massif/A311_GLDBRES_005.tif",
+          "sha256": "934ecb1036b7a7f96f048aa3e7c0961b066b0a8e3595e1adbd6a1e0ca61c105f"
+        }
+      ],
+      "rasterHeader": {
+        "bounds": [
+          -11000.0,
+          111000.0,
+          10000.0,
+          132000.0
+        ],
+        "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+        "nodata": -3.4028234663852886e+38,
+        "shape": [
+          4200,
+          4200
+        ],
+        "tags": {
+          "AREA_OR_POINT": "Area",
+          "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+          "CREATED": "2025-12-17",
+          "REGION_NAME": "A3CLR22-#11",
+          "ROIID": "A311"
+        },
+        "transform": [
+          5.0,
+          0.0,
+          -11000.0,
+          0.0,
+          -5.0,
+          132000.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "siteId": "malapert-massif"
+    },
+    {
+      "archive": {
+        "checksum": "md5:964310cb7f2a5033e2e12cd34e7aa7b1",
+        "id": "aa8aad80-3e8a-4251-8608-86175007c61b",
+        "key": "A3CLR22_1_Nobile_Rim_2.zip",
+        "links": {
+          "self": "https://zenodo.org/api/records/17954508/files/A3CLR22_1_Nobile_Rim_2.zip/content"
+        },
+        "size": 1839070131
+      },
+      "files": [
+        {
+          "bytes": 32817469,
+          "compressedBytes": 32817696,
+          "crc": "d711e617",
+          "filename": "A301_GLDELEV_005.tif",
+          "headerOffset": 45792242,
+          "method": 8,
+          "name": "A3CLR22_1_Nobile_Rim_2/A301_GLDELEV_005.tif",
+          "sha256": "4e75ed06a48af4d2dfaaed3476cefce636d4bf0dfd004d66193fc714df0011a8"
+        },
+        {
+          "bytes": 439788,
+          "compressedBytes": 436132,
+          "crc": "e5044604",
+          "filename": "A301_GLDMASK_005.tif",
+          "headerOffset": 91418765,
+          "method": 8,
+          "name": "A3CLR22_1_Nobile_Rim_2/A301_GLDMASK_005.tif",
+          "sha256": "ca288f61a76f8f7319f8b808b5a0a5884e439f0082f09cbbd3519b9651b5147f"
+        },
+        {
+          "bytes": 260387,
+          "compressedBytes": 240629,
+          "crc": "f02c8180",
+          "filename": "A301_GLDBRES_005.tif",
+          "headerOffset": 91855209,
+          "method": 8,
+          "name": "A3CLR22_1_Nobile_Rim_2/A301_GLDBRES_005.tif",
+          "sha256": "f4fd05ca1e7ce9d4f1292b891637e45132bce962d0999c2a9c4eb7012020570a"
+        },
+        {
+          "bytes": 243366,
+          "compressedBytes": 236944,
+          "crc": "24c9bf06",
+          "filename": "A301_GLDSBCT_005.tif",
+          "headerOffset": 110179305,
+          "method": 8,
+          "name": "A3CLR22_1_Nobile_Rim_2/A301_GLDSBCT_005.tif",
+          "sha256": "1b982641e9a65d1161e2fcf70bec41a88e444f6632528f2361380d78326ccc46"
+        }
+      ],
+      "rasterHeader": {
+        "bounds": [
+          147000.0,
+          85000.0,
+          167000.0,
+          105000.0
+        ],
+        "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+        "nodata": -3.4028234663852886e+38,
+        "shape": [
+          4000,
+          4000
+        ],
+        "tags": {
+          "AREA_OR_POINT": "Area",
+          "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+          "CREATED": "2025-12-17",
+          "REGION_NAME": "A3CLR22-#1",
+          "ROIID": "A301"
+        },
+        "transform": [
+          5.0,
+          0.0,
+          147000.0,
+          0.0,
+          -5.0,
+          105000.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "siteId": "nobile-rim-2"
+    },
+    {
+      "archive": {
+        "checksum": "md5:e83a923c41c00be51396d06ab7cf6e9e",
+        "id": "dd80676f-714c-45f5-837e-3fbfa2eaf4ff",
+        "key": "A3CLR22_2_Haworth.zip",
+        "links": {
+          "self": "https://zenodo.org/api/records/17954508/files/A3CLR22_2_Haworth.zip/content"
+        },
+        "size": 4353812518
+      },
+      "files": [
+        {
+          "bytes": 782787,
+          "compressedBytes": 748423,
+          "crc": "73f07bf8",
+          "filename": "A302_GLDBRES_005.tif",
+          "headerOffset": 369,
+          "method": 8,
+          "name": "A3CLR22_2_Haworth/A302_GLDBRES_005.tif",
+          "sha256": "33c3e045a4061de7c9e2e6605a72eca493a6a61ce4be617f39be3cbe86daeebe"
+        },
+        {
+          "bytes": 1040892,
+          "compressedBytes": 1034028,
+          "crc": "a44c089f",
+          "filename": "A302_GLDMASK_005.tif",
+          "headerOffset": 749593,
+          "method": 8,
+          "name": "A3CLR22_2_Haworth/A302_GLDMASK_005.tif",
+          "sha256": "d96ddd0f8478781241ba99ceb4f5c4dc6594e4496778e3543b587112a2cffa46"
+        },
+        {
+          "bytes": 658708,
+          "compressedBytes": 647437,
+          "crc": "115aa5f7",
+          "filename": "A302_GLDSBCT_005.tif",
+          "headerOffset": 113414990,
+          "method": 8,
+          "name": "A3CLR22_2_Haworth/A302_GLDSBCT_005.tif",
+          "sha256": "352549c721f4757f2724d9ff26c9a4b99a93107f96ec4affe4b2f8c5ca45bc5a"
+        },
+        {
+          "bytes": 73017526,
+          "compressedBytes": 73019904,
+          "crc": "c12d6b2e",
+          "filename": "A302_GLDELEV_005.tif",
+          "headerOffset": 251704087,
+          "method": 8,
+          "name": "A3CLR22_2_Haworth/A302_GLDELEV_005.tif",
+          "sha256": "7126ae857336f2781b7e72caa07a7162e63b8e3ab50ebcd9ee30390b3d6f4d94"
+        }
+      ],
+      "rasterHeader": {
+        "bounds": [
+          -52900.0,
+          75600.0,
+          -23100.0,
+          105400.0
+        ],
+        "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+        "nodata": -3.4028234663852886e+38,
+        "shape": [
+          5960,
+          5960
+        ],
+        "tags": {
+          "AREA_OR_POINT": "Area",
+          "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+          "CREATED": "2025-12-17",
+          "REGION_NAME": "A3CLR22-#2",
+          "ROIID": "A302"
+        },
+        "transform": [
+          5.0,
+          0.0,
+          -52900.0,
+          0.0,
+          -5.0,
+          105400.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "siteId": "haworth"
+    },
+    {
+      "archive": {
+        "checksum": "md5:a8bcb60f432253f5fa97ff07899bd02a",
+        "id": "dad9eff5-55ee-4d27-a967-2d08606555a8",
+        "key": "A3CLR22_7_Nobile_Rim_1.zip",
+        "links": {
+          "self": "https://zenodo.org/api/records/17954508/files/A3CLR22_7_Nobile_Rim_1.zip/content"
+        },
+        "size": 1962014939
+      },
+      "files": [
+        {
+          "bytes": 27429327,
+          "compressedBytes": 27411184,
+          "crc": "e02a5117",
+          "filename": "A307_GLDELEV_005.tif",
+          "headerOffset": 1029,
+          "method": 8,
+          "name": "A3CLR22_7_Nobile_Rim_1/A307_GLDELEV_005.tif",
+          "sha256": "6f422c88b7c4fc3ef147bde592596af1b7baef885dffbbab6de880fcf85c0dff"
+        },
+        {
+          "bytes": 250386,
+          "compressedBytes": 243627,
+          "crc": "d8165a6a",
+          "filename": "A307_GLDSBCT_005.tif",
+          "headerOffset": 116777153,
+          "method": 8,
+          "name": "A3CLR22_7_Nobile_Rim_1/A307_GLDSBCT_005.tif",
+          "sha256": "522c435c2441864ecab8c7d4ef6380d96b9aea11d0d1b38071577329824de885"
+        },
+        {
+          "bytes": 390838,
+          "compressedBytes": 387849,
+          "crc": "f55cdd74",
+          "filename": "A307_GLDMASK_005.tif",
+          "headerOffset": 167063098,
+          "method": 8,
+          "name": "A3CLR22_7_Nobile_Rim_1/A307_GLDMASK_005.tif",
+          "sha256": "ba4de0d69099527561bdca9b094342855d9388cef612c6425e55cc5e759322dd"
+        },
+        {
+          "bytes": 254088,
+          "compressedBytes": 233102,
+          "crc": "1482d654",
+          "filename": "A307_GLDBRES_005.tif",
+          "headerOffset": 167451068,
+          "method": 8,
+          "name": "A3CLR22_7_Nobile_Rim_1/A307_GLDBRES_005.tif",
+          "sha256": "9be26faebe86bd5a35386dede712b53dbeaa62e5472347dea1fa6379d9a246c4"
+        }
+      ],
+      "rasterHeader": {
+        "bounds": [
+          74000.0,
+          100000.0,
+          94000.0,
+          120000.0
+        ],
+        "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+        "nodata": -3.4028234663852886e+38,
+        "shape": [
+          4000,
+          4000
+        ],
+        "tags": {
+          "AREA_OR_POINT": "Area",
+          "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+          "CREATED": "2025-12-17",
+          "REGION_NAME": "A3CLR22-#7",
+          "ROIID": "A307"
+        },
+        "transform": [
+          5.0,
+          0.0,
+          74000.0,
+          0.0,
+          -5.0,
+          120000.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "siteId": "nobile-rim-1"
+    },
+    {
+      "archive": {
+        "checksum": "md5:0ad982cf42319a300f2a2cff69d39322",
+        "id": "0d29a92e-82a0-4512-aa49-802fe5f0c29b",
+        "key": "A3CLR22_6_Connecting_Ridge.zip",
+        "links": {
+          "self": "https://zenodo.org/api/records/17954508/files/A3CLR22_6_Connecting_Ridge.zip/content"
+        },
+        "size": 2206485514
+      },
+      "files": [
+        {
+          "bytes": 20953350,
+          "compressedBytes": 20939842,
+          "crc": "3736a5c6",
+          "filename": "A306_GLDELEV_005.tif",
+          "headerOffset": 179852,
+          "method": 8,
+          "name": "A3CLR22_6_Connecting_Ridge/A306_GLDELEV_005.tif",
+          "sha256": "c914e52bf1e46c08b9c409d6ebd6a3605ad33756373571138b8d473dadaeddd0"
+        },
+        {
+          "bytes": 234448,
+          "compressedBytes": 217761,
+          "crc": "7f6b5db9",
+          "filename": "A306_GLDBRES_005.tif",
+          "headerOffset": 50105365,
+          "method": 8,
+          "name": "A3CLR22_6_Connecting_Ridge/A306_GLDBRES_005.tif",
+          "sha256": "1c0ca3858dcd42d91c7414ae8529f63b6dc0b3a5b56fb56823afa056652b4ad4"
+        },
+        {
+          "bytes": 451536,
+          "compressedBytes": 447335,
+          "crc": "56151ba7",
+          "filename": "A306_GLDMASK_005.tif",
+          "headerOffset": 58659100,
+          "method": 8,
+          "name": "A3CLR22_6_Connecting_Ridge/A306_GLDMASK_005.tif",
+          "sha256": "ff3b395abf72c09fb18a75e4ed39c06e366faf9fdb94e45bb29fec5ba249ebdd"
+        },
+        {
+          "bytes": 214068,
+          "compressedBytes": 211086,
+          "crc": "ff859543",
+          "filename": "A306_GLDSBCT_005.tif",
+          "headerOffset": 87319912,
+          "method": 8,
+          "name": "A3CLR22_6_Connecting_Ridge/A306_GLDSBCT_005.tif",
+          "sha256": "b35131c9876c99dcb2fb31fac61406fd6df9e5aca03a909e33e332c87936a22c"
+        }
+      ],
+      "rasterHeader": {
+        "bounds": [
+          -19000.0,
+          -20000.0,
+          -3000.0,
+          -4000.0
+        ],
+        "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+        "nodata": -3.4028234663852886e+38,
+        "shape": [
+          3200,
+          3200
+        ],
+        "tags": {
+          "AREA_OR_POINT": "Area",
+          "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+          "CREATED": "2025-12-17",
+          "REGION_NAME": "A3CLR22-#6",
+          "ROIID": "A306"
+        },
+        "transform": [
+          5.0,
+          0.0,
+          -19000.0,
+          0.0,
+          -5.0,
+          -4000.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "siteId": "connecting-ridge"
+    },
+    {
+      "archive": {
+        "checksum": "md5:9ac25cc18b1290e679dfad9b1eaabad7",
+        "id": "f3ac619e-772f-4461-af7a-d78d6bc516c4",
+        "key": "A3CLR22_8_Peak_Near_Shackleton.zip",
+        "links": {
+          "self": "https://zenodo.org/api/records/17954508/files/A3CLR22_8_Peak_Near_Shackleton.zip/content"
+        },
+        "size": 1360387336
+      },
+      "files": [
+        {
+          "bytes": 21731460,
+          "compressedBytes": 21721837,
+          "crc": "d8c9397e",
+          "filename": "A308_GLDELEV_005.tif",
+          "headerOffset": 29856292,
+          "method": 8,
+          "name": "A3CLR22_8_Peak_Near_Shackleton/A308_GLDELEV_005.tif",
+          "sha256": "6eb1cdd1e2b95cd97e5fb0441f4c8c1c317d6f53c2bbfbf7990e50df8aa94d3b"
+        },
+        {
+          "bytes": 241646,
+          "compressedBytes": 238729,
+          "crc": "45119c21",
+          "filename": "A308_GLDSBCT_005.tif",
+          "headerOffset": 91594262,
+          "method": 8,
+          "name": "A3CLR22_8_Peak_Near_Shackleton/A308_GLDSBCT_005.tif",
+          "sha256": "af80b1a12d88c64cfd9024376f7899da01eabe31cac1942f5b249cc2120dc4b4"
+        },
+        {
+          "bytes": 360748,
+          "compressedBytes": 357878,
+          "crc": "0520e520",
+          "filename": "A308_GLDMASK_005.tif",
+          "headerOffset": 120013335,
+          "method": 8,
+          "name": "A3CLR22_8_Peak_Near_Shackleton/A308_GLDMASK_005.tif",
+          "sha256": "69767b06a6138b8d0646ace0f553d006e8541d9a96f85c6254a79b6b3deb4981"
+        },
+        {
+          "bytes": 206838,
+          "compressedBytes": 188893,
+          "crc": "b9da781f",
+          "filename": "A308_GLDBRES_005.tif",
+          "headerOffset": 120371449,
+          "method": 8,
+          "name": "A3CLR22_8_Peak_Near_Shackleton/A308_GLDBRES_005.tif",
+          "sha256": "6b42c48877ea2ff1abad4d33e85190d17b4d857e951c1a2e329335fa07fdb59c"
+        }
+      ],
+      "rasterHeader": {
+        "bounds": [
+          22000.0,
+          -28000.0,
+          38000.0,
+          -12000.0
+        ],
+        "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+        "nodata": -3.4028234663852886e+38,
+        "shape": [
+          3200,
+          3200
+        ],
+        "tags": {
+          "AREA_OR_POINT": "Area",
+          "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+          "CREATED": "2025-12-17",
+          "REGION_NAME": "A3CLR22-#8",
+          "ROIID": "A308"
+        },
+        "transform": [
+          5.0,
+          0.0,
+          22000.0,
+          0.0,
+          -5.0,
+          -12000.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "siteId": "peak-near-shackleton"
+    },
+    {
+      "archive": {
+        "checksum": "md5:a34e603e9d2c2c9a2796fc237d24b1b4",
+        "id": "bb1e67a0-3b4b-4b78-9631-32bdd97987d2",
+        "key": "A3CLR22_9_deGerlache_Rim.zip",
+        "links": {
+          "self": "https://zenodo.org/api/records/17954508/files/A3CLR22_9_deGerlache_Rim.zip/content"
+        },
+        "size": 1340667387
+      },
+      "files": [
+        {
+          "bytes": 22145062,
+          "compressedBytes": 22134770,
+          "crc": "f988d8e6",
+          "filename": "A309_GLDELEV_005.tif",
+          "headerOffset": 30377490,
+          "method": 8,
+          "name": "A3CLR22_9_deGerlache_Rim/A309_GLDELEV_005.tif",
+          "sha256": "641532d0b3ab2661d6cb40612c3be1537baa8a27d71fa0996843ce92e9225dfe"
+        },
+        {
+          "bytes": 141281,
+          "compressedBytes": 122597,
+          "crc": "10851fc7",
+          "filename": "A309_GLDBRES_005.tif",
+          "headerOffset": 52512486,
+          "method": 8,
+          "name": "A3CLR22_9_deGerlache_Rim/A309_GLDBRES_005.tif",
+          "sha256": "5f57a81fcf8c5153126ac6a69ac4aae901ad58c8cfdafba59ff18cbdb76781a3"
+        },
+        {
+          "bytes": 272900,
+          "compressedBytes": 270244,
+          "crc": "337db55a",
+          "filename": "A309_GLDMASK_005.tif",
+          "headerOffset": 52635299,
+          "method": 8,
+          "name": "A3CLR22_9_deGerlache_Rim/A309_GLDMASK_005.tif",
+          "sha256": "61562947e28c6f9c4e8b187f1633f3ec1c28acd197a4ff91b2ce11fd50a95290"
+        },
+        {
+          "bytes": 150694,
+          "compressedBytes": 147034,
+          "crc": "40d3d976",
+          "filename": "A309_GLDSBCT_005.tif",
+          "headerOffset": 88513339,
+          "method": 8,
+          "name": "A3CLR22_9_deGerlache_Rim/A309_GLDSBCT_005.tif",
+          "sha256": "44c717808d6363dbabd2d62e0ef62d358b82afc30744835bf5c88cccc8727daa"
+        }
+      ],
+      "rasterHeader": {
+        "bounds": [
+          -45000.0,
+          7000.0,
+          -29000.0,
+          23000.0
+        ],
+        "crsWkt": "PROJCS[\"Moon (2015) - Sphere / Ocentric / South Polar\",GEOGCS[\"Moon (2015) - Sphere / Ocentric\",DATUM[\"Moon (2015) - Sphere\",SPHEROID[\"Moon (2015) - Sphere\",1737400,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+        "nodata": -3.4028234663852886e+38,
+        "shape": [
+          3200,
+          3200
+        ],
+        "tags": {
+          "AREA_OR_POINT": "Area",
+          "AUTHORS": "S. Bertone (creator), R. A. Beyer (reviewer)",
+          "CREATED": "2025-12-17",
+          "REGION_NAME": "A3CLR22-#9",
+          "ROIID": "A309"
+        },
+        "transform": [
+          5.0,
+          0.0,
+          -45000.0,
+          0.0,
+          -5.0,
+          23000.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "siteId": "de-gerlache-rim"
+    }
+  ],
+  "schemaVersion": 1,
+  "version": "1.0.0"
+}

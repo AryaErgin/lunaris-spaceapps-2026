@@ -1,10 +1,12 @@
 // Display renderer only. Visibility and all mission decisions come from frozen intervals.
 import {bodyDirection, moonPoint,localToMoonDirection} from './scene-model.mjs';
 import {NOTABLE_SITES} from './anysite.mjs';
+import {surfaceUVs,surfacePhotoLevel,surfaceVisualRecord} from './surface-visuals.mjs';
 
 const RAD=Math.PI/180;
 const asset=name=>new URL(`./assets/${name}`,import.meta.url).href;
 const terrainUrl=new URL('./data/terrain-scenes.json',import.meta.url);
+const surfaceVisualsUrl=new URL('./assets/surface/manifest.json',import.meta.url);
 const clamp=(value,lo,hi)=>Math.max(lo,Math.min(hi,value));
 
 export const moonFixedPosition=moonPoint;
@@ -112,6 +114,9 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   let raf=0,intersecting=true,flight=null,pendingMode=null,pendingFocus=null,terrainRequest=0,terrainMetadataPromise;
   let modeTransition=0,transitionTimer=0;
   let terrainMesh=null,terrainSiteId=null,terrainRecord=null,terrainError=null;
+  let surfaceDetailMesh=null,surfaceVisualEntry=null,surfaceVisualError=null,surfaceVisualsPromise=null,surfaceVisualAbort=null;
+  let surfaceImageryEnabled=true;
+  let surfaceSourceSignature='';
   let moonTextureLoaded=false,earthTextureLoaded=false,moonBumpLoaded=false;
   let moonDetail='loading',moonHighDetailPromise=null,farHorizonMesh=null,farHorizonRecord=null,farHorizonSiteId=null;
   let terrainBearingDeg=terrainFocusBearing(site);
@@ -121,6 +126,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   const mobileQuality=window.matchMedia('(max-width:700px)').matches||navigator.connection?.saveData===true;
   const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const resources=new Set(),listeners=[],terrainCache=new Map(),farHorizonCache=new Map();
+  const surfaceVisualCache=new Map();
   const track=resource=>(resources.add(resource),resource);
   const listen=(target,event,fn,options)=>{target.addEventListener(event,fn,options);listeners.push(()=>target.removeEventListener(event,fn,options));};
   const report=(kind,message)=>{if(disposed||lost&&kind!=='error')return;onStatus({kind,message,mode,siteId:site.id});};
@@ -156,6 +162,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   };
   const note=document.createElement('span');note.className='mission-scene-note mission-scene-direction-note';
   caption.append(location,note);container.append(caption);
+  const surfaceSource=document.createElement('span');surfaceSource.className='mission-surface-source';surfaceSource.hidden=true;caption.append(surfaceSource);
   const bodyStatus=document.createElement('div');bodyStatus.className='mission-scene-body-status';
   bodyStatus.setAttribute('aria-live','polite');container.append(bodyStatus);
   const markerLabel=document.createElement('div');markerLabel.className='mission-scene-marker-label';container.append(markerLabel);
@@ -355,13 +362,13 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   // Lunar regolith scatters light back strongly and shows no limb darkening. A Lommel-Seeliger
   // term replaces the Lambert cosine; procedural grain is display texture, never relief data.
   let regolithShading='lambert';
-  function regolithMaterial() {
+  function regolithMaterial({fineTerrain=false}={}) {
     const material=new THREE.MeshStandardMaterial({color:0xa9a59d,roughness:1,metalness:0,side:THREE.FrontSide});
     const cosine='float dotNL = saturate( dot( geometryNormal, directLight.direction ) );';
     const chunk=THREE.ShaderChunk?.lights_physical_pars_fragment;
     if(!chunk?.includes(cosine))return material;
     regolithShading='lommel-seeliger';
-    const grain=mobileQuality?'0':'1';
+    const grain=mobileQuality||fineTerrain?'0':'1';
     material.onBeforeCompile=shader=>{
       shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 vRegolith;')
         .replace('#include <begin_vertex>','#include <begin_vertex>\nvRegolith=position;');
@@ -377,7 +384,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
         float dotNL = smoothstep( 0.0, 0.035, lsIn ) * min( 1.0, 2.0 * lsIn / ( lsIn + lsOut + 0.05 ) );`))
         .replace('#include <color_fragment>',`#include <color_fragment>
         float lnRange=length(vRegolith.xz);
-        diffuseColor.rgb*=0.93+0.04*lnNoise(vRegolith.xz*0.19)/(1.0+lnRange*0.02)+0.03*lnNoise(vRegolith.xz*0.0127);`)
+        ${fineTerrain?'':'diffuseColor.rgb*=0.93+0.04*lnNoise(vRegolith.xz*0.19)/(1.0+lnRange*0.02)+0.03*lnNoise(vRegolith.xz*0.0127);'}`)
         .replace('#include <normal_fragment_maps>',`#include <normal_fragment_maps>
         #if ${grain}
         { float e=0.12+lnRange*0.004;vec2 q=vRegolith.xz;
@@ -385,8 +392,131 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
           normal=normalize(normal+mat3(viewMatrix)*vec3(-slope.x,0.0,-slope.y)); }
         #endif`);
     };
-    material.customProgramCacheKey=()=>'lunaris-regolith-3-'+grain;
+    material.customProgramCacheKey=()=>'lunaris-regolith-3-'+grain+'-'+fineTerrain;
     return material;
+  }
+  function photographedMaterial(photo,mask,bounds) {
+    const uniforms={surfacePhoto:{value:photo},surfaceMask:{value:mask},surfacePhotoLevel:{value:0},surfacePhotoEnabled:{value:surfaceImageryEnabled?1:0},surfaceEdge:{value:new THREE.Vector2(40/(bounds[2]-bounds[0]),40/(bounds[3]-bounds[1]))}};
+    const material=new THREE.MeshStandardMaterial({color:0xa9a59d,roughness:1,metalness:0,side:THREE.FrontSide});
+    material.userData.surfaceUniforms=uniforms;
+    material.onBeforeCompile=shader=>{
+      Object.assign(shader.uniforms,uniforms);
+      shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nattribute vec2 surfaceUv;varying vec2 vSurfaceUv;')
+        .replace('#include <begin_vertex>','#include <begin_vertex>\nvSurfaceUv=surfaceUv;');
+      const chunk=THREE.ShaderChunk.lights_physical_pars_fragment,cosine='float dotNL = saturate( dot( geometryNormal, directLight.direction ) );';
+      shader.fragmentShader=shader.fragmentShader.replace('#include <common>',`#include <common>
+        varying vec2 vSurfaceUv;uniform sampler2D surfacePhoto;uniform sampler2D surfaceMask;
+        uniform float surfacePhotoLevel;uniform float surfacePhotoEnabled;uniform vec2 surfaceEdge;`)
+        .replace('#include <lights_physical_pars_fragment>',chunk.replace(cosine,`float lsIn=saturate(dot(geometryNormal,directLight.direction));
+          float lsOut=saturate(dot(geometryNormal,geometryViewDir));
+          float dotNL=smoothstep(0.0,0.035,lsIn)*min(1.0,2.0*lsIn/(lsIn+lsOut+0.05));`))
+        .replace('#include <opaque_fragment>',`vec2 edge=min(vSurfaceUv,vec2(1.0)-vSurfaceUv);
+          float sourceWeight=smoothstep(0.0,surfaceEdge.x,edge.x)*smoothstep(0.0,surfaceEdge.y,edge.y);
+          sourceWeight*=smoothstep(0.5,0.99,texture2D(surfaceMask,vSurfaceUv).r)*surfacePhotoEnabled;
+          // The photo already contains historical illumination. Replace radiance;
+          // multiplying by current Sun shading here would double-light it.
+          outgoingLight=mix(outgoingLight,texture2D(surfacePhoto,vSurfaceUv).rgb*surfacePhotoLevel,sourceWeight);
+          #include <opaque_fragment>`);
+    };
+    material.customProgramCacheKey=()=>`lunaris-registered-surface-1`;
+    return material;
+  }
+  function updateSurfaceSource(){
+    const active=mode==='surface'&&surfaceVisualEntry?.entry.site.id===site.id;
+    surfaceSource.hidden=!active;
+    if(active)surfaceSource.textContent=surfaceImageryEnabled&&surfaceVisualEntry.photo?'LROC imagery · historical lighting':surfaceDetailMesh?'NASA SfS display terrain · modeled lighting':'NASA LOLA terrain · modeled lighting';
+    container.dataset.surfacePhoto=String(Boolean(active&&surfaceVisualEntry.photo&&surfaceImageryEnabled));
+    container.dataset.surfaceDetail=String(Boolean(active&&surfaceDetailMesh));
+    const signature=[site.id,mode,Boolean(active&&surfaceVisualEntry?.photo),surfaceImageryEnabled].join(':');
+    if(signature!==surfaceSourceSignature){surfaceSourceSignature=signature;container.dispatchEvent(new CustomEvent('surfacevisualchange',{detail:{siteId:site.id,available:Boolean(active&&surfaceVisualEntry?.photo),enabled:surfaceImageryEnabled}}));}
+  }
+  function updateSurfaceMaterial(){
+    const uniforms=surfaceVisualEntry?.material?.userData.surfaceUniforms;
+    if(uniforms){uniforms.surfacePhotoLevel.value=surfacePhotoLevel(states.sun,Boolean(sample&&Number.isFinite(sample[1])&&Number.isFinite(sample[2])),enhancedNight);uniforms.surfacePhotoEnabled.value=surfaceImageryEnabled?1:0;}
+    updateSurfaceSource();
+  }
+  function clearSurfaceAttachment(){
+    if(surfaceDetailMesh)surfaceScene.remove(surfaceDetailMesh);
+    surfaceDetailMesh=null;surfaceVisualEntry=null;surfaceVisualError=null;
+    if(terrainMesh){terrainMesh.geometry.setDrawRange(0,Infinity);terrainMesh.material=terrainMesh.userData.originalMaterial??terrainMesh.material;}
+    updateSurfaceSource();
+  }
+  async function verifiedSurfaceBytes(record,signal){
+    const url=new URL(record.url??record.positionFile,surfaceVisualsUrl);
+    if(url.origin!==surfaceVisualsUrl.origin||!url.pathname.startsWith(new URL('./',surfaceVisualsUrl).pathname))throw Error('Surface asset must remain in its offline directory.');
+    const response=await fetch(url,{signal});if(!response.ok)throw Error(`Surface asset: HTTP ${response.status}`);
+    const bytes=await response.arrayBuffer();
+    if(bytes.byteLength!==record.byteLength)throw Error('Surface asset byte count differs.');
+    const digest=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),n=>n.toString(16).padStart(2,'0')).join('');
+    if(digest!==record.sha256)throw Error('Surface asset checksum differs.');
+    return {bytes,url};
+  }
+  async function verifiedSurfaceTexture(record,signal,mask=false){
+    const {bytes,url}=await verifiedSurfaceBytes(record,signal);
+    const blobUrl=URL.createObjectURL(new Blob([bytes],{type:url.pathname.endsWith('.webp')?'image/webp':'image/png'}));
+    try{
+      const texture=await new THREE.TextureLoader().loadAsync(blobUrl);
+      if(texture.image.width!==record.width||texture.image.height!==record.height){texture.dispose();throw Error('Surface image dimensions differ.');}
+      texture.colorSpace=mask?THREE.NoColorSpace:THREE.SRGBColorSpace;
+      texture.wrapS=texture.wrapT=THREE.ClampToEdgeWrapping;
+      texture.anisotropy=Math.min(mobileQuality?2:8,renderer.capabilities.getMaxAnisotropy());
+      return texture;
+    }finally{URL.revokeObjectURL(blobUrl);}
+  }
+  function evictSurfaceAssets(){
+    const limit=mobileQuality?1:2;
+    while(surfaceVisualCache.size>limit){
+      const [id,cached]=surfaceVisualCache.entries().next().value;
+      if(id===site.id){surfaceVisualCache.delete(id);surfaceVisualCache.set(id,cached);continue;}
+      surfaceVisualCache.delete(id);
+      for(const resource of cached.resources){resource.dispose();resources.delete(resource);}
+    }
+  }
+  async function loadSurfaceVisuals(requestedSite,metadata,request){
+    surfaceVisualAbort?.abort();const controller=new AbortController();surfaceVisualAbort=controller;
+    const ownResources=[];
+    try{
+      surfaceVisualsPromise??=fetch(surfaceVisualsUrl).then(response=>{if(!response.ok)throw Error(`Surface manifest: HTTP ${response.status}`);return response.json();});
+      const manifest=await surfaceVisualsPromise;
+      const entry=surfaceVisualRecord(manifest,requestedSite,{bundleFileSha256:metadata.bundleSha256,frame:bundle.manifest?.frame?.working});
+      if(!entry||request!==terrainRequest||requestedSite.id!==site.id||disposed||lost)return;
+      let cached=surfaceVisualCache.get(requestedSite.id);
+      if(!cached){
+        const tier=mobileQuality?'mobile':'desktop',record=entry.terrain?.[tier],imagery=entry.imagery;
+        let detailMesh=null,photo=null,mask=null;
+        if(imagery){
+          photo=await verifiedSurfaceTexture(imagery.textures[tier],controller.signal);ownResources.push(photo);
+          mask=await verifiedSurfaceTexture(imagery.masks[tier],controller.signal,true);ownResources.push(mask);
+        }
+        const material=photo?photographedMaterial(photo,mask,imagery.bounds):regolithMaterial({fineTerrain:true});ownResources.push(material);
+        if(record){
+          const {bytes}=await verifiedSurfaceBytes(record,controller.signal),view=terrainBufferViews(bytes,record);
+          const geometry=new THREE.BufferGeometry();ownResources.push(geometry);
+          geometry.setAttribute('position',new THREE.BufferAttribute(view.positions,3));geometry.setIndex(new THREE.BufferAttribute(view.indices,1));
+          if(photo)geometry.setAttribute('surfaceUv',new THREE.BufferAttribute(surfaceUVs(requestedSite,view.positions,imagery.bounds),2));
+          geometry.computeVertexNormals();geometry.computeBoundingSphere();detailMesh=new THREE.Mesh(geometry,material);
+          detailMesh.name='NASA shape-from-shading display patch';
+        }
+        cached={entry,record,detailMesh,material,photo,mask,tier,resources:ownResources};
+        ownResources.forEach(track);surfaceVisualCache.set(requestedSite.id,cached);
+      }else{surfaceVisualCache.delete(requestedSite.id);surfaceVisualCache.set(requestedSite.id,cached);}
+      if(controller.signal.aborted||request!==terrainRequest||requestedSite.id!==site.id||disposed||lost){evictSurfaceAssets();return;}
+      clearSurfaceAttachment();surfaceVisualEntry=cached;surfaceDetailMesh=cached.detailMesh;
+      if(surfaceDetailMesh){
+        const outer=terrainRecord.chunks.find(chunk=>chunk.innerHalfExtentM===cached.record.outerHalfExtentM);
+        if(!outer)throw Error('Surface detail has no matching original outer seam.');
+        terrainMesh.geometry.setDrawRange(outer.indexOffset,outer.indexCount);surfaceScene.add(surfaceDetailMesh);
+      }else if(cached.photo){
+        const positions=terrainMesh.geometry.attributes.position.array;
+        terrainMesh.geometry.setAttribute('surfaceUv',new THREE.BufferAttribute(surfaceUVs(requestedSite,positions,cached.entry.imagery.bounds),2));
+        terrainMesh.material=cached.material;
+      }
+      updateSurfaceMaterial();evictSurfaceAssets();invalidate();
+    }catch(error){
+      for(const resource of ownResources)if(!resources.has(resource))resource.dispose();
+      if(error.name==='AbortError'||request!==terrainRequest||requestedSite.id!==site.id||disposed)return;
+      clearSurfaceAttachment();surfaceVisualError=error.message;container.dataset.surfaceDetail='false';container.dataset.surfacePhoto='false';invalidate();
+    }
   }
   const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2(),projected=new THREE.Vector3();
   function invalidate(){needsRender=true;schedule();}
@@ -510,6 +640,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     displayFill.position.fromArray(bodyDirection(terrainBearingDeg-55,35)).multiplyScalar(700);
     displayFill.target.position.set(0,0,0);
     captionUpdate();updateObstruction();invalidate();
+    updateSurfaceMaterial();
   }
   function updateMarkers() {
     for(const marker of markers) {
@@ -645,7 +776,12 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
 
   async function loadTerrain() {
     const request=++terrainRequest,requestedSite=site;
-    if(terrainSiteId===site.id&&terrainMesh){container.dataset.terrainStatus='ready';return;}
+    if(terrainSiteId===site.id&&terrainMesh){
+      container.dataset.terrainStatus='ready';
+      if(!surfaceVisualEntry){const metadata=await terrainMetadataPromise;if(request===terrainRequest)void loadSurfaceVisuals(requestedSite,metadata,request);}
+      return;
+    }
+    surfaceVisualAbort?.abort();clearSurfaceAttachment();
     if(terrainMesh)surfaceScene.remove(terrainMesh);
     terrainMesh=null;terrainSiteId=null;terrainRecord=null;terrainError=null;
     container.dataset.terrainStatus='loading';report('loading','Loading the NASA LOLA surface mesh.');
@@ -668,12 +804,14 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
         geometry.setIndex(new THREE.BufferAttribute(indices,1));geometry.computeVertexNormals();geometry.computeBoundingSphere();
         const material=track(regolithMaterial());
         cached={mesh:new THREE.Mesh(geometry,material),record};
+        cached.mesh.userData.originalMaterial=material;
         terrainCache.set(requestedSite.id,cached);
       }
       if(disposed||request!==terrainRequest)return;
       terrainMesh=cached.mesh;terrainRecord=record;terrainSiteId=requestedSite.id;surfaceScene.add(terrainMesh);
       container.dataset.terrainStatus='ready';container.dataset.terrainVertices=String(record.vertexCount);container.dataset.terrainIndices=String(record.indexCount);
       report('ready','');
+      void loadSurfaceVisuals(requestedSite,metadata,request);
       invalidate();
     } catch(error) {
       if(disposed||request!==terrainRequest)return;
@@ -694,7 +832,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
     const next=bundle.sites.find(point=>point.id===siteId);if(!next)return false;
     contextSite=null;
     const changed=site.id!==next.id;site=next;terrainBearingDeg=terrainFocusBearing(site);container.dataset.site=site.id;
-    if(changed){sample=null;states={};container.dataset.frame='';}
+    if(changed){surfaceVisualAbort?.abort();clearSurfaceAttachment();sample=null;states={};container.dataset.frame='';}
     if(changed&&mode==='surface'){yaw=terrainBearingDeg*RAD;pitch=terrainPitch();surfaceFov=65;surfaceFocus='terrain';updateFarHorizon();}
     updateMarkers();setSurfaceLook();updateFrame();
     if(mode==='surface'&&changed)void loadTerrain();
@@ -851,6 +989,13 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
         disclosure:'Apparent observer-ray directions transformed from the selected site ENU frame. Bodies keep their apparent angular diameters from the Moon at schematic distances; no planetary ranges are cached. They are drawn whenever a cached direction exists; visibility from the study point is reported separately.'},
       moon:{textured:moonTextureLoaded,detail:moonDetail,bump:moonBumpLoaded,vertices:moon.geometry.attributes.position.count,projectedCenter:new THREE.Vector3().project(orbitalCamera).toArray()},
       terrain:{siteId:terrainSiteId,loaded:Boolean(terrainMesh),vertexCount:terrainMesh?.geometry.attributes.position.count??0,indexCount:terrainMesh?.geometry.index.count??0,sha256:terrainRecord?.sha256??null,error:terrainError},
+      surfaceVisuals:{siteId:surfaceVisualEntry?.entry.site.id??null,imagery:Boolean(surfaceVisualEntry?.photo),imageryEnabled:surfaceImageryEnabled,
+        historicalLighting:Boolean(surfaceVisualEntry?.photo&&surfaceImageryEnabled),photoLightLevel:surfaceVisualEntry?.material?.userData.surfaceUniforms?.surfacePhotoLevel.value??0,
+        detailLoaded:Boolean(surfaceDetailMesh),detailVertexCount:surfaceDetailMesh?.geometry.attributes.position.count??0,detailIndexCount:surfaceDetailMesh?.geometry.index.count??0,
+        detailSha256:surfaceVisualEntry?.record?.sha256??null,quality:surfaceVisualEntry?.tier??null,
+        photoSha256:surfaceVisualEntry?.entry.imagery?.textures?.[surfaceVisualEntry.tier]?.sha256??null,
+        photoBounds:surfaceVisualEntry?.entry.imagery?.bounds??null,observer:surfaceVisualEntry?.entry.observer??null,
+        sourceUrl:surfaceVisualEntry?.entry.imagery?.sourceUrl??null,cacheCount:surfaceVisualCache.size,error:surfaceVisualError},
       farHorizonSectors:farHorizonRecord?.sectorCount??0,
       farHorizon:{siteId:farHorizonSiteId,rendered:mode==='surface'&&!lost&&!disposed&&Boolean(farHorizonMesh),
         vertexCount:farHorizonMesh?.geometry.attributes.position.count??0,indexCount:farHorizonMesh?.geometry.index.count??0,
@@ -868,7 +1013,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
         disclosure:'Historical cloud-free Blue Marble composite. The phase follows the cached Sun direction; the geographic face and weather are not registered to the selected UTC.'},
       displayLighting:{ambientIntensity:floorLight.intensity,enhancedNight,shadowsLocalHalfExtentM:0,castShadowsRendered:false,proceduralMaterialGrain:regolithShading==='lommel-seeliger',proceduralNormalGrain:regolithShading==='lommel-seeliger'&&!mobileQuality,regolithShading,
         lightScope:'Direct display illumination follows confirmed Sun-center visibility. Dim ambient or enhanced fill is artificial; full-disc shadow, Earthshine and photometric brightness are not calculated.',
-        materialNote:'Lommel-Seeliger regolith reflectance with procedural display grain. Grain adds no relief; all slopes and ridges are LOLA data.',
+        materialNote:surfaceVisualEntry?(surfaceImageryEnabled&&surfaceVisualEntry.photo?'Registered LROC historical image brightness replaces directional shading inside its footprint; it is not calibrated albedo or current-epoch shadows.':surfaceDetailMesh?'NASA shape-from-shading display geometry, modeled reflectance; no procedural local relief.':'NASA LOLA geometry, modeled reflectance.'):'Lommel-Seeliger regolith reflectance with procedural display grain. Grain adds no relief; all slopes and ridges are LOLA data.',
         fill:{intensity:displayFill.intensity,direction:displayFill.position.clone().normalize().toArray(),castsShadows:displayFill.castShadow,basis:'Illustrative display fill; actual DEM normals, independent of Sun visibility.'}},
       renderedFrames:renderer.info.render.frame,triangles:renderer.info.render.triangles,
       gpuResources:{geometries:renderer.info.memory.geometries,textures:renderer.info.memory.textures}};
@@ -951,7 +1096,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   const resizeObserver=typeof ResizeObserver==='function'?new ResizeObserver(resize):null;resizeObserver?.observe(container);
   listen(window,'resize',resize);
   function dispose() {
-    if(disposed)return;disposed=true;++terrainRequest;++modeTransition;clearTimeout(transitionTimer);transitionTimer=0;cancelAnimationFrame(raf);raf=0;
+    if(disposed)return;disposed=true;surfaceVisualAbort?.abort();++terrainRequest;++modeTransition;clearTimeout(transitionTimer);transitionTimer=0;cancelAnimationFrame(raf);raf=0;
     observer?.disconnect();resizeObserver?.disconnect();listeners.forEach(remove=>remove());controls.dispose();
     resources.forEach(resource=>resource.dispose());renderer.dispose();
     canvas.remove();caption.remove();bodyStatus.remove();markerLabel.remove();markerLegend.remove();obstruction.remove();bodyLabels.earth.remove();bodyLabels.sun.remove();
@@ -972,5 +1117,6 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   earthTexturePromise??=texture('earth-color.jpg',earthMapTarget,'map','earth');
   if(!mobileQuality)requestAnimationFrame(()=>{if(!disposed&&!lost)void loadHighDetail();});
   return {selectSite,selectContextSite,setMode,setFrame,focus,resize,dispose,inspect,loadHighDetail,
+    setSurfaceImagery(enabled){if(lost||disposed)return false;surfaceImageryEnabled=Boolean(enabled);updateSurfaceMaterial();invalidate();return true;},
     setEnhancedNight(enabled){if(lost||disposed)return false;enhancedNight=Boolean(enabled);updateFrame();return true;}};
 }
