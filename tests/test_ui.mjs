@@ -124,6 +124,20 @@ try {
   await command('Page.setDownloadBehavior', { behavior: 'allow', downloadPath });
   await command('Page.navigate', { url });
   await until(() => browserEval(`Boolean(document.querySelector('#export:not([disabled])'))`));
+  // The first-load normal scene must show the illustrative PASS without entering the delay demo.
+  if (!fixture) {
+    const normal=await browserEval(`(() => {
+      const badge=document.querySelector('#story-status');
+      return {badge:badge.textContent,hidden:badge.hidden,
+        display:getComputedStyle(document.querySelector('.story-outcome')).display,
+        delay:document.body.dataset.delayStory,title:document.querySelector('#story-title').textContent};
+    })()`);
+    assert.equal(normal.badge,'PASS','Normal Mission should show its illustrative PASS');
+    assert.equal(normal.hidden,false,'Normal Mission PASS must not be hidden');
+    assert.notEqual(normal.display,'none','Normal Mission outcome must be visible');
+    assert.equal(normal.delay,'false','Normal Mission must stay separate from the delay demo');
+    assert.match(normal.title,/At least/,'Normal Mission keeps its environmental headline');
+  }
   await browserEval("document.querySelector('#start-delay-demo')?.click()");
   await browserEval("document.querySelector('#interval-details summary').click()");
   await until(() => browserEval("Boolean(document.querySelector('#interval-table tbody tr'))"));

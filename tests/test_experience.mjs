@@ -165,7 +165,7 @@ try{
   await evaluate("document.querySelector('#apply-requirements').checked=false;document.querySelector('#apply-requirements').dispatchEvent(new Event('change'));document.querySelector('#mode-orbital').click();document.querySelector('#reset-orbit').click();scrollTo(0,0)");
   assert(await evaluate("!!document.querySelector('#find-opportunities')"),'Mission needs a direct landing-opportunity action.');
   assert.equal(await evaluate("document.querySelector('#apply-requirements')?.checked"),false,'Cold start must explore the environment without arbitrary mission requirements.');
-  assert(await evaluate("document.querySelector('#story-status').hidden&&document.querySelector('#decision-evidence').hidden"));
+  assert(await evaluate("document.querySelector('#story-status').textContent==='PASS'&&!document.querySelector('#story-status').hidden&&document.querySelector('#decision-evidence').hidden"),'Normal Mission must show the illustrative PASS while detailed requirement evidence stays optional.');
   assert.match(await evaluate("document.querySelector('label[for=visual-site]').textContent"),/Landing site/);
   assert.match(await evaluate("document.querySelector('#story-title').textContent"),/At least 7 h 53 min/);
   assert(await evaluate("[...document.querySelectorAll('#environment-overview .environment-measurement')].every(n=>n.closest('details')&&!n.closest('details').open)"),'Secondary measurements must be expandable, not six equally emphasized opening cards.');
@@ -346,7 +346,7 @@ try{
   await until(async()=>JSON.stringify((await inspect()).camera.position)!==JSON.stringify(initialCamera));
   await evaluate("document.querySelector('#reset-orbit').click()");
   await until(async()=>{const camera=(await inspect()).camera;return camera.position.every((v,i)=>Math.abs(v-camera.overviewPosition[i])<1e-5);});
-  await evaluate("document.querySelector('#explore-site').click()");await sleep(30);
+  await evaluate("document.querySelector('#mode-surface').click()");await sleep(30);
   await evaluate("document.querySelector('#scene-mount canvas').focus()");
   await command('Input.dispatchKeyEvent',{type:'keyDown',key:'+',code:'Equal',windowsVirtualKeyCode:187});
   await command('Input.dispatchKeyEvent',{type:'keyUp',key:'+',code:'Equal',windowsVirtualKeyCode:187});
@@ -599,7 +599,7 @@ try{
   await evaluate("document.querySelector('#apply-requirements').checked=false;document.querySelector('#apply-requirements').dispatchEvent(new Event('change'));scrollTo(0,0)");
   await screenshot('environment-mission-mobile');
   assert(await evaluate("(()=>{const n=document.querySelector('.mission-qualification'),note=n.getBoundingClientRect();return note.width>=innerWidth*.8&&note.height>0&&parseFloat(getComputedStyle(n).fontSize)>=14&&!n.closest('details')})()"),'The mobile scientific qualification must remain readable, full-width and outside a collapsed disclosure.');
-  assert(await evaluate("document.querySelector('#find-opportunities').getBoundingClientRect().bottom<=innerHeight&&document.querySelector('#story-status').hidden"));
+  assert(await evaluate("document.querySelector('#find-opportunities').getBoundingClientRect().bottom<=innerHeight&&!document.querySelector('#story-status').hidden"),'Normal Mission keeps its main action and large verdict visible.');
   await evaluate("document.querySelector('#find-opportunities').click()");await until(()=>evaluate("document.querySelector('#landing-opportunities').dataset.kind==='VISIBILITY_FOUND'"));
   await evaluate("document.querySelector('#landing-opportunities').scrollIntoView({block:'start',behavior:'instant'})");await screenshot('environment-opportunities-mobile');
   assert(await evaluate("[...document.querySelectorAll('#opportunity-options article')].every(n=>n.getBoundingClientRect().right<=innerWidth)"));

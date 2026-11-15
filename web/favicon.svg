@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80">
+  <title>LUNARIS — Polar Vector</title>
+  <!-- Optical cutdown of Concept 03: stronger ring and vector, no subpixel reference lines or hub. -->
+  <rect width="80" height="80" rx="18" fill="#030609"/>
+  <circle cx="40" cy="40" r="31" fill="none" stroke="#f3f5f7" stroke-width="5"/>
+  <path d="M34 70.414A31 31 0 0 0 46 70.414" fill="none" stroke="#efbd70" stroke-width="5" stroke-linecap="round"/>
+  <path d="M40 22L51.5 42H28.5Z" fill="#f3f5f7"/>
+  <path d="M28.5 42H51.5L40 63.5Z" fill="#efbd70"/>
+</svg>

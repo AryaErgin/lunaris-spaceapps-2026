@@ -19,7 +19,7 @@ export const GUIDE_STEPS=Object.freeze([
   {id:'opportunities',title:'Find opportunities before launch',description:'This separate search checks the supported study points within a displayed search window. It keeps your duration and any enabled requirements. Next runs the real search.',workspace:'explore',selectors:['#find-opportunities']},
   {id:'locations',title:'Explore other lunar locations',description:'Cyan diamond markers and this catalog open Apollo, CLPS or international locations. These use a level horizon only: no terrain visibility or mission PASS is calculated.',workspace:'explore',selectors:['#any-site-select','#any-site-lat','#any-site-lon']},
   {id:'advanced',title:'Inspect the science',description:'Open these questions for methods and limits, or the tools for horizons, timelines, sources, sensitivity and decision records. Next opens the existing tools.',workspace:'analyst',selectors:['#analysis-tools']},
-  {id:'finish',title:'Ready to explore independently',description:'Choose a site and arrival, inspect the sky, compare or search. To repeat the delay story, choose Try a 72-hour landing delay. Your saved plan can be restored below.',workspace:'explore',selectors:['#delay-shortcut','#find-opportunities']}
+  {id:'finish',title:'Ready to explore independently',description:'Choose a site and arrival, inspect the sky, compare or search. To repeat the delay story, choose Try a 72-hour delay. Your saved plan can be restored below.',workspace:'explore',selectors:['#explore-site','#find-opportunities']}
 ]);
 
 export function initQuickTour(doc=document){
@@ -132,7 +132,7 @@ export function initQuickTour(doc=document){
         for(const key of ['visual-arrival','visual-duration'])if(!$(key).reportValidity())return;
         click('visual-date-go');if($('story-status')?.textContent==='STALE')return note('Choose an arrival and positive duration that can be evaluated.');
       }else if(id==='views'&&!graphicsUnavailable()){
-        click('explore-site');
+        click('mode-surface');
         if(!await until(()=>$('scene-mount')?.dataset.terrainStatus==='ready'||graphicsUnavailable()))note('Terrain could not load. The scientific chart remains available in Advanced.');
       }else if(id==='geometry'){click(graphicsUnavailable()?'view-earth':'focus-earth');}
       else if(id==='playback'){

@@ -6,13 +6,19 @@
     <meta name="theme-color" content="#030609">
     <meta name="description" content="Explore 426 days at ten NASA-sourced lunar south-pole study points. Compare terrain-aware Sun and Earth visibility and replan landing delays.">
     <title>LUNARIS · Lunar Landing Site Navigator</title>
+    <link rel="icon" href="./favicon.ico" type="image/x-icon" sizes="16x16 32x32">
+    <link rel="icon" href="./favicon-16.png" type="image/png" sizes="16x16">
+    <link rel="icon" href="./favicon-32.png" type="image/png" sizes="32x32">
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" sizes="any">
     <link rel="preload" href="./fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="./fonts/space-grotesk-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="stylesheet" href="./tokens.css">
-    <link rel="stylesheet" href="./styles.css">
+    <link rel="stylesheet" href="./tokens.css?v=header-gap-1">
+    <link rel="stylesheet" href="./styles.css?v=polar-footer-1">
     <link rel="stylesheet" href="./experience.css">
     <link rel="stylesheet" href="./scene3d.css">
     <link rel="stylesheet" href="./judge.css">
+    <!-- Temporarily hidden for NASA Space Apps presentation — restore afterward. -->
+    <style id="presentation-navigation">#product-analyst{display:none}</style>
     <script type="module" src="./app.mjs"></script>
     <script type="module" src="./guide.mjs"></script>
   </head>
@@ -21,11 +27,7 @@
     <header class="masthead">
       <div class="mast-inner">
         <a class="brand" href="#experience" aria-label="LUNARIS home">
-          <svg aria-hidden="true" viewBox="0 0 40 40" width="36" height="36" fill="none">
-            <circle cx="20" cy="20" r="14.75" stroke="currentColor" stroke-width="1.2"/>
-            <path d="M20 5.25c-5.5 3.2-8 8-8 14.75s2.5 11.55 8 14.75M5.5 20H34.5m-24-8h19m-19 16h19" stroke="currentColor" stroke-width=".75"/>
-            <path d="M19.5 25.5 24 14l.5 8.5 5 4.5z" style="fill:var(--color-sun);stroke:var(--color-bg)"/>
-          </svg>
+          <img class="brand-symbol" src="./assets/brand/lunaris-polar-mark.svg" width="32" height="32" alt="" aria-hidden="true">
           <span translate="no">LUNARIS</span>
         </a>
         <nav class="main-nav" aria-label="Main navigation">
@@ -33,7 +35,7 @@
           <button id="product-compare" class="nav-link" type="button" data-workspace="compare" aria-pressed="false">Compare</button>
           <button id="product-analyst" class="nav-link" type="button" data-workspace="analyst" aria-pressed="false">Advanced</button>
         </nav>
-        <div class="product-purpose"><button id="delay-shortcut" class="link-button" type="button">Try a landing delay</button><button id="tour-start" class="outline" type="button">Show me how</button></div>
+        <div class="product-purpose"><button id="tour-start" class="outline" type="button">Show me how</button></div>
         <button id="expert-toggle" class="outline expert-toggle" type="button" aria-expanded="false" aria-controls="top" hidden>Analyst mode</button>
       </div>
     </header>
@@ -67,7 +69,7 @@
         </div>
         <div class="story-evidence">
           <div><p class="eyebrow" id="story-date"></p><h2 id="story-title">Your planned landing</h2><p id="story-explanation"></p><p id="story-durations" class="story-durations" hidden></p><p id="story-witness"></p></div>
-          <div class="story-outcome"><span id="story-status" class="status"></span><button id="story-next" class="outline" type="button">Apply the landing delay →</button></div>
+          <div class="story-outcome"><span id="story-status" class="status" tabindex="-1" role="status" aria-label="Selected arrival result"></span><button id="story-next" class="outline" type="button">Apply the landing delay →</button></div>
         </div>
         <div id="mission-actions" class="mission-actions"></div>
         <div id="story-joint" class="story-joint" aria-label="Joint Sun and Earth visibility timeline"></div>
@@ -116,7 +118,12 @@
       </div>
       <div id="rescue-transition" class="rescue-transition" role="status" hidden></div>
       <figure id="earth-inset" class="earth-inset" hidden><img src="./assets/earth-inset.jpg" width="512" height="512" loading="lazy" alt="Historical NASA Blue Marble composite; geographic face is not registered to the simulated time."><figcaption>Historical Blue Marble. Face unregistered.</figcaption><button id="close-earth-inset" type="button" aria-label="Close Earth image inset">×</button></figure>
-      <div class="mission-hidden-controls" hidden><button id="explore-site" type="button" disabled>Explore surface</button><button id="find-opportunities" type="button" class="primary" disabled>Find landing opportunities</button><p id="opportunity-scope"></p>
+      <dialog id="delay-demo-confirm" class="delay-demo-confirm" aria-labelledby="delay-demo-title" aria-describedby="delay-demo-description">
+        <h2 id="delay-demo-title">Try the 72-hour delay example?</h2>
+        <p id="delay-demo-description">Load a 12-hour de Gerlache mission with illustrative requirements. This replaces your current plan. First see PASS, then apply the delay and find a confirmed recovery.</p>
+        <form method="dialog"><button id="delay-demo-cancel" class="outline" value="cancel" autofocus>Keep my plan</button><button id="delay-demo-load" class="primary" type="button">Load example</button></form>
+      </dialog>
+      <div class="mission-hidden-controls" hidden><button id="explore-site" type="button" disabled>Try a 72-hour delay</button><button id="find-opportunities" type="button" class="primary" disabled>Find landing opportunities</button><p id="opportunity-scope"></p>
       <label class="assessment-toggle"><input id="apply-requirements" type="checkbox"><span id="assessment-label">Evaluate illustrative mission requirements</span></label>
           <details id="mission-requirements-editor" class="mission-requirements-editor"><summary>Edit optional mission requirements</summary>
             <p>These are user-editable assumptions, not NASA specifications. All values are hours.</p>
@@ -486,7 +493,12 @@
     </main>
 
     <footer class="footer">
-      <div class="container footer-inner"><span translate="no">LUNARIS</span></div>
+      <div class="container footer-inner">
+        <div class="footer-brand">
+          <img class="footer-mark" src="./assets/brand/lunaris-polar-mark.svg" width="160" height="160" alt="" aria-hidden="true" loading="lazy" decoding="async">
+          <span class="footer-name" translate="no">LUNARIS</span>
+        </div>
+      </div>
     </footer>
   </body>
 </html>
