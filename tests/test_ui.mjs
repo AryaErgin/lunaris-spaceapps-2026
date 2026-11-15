@@ -60,7 +60,7 @@ const server = createServer(async (request, response) => {
 server.listen(0, '127.0.0.1');
 await once(server, 'listening');
 const url = `http://127.0.0.1:${server.address().port}/web/`;
-const work = resolve(workspace, 'progress', `ui-${Date.now()}`);
+const work = resolve(workspace, 'progress', `ui-${Date.now()}-${process.pid}`);
 const downloadPath = resolve(work, 'downloads');
 const profile = resolve(work, 'chrome-profile');
 await mkdir(downloadPath, { recursive: true });

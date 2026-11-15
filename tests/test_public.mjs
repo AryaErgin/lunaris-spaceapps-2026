@@ -3,18 +3,51 @@ import {spawn} from 'node:child_process';
 import {once} from 'node:events';
 import {mkdir,readFile,readdir,writeFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
+import {createHash} from 'node:crypto';
+import {evaluateStart} from '../web/engine.mjs';
+import {communicationDemo} from '../web/overview.mjs';
+import {bodyDirection,sceneFrame} from '../web/scene-model.mjs';
 
 const url=process.argv[2]??'https://aryaergin.github.io/lunaris-spaceapps-2026/';
 const expectedSha=process.argv[3];
 assert.match(expectedSha??'',/^[a-f0-9]{40}$/i,'Supply the exact expected public release SHA after the URL.');
 const skipMedia=process.argv.includes('--skip-media');
-const work=resolve('progress',`public-${Date.now()}`);await mkdir(work,{recursive:true});
+const requireExtendedSite=process.argv.includes('--require-extended-site');
+const work=resolve('.operator/release-integration-20261115',`public-${Date.now()}`);await mkdir(work,{recursive:true});
 const release=await fetch(new URL('release.json',url)).then(r=>{assert.equal(r.status,200);return r.json();});
 assert.equal(release.application_release_sha,expectedSha);
-const bundle=await fetch(new URL('data/bundle.json',url)).then(r=>{assert.equal(r.status,200);return r.json();});
+const bundleBytes=await fetch(new URL('data/bundle.json',url)).then(async r=>{assert.equal(r.status,200);return Buffer.from(await r.arrayBuffer());});
+const bundle=JSON.parse(bundleBytes.toString('utf8'));
 assert(bundle.sites.length>=3);assert.equal(new Set(bundle.sites.map(site=>site.id)).size,bundle.sites.length);
 for(const id of ['connecting-ridge','shackleton-rim','de-gerlache-rim'])assert(bundle.sites.some(site=>site.id===id),`Original verified study point ${id} must remain published.`);
 assert.equal((await fetch(new URL('data/terrain-atlas.png',url))).status,200);
+const sha256=bytes=>createHash('sha256').update(bytes).digest('hex');
+const extendedSiteId='peak-near-shackleton',extendedStart=Date.parse('2027-07-01T06:00:00Z')/1000;
+const inputUtc=seconds=>new Date(seconds*1000).toISOString().slice(0,19);
+let extendedEvidence=null,extendedSite=null,extendedTerrain=null;
+if(requireExtendedSite){
+  assert.equal(bundle.sites.length,4,'The extended public release must publish all four verified study points.');
+  assert.deepEqual(bundle.coverage,[Date.parse('2026-11-01T00:00:00Z')/1000,Date.parse('2028-01-01T00:00:00Z')/1000],
+    'The extended public release must contain the actual half-open 426-day cache.');
+  extendedSite=bundle.sites.find(site=>site.id===extendedSiteId);assert(extendedSite,'The extended release needs the actual NASA R07 study point.');
+  assert.equal(extendedSite.lat,-88.811);assert.equal(extendedSite.lon,123.6901);assert.equal(extendedSite.heightM,2);
+  assert(extendedSite.geometry.some(row=>row[0]===extendedStart),'R07 must have actual 2027 geometry samples.');
+  const metadataBytes=await fetch(new URL('data/terrain-scenes.json',url)).then(async r=>{assert.equal(r.status,200);return Buffer.from(await r.arrayBuffer());});
+  const metadata=JSON.parse(metadataBytes.toString('utf8'));
+  assert.equal(metadata.bundleSha256,sha256(bundleBytes),'Published terrain metadata must bind to the exact published bundle bytes.');
+  assert.equal(metadata.frame,bundle.manifest.frame.working);assert.equal(metadata.verticalExaggeration,1);assert.equal(metadata.metresPerUnit,1);
+  extendedTerrain=metadata.sites.find(row=>row.siteId===extendedSiteId);assert(extendedTerrain,'R07 must have its own published terrain metadata.');
+  for(const key of ['lat','lon','groundM','heightM'])assert.equal(extendedTerrain[key],extendedSite[key],`Published R07 terrain observer ${key}`);
+  const dataUrl=new URL('data/',url),meshUrl=new URL(extendedTerrain.positionFile,dataUrl);
+  assert(meshUrl.href.startsWith(dataUrl.href),'R07 terrain must be a bundled same-origin asset.');
+  const mesh=await fetch(meshUrl).then(async r=>{assert.equal(r.status,200);return Buffer.from(await r.arrayBuffer());});
+  assert.equal(mesh.length,extendedTerrain.byteLength);assert.equal(sha256(mesh),extendedTerrain.sha256,'Published R07 terrain bytes must match their recorded SHA-256.');
+  assert(metadata.sites.filter(row=>row.siteId!==extendedSiteId).every(row=>row.sha256!==extendedTerrain.sha256),'R07 must not reuse another study point terrain asset.');
+  extendedEvidence={siteId:extendedSiteId,coordinates:[extendedSite.lat,extendedSite.lon],heightM:extendedSite.heightM,
+    startUtc:new Date(extendedStart*1000).toISOString(),bundleFileSha256:sha256(bundleBytes),bundlePayloadSha256:bundle.manifest.bundleSha256,
+    terrainMetadataSha256:sha256(metadataBytes),terrainFile:extendedTerrain.positionFile,terrainSha256:sha256(mesh),terrainBytes:mesh.length,
+    desktop:false,mobile:false,noWebGL:false};
+}
 const profile=resolve(work,'anonymous-chrome');
 const browser=spawn(process.env.LUNARIS_CHROME??'C:/Program Files/Google/Chrome/Application/chrome.exe',[
   '--headless=new',`--user-data-dir=${profile}`,'--remote-debugging-port=0','--no-first-run','--disable-extensions',
@@ -27,11 +60,64 @@ try{
   const port=(await until(()=>readFile(resolve(profile,'DevToolsActivePort'),'utf8'))).split(/\r?\n/)[0];
   const targets=await fetch(`http://127.0.0.1:${port}/json/list`).then(r=>r.json());
   socket=new WebSocket(targets.find(t=>t.type==='page').webSocketDebuggerUrl);await once(socket,'open');
-  let id=0;const callbacks=new Map(),errors=[];
-  socket.addEventListener('message',({data})=>{const m=JSON.parse(data);if(m.method==='Runtime.exceptionThrown')errors.push(m.params.exceptionDetails.text);if(callbacks.has(m.id)){callbacks.get(m.id)(m);callbacks.delete(m.id);}});
+  let id=0;const callbacks=new Map(),errors=[],requests=[];
+  socket.addEventListener('message',({data})=>{const m=JSON.parse(data);if(m.method==='Network.requestWillBeSent')requests.push(m.params.request.url);if(m.method==='Runtime.exceptionThrown')errors.push(m.params.exceptionDetails.text);if(callbacks.has(m.id)){callbacks.get(m.id)(m);callbacks.delete(m.id);}});
   const command=(method,params={})=>new Promise((ok,no)=>{const key=++id;callbacks.set(key,m=>m.error?no(Error(JSON.stringify(m.error))):ok(m.result));socket.send(JSON.stringify({id:key,method,params}));});
   const evaluate=async(expression,userGesture=false)=>{const r=await command('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true,userGesture});if(r.exceptionDetails)throw Error(r.exceptionDetails.exception?.description??r.exceptionDetails.text);return r.result.value;};
   const screenshot=async name=>{const r=await command('Page.captureScreenshot',{format:'png'});await writeFile(resolve(work,name+'.png'),Buffer.from(r.data,'base64'));};
+  const inspect=()=>evaluate(`import(${JSON.stringify(new URL('app.mjs',url).href)}).then(m=>m.inspectExperience())`);
+  const extendedInputs=()=>({...communicationDemo(bundle),siteId:extendedSiteId,nominal:extendedStart,
+    earliest:bundle.coverage[0],latest:bundle.coverage[1]-12*3600});
+  const checkExtendedClock=async(time,{surface=false}={})=>{
+    const state=await evaluate(`(()=>{const q=id=>document.querySelector('#'+id);return {site:q('visual-site').value,analystSite:q('site').value,
+      arrival:q('visual-arrival').value,viewTime:Number(q('scene-mount').dataset.time),horizonTime:Number(q('local-sky').dataset.time),
+      telemetryTime:Number(q('live-telemetry').dataset.time),clock:q('scene-clock').textContent,probeClock:q('probe-slider').getAttribute('aria-valuetext'),
+      heroIndex:q('hero-time').value,probeIndex:q('probe-slider').value,status:q('story-status').textContent,requirements:q('apply-requirements').checked}})()`);
+    assert.equal(state.site,extendedSiteId);assert.equal(state.analystSite,extendedSiteId);assert.equal(Date.parse(state.arrival+'Z')/1000,extendedStart);
+    for(const key of ['viewTime','horizonTime','telemetryTime'])assert.equal(state[key],time,`R07 ${key} must follow the selected cached sample.`);
+    assert.equal(state.clock,state.probeClock);assert.match(state.clock,/2027/);assert.equal(state.heroIndex,state.probeIndex);assert.equal(state.requirements,true);
+    const plan=evaluateStart(bundle,extendedInputs(),extendedSiteId,extendedStart);assert.equal(state.status,plan.status);
+    if(surface){
+      const frame=await inspect(),sample=extendedSite.geometry.find(row=>row[0]===time),expected=sceneFrame(extendedSite,sample,bundle.coverage);
+      assert(sample);assert.equal(frame.webgl,'ready');assert.equal(frame.mode,'surface');assert.equal(frame.siteId,extendedSiteId);assert.equal(frame.time,time);
+      assert(frame.renderedFrames>0,'The public WebGL surface must actually render.');assert.equal(frame.earth.textured,true);
+      assert.equal(frame.terrain.siteId,extendedSiteId);assert.equal(frame.terrain.loaded,true);assert.equal(frame.terrain.sha256,extendedTerrain.sha256);
+      assert.equal(frame.terrain.vertexCount,extendedTerrain.vertexCount);assert.equal(frame.camera.position[1],extendedSite.heightM);
+      assert.equal(frame.farHorizon.siteId,extendedSiteId);assert.equal(frame.farHorizon.rendered,true);
+      for(const [key,az,el]of [['sun',1,2],['earth',4,5]]){
+        assert.equal(frame[key].azimuth,sample[az]);assert.equal(frame[key].elevation,sample[el]);
+        assert.deepEqual(frame[key].direction,bodyDirection(sample[az],sample[el]));
+        assert.equal(frame[key].state,expected.states[key]);assert.equal(frame[key].visible,expected.states[key]==='visible');
+      }
+    }
+    return plan;
+  };
+  const checkExtendedDownload=async(label,time)=>{
+    const folder=resolve(work,label);await mkdir(folder,{recursive:true});await command('Page.setDownloadBehavior',{behavior:'allow',downloadPath:folder});
+    await evaluate("document.querySelector('#export').click()");
+    const file=await until(async()=>(await readdir(folder)).find(name=>name.endsWith('.json'))),record=JSON.parse(await readFile(resolve(folder,file),'utf8'));
+    const inputs=extendedInputs(),plan=evaluateStart(bundle,inputs,extendedSiteId,extendedStart);
+    assert.equal(record.certificate_version,'2.0');assert.equal(record.application_release_sha,expectedSha);assert.equal(record.engine_commit,expectedSha);
+    assert.equal(record.data_bundle_hash,bundle.manifest.bundleSha256);assert.equal(record.data_bundle_version,bundle.version);
+    assert.deepEqual(record.inputs,inputs);assert.deepEqual(record.selected_plan,plan);assert.deepEqual(record.nominal_result,plan);
+    assert.equal(record.selected_role,'nominal');assert.equal(record.selected_alternative_index,null);assert.equal(record.site_id,extendedSiteId);
+    assert.equal(record.status,plan.status);assert.deepEqual(record.constraints,plan.constraints);
+    assert.deepEqual(record.witness_intervals,plan.constraints.map(c=>({constraint_id:c.id,interval:c.witness,segments:c.witnessSegments??null})));
+    assert.equal(Date.parse(record.mission_start_utc)/1000,plan.start);assert.equal(Date.parse(record.mission_end_utc)/1000,plan.end);
+    assert.deepEqual(record.point_coordinates,{latitude_deg:extendedSite.lat,longitude_east_deg:extendedSite.lon});
+    assert.deepEqual(record.coordinate_source,extendedSite.source);assert.deepEqual(record.frame,bundle.manifest.frame);
+    assert.deepEqual(record.instrument_heights_m,{solar:2,earth_center_los:2});
+    assert.deepEqual(record.inspected_mission,{role:'nominal',alternativeIndex:null,siteId:extendedSiteId,start:plan.start,end:plan.end,status:plan.status});
+    assert.deepEqual(record.scenario_ids,[]);assert.deepEqual(record.scenario_results,[]);
+    assert.equal(record.display_inspection.sample_utc,time);assert.deepEqual(record.display_inspection.sample,extendedSite.geometry.find(row=>row[0]===time));
+    return {status:plan.status,start:plan.start,end:plan.end,certificate:file,sampleUtc:time};
+  };
+  const selectExtendedMission=async()=>{
+    await evaluate(`document.querySelector('#verified-demo').click();document.querySelector('#visual-site').value=${JSON.stringify(extendedSiteId)};
+      document.querySelector('#visual-site').dispatchEvent(new Event('change'));document.querySelector('#visual-arrival').value=${JSON.stringify(inputUtc(extendedStart))};
+      document.querySelector('#visual-date-go').click();document.querySelector('#hero-scope-stay').click()`);
+    await until(()=>evaluate(`Number(document.querySelector('#local-sky').dataset.time)===${extendedStart}&&!document.querySelector('#export').disabled`));
+  };
   await command('Page.enable');await command('Runtime.enable');await command('Network.enable');
   await command('Emulation.setDeviceMetricsOverride',{width:1366,height:768,deviceScaleFactor:1,mobile:false});
   await command('Page.navigate',{url});await until(()=>evaluate("!!document.querySelector('#export:not([disabled])')"));
@@ -68,9 +154,34 @@ try{
   }
   assert.deepEqual(states,['PASS','FAIL','PASS']);
   if(guided){assert.equal(certificates[2].recommended_result.start,Date.parse('2026-11-17T03:00:00Z')/1000);}
+  if(requireExtendedSite){
+    assert.equal(certificates[1].delayed_result.start-certificates[0].nominal_result.start,72*3600,'The original real-data failure must retain the 72-hour delay.');
+    assert.equal(await evaluate("fetch('./release.json').then(r=>r.json()).then(r=>r.application_release_sha)"),expectedSha,'The anonymous browser must receive the expected public release identity.');
+    await selectExtendedMission();await evaluate("document.querySelector('#mode-surface').click()");
+    const rendering=await until(async()=>{
+      const frame=await inspect();
+      if(frame?.webgl==='ready'&&frame.mode==='surface'&&frame.siteId===extendedSiteId&&frame.time===extendedStart&&frame.terrain.loaded)return 'surface';
+      return await evaluate("document.querySelector('#scene-status').textContent.includes('3D graphics unavailable')&&document.querySelector('#experience').dataset.ready==='false'")?'fallback':null;
+    });
+    if(rendering==='fallback')assert(await evaluate("!document.querySelector('#top').hidden&&!document.querySelector('#export').disabled"),'Unavailable WebGL must leave the accessible planner functional.');
+    await checkExtendedClock(extendedStart,{surface:rendering==='surface'});
+    assert.match(await evaluate("document.querySelector('#visual-site-detail').textContent"),/88\.8110.*123\.6901.*2 m/);
+    if(rendering==='surface')assert(requests.some(request=>request===new URL(extendedTerrain.positionFile,new URL('data/',url)).href),'The public browser must request R07 terrain itself.');
+    extendedEvidence.desktop={rendering,...await checkExtendedDownload('r07-desktop',extendedStart)};
+    await screenshot('anonymous-r07-2027-desktop');
+    await evaluate("document.querySelector('#hero-time').value=1;document.querySelector('#hero-time').dispatchEvent(new Event('input'))");
+    await checkExtendedClock(extendedStart+1800,{surface:rendering==='surface'});
+    await checkExtendedDownload('r07-scrubbed',extendedStart+1800);
+    extendedEvidence.scrub={viewSampleUtc:extendedStart+1800,arrivalUnchanged:inputUtc(extendedStart)};
+  }
   await command('Emulation.setDeviceMetricsOverride',{width:390,height:840,deviceScaleFactor:1,mobile:false});
   await evaluate('scrollTo(0,0)');await screenshot('anonymous-mobile');
   assert(await evaluate('document.documentElement.scrollWidth<=innerWidth'));
+  if(requireExtendedSite){
+    await checkExtendedClock(extendedStart+1800,{surface:extendedEvidence.desktop.rendering==='surface'});
+    extendedEvidence.mobile={...await checkExtendedDownload('r07-mobile',extendedStart+1800),width:390,horizontalOverflow:false};
+    await screenshot('anonymous-r07-2027-mobile');
+  }
   await evaluate("document.querySelector('#product-analyst').click()");
   assert.equal(await evaluate("document.querySelectorAll('.science-guide>details').length"),5);
   await screenshot('anonymous-advanced-mobile');
@@ -79,6 +190,16 @@ try{
   await command('Page.navigate',{url});await until(()=>evaluate("!!document.querySelector('#export:not([disabled])')"));
   if(guided)await until(()=>evaluate("document.querySelector('#scene-status').textContent.includes('3D graphics unavailable')"));
   await screenshot('anonymous-no-webgl');assert.deepEqual(errors,[]);
+  if(requireExtendedSite){
+    await selectExtendedMission();await checkExtendedClock(extendedStart);
+    assert.equal(await evaluate("document.querySelector('#experience').dataset.ready"),'false');
+    assert.match(await evaluate("document.querySelector('#scene-status').textContent"),/3D graphics unavailable.*2D planner/);
+    assert(await evaluate("!document.querySelector('#top').hidden&&!document.querySelector('#export').disabled"));
+    assert.match(await evaluate("document.querySelector('#local-sky').textContent"),/Peak Near Shackleton/);
+    assert(await evaluate('document.documentElement.scrollWidth<=innerWidth'));
+    extendedEvidence.noWebGL={...await checkExtendedDownload('r07-no-webgl',extendedStart),accessiblePlanner:true};
+    await screenshot('anonymous-r07-2027-no-webgl');assert.deepEqual(errors,[]);
+  }
   let video=null;
   if(!skipMedia){
   await command('Page.navigate',{url:new URL('demo.html',url).href});
@@ -93,6 +214,7 @@ try{
   await screenshot('anonymous-demo-mobile');assert.deepEqual(errors,[]);
   }
   const version=await command('Browser.getVersion');
-  await writeFile(resolve(work,'verification.json'),JSON.stringify({url,release,states,anonymous:true,demo:video,mediaNotExercised:skipMedia,viewports:[[1366,768],[390,840]],browser:version,physicalSecondDevice:false},null,2));
+  if(requireExtendedSite)assert(extendedEvidence.desktop&&extendedEvidence.mobile&&extendedEvidence.noWebGL,'All required extended-site public checks must execute.');
+  await writeFile(resolve(work,'verification.json'),JSON.stringify({url,release,states,anonymous:true,requireExtendedSite,extendedSite:extendedEvidence,demo:video,mediaNotExercised:skipMedia,viewports:[[1366,768],[390,840]],browser:version,physicalSecondDevice:false},null,2));
   console.log(`Public anonymous deployment verified: ${url} SHA ${release.application_release_sha}; JSON/PNG, refresh, PASS/FAIL/PASS, downloaded certificates, mobile emulation and JavaScript-without-WebGL passed. Evidence: ${work}`);
 }finally{socket?.close();browser.kill();}

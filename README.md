@@ -1,10 +1,10 @@
 # LUNARIS
 
-**Experimental branch — not deployed.** `experiment/extended-lunar-coverage` adds calculated coverage from **1 November 2026 through 31 December 2027**. The public application and `main` remain the original November release, protected by `lunaris-stable-20261114` (`0d36904`). Run this branch locally to inspect the expansion.
+Calculated terrain-aware coverage spans **426 days, from 1 November 2026 through 31 December 2027**, at four NASA-sourced study points. The original November release remains preserved at `lunaris-stable-20261114` (`0d36904`); its 12-hour landing-delay example remains unchanged.
 
 Explore sunlight and Earth visibility at four NASA-sourced lunar south-pole study points. Compare arrivals, inspect bounded operating windows and find evaluated opportunities. Optional mission requirements and a landing-delay example explain what a changed schedule can cost.
 
-[Open the stable public application](https://aryaergin.github.io/lunaris-spaceapps-2026/) · [Existing stable demonstration](https://aryaergin.github.io/lunaris-spaceapps-2026/demo.html).
+[Open LUNARIS](https://aryaergin.github.io/lunaris-spaceapps-2026/) · [Watch the recorded demonstration](https://aryaergin.github.io/lunaris-spaceapps-2026/demo.html).
 
 ## Try it locally
 
