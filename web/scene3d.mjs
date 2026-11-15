@@ -6,8 +6,10 @@ import {surfaceUVs,surfacePhotoLevel,surfaceVisualRecord,regolithUVs,regolithLig
 const RAD=Math.PI/180;
 const asset=name=>new URL(`./assets/${name}`,import.meta.url).href;
 const terrainUrl=new URL('./data/terrain-scenes.json',import.meta.url);
-const surfaceVisualsUrl=new URL('./assets/surface/manifest.json',import.meta.url);
-const regolithMaterialUrl=new URL('./assets/surface/material/manifest.json',import.meta.url);
+// Keep the reviewed surface assets together even in previously opened clients.
+const SURFACE_REVISION='surface-95068b4';
+const surfaceVisualsUrl=new URL(`./assets/surface/manifest.json?v=${SURFACE_REVISION}`,import.meta.url);
+const regolithMaterialUrl=new URL(`./assets/surface/material/manifest.json?v=${SURFACE_REVISION}`,import.meta.url);
 const clamp=(value,lo,hi)=>Math.max(lo,Math.min(hi,value));
 
 export const moonFixedPosition=moonPoint;
@@ -503,6 +505,7 @@ export async function createMissionScene({container,bundle,onSiteSelect=()=>{},o
   async function verifiedSurfaceBytes(record,signal,baseUrl=surfaceVisualsUrl){
     const url=new URL(record.url??record.positionFile,baseUrl);
     if(url.origin!==baseUrl.origin||!url.pathname.startsWith(new URL('./',baseUrl).pathname))throw Error('Surface asset must remain in its offline directory.');
+    url.searchParams.set('v',SURFACE_REVISION);
     const response=await fetch(url,{signal});if(!response.ok)throw Error(`Surface asset: HTTP ${response.status}`);
     const bytes=await response.arrayBuffer();
     if(bytes.byteLength!==record.byteLength)throw Error('Surface asset byte count differs.');

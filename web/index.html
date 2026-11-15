@@ -19,7 +19,10 @@
     <link rel="stylesheet" href="./judge.css">
     <!-- Temporarily hidden for NASA Space Apps presentation — restore afterward. -->
     <style id="presentation-navigation">#product-analyst{display:none}</style>
-    <script type="module" src="./app.mjs"></script>
+    <script type="importmap">
+      {"imports":{"./app.mjs":"./app.mjs?v=surface-95068b4","./scene3d.mjs":"./scene3d.mjs?v=surface-95068b4","./surface-visuals.mjs":"./surface-visuals.mjs?v=surface-95068b4"}}
+    </script>
+    <script type="module" src="./app.mjs?v=surface-95068b4"></script>
     <script type="module" src="./guide.mjs"></script>
   </head>
   <body>
