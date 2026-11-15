@@ -9,6 +9,8 @@ import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import {resolve,sep,extname} from 'node:path';
 import {evaluateStart} from '../web/engine.mjs';
 import {communicationDemo} from '../web/overview.mjs';
+import {missionMetrics} from '../web/operations.mjs';
+import {firstScreenConclusion} from '../web/explanations.mjs';
 const root=process.cwd(),work=resolve(root,'.operator',`playback-verdict-${Date.now()}-${process.pid}`);
 await mkdir(work,{recursive:true});
 const bundle=JSON.parse(await readFile(resolve(root,'web/data/bundle.json'),'utf8'));
@@ -20,7 +22,7 @@ if(!process.env.LUNARIS_PUBLIC_URL){
 }
 const url=process.env.LUNARIS_PUBLIC_URL??`http://127.0.0.1:${server.address().port}/web/`,expectedSha=process.env.LUNARIS_EXPECTED_SHA??null;
 if(process.env.LUNARIS_PUBLIC_URL){assert.match(expectedSha??'',/^[a-f0-9]{40}$/);const release=await fetch(new URL('release.json',url)).then(r=>{assert.equal(r.status,200);return r.json();});assert.equal(release.application_release_sha,expectedSha);}
-const evidence={url,expectedSha,status:'RUNNING',viewports:[],limitations:['One desktop smoke only; no mobile, screenshot or broad regression sweep.','The main badge follows the view clock during Play; saved original mission inputs and decision identity must remain unchanged.']};
+const evidence={url,expectedSha,status:'RUNNING',viewports:[],limitations:['One desktop smoke only; no mobile, screenshot or broad regression sweep.','Normal exploration updates only its badge; the optional delay demo keeps its narrative and verdict during playback.']};
 const pause=ms=>new Promise(r=>setTimeout(r,ms));
 async function until(fn,label,timeout=45000){const start=Date.now();while(Date.now()-start<timeout){const v=await fn();if(v)return v;await pause(60);}throw Error('Timed out: '+label);}
 const utc=value=>Date.parse(value+'Z')/1000;
@@ -38,32 +40,44 @@ try{
   const evaluate=async expression=>{const r=await command('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true,userGesture:true});if(r.exceptionDetails)throw Error(r.exceptionDetails.exception?.description??r.exceptionDetails.text);return r.result.value;};
   const saved=()=>evaluate(`import(${JSON.stringify(new URL('app.mjs',url).href)}).then(m=>m.captureOnboardingPlan())`);
   const click=async selector=>{await evaluate(`document.querySelector(${JSON.stringify(selector)}).scrollIntoView({block:'center',behavior:'instant'})`);const point=await evaluate(`(()=>{const n=document.querySelector(${JSON.stringify(selector)}),r=n.getBoundingClientRect();return{x:r.x+r.width/2,y:r.y+r.height/2,hit:!n.disabled&&r.width>0&&n.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2))}})()`);assert(point.hit,selector+' must be reachable');await command('Input.dispatchMouseEvent',{type:'mousePressed',x:point.x,y:point.y,button:'left',clickCount:1});await command('Input.dispatchMouseEvent',{type:'mouseReleased',x:point.x,y:point.y,button:'left',clickCount:1});};
-  const shown=()=>evaluate("(()=>{const n=document.querySelector('#mission-story');return{status:document.querySelector('#story-status').textContent.trim(),title:document.querySelector('#story-title').textContent.trim(),data:{...n.dataset},clock:Number(document.querySelector('#scene-mount').dataset.time)}})()");
+  const shown=()=>evaluate("(()=>{const n=document.querySelector('#mission-story'),badge=document.querySelector('#story-status');return{status:badge.textContent.trim(),hidden:badge.hidden,title:document.querySelector('#story-title').textContent.trim(),explanation:document.querySelector('#story-explanation').textContent,data:{...n.dataset},clock:Number(document.querySelector('#scene-mount').dataset.time)}})()");
   await command('Runtime.enable');await command('Page.enable');await command('Emulation.setDeviceMetricsOverride',{...viewport,deviceScaleFactor:1,mobile:false});await command('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]});await command('Page.bringToFront');await command('Page.navigate',{url});
   await until(()=>evaluate("!!document.querySelector('#export:not([disabled])')"),'actual data ready');await until(()=>evaluate("!!document.querySelector('#quick-tour')"),'first visit offer');await evaluate("document.querySelector('.quick-tour-close').click()");
-  assert.equal(await evaluate("!!document.querySelector('#hero-landing-verdict')"),false,'There must be no duplicate live verdict panel.');
-  await click('#explore-site');await click('#delay-demo-load');
-  const sequence=[];
+  assert.equal(await evaluate("!!document.querySelector('#hero-landing-verdict')"),false,'There must be no duplicate verdict panel.');
+
+  // 1. Normal exploration keeps its environmental heading/reason. Only the
+  // existing large badge follows the clock under the stated example limits.
+  const normalPlan=await saved(),normalInputs=fieldsToInputs(normalPlan),normalSite=bundle.sites.find(site=>site.id===normalInputs.siteId),normalBefore=await shown();
+  assert(normalPlan.requirementsEnabled);assert.equal(normalPlan.delayStoryEnabled,false);
+  const nominalDecision=evaluateStart(bundle,normalInputs),conclusion=firstScreenConclusion(missionMetrics(nominalDecision,normalSite),normalInputs.durationHours*3600);
+  assert.equal(normalBefore.title,conclusion.headline);assert.equal(normalBefore.status,nominalDecision.status);
+  await evaluate("document.querySelector('#hero-scope-month').click();document.querySelector('#hero-speed').value='48';document.querySelector('#hero-speed').dispatchEvent(new Event('change'))");await click('#hero-play');
+  const normalFail=await until(async()=>{const state=await shown();if(state.clock===normalBefore.clock)return false;const expected=evaluateStart(bundle,normalInputs,normalInputs.siteId,state.clock);assert.equal(state.title,normalBefore.title);assert.equal(state.explanation,normalBefore.explanation);if(expected.status==='INDETERMINATE')assert(state.hidden||!state.status,'Unresolved normal clock results must not display an INDETERMINATE badge.');else{assert.equal(state.status,expected.status);assert.equal(state.hidden,false);}return expected.status==='FAIL'?state:false;},'normal Play changes only the large badge to an authoritative FAIL');
+  await click('#hero-pause');assert.deepEqual(await saved(),normalPlan);record.normalPlay=normalFail;
+  const uncertain=normalSite.geometry.find(row=>row[0]>=normalInputs.nominal&&row[0]<normalInputs.nominal+4*86400&&evaluateStart(bundle,normalInputs,normalInputs.siteId,row[0]).status==='INDETERMINATE');assert(uncertain,'The real nominal boundary must provide an unresolved clock sample.');
+  const uncertainIndex=normalSite.geometry.indexOf(uncertain);await evaluate(`document.querySelector('#hero-time').value=${uncertainIndex};document.querySelector('#hero-time').dispatchEvent(new Event('input'))`);const unresolved=await shown();assert(unresolved.hidden||!unresolved.status);assert.equal(unresolved.title,normalBefore.title);assert.equal(unresolved.explanation,normalBefore.explanation);assert.deepEqual(await saved(),normalPlan);
+
+  // 2. The optional demo uses its actual simulation/recovery action; the
+  // independent yellow opportunity search is not substituted for simulation.
+  await click('#explore-site');await click('#delay-demo-load');const sequence=[];
   for(const[role,status]of [['nominal','PASS'],['delayed','FAIL'],['recommended','PASS']]){
-    if(role==='nominal')assert.equal(await evaluate("document.querySelector('#story-next').textContent"),'Find landing opportunities');
-    if(role!=='nominal')await click(role==='delayed'?'#story-delayed':'#story-next');
-    await until(async()=>{const state=await shown();return state.status===status&&await evaluate("!document.querySelector('#story-next').disabled");},role+' main result');
-    const state=await shown();sequence.push({role,status:state.status,start:Number(state.data.start)});
+    if(role==='delayed')assert.match(await evaluate("document.querySelector('#story-next').textContent"),/simulate.*72/i);
+    if(role==='recommended')assert.match(await evaluate("document.querySelector('#story-next').textContent"),/find.*next|confirmed window/i);
+    if(role!=='nominal')await click('#story-next');
+    await until(async()=>{const state=await shown();return state.status===status&&await evaluate("!document.querySelector('#story-next').disabled");},role+' demo result');
+    const state=await shown();sequence.push({role,status:state.status,start:Number(state.data.start),title:state.title});
   }
   const demo=communicationDemo(bundle);assert.equal(sequence[0].start,demo.nominal);assert.equal(sequence[1].start-demo.nominal,72*3600);assert.equal(sequence[2].start,Date.parse('2026-11-17T03:00Z')/1000);record.sequence=sequence;
-  await click('#story-nominal');const original=await saved(),inputs=fieldsToInputs(original),originalDecision=evaluateStart(bundle,inputs);assert.equal(originalDecision.status,'PASS');
-  await evaluate("document.querySelector('#hero-scope-month').click();document.querySelector('#hero-speed').value='48';document.querySelector('#hero-speed').dispatchEvent(new Event('change'))");
-  await click('#hero-play');
-  const liveFail=await until(async()=>{
-    const state=await shown();if(state.data.presentation!=='hypothetical')return false;
-    const time=Number(state.data.displayStart),expected=evaluateStart(bundle,inputs,inputs.siteId,time);
-    assert.equal(state.status,expected.status,'The single large badge must match evaluateStart at the actual view clock.');assert.equal(state.data.displayStatus,expected.status);assert.equal(time,state.clock);assert.equal(state.title,'If landing now');
-    assert.equal(state.data.status,originalDecision.status,'The original stored decision must not be overwritten.');assert.equal(Number(state.data.start),originalDecision.start);
-    return state.status==='FAIL'?state:false;
-  },'actual Play changes the main original PASS to a hypothetical FAIL');
-  await click('#hero-pause');record.liveFail=liveFail;assert.deepEqual(await saved(),original,'Playback must not mutate original mission inputs or selected plan.');
-  await click('#story-next');await until(async()=>{const state=await shown();return state.status==='PASS'&&state.data.presentation==='selected';},'restore original PASS');assert.deepEqual(await saved(),original);assert.equal(await evaluate("!!document.querySelector('#hero-landing-verdict')"),false);
-  assert.deepEqual(record.exceptions,[]);record.status='PASS';console.log('Desktop shared main-status smoke PASS');socket.close();socket=null;browser.kill();browser=null;
+  assert.equal(await evaluate("document.querySelectorAll('#find-opportunities').length"),1,'Keep the independent opportunity-search control.');
+
+  // 3. Demo playback moves the environment without rewriting its selected
+  // narrative, decision badge, original inputs or selected certificate identity.
+  const demoPlan=await saved(),demoBefore=await shown();assert(demoPlan.delayStoryEnabled);
+  await evaluate("document.querySelector('#hero-scope-month').click();document.querySelector('#hero-speed').value='48';document.querySelector('#hero-speed').dispatchEvent(new Event('change'))");await click('#hero-play');
+  await until(async()=>{const state=await shown();return state.clock!==demoBefore.clock;},'demo clock actually advances');await click('#hero-pause');const demoAfter=await shown();
+  for(const key of ['title','explanation','status','hidden'])assert.equal(demoAfter[key],demoBefore[key],'Demo playback cannot change '+key);
+  assert.equal(demoAfter.data.start,demoBefore.data.start);assert.equal(demoAfter.data.status,demoBefore.data.status);assert.deepEqual(await saved(),demoPlan);record.demoPlayback={before:demoBefore,after:demoAfter};
+  assert.deepEqual(record.exceptions,[]);record.status='PASS';console.log('Desktop independent exploration/demo smoke PASS');socket.close();socket=null;browser.kill();browser=null;
  }
  evidence.status='PASS';
 }catch(error){evidence.status='FAIL';evidence.error=error.stack;throw error;}
