@@ -1,22 +1,27 @@
 {
   "title": "LUNARIS actual deployed-app demonstration",
-  "recorded_application_release_sha": "ae9b1afe89b2092fa26aeff1d2b8299294071bdc",
+  "recorded_application_release_sha": "7b4ab3f5fc61052fb3f12f55b28369369ac9333e",
   "recorded_url": "https://aryaergin.github.io/lunaris-spaceapps-2026/",
-  "recorded_utc_date": "2026-11-14",
-  "duration_seconds": 29,
-  "width": 1366,
-  "height": 900,
-  "frames": 870,
+  "recorded_utc_date": "2026-11-15",
+  "duration_seconds": 28.8,
+  "width": 1920,
+  "height": 1080,
+  "frames": 864,
   "fps": 30,
-  "bytes": 908874,
-  "sha256": "ec6341c7bd203b15de6b6ca1ad5c44902be5b130f4e09d695d3ca999b65b047b",
-  "scientific_bundle_file_sha256": "67f898ff38f66c0feb8bff7196aa78ed060dd609801dce0aca7a8927d2cc05c6",
-  "method": "Actual Chrome screen capture, preserving observed screen-state durations; idle frames held; caption band and encoding only. No generated imagery or voice.",
+  "bytes": 2107272,
+  "sha256": "7cf5f909e57750bd70c52822168f34a9747f034c0ed9114a72e5029beb007249",
+  "scientific_bundle_file_sha256": "c5b4c18fba7052cd628d6b5af26ec255f2df4597b489c38b994a76809d80c7aa",
+  "method": "Actual anonymous Chrome recording of the deployed application: real ten-site selection, planning controls, Sun/Earth views and original/delayed/recovered decisions. Editorial crops, cuts, short still-frame holds and readable captions; 30 fps H.264 encoding. No generated imagery, voice or invented application behavior.",
   "ai_assistance": "AI-assisted development and caption writing. Deterministic application decisions; no runtime AI.",
   "human_teammates": [
     "Arya Ergin",
     "Aras"
   ],
   "sources": "visual-sources.json and ../data/bundle.json manifest",
-  "limits": "Illustrative mission requirements. Center visibility is not power, RF link performance, landing safety or reachable trajectory; seven separate cases are not universal robustness."
+  "limits": "Illustrative mission requirements. Center visibility is not power, RF link performance, landing safety or reachable trajectory; seven separate cases are not universal robustness.",
+  "codec": "H.264 / AVC",
+  "pixel_format": "yuv420p",
+  "audio": "none",
+  "coverage": "10 terrain-aware study points; 426-day scientific bundle; nine additional geometry-only context locations.",
+  "encoding_tools": "FFmpeg 9.0.2 libx264; actual duration and stream dimensions verified using ffprobe."
 }

@@ -1,29 +1,35 @@
 WEBVTT
 
-00:00.000 --> 00:03.000
-LUNARIS: what if your lunar landing is late?
-Choose a surface mission. See what a delay changes.
+00:00.000 --> 00:03.600
+LUNARIS
+Find a lunar landing window.
 
-00:03.000 --> 00:10.000
-Original arrival: 1 Nov, 06:00 UTC. PASS.
-At least 7 h 53 min 52 s with Sun + Earth.
+00:03.600 --> 00:07.200
+10 south-pole study points.
+Choose site, arrival and duration.
 
-00:10.000 --> 00:13.500
-Apply a 72-hour delay. Watch the shared UTC clock.
-This is a time jump, not a spacecraft landing simulation.
+00:07.200 --> 00:10.800
+NASA terrain.
+Modeled Sun and Earth visibility.
 
-00:13.500 --> 00:17.000
-Delayed arrival: 4 Nov, 06:00 UTC. FAIL.
-No qualified sunlight for 12 hours. Limit: 7 hours. Five hours too long.
+00:10.800 --> 00:15.600
+Original arrival: PASS
+At least 7 h 53 min with Sun + Earth.
 
-00:17.000 --> 00:20.500
-Find the next confirmed window. Keep all four limits.
-Same study point, same 12-hour mission, hourly search grid.
+00:15.600 --> 00:17.000
+Simulate a 72-hour delay.
 
-00:20.500 --> 00:25.000
-17 Nov, 03:00 UTC. PASS. Twelve hours with Sun + Earth.
-Wait after delayed arrival: 12 days 21 hours. Reachability is not modeled.
+00:17.000 --> 00:21.000
+Delayed arrival: FAIL
+12 h Sun outage: 5 h over the limit.
 
-00:25.000 --> 00:29.000
-Seven separate tested cases pass. Combined uncertainties were not evaluated.
-NASA LOLA terrain, JPL ephemerides and Horizons checks: geometry, not power or radio.
+00:21.000 --> 00:22.200
+Find the next window.
+
+00:22.200 --> 00:26.400
+Recovered arrival: PASS
+17 Nov 03:00 UTC · Same limits · Wait: 12 d 21 h.
+
+00:26.400 --> 00:28.800
+LUNARIS
+Explain the change. Find the next window.
