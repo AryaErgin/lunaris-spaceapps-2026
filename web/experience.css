@@ -28,7 +28,8 @@
 .mission-actions{display:flex;align-items:center;gap:var(--space-3);margin-top:var(--space-4)}.find-opportunities{font-size:var(--text-md);font-weight:600;padding-inline:var(--space-5)}#explore-site{background:transparent;border:0;color:var(--color-text);padding-inline:var(--space-2);text-decoration:underline;text-underline-offset:5px}
 .decision-jump{display:inline-block;font-size:var(--text-sm);color:var(--color-text-secondary);margin-top:var(--space-3)}#configuration-summary{font-size:var(--text-sm);margin-top:var(--space-2);color:var(--color-pass)}
 .story-joint{margin-top:var(--space-3)}.joint-duration{font-size:var(--text-sm);color:var(--color-pass);margin:0 0 var(--space-2)}.story-joint-track{height:6px;position:relative;background:var(--color-track);border-radius:var(--radius-sm);overflow:hidden}
-body.environment-only .story-outcome{display:none}
+/* Keep the normal Mission verdict visible without revealing delay-demo controls. */
+body.environment-only .story-outcome{display:flex}
 .story-durations{display:flex;flex-wrap:wrap;gap:var(--space-3);margin:var(--space-3) 0 0;font-size:var(--text-sm)}.story-duration.sun{color:var(--color-sun)}.story-duration.earth{color:var(--color-earth)}
 body[data-delay-story="false"] .story-joint{display:none}body[data-delay-story="true"] .mission-actions{margin-top:var(--space-2)}
 body[data-delay-story="true"] #find-opportunities{background:transparent;border-color:transparent;color:var(--color-text-secondary);padding-left:0;text-decoration:underline;text-underline-offset:5px}
