@@ -105,7 +105,7 @@ try{
       await until(async()=>{const scene=await inspect();return scene.siteId===target.id&&scene.time===time&&scene.renderedFrames>previousFrame;},'2027 inputs and actual render');
       report.siteDateChangeObservedMs=await evaluate('performance.now()')-changeStarted;
       const surfaceStarted=await evaluate('performance.now()');
-      await evaluate("document.querySelector('#explore-site').click()");
+      await evaluate("document.querySelector('#mode-surface').click()");
       await until(async()=>{const scene=await inspect();return scene.mode==='surface'&&scene.terrain.loaded&&scene.terrain.siteId===target.id&&scene.earth.textured;},'actual lazy-loaded surface terrain');
       report.surfaceReadyObservedMs=await evaluate('performance.now()')-surfaceStarted;
       report.surface=await inspect();await evaluate("document.querySelector('#focus-terrain').click();scrollTo(0,0)");await screenshot('surface');

@@ -33,7 +33,7 @@
           <button id="product-compare" class="nav-link" type="button" data-workspace="compare" aria-pressed="false">Compare</button>
           <button id="product-analyst" class="nav-link" type="button" data-workspace="analyst" aria-pressed="false">Advanced</button>
         </nav>
-        <div class="product-purpose"><button id="delay-shortcut" class="link-button" type="button">Try a landing delay</button><button id="tour-start" class="outline" type="button">Show me how</button></div>
+        <div class="product-purpose"><button id="tour-start" class="outline" type="button">Show me how</button></div>
         <button id="expert-toggle" class="outline expert-toggle" type="button" aria-expanded="false" aria-controls="top" hidden>Analyst mode</button>
       </div>
     </header>
@@ -67,7 +67,7 @@
         </div>
         <div class="story-evidence">
           <div><p class="eyebrow" id="story-date"></p><h2 id="story-title">Your planned landing</h2><p id="story-explanation"></p><p id="story-durations" class="story-durations" hidden></p><p id="story-witness"></p></div>
-          <div class="story-outcome"><span id="story-status" class="status"></span><button id="story-next" class="outline" type="button">Apply the landing delay →</button></div>
+          <div class="story-outcome"><span id="story-status" class="status" tabindex="-1" role="status" aria-label="Selected arrival result"></span><button id="story-next" class="outline" type="button">Apply the landing delay →</button></div>
         </div>
         <div id="mission-actions" class="mission-actions"></div>
         <div id="story-joint" class="story-joint" aria-label="Joint Sun and Earth visibility timeline"></div>
@@ -83,6 +83,7 @@
         </div>
         <aside id="telemetry-rail" class="scene-conditions" aria-label="Sun and Earth at the view clock">
           <div id="hero-visibility" class="hero-visibility" aria-label="Sun and Earth at the time shown"></div>
+          <div id="hero-landing-verdict" class="hero-landing-verdict" role="status" aria-live="off" aria-label="Mission feasibility if landing at the current view-clock time"></div>
         </aside>
         <div id="surface-focus" class="surface-focus" role="group" aria-label="Camera direction" hidden>
           <button id="focus-earth" type="button">Look at Earth</button><button id="focus-sun" type="button">Look at Sun</button><button id="focus-terrain" type="button">Study sites</button>
@@ -116,7 +117,12 @@
       </div>
       <div id="rescue-transition" class="rescue-transition" role="status" hidden></div>
       <figure id="earth-inset" class="earth-inset" hidden><img src="./assets/earth-inset.jpg" width="512" height="512" loading="lazy" alt="Historical NASA Blue Marble composite; geographic face is not registered to the simulated time."><figcaption>Historical Blue Marble. Face unregistered.</figcaption><button id="close-earth-inset" type="button" aria-label="Close Earth image inset">×</button></figure>
-      <div class="mission-hidden-controls" hidden><button id="explore-site" type="button" disabled>Explore surface</button><button id="find-opportunities" type="button" class="primary" disabled>Find landing opportunities</button><p id="opportunity-scope"></p>
+      <dialog id="delay-demo-confirm" class="delay-demo-confirm" aria-labelledby="delay-demo-title" aria-describedby="delay-demo-description">
+        <h2 id="delay-demo-title">Try the 72-hour delay example?</h2>
+        <p id="delay-demo-description">Load a 12-hour de Gerlache mission with illustrative requirements. This replaces your current plan. First see PASS, then apply the delay and find a confirmed recovery.</p>
+        <form method="dialog"><button id="delay-demo-cancel" class="outline" value="cancel" autofocus>Keep my plan</button><button id="delay-demo-load" class="primary" type="button">Load example</button></form>
+      </dialog>
+      <div class="mission-hidden-controls" hidden><button id="explore-site" type="button" disabled>Try a 72-hour delay</button><button id="find-opportunities" type="button" class="primary" disabled>Find landing opportunities</button><p id="opportunity-scope"></p>
       <label class="assessment-toggle"><input id="apply-requirements" type="checkbox"><span id="assessment-label">Evaluate illustrative mission requirements</span></label>
           <details id="mission-requirements-editor" class="mission-requirements-editor"><summary>Edit optional mission requirements</summary>
             <p>These are user-editable assumptions, not NASA specifications. All values are hours.</p>

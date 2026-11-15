@@ -31,6 +31,10 @@ jobs:
         env:
           LUNARIS_CHROME: /usr/bin/google-chrome
         run: node tests/test_onboarding.mjs
+      - name: Original arrival and live playback verdicts
+        env:
+          LUNARIS_CHROME: /usr/bin/google-chrome
+        run: node tests/test_playback_verdict_browser.mjs
       - name: Preserve visual inspection screenshots
         if: always()
         uses: actions/upload-artifact@v4
