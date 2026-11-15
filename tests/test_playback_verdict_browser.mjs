@@ -45,6 +45,7 @@ try{
   await click('#explore-site');await click('#delay-demo-load');
   const sequence=[];
   for(const[role,status]of [['nominal','PASS'],['delayed','FAIL'],['recommended','PASS']]){
+    if(role==='nominal')assert.equal(await evaluate("document.querySelector('#story-next').textContent"),'Find landing opportunities');
     if(role!=='nominal')await click(role==='delayed'?'#story-delayed':'#story-next');
     await until(async()=>{const state=await shown();return state.status===status&&await evaluate("!document.querySelector('#story-next').disabled");},role+' main result');
     const state=await shown();sequence.push({role,status:state.status,start:Number(state.data.start)});
