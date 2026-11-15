@@ -200,6 +200,9 @@ function environmentalMeasurements(root,mission,{timelines=false}={}){
       for(const [a,b,state]of mission.timeline[key]){const bar=element('span',`timeline-piece timeline-${state}`);bar.style.left=`${100*(a-mission.start)/(mission.end-mission.start)}%`;bar.style.width=`${100*(b-a)/(mission.end-mission.start)}%`;bar.title=`${title} ${state}: ${formatTime(a)} to ${formatTime(b)}`;track.append(bar);}
       const head=element('span','timeline-playhead story-joint-playhead');head.dataset.start=mission.start;head.dataset.end=mission.end;track.append(head);line.append(track);lines.append(line);
     }root.append(lines);
+    const key=element('p','timeline-key');
+    for(const [style,label] of [['','in view'],['unresolved','unresolved'],['hidden','not in view']]){const item=element('span','');item.append(element('i',style),label);key.append(item);}
+    root.append(key);
   }
   if(timelines)details.append(element('p','environment-note','Timelines show retained interval labels; duration ranges also enclose both refinements.'));
   return measurements;
@@ -1858,6 +1861,19 @@ function updateExperienceFrame(site,sample,mission) {
   byId('hero-speed').value=byId('sky-speed').value;
   byId('hero-scope-stay').setAttribute('aria-pressed',String(!wholeMonth));byId('hero-scope-month').setAttribute('aria-pressed',String(wholeMonth));
   byId('hero-scope-note').hidden=!wholeMonth;
+  const lanes=byId('hero-lanes'),laneKey=`${mission.siteId}|${mission.start}|${mission.end}`;
+  lanes.hidden=wholeMonth||isEdited;
+  if(!lanes.hidden&&lanes.dataset.key!==laneKey){
+    lanes.dataset.key=laneKey;lanes.replaceChildren();
+    for(const [key,title] of [['sun','Sun'],['earth','Earth']]){
+      const lane=element('div','hero-lane'),track=element('div','hero-lane-track');lane.dataset.channel=key;
+      for(const [a,b,state] of mission.timeline[key]){
+        const piece=element('span',`timeline-piece timeline-${state}`);
+        piece.style.left=`${100*(a-mission.start)/(mission.end-mission.start)}%`;piece.style.width=`${100*(b-a)/(mission.end-mission.start)}%`;track.append(piece);
+      }
+      lane.append(element('span','hero-lane-label',title),track);lanes.append(lane);
+    }
+  }
   renderAnySite();
   byId('hero-play').disabled=isEdited||!chart||chart.samples.length<2;
   const visibility=byId('hero-visibility'),eventNotes={};visibility.replaceChildren();

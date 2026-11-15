@@ -490,10 +490,10 @@ details>summary{color:var(--color-text-secondary)}
 /* Status language: icon, word and colour together */
 .status{gap:.4em;padding:.25em .6em;border:1px solid currentColor;border-radius:var(--radius-sm);font:var(--weight-medium) var(--text-sm)/1.3 var(--font-mono);letter-spacing:.06em}
 .status::before{content:"";width:auto;height:auto;background:none;border-radius:0;font-weight:var(--weight-bold)}
-.status-pass::before{content:"\2713"}
-.status-fail::before{content:"\2715"}
-.status-indeterminate::before{content:"?"}
-.status-unavailable::before{content:"\2013"}
+.status.status-pass::before{content:"\2713"}
+.status.status-fail::before{content:"\2715"}
+.status.status-indeterminate::before{content:"?"}
+.status.status-unavailable::before{content:"\2013"}
 
 /* Mission-control sidebar */
 .scene-stage{background:linear-gradient(90deg,var(--color-surface) 0 var(--rail),var(--color-black) var(--rail))}
@@ -621,3 +621,51 @@ html{-webkit-tap-highlight-color:transparent}
 button,a,select,summary,input:not([type="range"]){touch-action:manipulation}
 h1,h2,h3{text-wrap:balance}
 @media(max-width:700px){.mission-actions .find-opportunities{bottom:max(12px,env(safe-area-inset-bottom))}}
+
+/* Timelines: one visual language. Solid colour is confirmed, hatching is unresolved,
+   the bare track is not in view. Amber is the Sun, cyan Earth, green both together. */
+.timeline-visible{background:var(--color-pass)}
+.timeline-blocked{background:var(--color-track)}
+.timeline-uncertain{background:repeating-linear-gradient(135deg,var(--color-indeterminate) 0 3px,color-mix(in srgb,var(--color-indeterminate) 28%,var(--color-track)) 3px 7px)}
+.timeline-unknown{background:repeating-linear-gradient(135deg,var(--color-border-strong) 0 2px,var(--color-track) 2px 7px)}
+[data-channel=sun] .timeline-visible{background:var(--color-sun)}
+[data-channel=earth] .timeline-visible{background:var(--color-earth)}
+.story-joint-track,.environment-line .story-joint-track,.evidence-timeline-track{height:10px;border-radius:var(--radius-pill);background:var(--color-track);overflow:hidden}
+.environment-line>span:first-child,.evidence-timeline-row>span:first-child{font:var(--weight-medium) var(--text-xs)/1.3 var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--color-text-secondary)}
+.timeline-key{display:flex;flex-wrap:wrap;gap:var(--space-1) var(--space-4);margin:var(--space-2) 0 0;font-size:var(--text-xs);line-height:1.5;color:var(--color-text-muted)}
+.timeline-key span{display:inline-flex;align-items:center;gap:var(--space-2)}
+.timeline-key i{display:inline-block;width:18px;height:8px;border-radius:var(--radius-pill);background:var(--color-pass)}
+.timeline-key i.unresolved{background:repeating-linear-gradient(135deg,var(--color-indeterminate) 0 3px,color-mix(in srgb,var(--color-indeterminate) 28%,var(--color-track)) 3px 7px)}
+.timeline-key i.hidden{background:var(--color-track)}
+
+/* Integrated timeline: Sun and Earth availability lanes aligned with the time slider. */
+.hero-lanes{display:grid;gap:3px;margin:2px 0 0;padding-inline:8px}
+.hero-lanes[hidden]{display:none}
+.hero-lane{display:grid;grid-template-columns:52px minmax(0,1fr);align-items:center;gap:var(--space-2);margin-left:-60px;padding-left:0}
+.hero-lane-label{font:var(--weight-medium) var(--text-xs)/1 var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--color-text-muted);text-align:right}
+.hero-lane-track{position:relative;height:7px;border-radius:var(--radius-pill);background:var(--color-track);overflow:hidden}
+.hero-lanes{padding-left:68px}
+.scene-transport input[type=range]{margin-left:60px;width:calc(100% - 60px)}
+
+/* Recovery cost reads as the price of the delay. */
+.story-joint .recovery-wait{display:inline-block;margin:0 0 var(--space-2);padding:var(--space-2) var(--space-3);border:1px solid var(--color-sun-border);border-left:3px solid var(--color-sun);border-radius:var(--radius-md);background:var(--color-sun-surface);font:var(--weight-semibold) var(--text-lg)/1.3 var(--font-display);color:var(--color-text)}
+
+/* Status badges never break mid-word; calendar cells keep letters only. */
+.status{white-space:nowrap}
+.requirement-head .status,.compact-requirements .requirement-head .status{max-width:none;white-space:nowrap;overflow-wrap:normal}
+.feasibility-cell::before{content:none}
+
+/* Month calendar: every day visible on desktop. */
+.feasibility-table{table-layout:fixed;min-width:0}
+.feasibility-table th{min-width:0;font:var(--weight-medium) var(--text-xs)/1.4 var(--font-mono);text-align:center;padding-inline:0}
+.feasibility-table th:first-child{width:150px;text-align:left;font-family:var(--font-body);font-size:var(--text-sm);color:var(--color-text)}
+.feasibility-table td{padding:2px}
+.feasibility-cell{min-width:0;min-height:34px;padding:0;font:var(--weight-medium) var(--text-xs)/1 var(--font-mono);border-radius:var(--radius-sm)}
+.feasibility-cell.status-pass{background:var(--color-pass-surface);border-color:var(--color-pass-border);color:var(--color-pass)}
+.feasibility-cell.status-fail{background:var(--color-fail-surface);border-color:var(--color-fail-border);color:var(--color-fail)}
+.feasibility-cell.status-indeterminate{background:var(--color-indeterminate-surface);border-color:var(--color-indeterminate-border);color:var(--color-indeterminate)}
+@media(max-width:1000px){.feasibility-table{min-width:980px}}
+@media(max-width:700px){
+ .scene-transport input[type=range]{margin-left:0;width:100%}
+ .hero-lanes{padding-left:8px}.hero-lane{margin-left:0;grid-template-columns:44px minmax(0,1fr)}
+}
