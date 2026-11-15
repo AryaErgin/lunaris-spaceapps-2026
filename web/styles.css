@@ -29,8 +29,6 @@ svg,img,canvas{max-width:100%}img{height:auto}
 .brand{display:inline-flex;align-items:center;gap:var(--space-3);justify-self:start;color:var(--color-text);font:var(--weight-semibold) var(--text-lg)/1 var(--font-display);letter-spacing:.16em;text-decoration:none}
 .brand svg{width:32px;height:32px;flex:none}
 .main-nav{display:flex;align-items:center;gap:var(--space-2)}
-/* Temporarily hidden for NASA Space Apps presentation — restore afterward. */
-#product-analyst{display:none}
 .nav-link{min-height:var(--control-height);border:0;background:transparent;border-radius:var(--radius-pill);padding-inline:var(--space-5);color:var(--color-text-secondary);font-size:var(--text-sm)}
 .nav-link[aria-pressed=true]{color:var(--color-text);background:var(--color-surface-elevated)}
 .product-purpose{display:flex;align-items:center;justify-content:flex-end;gap:var(--space-3);min-width:0;justify-self:end}
